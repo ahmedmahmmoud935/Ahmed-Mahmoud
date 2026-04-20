@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{--accent:#F97316;--accent2:#EA6C0A;--bg:#0A0A0A;--bg2:#111111;--bg3:#161616;--text:#FFFFFF;--sub:#999999;--border:#1e1e1e;}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;transition:background .4s,color .4s;}
+.lang-btn{position:fixed;bottom:24px;right:24px;z-index:990;background:var(--accent);color:#fff;border:none;width:46px;height:46px;border-radius:50%;font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.4);transition:transform .3s,background .3s;display:flex;align-items:center;justify-content:center;}
+.lang-btn:hover{transform:scale(1.1);background:var(--accent2);}
+nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:center;justify-content:space-between;padding:0 60px;height:70px;background:rgba(10,10,10,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:box-shadow .3s;}
+.nav-logo{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:700;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px;}
+.nav-logo i{color:var(--accent);}
+.nav-links{display:flex;gap:30px;list-style:none;}
+.nav-links a{color:var(--sub);text-decoration:none;font-size:14px;font-weight:600;font-family:'Montserrat',sans-serif;transition:color .3s;letter-spacing:.5px;}
+.nav-links a:hover{color:var(--text);}
+#hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:120px 60px 80px;position:relative;overflow:hidden;}
+#hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%,rgba(249,115,22,.07) 0%,transparent 60%);pointer-events:none;}
+.hero-name{font-family:'Montserrat',sans-serif;font-size:clamp(48px,7vw,88px);font-weight:900;line-height:1.05;margin-bottom:10px;letter-spacing:-2px;}
+.hero-name .first{color:var(--text);}.hero-name .last{color:var(--accent);}
+.hero-sub{font-family:'Montserrat',sans-serif;letter-spacing:6px;font-size:13px;color:var(--sub);text-transform:uppercase;margin-bottom:35px;}
+.hero-btns{display:flex;gap:15px;flex-wrap:wrap;}
+.btn-primary{background:var(--accent);color:#fff;padding:12px 30px;border-radius:6px;font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;text-decoration:none;transition:all .3s;border:2px solid var(--accent);}
+.btn-primary:hover{background:transparent;color:var(--accent);}
+.btn-outline{background:transparent;color:var(--text);padding:12px 30px;border-radius:6px;font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;text-decoration:none;border:2px solid var(--border);transition:all .3s;}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+.sw{padding:80px 60px;}.sw.alt{background:var(--bg2);}
+.sh{text-align:center;margin-bottom:55px;}
+.sh h2{font-family:'Montserrat',sans-serif;font-size:32px;font-weight:800;margin-bottom:10px;}
+.sh p{color:var(--sub);font-size:14px;}
+.sl{width:50px;height:3px;background:var(--accent);margin:14px auto 0;border-radius:2px;}
+.section-title{font-family:'Montserrat',sans-serif;font-size:32px;font-weight:800;margin-bottom:20px;}
+.about-grid{display:grid;grid-template-columns:320px 1fr;gap:70px;align-items:center;max-width:1100px;margin:0 auto;}
+.about-img-wrap{position:relative;}
+.about-img-wrap::after{content:'';position:absolute;bottom:-14px;right:-14px;width:55%;height:55%;border-radius:12px;border:2px solid var(--accent);z-index:-1;}
+#aboutPhoto{width:100%;aspect-ratio:1;border-radius:12px;object-fit:cover;filter:grayscale(100%);display:block;}
+.about-ph{width:100%;aspect-ratio:1;border-radius:12px;background:linear-gradient(135deg,#1a1a1a,#2a2a2a);display:flex;align-items:center;justify-content:center;font-size:80px;color:#333;}
+.about-text{color:#ccc;line-height:1.9;font-size:15px;margin-bottom:25px;}
+.tags-row{display:flex;flex-wrap:wrap;gap:10px;}
+.tag{background:#1a1a1a;border:1px solid #2a2a2a;color:var(--sub);padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;transition:all .3s;cursor:default;}
+.tag:hover{border-color:var(--accent);color:var(--accent);}
+.edu-list{display:flex;flex-direction:column;gap:14px;max-width:750px;margin:0 auto;}
+.edu-card{background:var(--bg3);border:1px solid #222;border-radius:12px;padding:24px 30px;display:flex;gap:18px;align-items:flex-start;transition:border-color .3s;}
+.edu-card:hover{border-color:var(--accent);}
+.edu-icon{color:var(--accent);font-size:22px;margin-top:2px;}
+.edu-degree{font-family:'Montserrat',sans-serif;font-weight:700;font-size:16px;margin-bottom:5px;}
+.edu-detail{color:var(--sub);font-size:14px;}
+.skills-grid{display:flex;flex-wrap:wrap;gap:12px;max-width:900px;margin:0 auto;justify-content:center;}
+.skill-chip{background:var(--bg3);border:1px solid #222;padding:11px 22px;border-radius:8px;font-size:14px;font-weight:600;color:#ccc;transition:all .3s;cursor:default;}
+.skill-chip:hover{border-color:var(--accent);color:var(--text);}
+.tools-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:18px;max-width:900px;margin:0 auto;}
+.tool-card{background:var(--bg3);border:1px solid #222;border-radius:12px;padding:28px 18px;text-align:center;transition:all .3s;cursor:default;}
+.tool-card:hover{border-color:var(--accent);transform:translateY(-4px);}
+.tool-icon{font-size:30px;color:var(--accent);margin-bottom:11px;}
+.tool-name{font-size:13px;font-weight:600;color:var(--sub);}
+.exp-list{max-width:800px;margin:0 auto;display:flex;flex-direction:column;gap:22px;}
+.exp-card{background:var(--bg3);border:1px solid #222;border-radius:12px;padding:26px 32px;border-right:3px solid var(--accent);transition:background .3s;}
+.exp-card:hover{background:#1a1a1a;}
+.exp-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:8px;}
+.exp-company{font-family:'Montserrat',sans-serif;font-weight:700;font-size:16px;}
+.exp-period{background:rgba(249,115,22,.12);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;}
+.exp-role{color:var(--sub);font-size:14px;}
+.filter-tabs{display:flex;gap:10px;justify-content:center;margin-bottom:35px;flex-wrap:wrap;}
+.filter-tab{background:transparent;border:1px solid #2a2a2a;color:var(--sub);padding:8px 22px;border-radius:25px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .3s;}
+.filter-tab:hover{border-color:var(--accent);color:var(--accent);}
+.filter-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:4px;max-width:1200px;margin:0 auto;align-items:start;}
+.project-card{position:relative;overflow:hidden;cursor:pointer;background:#111;}
+.project-card img,.project-card video{width:100%;height:100%;object-fit:cover;transition:transform .5s;display:block;}
+.project-card.type-image{aspect-ratio:1/1;}.project-card.type-video{aspect-ratio:9/16;}
+.proj-ph{width:100%;height:100%;background:linear-gradient(135deg,#1a1a1a,#2a2a2a);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#444;min-height:180px;}
+.project-overlay{position:absolute;inset:0;background:rgba(0,0,0,.72);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transition:opacity .3s;padding:15px;text-align:center;}
+.project-card:hover .project-overlay{opacity:1;}
+.project-card:hover img,.project-card:hover video{transform:scale(1.06);}
+.p-title{font-weight:700;font-size:14px;margin-bottom:5px;}.p-cat{color:var(--accent);font-size:12px;font-weight:600;}
+.video-badge{position:absolute;top:8px;right:8px;z-index:2;background:rgba(0,0,0,.7);color:#fff;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:11px;}
+.contact-sub{color:var(--sub);margin-bottom:48px;font-size:15px;text-align:center;}
+.contact-form{max-width:600px;margin:0 auto;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.form-group{display:flex;flex-direction:column;gap:8px;}.form-group.full{grid-column:1/-1;}
+.form-group input,.form-group textarea{background:#111;border:1px solid #2a2a2a;color:var(--text);padding:13px 16px;border-radius:8px;font-family:'Cairo',sans-serif;font-size:14px;outline:none;resize:none;transition:border-color .3s;}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--accent);}
+.form-group textarea{min-height:120px;}
+.btn-submit{background:var(--accent);color:#fff;border:none;padding:13px;border-radius:8px;font-family:'Cairo',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s;width:100%;margin-top:8px;}
+.btn-submit:hover{background:var(--accent2);transform:translateY(-2px);}
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:28px 60px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:18px;}
+.footer-logo{font-family:'Montserrat',sans-serif;font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px;}
+.footer-logo i{color:var(--accent);}
+.social-links{display:flex;gap:12px;}
+.social-links a{width:38px;height:38px;border-radius:50%;background:#1a1a1a;border:1px solid #2a2a2a;display:flex;align-items:center;justify-content:center;color:var(--sub);font-size:15px;text-decoration:none;transition:all .3s;}
+.social-links a:hover{background:var(--accent);border-color:var(--accent);color:#fff;}
+.footer-copy{color:#555;font-size:13px;}
+#project-page{display:none;padding-top:70px;min-height:100vh;}
+.pp-hero{width:100%;overflow:hidden;max-height:500px;}
+.pp-hero img{width:100%;height:500px;object-fit:cover;display:block;}
+.pp-hero-ph{width:100%;height:350px;background:linear-gradient(135deg,#111,#1e1e1e);display:flex;align-items:center;justify-content:center;font-size:80px;color:#2a2a2a;}
+.pp-body{padding:48px 60px;max-width:1200px;margin:0 auto;}
+.back-link{display:inline-flex;align-items:center;gap:8px;color:var(--sub);text-decoration:none;font-size:14px;margin-bottom:28px;transition:color .3s;}
+.back-link:hover{color:var(--accent);}
+.pp-cat{color:var(--accent);font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;}
+.pp-title{font-family:'Montserrat',sans-serif;font-size:36px;font-weight:800;margin-bottom:18px;}
+.pp-desc{color:#ccc;line-height:1.9;font-size:15px;max-width:700px;margin-bottom:48px;}
+.gallery-title{font-family:'Montserrat',sans-serif;font-size:18px;font-weight:700;margin-bottom:22px;}
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px;}
+.gallery-item{overflow:hidden;border-radius:4px;cursor:pointer;position:relative;}
+.gallery-item.gi-sq{aspect-ratio:1;}.gallery-item.gi-rv{aspect-ratio:9/16;}
+.gallery-item img,.gallery-item video{width:100%;height:100%;object-fit:cover;transition:transform .4s;display:block;}
+.gallery-item:hover img,.gallery-item:hover video{transform:scale(1.06);}
+.gi-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.3);}
+.lightbox{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.96);align-items:center;justify-content:center;padding:20px;}
+.lightbox.active{display:flex;}
+.lb-close{position:absolute;top:18px;right:22px;color:#fff;font-size:32px;cursor:pointer;background:none;border:none;transition:color .3s;}
+.lb-close:hover{color:var(--accent);}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.1);border:none;color:#fff;width:50px;height:50px;border-radius:50%;font-size:20px;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;}
+.lb-nav:hover{background:var(--accent);}.lb-prev{left:18px;}.lb-next{right:18px;}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(100px);background:#1a1a1a;border:1px solid var(--accent);color:#fff;padding:13px 28px;border-radius:8px;font-size:14px;transition:transform .4s;z-index:9999;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.spin{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+@media(max-width:768px){nav{padding:0 18px;}.nav-links{display:none;}#hero{padding:100px 20px 60px;}.about-grid{grid-template-columns:1fr;}.sw{padding:60px 20px;}.form-row{grid-template-columns:1fr;}footer{padding:24px 20px;}.pp-body{padding:30px 20px;}}
+</style>
+</head>
+<body>
+<button class="lang-btn" id="langBtn" onclick="toggleLang()">EN</button>
+<nav id="mainNav">
+  <a href="#" class="nav-logo" onclick="showMain();return false;"><i class="fa-solid fa-gem"></i> <span id="navName">Portfolio</span></a>
+  <ul class="nav-links" id="navLinks"></ul>
+</nav>
+<div id="mainPage"></div>
+<div id="project-page">
+  <div class="pp-hero" id="ppHero"></div>
+  <div class="pp-body">
+    <a href="#" class="back-link" onclick="showMain();return false;"><i class="fa-solid fa-arrow-right"></i> <span id="backTxt">Back</span></a>
+    <div class="pp-cat" id="ppCat"></div>
+    <h1 class="pp-title" id="ppTitle"></h1>
+    <p class="pp-desc" id="ppDesc"></p>
+    <div class="gallery-title" id="galleryTxt">Gallery</div>
+    <div class="gallery-grid" id="ppGallery"></div>
+  </div>
+  <footer id="ppFooter"></footer>
+</div>
+<div class="lightbox" id="lightbox">
+  <button class="lb-close" onclick="closeLb()"><i class="fa-solid fa-xmark"></i></button>
+  <button class="lb-nav lb-prev" onclick="lbNav(-1)"><i class="fa-solid fa-chevron-right"></i></button>
+  <button class="lb-nav lb-next" onclick="lbNav(1)"><i class="fa-solid fa-chevron-left"></i></button>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+let LANG=localStorage.getItem('lang')||'en', S={}, PROJECTS=[], currentFilter='all', currentGallery=[], lbIdx=0;
+const ar=()=>LANG==='ar';
+const T={en:{back:'Back to Projects',gallery:'Gallery',all:'All',designs:'Designs',reels:'Reels',send:'Send Message',name:'Name',email:'Email',subject:'Subject',msg:'Message',noProjects:'No projects yet',rights:'All rights reserved.'},ar:{back:'العودة للمشاريع',gallery:'المعرض',all:'الكل',designs:'تصاميم',reels:'ريلز',send:'إرسال الرسالة',name:'الاسم',email:'البريد الإلكتروني',subject:'الموضوع',msg:'رسالتك',noProjects:'لا توجد مشاريع بعد',rights:'جميع الحقوق محفوظة.'}};
+const t=k=>(T[LANG]||T.en)[k]||k;
+
+async function boot(){
+  try{const[s,p]=await Promise.all([fetch('/api/settings').then(r=>r.json()),fetch('/api/projects').then(r=>r.json())]);S=s;PROJECTS=p;}catch(e){S={};PROJECTS=[];}
+  applyColors();applyLang();buildPage();
+}
+boot();
+
+function applyColors(){
+  const c=S.colors||{},r=document.documentElement;
+  const dk=(h,p)=>{const n=parseInt(h.replace('#',''),16),f=1-p/100;return'#'+[n>>16,n>>8&0xff,n&0xff].map(v=>Math.max(0,Math.round(v*f)).toString(16).padStart(2,'0')).join('');};
+  const lk=(h,p)=>{const n=parseInt(h.replace('#',''),16);return'#'+[n>>16,n>>8&0xff,n&0xff].map(v=>Math.min(255,Math.round(v+255*p/100)).toString(16).padStart(2,'0')).join('');};
+  if(c.accent){r.style.setProperty('--accent',c.accent);r.style.setProperty('--accent2',dk(c.accent,15));}
+  if(c.bg){r.style.setProperty('--bg',c.bg);}
+  if(c.bg2){r.style.setProperty('--bg2',c.bg2);r.style.setProperty('--bg3',lk(c.bg2,5));}
+  if(c.text)r.style.setProperty('--text',c.text);
+  if(c.subtext)r.style.setProperty('--sub',c.subtext);
+}
+
+function applyLang(){
+  const a=ar();
+  document.getElementById('htmlRoot').lang=a?'ar':'en';
+  document.getElementById('htmlRoot').dir=a?'rtl':'ltr';
+  document.getElementById('langBtn').textContent=a?'EN':'AR';
+  const bt=document.getElementById('backTxt');if(bt)bt.textContent=t('back');
+  const gt=document.getElementById('galleryTxt');if(gt)gt.textContent=t('gallery');
+}
+function toggleLang(){LANG=ar()?'en':'ar';localStorage.setItem('lang',LANG);applyLang();buildPage();}
+
+function buildPage(){
+  const secs=(S.sections||[]).filter(s=>s.visible).sort((a,b)=>a.order-b.order);
+  const ct=S.content||{};const a=ar();
+  document.getElementById('navLinks').innerHTML=secs.filter(s=>s.id!=='hero').map(s=>`<li><a href="#${s.id}">${a?s.label_ar:s.label_en}</a></li>`).join('');
+  const ch=ct.hero||{};
+  const nm=a?(ch.name_ar||''):(ch.name_en||'Portfolio');
+  document.getElementById('navName').textContent=nm;document.title=nm;
+  document.getElementById('mainPage').innerHTML=secs.map(s=>buildSec(s,ct,a)).join('')+buildFooter(a);
+  document.getElementById('ppFooter').innerHTML=footerInner(a);
+  applyLang();renderProjects();
+}
+
+function buildSec(s,ct,a){
+  const c=ct[s.id]||{};
+  switch(s.id){
+    case'hero':return buildHero(c,a);case'about':return buildAbout(c,a);
+    case'education':return buildEdu(c,a);case'skills':return buildSkills(c,a);
+    case'tools':return buildTools(c,a);case'experience':return buildExp(c,a);
+    case'projects':return buildProjects(c,a);case'contact':return buildContact(c,a);
+    default:return'';
+  }
+}
+
+function buildHero(c,a){
+  const name=a?(c.name_ar||''):(c.name_en||'');const title=a?(c.title_ar||''):(c.title_en||'');
+  const b1=a?(c.btn1_ar||''):(c.btn1_en||'');const b2=a?(c.btn2_ar||''):(c.btn2_en||'');
+  const ps=name.split(' ');const f=ps[0]||name;const l=ps.slice(1).join(' ');
+  return`<section id="hero"><div class="hero-name"><span class="first">${f}</span> <span class="last">${l}</span></div><div class="hero-sub">${title}</div><div class="hero-btns"><a href="#projects" class="btn-primary">${b1}</a><a href="#contact" class="btn-outline">${b2}</a></div></section>`;
+}
+function buildAbout(c,a){
+  const text=a?(c.text_ar||''):(c.text_en||'');
+  const tags=(a?(c.tags_ar||''):(c.tags_en||'')).split(',').filter(Boolean);
+  const photo=S.photo_url?`<img id="aboutPhoto" src="${S.photo_url}" alt="photo">`:`<div class="about-ph"><i class="fa-solid fa-user"></i></div>`;
+  return`<section id="about" class="sw"><div class="about-grid"><div class="about-img-wrap">${photo}</div><div><h2 class="section-title">${a?'عن النفس':'About Me'}</h2><p class="about-text">${text}</p><div class="tags-row">${tags.map(tg=>`<span class="tag">${tg.trim()}</span>`).join('')}</div></div></div></section>`;
+}
+function buildEdu(c,a){
+  let items=[];try{items=JSON.parse(c.items||'[]');}catch{}
+  return`<section id="education" class="sw alt"><div class="sh"><h2>${a?'التعليم':'Education'}</h2><div class="sl"></div></div><div class="edu-list">${items.map(it=>`<div class="edu-card"><div class="edu-icon"><i class="fa-solid fa-graduation-cap"></i></div><div><div class="edu-degree">${a?(it.school_ar||it.school_en):(it.school_en||'')}</div><div class="edu-detail">${a?(it.degree_ar||it.degree_en):(it.degree_en||'')} &bull; ${it.years||''}</div></div></div>`).join('')}</div></section>`;
+}
+function buildSkills(c,a){
+  const chips=(a?(c.items_ar||''):(c.items_en||'')).split(',').filter(Boolean);
+  return`<section id="skills" class="sw"><div class="sh"><h2>${a?'المهارات':'Soft Skills'}</h2><div class="sl"></div></div><div class="skills-grid">${chips.map(ch=>`<div class="skill-chip">${ch.trim()}</div>`).join('')}</div></section>`;
+}
+function buildTools(c,a){
+  let items=[];try{items=JSON.parse(c.items||'[]');}catch{}
+  return`<section id="tools" class="sw alt"><div class="sh"><h2>${a?'الأدوات والبرامج':'Tools & Software'}</h2><div class="sl"></div></div><div class="tools-grid">${items.map(it=>`<div class="tool-card"><div class="tool-icon"><i class="${it.icon}"></i></div><div class="tool-name">${it.name}</div></div>`).join('')}</div></section>`;
+}
+function buildExp(c,a){
+  let items=[];try{items=JSON.parse(c.items||'[]');}catch{}
+  return`<section id="experience" class="sw"><div class="sh"><h2>${a?'الخبرات':'Experience'}</h2><div class="sl"></div></div><div class="exp-list">${items.map(it=>`<div class="exp-card"><div class="exp-header"><div class="exp-company">${a?(it.company_ar||it.company_en):(it.company_en||'')}</div><div class="exp-period">${it.years||''}</div></div><div class="exp-role">${a?(it.role_ar||it.role_en):(it.role_en||'')}</div></div>`).join('')}</div></section>`;
+}
+function buildProjects(c,a){
+  return`<section id="projects" class="sw alt"><div class="sh"><h2>${a?(c.title_ar||'أعمال مختارة'):(c.title_en||'Selected Work')}</h2><p>${a?(c.subtitle_ar||''):(c.subtitle_en||'')}</p><div class="sl"></div></div><div class="filter-tabs"><button class="filter-tab active" onclick="filterProjects('all',this)">${t('all')}</button><button class="filter-tab" onclick="filterProjects('image',this)"><i class="fa-solid fa-image" style="margin-left:6px;"></i>${t('designs')}</button><button class="filter-tab" onclick="filterProjects('video',this)"><i class="fa-brands fa-instagram" style="margin-left:6px;"></i>${t('reels')}</button></div><div class="projects-grid" id="projectsGrid"><div style="grid-column:1/-1;text-align:center;padding:50px"><div class="spin"></div></div></div></section>`;
+}
+function buildContact(c,a){
+  return`<section id="contact" class="sw"><div class="sh"><h2>${a?(c.title_ar||'تواصل معي'):(c.title_en||"Let's Work Together")}</h2><div class="sl"></div></div><p class="contact-sub">${a?(c.subtitle_ar||''):(c.subtitle_en||'')}</p><div class="contact-form"><div class="form-row"><div class="form-group"><input type="text" placeholder="${t('name')}"></div><div class="form-group"><input type="email" placeholder="${t('email')}"></div></div><div class="form-row"><div class="form-group full"><input type="text" placeholder="${t('subject')}"></div></div><div class="form-row"><div class="form-group full"><textarea placeholder="${t('msg')}"></textarea></div></div><button class="btn-submit" onclick="sendMsg()">${t('send')}</button></div></section>`;
+}
+function footerInner(a){
+  const ch=(S.content||{}).hero||{};const nm=a?(ch.name_ar||''):(ch.name_en||'Portfolio');
+  const icons={whatsapp:'fa-whatsapp',behance:'fa-behance',instagram:'fa-instagram',linkedin:'fa-linkedin-in',facebook:'fa-facebook-f'};
+  const sl=Object.keys(icons).map(k=>`<a href="${S[k]||'#'}" target="_blank"><i class="fa-brands ${icons[k]}"></i></a>`).join('');
+  return`<div class="footer-logo"><i class="fa-solid fa-gem"></i> ${nm}.</div><div class="social-links">${sl}</div><div class="footer-copy">© ${new Date().getFullYear()} ${nm}. ${t('rights')}</div>`;
+}
+function buildFooter(a){return`<footer>${footerInner(a)}</footer>`;}
+
+function filterProjects(type,btn){currentFilter=type;document.querySelectorAll('.filter-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderProjects();}
+function renderProjects(){
+  const grid=document.getElementById('projectsGrid');if(!grid)return;
+  let list=PROJECTS;
+  if(currentFilter==='image')list=list.filter(p=>p.mediaType!=='video');
+  if(currentFilter==='video')list=list.filter(p=>p.mediaType==='video');
+  if(!list.length){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:70px 20px;color:#444;"><i class="fa-solid fa-images" style="font-size:44px;margin-bottom:14px;display:block;"></i><p>${t('noProjects')}</p></div>`;return;}
+  grid.innerHTML=list.map(p=>{
+    const ri=PROJECTS.indexOf(p);const isV=p.mediaType==='video';
+    const th=p.coverImage?`<img src="${p.coverImage}" alt="${p.title}" loading="lazy">`:`<div class="proj-ph"><i class="fa-solid fa-${isV?'play-circle':'image'}"></i></div>`;
+    if(isV)return`<div class="project-card type-video" onclick="openProject(${ri})">${th}<div class="video-badge"><i class="fa-solid fa-play"></i></div><div class="project-overlay"><i class="fa-solid fa-circle-play" style="font-size:38px;margin-bottom:8px;"></i><div class="p-title">${p.title}</div><div class="p-cat">${p.category}</div></div></div>`;
+    return`<div class="project-card type-image" onclick="openProject(${ri})">${th}<div class="project-overlay"><div class="p-title">${p.title}</div><div class="p-cat">${p.category}</div></div></div>`;
+  }).join('');
+}
+
+function openProject(idx){
+  const p=PROJECTS[idx];if(!p)return;const isV=p.mediaType==='video';
+  const hero=document.getElementById('ppHero');
+  if(isV&&p.videoUrl)hero.innerHTML=`<video src="${p.videoUrl}" controls autoplay muted loop style="width:100%;max-height:600px;object-fit:contain;display:block;background:#000;"></video>`;
+  else if(p.coverImage)hero.innerHTML=`<img src="${p.coverImage}" alt="${p.title}">`;
+  else hero.innerHTML=`<div class="pp-hero-ph"><i class="fa-solid fa-image"></i></div>`;
+  document.getElementById('ppCat').textContent=p.category.toUpperCase();
+  document.getElementById('ppTitle').textContent=p.title;
+  document.getElementById('ppDesc').textContent=p.description||'';
+  currentGallery=[];
+  if(isV&&p.videoUrl)currentGallery.push({type:'video',src:p.videoUrl});
+  else if(p.coverImage)currentGallery.push({type:'image',src:p.coverImage});
+  (p.images||[]).forEach(s=>{if(!currentGallery.find(x=>x.src===s))currentGallery.push({type:'image',src:s});});
+  document.getElementById('ppGallery').innerHTML=currentGallery.map((item,i)=>{
+    if(item.type==='video')return`<div class="gallery-item gi-rv" onclick="openLb(${i})"><video src="${item.src}" muted style="width:100%;height:100%;object-fit:cover;display:block;"></video><div class="gi-play"><i class="fa-solid fa-circle-play" style="font-size:34px;color:#fff;"></i></div></div>`;
+    return`<div class="gallery-item gi-sq" onclick="openLb(${i})"><img src="${item.src}" alt="" loading="lazy"></div>`;
+  }).join('')||`<p style="color:#555;">لا توجد صور</p>`;
+  document.getElementById('mainPage').style.display='none';document.getElementById('project-page').style.display='block';window.scrollTo(0,0);
+}
+function showMain(){document.getElementById('mainPage').style.display='block';document.getElementById('project-page').style.display='none';window.scrollTo(0,0);}
+
+function openLb(i){lbIdx=i;renderLb();document.getElementById('lightbox').classList.add('active');}
+function renderLb(){
+  const item=currentGallery[lbIdx];const lb=document.getElementById('lightbox');
+  const old=lb.querySelector('.lb-media');if(old){if(old.tagName==='VIDEO'){old.pause();old.src='';}old.remove();}
+  let el;
+  if(item.type==='video'){el=document.createElement('video');el.src=item.src;el.controls=true;el.autoplay=true;}
+  else{el=document.createElement('img');el.src=item.src;el.alt='';}
+  el.style.cssText='max-width:90vw;max-height:90vh;border-radius:8px;object-fit:contain;';el.className='lb-media';
+  lb.insertBefore(el,lb.querySelector('.lb-prev'));
+}
+function closeLb(){const v=document.querySelector('#lightbox video');if(v){v.pause();v.src='';}document.getElementById('lightbox').classList.remove('active');}
+function lbNav(d){const v=document.querySelector('#lightbox video');if(v){v.pause();v.src='';}lbIdx=(lbIdx+d+currentGallery.length)%currentGallery.length;renderLb();}
+document.getElementById('lightbox').addEventListener('click',function(e){if(e.target===this)closeLb();});
+document.addEventListener('keydown',e=>{if(!document.getElementById('lightbox').classList.contains('active'))return;if(e.key==='Escape')closeLb();if(e.key==='ArrowLeft')lbNav(1);if(e.key==='ArrowRight')lbNav(-1);});
+window.addEventListener('scroll',()=>{document.getElementById('mainNav').style.boxShadow=window.scrollY>50?'0 4px 30px rgba(0,0,0,.5)':'none';});
+function sendMsg(){showToast(ar()?'تم إرسال رسالتك بنجاح! ✓':'Message sent successfully! ✓');}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+</script>
+</body>
+</html>
