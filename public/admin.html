@@ -238,16 +238,10 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
   <div class="ph">
     <div><div class="pt">المشاريع</div><div class="ps">إدارة أعمالك ومشاريعك</div></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="btn-vimeo" onclick="openVimeoImport()"><i class="fa-brands fa-vimeo-v" style="color:#1ab7ea;font-size:16px;"></i> استيراد من Vimeo</button>
+      <button class="btn-vimeo" onclick="openVimeoImport()"><i class="fa-brands fa-vimeo-v" style="color:#1ab7ea;font-size:15px;"></i> Vimeo</button>
+      <button class="btn-vimeo" onclick="openBehanceImport()" style="border-color:#1769ff;color:#1769ff;"><i class="fa-brands fa-behance" style="font-size:15px;"></i> Behance</button>
       <button class="btn-add" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> مشروع جديد</button>
     </div>
-  </div>
-
-  <!-- Vimeo token warning if not set -->
-  <div id="vimeoTokenWarn" style="display:none;background:rgba(26,183,234,.08);border:1px solid rgba(26,183,234,.3);border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-    <i class="fa-brands fa-vimeo-v" style="color:#1ab7ea;font-size:20px;"></i>
-    <span style="flex:1;font-size:13px;color:#ccc;">لاستيراد فيديوهاتك من Vimeo، أضف الـ Access Token في إعدادات التواصل.</span>
-    <button onclick="setTab('social',document.querySelectorAll('.ni')[4])" style="background:#1ab7ea;color:#fff;border:none;padding:8px 16px;border-radius:7px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">إضافة Token ←</button>
   </div>
   <div class="stats">
     <div class="sc"><div class="si"><i class="fa-solid fa-folder-open"></i></div><div class="sn" id="stTotal">0</div><div class="sl-stat">إجمالي</div></div>
@@ -356,65 +350,130 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
         ← أنشئ App ← اختر "Personal Access Token" ← Scope: <code style="background:#1a1a1a;padding:2px 6px;border-radius:4px;">public + private + video_files</code>
       </p>
     </div>
-</div>
+
+    <div class="card-title" style="margin-top:28px;border-top:1px solid var(--d4);padding-top:20px;"><i class="fa-solid fa-lock" style="color:var(--o);margin-left:8px;"></i>تغيير بيانات الدخول</div>
+    <div class="frow" style="margin-bottom:14px;">
+      <div class="fg"><label class="fl">كلمة المرور الحالية *</label><input class="fi" id="sOldPass" type="password" placeholder="••••••••"></div>
+      <div class="fg"><label class="fl">اسم المستخدم الجديد</label><input class="fi" id="sNewUser" placeholder="admin"></div>
+    </div>
+    <div class="frow" style="margin-bottom:16px;">
+      <div class="fg"><label class="fl">كلمة المرور الجديدة</label><input class="fi" id="sNewPass" type="password" placeholder="6 أحرف على الأقل"></div>
+      <div class="fg"><label class="fl">تأكيد كلمة المرور</label><input class="fi" id="sConfPass" type="password" placeholder="أعد كتابة"></div>
+    </div>
+    <button onclick="changeCredentials()" style="background:var(--o);color:#fff;border:none;padding:10px 22px;border-radius:8px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;">
+      <i class="fa-solid fa-key"></i> تغيير بيانات الدخول
+    </button>
+</div><!-- /card -->
 
 </div><!-- /adminMain -->
 
 <!-- VIMEO IMPORT MODAL -->
 <div class="mo" id="vimeoModal">
-  <div class="modal" style="max-width:760px;">
+  <div class="modal" style="max-width:540px;">
     <div class="mh">
       <div class="mt"><i class="fa-brands fa-vimeo-v" style="color:#1ab7ea;margin-left:10px;"></i>استيراد من Vimeo</div>
       <button class="mc" onclick="closeVimeoModal()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="mb">
-      <!-- Step 1: Enter URL or use token -->
-      <div id="vimeoStep1">
-        <p style="color:var(--g2);font-size:13px;margin-bottom:16px;">اختر طريقة الاستيراد:</p>
-
-        <!-- Option A: Single video URL -->
-        <div style="background:var(--d3);border:1px solid #222;border-radius:12px;padding:20px;margin-bottom:14px;">
-          <div style="font-weight:700;font-size:14px;margin-bottom:12px;"><i class="fa-solid fa-link" style="color:var(--o);margin-left:8px;"></i>استيراد فيديو واحد برابطه</div>
-          <div style="display:flex;gap:10px;">
-            <input class="fi" id="vimeoSingleUrl" placeholder="https://vimeo.com/123456789" style="flex:1;">
-            <button class="btn-import" onclick="fetchSingleVimeo()" id="btnFetchSingle">
-              <div class="spin" id="spinSingle" style="display:none;"></div>
-              <span>جلب</span>
-            </button>
-          </div>
-          <div id="singleResult" style="display:none;margin-top:14px;"></div>
-        </div>
-
-        <!-- Option B: Load all my videos (needs token) -->
-        <div style="background:var(--d3);border:1px solid #222;border-radius:12px;padding:20px;">
-          <div style="font-weight:700;font-size:14px;margin-bottom:6px;"><i class="fa-solid fa-list" style="color:#1ab7ea;margin-left:8px;"></i>استعراض كل فيديوهاتي على Vimeo</div>
-          <p style="color:var(--g2);font-size:12px;margin-bottom:12px;">يتطلب Vimeo Access Token — أضفه في إعدادات التواصل أولاً</p>
-          <button class="btn-import" onclick="fetchMyVimeoVideos()" id="btnFetchAll" style="background:var(--d4);border:1px solid #1ab7ea;color:#1ab7ea;">
-            <div class="spin" id="spinAll" style="display:none;"></div>
-            <i class="fa-brands fa-vimeo-v"></i>
-            <span>تحميل فيديوهاتي</span>
+      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;">الصق رابط أي فيديو على Vimeo وسيتم جلب بياناته تلقائياً</p>
+      <div class="fg">
+        <label class="fl">رابط الفيديو</label>
+        <div style="display:flex;gap:10px;">
+          <input class="fi" id="vimeoUrl" placeholder="https://vimeo.com/123456789" style="flex:1;" onkeydown="if(event.key==='Enter')fetchVimeo()">
+          <button class="btn-import" onclick="fetchVimeo()" id="btnFetchVimeo" style="flex-shrink:0;">
+            <div class="spin" id="spinVimeo" style="display:none;"></div>
+            <span>جلب</span>
           </button>
         </div>
       </div>
 
-      <!-- Video grid results -->
-      <div id="vimeoResults" style="display:none;margin-top:16px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
-          <div style="font-weight:700;font-size:14px;">اختر الفيديوهات للاستيراد <span class="sel-count" id="selCount">0 مختار</span></div>
-          <div style="display:flex;gap:8px;">
-            <button onclick="selectAllVimeo()" style="background:transparent;border:1px solid #2a2a2a;color:var(--g2);padding:6px 14px;border-radius:7px;font-family:'Cairo',sans-serif;font-size:12px;cursor:pointer;">تحديد الكل</button>
-            <button onclick="deselectAllVimeo()" style="background:transparent;border:1px solid #2a2a2a;color:var(--g2);padding:6px 14px;border-radius:7px;font-family:'Cairo',sans-serif;font-size:12px;cursor:pointer;">إلغاء الكل</button>
+      <!-- Preview after fetch -->
+      <div id="vimeoPreviewCard" style="display:none;background:var(--d3);border:1px solid #333;border-radius:12px;padding:16px;margin-top:16px;">
+        <div style="display:flex;gap:14px;align-items:flex-start;">
+          <img id="vimeoThumb" src="" alt="" style="width:120px;aspect-ratio:4/3;object-fit:cover;border-radius:8px;flex-shrink:0;">
+          <div style="flex:1;">
+            <div style="font-weight:700;font-size:15px;margin-bottom:6px;" id="vimeoTitle"></div>
+            <div style="color:var(--g2);font-size:12px;margin-bottom:10px;" id="vimeoDur"></div>
+            <div class="fg" style="margin-bottom:0;">
+              <label class="fl">عنوان المشروع (قابل للتعديل)</label>
+              <input class="fi" id="vimeoFinalTitle" placeholder="عنوان الفيديو">
+            </div>
           </div>
         </div>
-        <input type="text" class="import-search" id="vimeoSearch" placeholder="🔍  ابحث في الفيديوهات..." oninput="filterVimeoResults()">
-        <div class="import-grid" id="vimeoGrid"></div>
+        <div class="fg" style="margin-top:12px;">
+          <label class="fl">التصنيف</label>
+          <select class="fse" id="vimeoCat">
+            <option value="Reels">Reels</option>
+            <option value="Social Media">Social Media</option>
+            <option value="Motion Graphics">Motion Graphics</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
       </div>
     </div>
     <div class="mf">
       <button class="btn-cancel" onclick="closeVimeoModal()">إلغاء</button>
-      <button class="btn-import" id="btnDoImport" onclick="doVimeoImport()" style="display:none;" disabled>
-        <div class="spin" id="spinImport" style="display:none;"></div>
-        <i class="fa-solid fa-download"></i> استيراد المحدد
+      <button class="btn-import" id="btnSaveVimeo" onclick="saveVimeoProject()" style="display:none;">
+        <div class="spin" id="spinSaveVimeo" style="display:none;"></div>
+        <i class="fa-solid fa-download"></i> إضافة للموقع
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- BEHANCE IMPORT MODAL -->
+<div class="mo" id="behanceModal">
+  <div class="modal" style="max-width:640px;">
+    <div class="mh">
+      <div class="mt"><i class="fa-brands fa-behance" style="color:#1769ff;margin-left:10px;"></i>استيراد من Behance</div>
+      <button class="mc" onclick="closeBehanceModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="mb">
+      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;">الصق رابط أي مشروع على Behance وسيتم جلب صوره وعنوانه تلقائياً</p>
+      <div class="fg">
+        <label class="fl">رابط المشروع</label>
+        <div style="display:flex;gap:10px;">
+          <input class="fi" id="behanceUrl" placeholder="https://www.behance.net/gallery/12345/Project-Name" style="flex:1;" onkeydown="if(event.key==='Enter')fetchBehance()">
+          <button class="btn-import" onclick="fetchBehance()" id="btnFetchBehance" style="flex-shrink:0;background:#1769ff;">
+            <div class="spin" id="spinBehance" style="display:none;"></div>
+            <span>جلب</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div id="behancePreview" style="display:none;margin-top:16px;">
+        <div class="fg">
+          <label class="fl">عنوان المشروع (قابل للتعديل)</label>
+          <input class="fi" id="behanceFinalTitle" placeholder="عنوان المشروع">
+        </div>
+        <div class="fg">
+          <label class="fl">التصنيف</label>
+          <select class="fse" id="behanceCat">
+            <option value="Brand Identity">Brand Identity</option>
+            <option value="Social Media">Social Media</option>
+            <option value="Print Design">Print Design</option>
+            <option value="Motion Graphics">Motion Graphics</option>
+            <option value="Packaging">Packaging</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl">الوصف</label>
+          <textarea class="fta" id="behanceDesc" style="min-height:70px;"></textarea>
+        </div>
+        <div>
+          <label class="fl" style="margin-bottom:10px;">الصور المُجلبة — اختر اللي عايزه ✓</label>
+          <div id="behanceImgGrid" class="import-grid"></div>
+          <p style="color:#555;font-size:12px;margin-top:8px;">💡 اضغط على الصورة لتحديدها — الصورة الأولى المحددة ستكون الغلاف</p>
+        </div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn-cancel" onclick="closeBehanceModal()">إلغاء</button>
+      <button class="btn-import" id="btnSaveBehance" onclick="saveBehanceProject()" style="display:none;background:#1769ff;">
+        <div class="spin" id="spinSaveBehance" style="display:none;"></div>
+        <i class="fa-solid fa-download"></i> استيراد المشروع
       </button>
     </div>
   </div>
@@ -1110,162 +1169,174 @@ async function saveSocial(){
     }else toast('فشل');}catch{toast('خطأ');}
 }
 
-// ══ VIMEO IMPORT ══
-let vimeoVideos=[];        // all fetched videos
-let vimeoFiltered=[];      // after search
-let vimeoSelected=new Set(); // selected video IDs
-
+// ══ VIMEO IMPORT (single video) ══
+let vimeoData=null;
 function openVimeoImport(){
-  vimeoVideos=[];vimeoFiltered=[];vimeoSelected.clear();
-  document.getElementById('vimeoSingleUrl').value='';
-  document.getElementById('singleResult').style.display='none';
-  document.getElementById('vimeoResults').style.display='none';
-  document.getElementById('btnDoImport').style.display='none';
-  document.getElementById('vimeoSearch').value='';
-  document.getElementById('vimeoGrid').innerHTML='';
-  document.getElementById('selCount').textContent='0 مختار';
+  vimeoData=null;
+  document.getElementById('vimeoUrl').value='';
+  document.getElementById('vimeoPreviewCard').style.display='none';
+  document.getElementById('btnSaveVimeo').style.display='none';
   document.getElementById('vimeoModal').classList.add('open');
 }
 function closeVimeoModal(){document.getElementById('vimeoModal').classList.remove('open');}
 
-// Extract Vimeo ID from URL
-function extractVimeoId(url){
-  const m=url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-  return m?m[1]:null;
-}
-
-// Fetch single video by URL
-async function fetchSingleVimeo(){
-  const url=document.getElementById('vimeoSingleUrl').value.trim();
-  const id=extractVimeoId(url);
-  if(!id){toast('⚠️ أدخل رابط Vimeo صحيح');return;}
-  const btn=document.getElementById('btnFetchSingle');
-  const spin=document.getElementById('spinSingle');
+async function fetchVimeo(){
+  const url=document.getElementById('vimeoUrl').value.trim();
+  if(!url){toast('⚠️ أدخل رابط Vimeo');return;}
+  const btn=document.getElementById('btnFetchVimeo');
+  const spin=document.getElementById('spinVimeo');
   btn.disabled=true;spin.style.display='inline-block';
   try{
-    // Use Vimeo oEmbed (no auth needed for public videos)
-    const oEmbed=await fetch(`https://vimeo.com/api/oembed.json?url=https://vimeo.com/${id}&width=640`).then(r=>r.json());
-    const vid={
-      id,
-      name: oEmbed.title||'Vimeo Video',
-      description: oEmbed.description||'',
-      thumbnail: oEmbed.thumbnail_url||'',
-      embed_url: `https://player.vimeo.com/video/${id}?portrait=0&byline=0&title=0`,
-      duration: oEmbed.duration||0,
-      source:'single'
-    };
-    vimeoVideos=[vid];vimeoFiltered=[vid];
-    renderVimeoGrid();
-    document.getElementById('singleResult').style.display='none';
-    document.getElementById('vimeoResults').style.display='block';
-    document.getElementById('btnDoImport').style.display='flex';
-    // auto-select it
-    vimeoSelected.add(id);updateSelCount();renderVimeoGrid();
-  }catch(e){toast('⚠️ تعذّر جلب الفيديو — تأكد من أن الفيديو عام');}
+    const r=await fetch('/api/vimeo/fetch',{method:'POST',credentials:'include',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify({url})});
+    const d=await r.json();
+    if(!r.ok){toast('⚠️ '+(d.error||'تعذّر جلب الفيديو'));btn.disabled=false;spin.style.display='none';return;}
+    vimeoData=d;
+    document.getElementById('vimeoTitle').textContent=d.title;
+    document.getElementById('vimeoFinalTitle').value=d.title;
+    document.getElementById('vimeoThumb').src=d.thumbnail||'';
+    const dur=d.duration?`${Math.floor(d.duration/60)}:${String(d.duration%60).padStart(2,'0')} دقيقة`:'';
+    document.getElementById('vimeoDur').textContent=dur;
+    document.getElementById('vimeoPreviewCard').style.display='block';
+    document.getElementById('btnSaveVimeo').style.display='flex';
+  }catch(e){toast('خطأ في الاتصال');}
   btn.disabled=false;spin.style.display='none';
 }
 
-// Fetch all user videos using access token (via server proxy)
-async function fetchMyVimeoVideos(){
-  const token=S.vimeo_token||(document.getElementById('sVimeoToken')||{}).value||'';
-  if(!token){
-    toast('⚠️ أضف Vimeo Access Token في إعدادات التواصل أولاً');
-    setTab('social',document.querySelectorAll('.ni')[4]);
-    closeVimeoModal();return;
-  }
-  const btn=document.getElementById('btnFetchAll');
-  const spin=document.getElementById('spinAll');
+async function saveVimeoProject(){
+  if(!vimeoData){return;}
+  const btn=document.getElementById('btnSaveVimeo');
+  const spin=document.getElementById('spinSaveVimeo');
   btn.disabled=true;spin.style.display='inline-block';
-  try{
-    // Proxy through our server to avoid CORS
-    const r=await fetch('/api/vimeo/videos',{credentials:'include'});
-    if(!r.ok){
-      const e=await r.json();
-      toast('⚠️ '+(e.error||'فشل الاتصال بـ Vimeo'));
-      btn.disabled=false;spin.style.display='none';return;
-    }
-    const data=await r.json();
-    vimeoVideos=data.videos||[];vimeoFiltered=[...vimeoVideos];
-    renderVimeoGrid();
-    document.getElementById('vimeoResults').style.display='block';
-    document.getElementById('btnDoImport').style.display='flex';
-    if(!vimeoVideos.length)toast('لا توجد فيديوهات في اكونتك');
-  }catch(e){toast('خطأ في الاتصال بالسيرفر');}
-  btn.disabled=false;spin.style.display='none';
-}
-
-function renderVimeoGrid(){
-  const grid=document.getElementById('vimeoGrid');
-  if(!vimeoFiltered.length){grid.innerHTML='<div class="import-status">لا توجد نتائج</div>';return;}
-  grid.innerHTML=vimeoFiltered.map(vid=>{
-    const sel=vimeoSelected.has(vid.id);
-    const dur=vid.duration?`${Math.floor(vid.duration/60)}:${String(vid.duration%60).padStart(2,'0')}`:'';
-    return`<div class="import-card ${sel?'selected':''}" onclick="toggleVimeoSel('${vid.id}')">
-      <div class="import-check"><i class="fa-solid fa-check"></i></div>
-      ${vid.thumbnail?`<img src="${vid.thumbnail}" alt="" loading="lazy">`:'<div style="aspect-ratio:4/3;background:#1a1a1a;display:flex;align-items:center;justify-content:center;"><i class="fa-brands fa-vimeo-v" style="font-size:28px;color:#333;"></i></div>'}
-      <div class="import-card-body">
-        <div class="import-card-title">${vid.name}</div>
-        <div class="import-card-meta">${dur?`⏱ ${dur}`:''}</div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function toggleVimeoSel(id){
-  if(vimeoSelected.has(id))vimeoSelected.delete(id);else vimeoSelected.add(id);
-  updateSelCount();renderVimeoGrid();
-}
-function selectAllVimeo(){vimeoFiltered.forEach(v=>vimeoSelected.add(v.id));updateSelCount();renderVimeoGrid();}
-function deselectAllVimeo(){vimeoSelected.clear();updateSelCount();renderVimeoGrid();}
-function updateSelCount(){
-  const n=vimeoSelected.size;
-  document.getElementById('selCount').textContent=`${n} مختار`;
-  const btn=document.getElementById('btnDoImport');
-  btn.disabled=n===0;
-  btn.querySelector('span')||btn.insertAdjacentHTML('beforeend',`<span></span>`);
-  (btn.querySelector('span')||btn).textContent=n?`استيراد ${n} فيديو`:'استيراد المحدد';
-}
-function filterVimeoResults(){
-  const q=document.getElementById('vimeoSearch').value.toLowerCase();
-  vimeoFiltered=q?vimeoVideos.filter(v=>v.name.toLowerCase().includes(q)):vimeoVideos;
-  renderVimeoGrid();
-}
-
-// Do the actual import — save selected videos as projects
-async function doVimeoImport(){
-  if(!vimeoSelected.size){toast('اختر فيديو واحد على الأقل');return;}
-  const btn=document.getElementById('btnDoImport');
-  const spin=document.getElementById('spinImport');
-  btn.disabled=true;spin.style.display='inline-block';
-  let imported=0;let failed=0;
-  for(const id of vimeoSelected){
-    const vid=vimeoVideos.find(v=>v.id===id||v.id===String(id));
-    if(!vid)continue;
-    const body={
-      title:vid.name,category:'Reels',
-      description:vid.description||'',
-      mediaType:'video',
-      embedUrl:`https://player.vimeo.com/video/${vid.id}?portrait=0&byline=0&title=0`,
-      keepImages:[],images:[]
-    };
-    // fetch thumbnail as cover
-    if(vid.thumbnail){
-      try{
-        const thumbR=await fetch('/api/proxy-image',{method:'POST',credentials:'include',
-          headers:{'Content-Type':'application/json'},body:JSON.stringify({url:vid.thumbnail})});
-        if(thumbR.ok){const tb=await thumbR.json();if(tb.dataUrl)body.coverImage=tb.dataUrl;}
-      }catch{}
-    }
+  const body={
+    title:v('vimeoFinalTitle')||vimeoData.title,
+    category:document.getElementById('vimeoCat').value,
+    description:vimeoData.description||'',
+    mediaType:'video',
+    embedUrl:vimeoData.embed_url,
+    keepImages:[],images:[]
+  };
+  // fetch thumbnail as cover
+  if(vimeoData.thumbnail){
     try{
-      const r=await fetch('/api/projects',{method:'POST',credentials:'include',
-        headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-      if(r.ok)imported++;else failed++;
-    }catch{failed++;}
+      const tr=await fetch('/api/proxy-image',{method:'POST',credentials:'include',
+        headers:{'Content-Type':'application/json'},body:JSON.stringify({url:vimeoData.thumbnail})});
+      if(tr.ok){const td=await tr.json();if(td.dataUrl)body.coverImage=td.dataUrl;}
+    }catch{}
   }
-  spin.style.display='none';
-  closeVimeoModal();
-  await loadProjects();
-  toast(`✓ تم استيراد ${imported} فيديو${failed?` (فشل ${failed})`:''}`);
+  try{
+    const r=await fetch('/api/projects',{method:'POST',credentials:'include',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(r.ok){closeVimeoModal();await loadProjects();toast('✓ تم إضافة الفيديو من Vimeo');}
+    else{const e=await r.json();toast('خطأ: '+(e.error||'فشل'));}
+  }catch{toast('خطأ في الاتصال');}
+  btn.disabled=false;spin.style.display='none';
+}
+
+// ══ BEHANCE IMPORT ══
+let behanceImages=[];   // [{url, selected, b64}]
+function openBehanceImport(){
+  behanceImages=[];
+  document.getElementById('behanceUrl').value='';
+  document.getElementById('behancePreview').style.display='none';
+  document.getElementById('btnSaveBehance').style.display='none';
+  document.getElementById('behanceImgGrid').innerHTML='';
+  document.getElementById('behanceModal').classList.add('open');
+}
+function closeBehanceModal(){document.getElementById('behanceModal').classList.remove('open');}
+
+async function fetchBehance(){
+  const url=document.getElementById('behanceUrl').value.trim();
+  if(!url||!url.includes('behance.net')){toast('⚠️ أدخل رابط Behance صحيح');return;}
+  const btn=document.getElementById('btnFetchBehance');
+  const spin=document.getElementById('spinBehance');
+  btn.disabled=true;spin.style.display='inline-block';
+  try{
+    const r=await fetch('/api/behance/fetch',{method:'POST',credentials:'include',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify({url})});
+    const d=await r.json();
+    if(!r.ok){toast('⚠️ '+(d.error||'تعذّر جلب المشروع'));btn.disabled=false;spin.style.display='none';return;}
+    document.getElementById('behanceFinalTitle').value=d.title||'';
+    document.getElementById('behanceDesc').value=d.description||'';
+    // Build image grid
+    behanceImages=d.images.map(u=>({url:u,selected:false,b64:null}));
+    // auto-select cover if available
+    if(d.cover&&!behanceImages.find(x=>x.url===d.cover))
+      behanceImages.unshift({url:d.cover,selected:true,b64:d.cover_b64||null});
+    renderBehanceGrid();
+    document.getElementById('behancePreview').style.display='block';
+    document.getElementById('btnSaveBehance').style.display='flex';
+  }catch(e){toast('خطأ في الاتصال: '+e.message);}
+  btn.disabled=false;spin.style.display='none';
+}
+
+function renderBehanceGrid(){
+  const grid=document.getElementById('behanceImgGrid');
+  if(!behanceImages.length){grid.innerHTML='<div class="import-status">لم يتم العثور على صور</div>';return;}
+  grid.innerHTML=behanceImages.map((img,i)=>`
+    <div class="import-card ${img.selected?'selected':''}" onclick="toggleBehanceImg(${i})">
+      <div class="import-check"><i class="fa-solid fa-check"></i></div>
+      <img src="${img.url}" alt="" loading="lazy" style="width:100%;aspect-ratio:4/3;object-fit:cover;display:block;" onerror="this.style.display='none'">
+      <div class="import-card-body"><div class="import-card-meta">${img.selected?'✓ محدد':'اضغط لتحديد'}</div></div>
+    </div>`).join('');
+}
+function toggleBehanceImg(i){behanceImages[i].selected=!behanceImages[i].selected;renderBehanceGrid();}
+
+async function saveBehanceProject(){
+  const selected=behanceImages.filter(x=>x.selected);
+  if(!selected.length){toast('⚠️ اختر صورة واحدة على الأقل');return;}
+  const btn=document.getElementById('btnSaveBehance');
+  const spin=document.getElementById('spinSaveVimeo')||document.getElementById('spinSaveBehance');
+  btn.disabled=true;if(spin)spin.style.display='inline-block';
+  toast('⏳ جاري جلب الصور...');
+  // Fetch all selected images as base64 via proxy
+  const urls=selected.map(x=>x.url);
+  let images=[];
+  try{
+    const r=await fetch('/api/proxy-images',{method:'POST',credentials:'include',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify({urls})});
+    if(r.ok){const d=await r.json();images=d.images||[];}
+  }catch{}
+  const body={
+    title:v('behanceFinalTitle')||'Behance Project',
+    category:document.getElementById('behanceCat').value,
+    description:v('behanceDesc'),
+    mediaType:'image',
+    keepImages:[],
+    images:images.filter(Boolean).slice(1),  // gallery = all except first
+  };
+  if(images[0])body.coverImage=images[0];  // first = cover
+  try{
+    const r=await fetch('/api/projects',{method:'POST',credentials:'include',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(r.ok){closeBehanceModal();await loadProjects();toast('✓ تم استيراد المشروع من Behance');}
+    else{const e=await r.json();toast('خطأ: '+(e.error||'فشل'));}
+  }catch{toast('خطأ في الاتصال');}
+  btn.disabled=false;if(spin)spin.style.display='none';
+}
+
+// ══ CHANGE CREDENTIALS ══
+async function changeCredentials(){
+  const oldP=v('sOldPass');const newU=v('sNewUser');const newP=v('sNewPass');const confP=v('sConfPass');
+  if(!oldP){toast('⚠️ أدخل كلمة المرور الحالية');return;}
+  if(newP&&newP!==confP){toast('⚠️ كلمة المرور الجديدة غير متطابقة');return;}
+  if(newP&&newP.length<6){toast('⚠️ كلمة المرور يجب أن تكون 6 أحرف على الأقل');return;}
+  const body={old_password:oldP};
+  if(newU)body.username=newU;
+  if(newP)body.password=newP;
+  try{
+    const r=await fetch('/api/auth/credentials',{method:'PUT',credentials:'include',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json();
+    if(r.ok){
+      toast('✓ تم تغيير بيانات الدخول — ستحتاج لتسجيل الدخول مجدداً');
+      document.getElementById('sOldPass').value='';
+      document.getElementById('sNewPass').value='';
+      document.getElementById('sConfPass').value='';
+      // logout after 2 sec
+      setTimeout(()=>{fetch('/api/auth/logout',{method:'POST',credentials:'include'}).then(()=>location.reload());},2000);
+    }else toast('⚠️ '+(d.error||'فشل'));
+  }catch{toast('خطأ في الاتصال');}
 }
 
 // ══ TOAST ══
@@ -1275,6 +1346,7 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 document.getElementById('projModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
 document.getElementById('confModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 document.getElementById('vimeoModal').addEventListener('click',function(e){if(e.target===this)closeVimeoModal();});
+document.getElementById('behanceModal').addEventListener('click',function(e){if(e.target===this)closeBehanceModal();});
 
 // ══ AUTO LOGIN CHECK ══
 (async()=>{

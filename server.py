@@ -143,6 +143,18 @@ def init_db():
 
 init_db()
 
+# Load saved credentials from DB (override env defaults if changed via UI)
+def _load_creds():
+    global ADMIN_USER, ADMIN_PASS
+    try:
+        db = get_db()
+        u = db.execute("SELECT value FROM settings WHERE key='admin_user'").fetchone()
+        p = db.execute("SELECT value FROM settings WHERE key='admin_pass'").fetchone()
+        if u and u['value']: ADMIN_USER = u['value']
+        if p and p['value']: ADMIN_PASS = p['value']
+    except: pass
+_load_creds()
+
 # ─────────────────────────── AUTH ────────────────────────────────────────────
 def login_required(f):
     @wraps(f)
@@ -333,62 +345,154 @@ def update_settings():
     db.commit()
     return jsonify({'ok':True})
 
-# ─────────────────────────── VIMEO PROXY ─────────────────────────────────────
-import urllib.request, urllib.error
+# ─────────────────────────── IMPORT UTILITIES ────────────────────────────────
+import urllib.request, urllib.error, html as html_mod
 
-@app.route('/api/vimeo/videos')
-@login_required
-def vimeo_videos():
-    db   = get_db()
-    row  = db.execute("SELECT value FROM settings WHERE key='vimeo_token'").fetchone()
-    token = (row['value'] if row else '').strip()
-    if not token:
-        return jsonify({'error': 'Vimeo token not set'}), 400
-    try:
-        req = urllib.request.Request(
-            'https://api.vimeo.com/me/videos?per_page=100&fields=uri,name,description,duration,pictures',
-            headers={'Authorization': f'bearer {token}', 'Accept': 'application/vnd.vimeo.*+json;version=3.4'}
-        )
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            data = json.loads(resp.read())
-        videos = []
-        for v in data.get('data', []):
-            vid_id = v['uri'].split('/')[-1]
-            thumb  = ''
-            pics   = v.get('pictures', {}).get('sizes', [])
-            if pics:
-                # pick medium thumbnail
-                thumb = sorted(pics, key=lambda x: x.get('width',0))[min(2, len(pics)-1)].get('link','')
-            videos.append({
-                'id':          vid_id,
-                'name':        v.get('name', ''),
-                'description': v.get('description', '') or '',
-                'duration':    v.get('duration', 0),
-                'thumbnail':   thumb,
-                'embed_url':   f'https://player.vimeo.com/video/{vid_id}?portrait=0&byline=0&title=0'
-            })
-        return jsonify({'videos': videos})
-    except urllib.error.HTTPError as e:
-        body = e.read().decode()
-        return jsonify({'error': f'Vimeo API error {e.code}', 'detail': body}), 502
-    except Exception as ex:
-        return jsonify({'error': str(ex)}), 500
+def fetch_url(url, headers=None, timeout=12):
+    req = urllib.request.Request(url, headers={'User-Agent':'Mozilla/5.0'} | (headers or {}))
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        return r.read().decode('utf-8', errors='replace'), r.headers.get_content_type()
 
 @app.route('/api/proxy-image', methods=['POST'])
 @login_required
 def proxy_image():
-    """Fetch an external image and return as base64 data URL (for thumbnails)."""
     url = (request.get_json() or {}).get('url','').strip()
     if not url or not url.startswith('http'):
-        return jsonify({'error': 'invalid url'}), 400
+        return jsonify({'error':'invalid url'}), 400
     try:
-        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        req = urllib.request.Request(url, headers={'User-Agent':'Mozilla/5.0'})
         with urllib.request.urlopen(req, timeout=10) as resp:
-            content_type = resp.headers.get_content_type() or 'image/jpeg'
+            ct   = resp.headers.get_content_type() or 'image/jpeg'
             data = base64.b64encode(resp.read()).decode()
-        return jsonify({'dataUrl': f'data:{content_type};base64,{data}'})
+        return jsonify({'dataUrl': f'data:{ct};base64,{data}'})
     except Exception as ex:
         return jsonify({'error': str(ex)}), 500
+
+# ── Vimeo: fetch single video metadata (oEmbed, no auth needed for public) ──
+@app.route('/api/vimeo/fetch', methods=['POST'])
+@login_required
+def vimeo_fetch():
+    url = (request.get_json() or {}).get('url','').strip()
+    m   = re.search(r'vimeo\.com/(?:video/)?(\d+)', url)
+    if not m:
+        return jsonify({'error':'رابط Vimeo غير صحيح'}), 400
+    vid_id = m.group(1)
+    try:
+        body, _ = fetch_url(f'https://vimeo.com/api/oembed.json?url=https://vimeo.com/{vid_id}&width=640')
+        oe = json.loads(body)
+        return jsonify({
+            'id':          vid_id,
+            'title':       oe.get('title',''),
+            'description': oe.get('description','') or '',
+            'thumbnail':   oe.get('thumbnail_url',''),
+            'duration':    oe.get('duration',0),
+            'embed_url':   f'https://player.vimeo.com/video/{vid_id}?portrait=0&byline=0&title=0',
+        })
+    except Exception as ex:
+        return jsonify({'error': str(ex)}), 502
+
+# ── Behance: scrape project by URL ──
+@app.route('/api/behance/fetch', methods=['POST'])
+@login_required
+def behance_fetch():
+    url = (request.get_json() or {}).get('url','').strip()
+    if 'behance.net' not in url:
+        return jsonify({'error':'يجب أن يكون رابط Behance'}), 400
+    try:
+        body, _ = fetch_url(url)
+        # Extract title from <title> or og:title
+        title = ''
+        t = re.search(r'<meta property="og:title"\s+content="([^"]+)"', body)
+        if t: title = html_mod.unescape(t.group(1))
+        if not title:
+            t2 = re.search(r'<title>([^<]+)</title>', body)
+            if t2: title = html_mod.unescape(t2.group(1).split('::')[0].strip())
+
+        # Extract description
+        desc = ''
+        d = re.search(r'<meta property="og:description"\s+content="([^"]+)"', body)
+        if d: desc = html_mod.unescape(d.group(1))
+
+        # Extract images — og:image first, then project images
+        images = []
+        # og:image (cover)
+        cover_match = re.search(r'<meta property="og:image"\s+content="([^"]+)"', body)
+        cover = html_mod.unescape(cover_match.group(1)) if cover_match else ''
+
+        # All project images from JSON data embedded in page
+        # Behance embeds project data as a JS object
+        img_urls = []
+        # Look for image URLs in the page source
+        for m in re.finditer(r'"url"\s*:\s*"(https://mir-s3-cdn-cf\.behance\.net/project_modules/[^"]+)"', body):
+            u = m.group(1)
+            # filter for large images (fs or max_1200)
+            if 'fs/' in u or 'max_1200/' in u or 'max_3840/' in u:
+                if u not in img_urls: img_urls.append(u)
+
+        # Fallback: any behance project image
+        if not img_urls:
+            for m in re.finditer(r'(https://mir-s3-cdn-cf\.behance\.net/project_modules/[^"\s]+\.(?:jpg|png|jpeg|webp))', body):
+                u = m.group(1)
+                if u not in img_urls: img_urls.append(u)
+
+        # Proxy the cover and up to 12 images (fetch as base64)
+        cover_b64 = ''
+        if cover:
+            try:
+                r2 = proxy_one(cover)
+                if r2: cover_b64 = r2
+            except: pass
+
+        return jsonify({
+            'title':       title,
+            'description': desc,
+            'cover':       cover,
+            'cover_b64':   cover_b64,
+            'images':      img_urls[:20],   # send URLs; admin fetches what it wants
+        })
+    except Exception as ex:
+        return jsonify({'error': str(ex)}), 502
+
+def proxy_one(url):
+    req = urllib.request.Request(url, headers={'User-Agent':'Mozilla/5.0','Referer':'https://www.behance.net/'})
+    with urllib.request.urlopen(req, timeout=10) as resp:
+        ct   = resp.headers.get_content_type() or 'image/jpeg'
+        data = base64.b64encode(resp.read()).decode()
+    return f'data:{ct};base64,{data}'
+
+@app.route('/api/proxy-images', methods=['POST'])
+@login_required
+def proxy_images():
+    """Fetch multiple image URLs and return as base64. Used by Behance import."""
+    urls = (request.get_json() or {}).get('urls', [])[:12]
+    results = []
+    for url in urls:
+        try:    results.append(proxy_one(url))
+        except: results.append(None)
+    return jsonify({'images': results})
+
+# ── Change admin credentials ──
+@app.route('/api/auth/credentials', methods=['PUT'])
+@login_required
+def change_credentials():
+    d        = request.get_json() or {}
+    new_user = d.get('username','').strip()
+    new_pass = d.get('password','').strip()
+    old_pass = d.get('old_password','').strip()
+    global ADMIN_USER, ADMIN_PASS
+    if old_pass != ADMIN_PASS:
+        return jsonify({'error':'كلمة المرور الحالية غير صحيحة'}), 403
+    if not new_user or not new_pass:
+        return jsonify({'error':'أدخل اسم المستخدم وكلمة المرور'}), 400
+    if len(new_pass) < 6:
+        return jsonify({'error':'كلمة المرور يجب أن تكون 6 أحرف على الأقل'}), 400
+    db = get_db()
+    db.execute('INSERT OR REPLACE INTO settings(key,value) VALUES(?,?)',('admin_user', new_user))
+    db.execute('INSERT OR REPLACE INTO settings(key,value) VALUES(?,?)',('admin_pass', new_pass))
+    db.commit()
+    ADMIN_USER = new_user
+    ADMIN_PASS = new_pass
+    return jsonify({'ok': True})
 
 # ─────────────────────────── STATIC ──────────────────────────────────────────
 @app.route('/uploads/<path:filename>')
