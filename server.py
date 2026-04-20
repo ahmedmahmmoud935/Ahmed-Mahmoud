@@ -122,6 +122,7 @@ def init_db():
         defaults = [
             ('whatsapp',''),('behance',''),('instagram',''),('linkedin',''),('facebook',''),
             ('photo_url',''),
+            ('hero_cover_url',''),
             ('colors',   DEFAULT_COLORS),
             ('sections', DEFAULT_SECTIONS),
             ('content',  DEFAULT_CONTENT),
@@ -278,13 +279,31 @@ def update_settings():
     d  = request.get_json()
     db = get_db()
 
-    # handle photo upload separately
-    photo = d.pop('photo_upload', None)
-    if photo and photo.startswith('data:'):
-        old = db.execute("SELECT value FROM settings WHERE key='photo_url'").fetchone()
-        if old: delete_file(old['value'])
-        url = save_dataurl(photo, ALLOWED_IMG)
-        db.execute('INSERT OR REPLACE INTO settings(key,value) VALUES(?,?)',('photo_url', url or ''))
+    # handle image uploads
+    for upload_key, store_key in [('photo_upload','photo_url'), ('hero_cover_upload','hero_cover_url')]:
+        img = d.pop(upload_key, None)
+        if img and img.startswith('data:'):
+            old = db.execute(f"SELECT value FROM settings WHERE key='{store_key}'").fetchone()
+            if old and old['value']: delete_file(old['value'])
+            url = save_dataurl(img, ALLOWED_IMG)
+            db.execute('INSERT OR REPLACE INTO settings(key,value) VALUES(?,?)',(store_key, url or ''))
+        elif img == '':
+            old = db.execute(f"SELECT value FROM settings WHERE key='{store_key}'").fetchone()
+            if old and old['value']: delete_file(old['value'])
+            db.execute('INSERT OR REPLACE INTO settings(key,value) VALUES(?,?)',(store_key, ''))
+
+    # handle tool image uploads (tool_img_upload_0, tool_img_upload_1, ...)
+    tool_img_uploads = {k:v for k,v in d.items() if k.startswith('tool_img_upload_')}
+    for key in tool_img_uploads:
+        d.pop(key)
+    # these are returned separately and merged client-side, but we save them as named keys
+    for key, img in tool_img_uploads.items():
+        if img and img.startswith('data:'):
+            url = save_dataurl(img, ALLOWED_IMG)
+            if url:
+                db.execute('INSERT OR REPLACE INTO settings(key,value) VALUES(?,?)',(key.replace('upload','url'), url))
+        elif img == '':
+            db.execute('INSERT OR REPLACE INTO settings(key,value) VALUES(?,?)',(key.replace('upload','url'), ''))
 
     for k, v in d.items():
         val = json.dumps(v) if isinstance(v, (dict, list)) else str(v)

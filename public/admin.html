@@ -610,6 +610,17 @@ function buildCSec(id){
   const c=ctData[id]||{};
   switch(id){
     case'hero':return`<div class="card"><div class="card-title">قسم الرئيسية (Hero)</div>
+      <div class="fg"><label class="fl"><i class="fa-solid fa-image" style="color:var(--o);margin-left:6px;"></i>صورة خلفية الـ Hero (Cover)</label>
+        <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;">
+          <div id="heroCoverPreview" style="width:180px;height:100px;border-radius:10px;background:var(--d3);border:1px solid #222;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#444;">
+            ${(S.hero_cover_url)?`<img src="${S.hero_cover_url}" style="width:100%;height:100%;object-fit:cover;">`:`<i class="fa-solid fa-image" style="font-size:28px;"></i>`}
+          </div>
+          <div style="flex:1;min-width:180px;">
+            <div class="ua" style="margin-bottom:8px;"><input type="file" accept="image/*" onchange="handleHeroCover(this)"><div class="ui" style="font-size:22px;"><i class="fa-solid fa-upload"></i></div><div class="ut">اختر صورة غلاف للـ Hero<br><small style="color:#444;">JPG, PNG, WebP</small></div></div>
+            ${(S.hero_cover_url)?`<button onclick="removeHeroCover()" style="background:rgba(239,68,68,.1);color:var(--red);border:none;padding:7px 14px;border-radius:7px;font-family:Cairo,sans-serif;font-size:13px;cursor:pointer;width:100%;">× حذف الصورة</button>`:''}
+          </div>
+        </div>
+      </div>
       <div class="frow"><div class="fg"><label class="fl">الاسم (عربي)</label><input class="fi" id="h_name_ar" value="${e(c.name_ar||'')}" placeholder="عبدالله أحمد"></div><div class="fg"><label class="fl">Name (English)</label><input class="fi" id="h_name_en" value="${e(c.name_en||'')}" placeholder="Abdallah Ahmed"></div></div>
       <div class="frow"><div class="fg"><label class="fl">التخصص (عربي)</label><input class="fi" id="h_title_ar" value="${e(c.title_ar||'')}" placeholder="مصمم جرافيك"></div><div class="fg"><label class="fl">Title (English)</label><input class="fi" id="h_title_en" value="${e(c.title_en||'')}" placeholder="Graphic Designer"></div></div>
       <div class="frow"><div class="fg"><label class="fl">زر 1 (عربي)</label><input class="fi" id="h_btn1_ar" value="${e(c.btn1_ar||'أعمالي')}"></div><div class="fg"><label class="fl">Button 1 (EN)</label><input class="fi" id="h_btn1_en" value="${e(c.btn1_en||'View Work')}"></div></div>
@@ -669,16 +680,39 @@ function getEduItems(){
 function buildToolsEditor(c){
   let items=[];try{items=JSON.parse(c.items||'[]');}catch{}
   return`<div class="card"><div class="card-title">الأدوات والبرامج</div>
+    <p style="color:var(--g2);font-size:13px;margin-bottom:16px;">يمكنك رفع صورة للأداة (شعار) أو استخدام أيقونة FontAwesome — الصورة تأخذ الأولوية</p>
     <div class="dlist" id="toolList">${items.map((it,i)=>toolItem(it,i)).join('')}</div>
     <button class="add-btn" onclick="addTool()"><i class="fa-solid fa-plus"></i> إضافة أداة</button></div>`;
 }
-function toolItem(it,i){return`<div class="ditem" id="tool-${i}">
+function toolItem(it,i){
+  const existImg=S[`tool_img_url_${i}`]||it.img_url||'';
+  return`<div class="ditem" id="tool-${i}">
   <button class="ditem-del" onclick="delTool(${i})"><i class="fa-solid fa-xmark"></i></button>
-  <div class="frow"><div class="fg"><label class="fl">اسم الأداة</label><input class="fi" id="tool_name_${i}" value="${e(it.name||'')}"></div><div class="fg"><label class="fl">أيقونة FontAwesome</label><input class="fi" id="tool_icon_${i}" value="${e(it.icon||'')}" placeholder="fa-brands fa-adobe"></div></div>
+  <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-bottom:10px;">
+    <div id="tool_img_prev_${i}" style="width:60px;height:60px;border-radius:10px;background:var(--d4);border:1px solid #222;display:flex;align-items:center;justify-content:center;color:#555;overflow:hidden;flex-shrink:0;">
+      ${existImg?`<img src="${existImg}" style="width:100%;height:100%;object-fit:contain;">`:`<i class="fa-solid fa-image" style="font-size:20px;"></i>`}
+    </div>
+    <div style="flex:1;min-width:140px;">
+      <label class="fl" style="margin-bottom:5px;">صورة/شعار الأداة</label>
+      <div class="ua" style="padding:12px;"><input type="file" accept="image/*" onchange="handleToolImg(this,${i})"><div class="ut" style="font-size:12px;">اختر صورة أو <span>PNG/SVG</span></div></div>
+      ${existImg?`<button onclick="removeToolImg(${i})" style="background:rgba(239,68,68,.1);color:var(--red);border:none;padding:5px 10px;border-radius:6px;font-size:12px;cursor:pointer;margin-top:5px;width:100%;">× حذف الصورة</button>`:''}
+    </div>
+  </div>
+  <div class="frow"><div class="fg"><label class="fl">اسم الأداة</label><input class="fi" id="tool_name_${i}" value="${e(it.name||'')}"></div><div class="fg"><label class="fl">أيقونة FontAwesome (احتياطي)</label><input class="fi" id="tool_icon_${i}" value="${e(it.icon||'')}" placeholder="fa-brands fa-adobe"></div></div>
 </div>`;}
-let toolCount=0;
-function addTool(){const list=document.getElementById('toolList');const i=list.children.length;toolCount++;list.insertAdjacentHTML('beforeend',toolItem({},i));}
-function delTool(i){const el=document.getElementById('tool-'+i);if(el)el.remove();}
+
+let toolImgUploads={};
+async function handleToolImg(inp,i){
+  const f=inp.files[0];if(!f)return;const data=await b64(f);
+  toolImgUploads[i]=data;
+  document.getElementById(`tool_img_prev_${i}`).innerHTML=`<img src="${data}" style="width:100%;height:100%;object-fit:contain;">`;
+}
+function removeToolImg(i){
+  toolImgUploads[i]='';
+  document.getElementById(`tool_img_prev_${i}`).innerHTML=`<i class="fa-solid fa-image" style="font-size:20px;"></i>`;
+}
+function delTool(i){const el=document.getElementById('tool-'+i);if(el){el.remove();delete toolImgUploads[i];}}
+function addTool(){const list=document.getElementById('toolList');const i=list.children.length;list.insertAdjacentHTML('beforeend',toolItem({},i));}
 function getToolItems(){const items=[];document.querySelectorAll('[id^="tool-"]').forEach(el=>{const i=el.id.split('-')[1];items.push({name:v(`tool_name_${i}`),icon:v(`tool_icon_${i}`)});});return items;}
 
 function buildExpEditor(c){
@@ -712,10 +746,21 @@ function gatherContent(){
   try{ct.contact={title_ar:v('co_title_ar'),title_en:v('co_title_en'),subtitle_ar:v('co_sub_ar'),subtitle_en:v('co_sub_en')};}catch{}
   return ct;
 }
+// ── HERO COVER ──
+let heroCoverData=null;
+async function handleHeroCover(inp){const f=inp.files[0];if(!f)return;heroCoverData=await b64(f);document.getElementById('heroCoverPreview').innerHTML=`<img src="${heroCoverData}" style="width:100%;height:100%;object-fit:cover;">`;}
+function removeHeroCover(){heroCoverData='';document.getElementById('heroCoverPreview').innerHTML=`<i class="fa-solid fa-image" style="font-size:28px;"></i>`;}
+
 async function saveContent(){
   const ct=gatherContent();
-  try{const r=await fetch('/api/settings',{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:ct})});if(r.ok){S.content=ct;toast('✓ تم حفظ المحتوى');}else toast('فشل');}
-  catch{toast('خطأ');}
+  const payload={content:ct};
+  if(heroCoverData!==null)payload.hero_cover_upload=heroCoverData;
+  Object.entries(toolImgUploads).forEach(([i,data])=>{payload[`tool_img_upload_${i}`]=data;});
+  try{
+    const r=await fetch('/api/settings',{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    if(r.ok){S.content=ct;toolImgUploads={};heroCoverData=null;toast('✓ تم حفظ المحتوى');}
+    else toast('فشل الحفظ');
+  }catch{toast('خطأ في الاتصال');}
 }
 
 // ══════════════════════════════════════════

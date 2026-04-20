@@ -209,7 +209,14 @@ function buildHero(c,a){
   const name=a?(c.name_ar||''):(c.name_en||'');const title=a?(c.title_ar||''):(c.title_en||'');
   const b1=a?(c.btn1_ar||''):(c.btn1_en||'');const b2=a?(c.btn2_ar||''):(c.btn2_en||'');
   const ps=name.split(' ');const f=ps[0]||name;const l=ps.slice(1).join(' ');
-  return`<section id="hero"><div class="hero-name"><span class="first">${f}</span> <span class="last">${l}</span></div><div class="hero-sub">${title}</div><div class="hero-btns"><a href="#projects" class="btn-primary">${b1}</a><a href="#contact" class="btn-outline">${b2}</a></div></section>`;
+  const cover=S.hero_cover_url;
+  const heroBg=cover?`style="background-image:url('${cover}');background-size:cover;background-position:center;"`:'' ;
+  const overlay=cover?`<div style="position:absolute;inset:0;background:rgba(0,0,0,0.55);pointer-events:none;"></div>`:'';
+  return`<section id="hero" ${heroBg}>${overlay}
+    <div class="hero-name" style="position:relative;z-index:1;"><span class="first">${f}</span> <span class="last">${l}</span></div>
+    <div class="hero-sub" style="position:relative;z-index:1;">${title}</div>
+    <div class="hero-btns" style="position:relative;z-index:1;"><a href="#projects" class="btn-primary">${b1}</a><a href="#contact" class="btn-outline">${b2}</a></div>
+  </section>`;
 }
 function buildAbout(c,a){
   const text=a?(c.text_ar||''):(c.text_en||'');
@@ -227,7 +234,15 @@ function buildSkills(c,a){
 }
 function buildTools(c,a){
   let items=[];try{items=JSON.parse(c.items||'[]');}catch{}
-  return`<section id="tools" class="sw alt"><div class="sh"><h2>${a?'الأدوات والبرامج':'Tools & Software'}</h2><div class="sl"></div></div><div class="tools-grid">${items.map(it=>`<div class="tool-card"><div class="tool-icon"><i class="${it.icon}"></i></div><div class="tool-name">${it.name}</div></div>`).join('')}</div></section>`;
+  const cards=items.map((it,i)=>{
+    // tool can have a custom image or a fontawesome icon
+    const imgUrl=S[`tool_img_url_${i}`]||it.img_url||'';
+    const iconHtml=imgUrl
+      ?`<img src="${imgUrl}" alt="${it.name}" style="width:52px;height:52px;object-fit:contain;border-radius:8px;">`
+      :`<i class="${it.icon||'fa-solid fa-wrench'}"></i>`;
+    return`<div class="tool-card"><div class="tool-icon">${iconHtml}</div><div class="tool-name">${it.name}</div></div>`;
+  }).join('');
+  return`<section id="tools" class="sw alt"><div class="sh"><h2>${a?'الأدوات والبرامج':'Tools & Software'}</h2><div class="sl"></div></div><div class="tools-grid">${cards}</div></section>`;
 }
 function buildExp(c,a){
   let items=[];try{items=JSON.parse(c.items||'[]');}catch{}
