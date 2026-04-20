@@ -818,6 +818,16 @@ function buildCSec(id){
     case'projects':return`<div class="card"><div class="card-title">قسم المشاريع</div>
       <div class="frow"><div class="fg"><label class="fl">العنوان (عربي)</label><input class="fi" id="pj_title_ar" value="${e(c.title_ar||'أعمال مختارة')}"></div><div class="fg"><label class="fl">Title (EN)</label><input class="fi" id="pj_title_en" value="${e(c.title_en||'Selected Work')}"></div></div>
       <div class="frow"><div class="fg"><label class="fl">العنوان الفرعي (عربي)</label><input class="fi" id="pj_sub_ar" value="${e(c.subtitle_ar||'')}"></div><div class="fg"><label class="fl">Subtitle (EN)</label><input class="fi" id="pj_sub_en" value="${e(c.subtitle_en||'')}"></div></div>
+      <div class="fg" style="margin-top:8px;">
+        <label class="fl"><i class="fa-brands fa-instagram" style="color:var(--o);margin-left:6px;"></i>عدد الفيديوهات (Reels) في كل صف</label>
+        <div style="display:flex;align-items:center;gap:16px;margin-top:6px;">
+          <input type="range" id="videoColsRange" min="2" max="6" value="${S.video_cols||4}" oninput="document.getElementById('videoColsVal').textContent=this.value" style="-webkit-appearance:none;appearance:none;width:180px;height:4px;border-radius:2px;background:#2a2a2a;outline:none;cursor:pointer;">
+          <style>#videoColsRange::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--o);cursor:pointer;}#videoColsRange::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--o);border:none;cursor:pointer;}</style>
+          <span id="videoColsVal" style="color:var(--o);font-weight:700;font-size:18px;min-width:28px;">${S.video_cols||4}</span>
+          <span style="color:var(--g2);font-size:13px;">فيديو في الصف</span>
+        </div>
+        <p style="color:#555;font-size:12px;margin-top:8px;">💡 المستخدم يقدر يغير العدد ده بنفسه من الموقع عبر السلايدر</p>
+      </div>
       </div>`;
     case'contact':return`<div class="card"><div class="card-title">التواصل</div>
       <div class="frow"><div class="fg"><label class="fl">العنوان (عربي)</label><input class="fi" id="co_title_ar" value="${e(c.title_ar||'تواصل معي')}"></div><div class="fg"><label class="fl">Title (EN)</label><input class="fi" id="co_title_en" value="${e(c.title_en||"Let's Work Together")}"></div></div>
@@ -967,6 +977,9 @@ function gatherContent(){
 async function saveContent(){
   const ct=gatherContent();
   const payload={content:ct};
+  // video cols
+  const colsEl=document.getElementById('videoColsRange');
+  if(colsEl)payload.video_cols=colsEl.value;
   if(heroCoverData!==null)payload.hero_cover_upload=heroCoverData;
   Object.entries(toolImgUploads).forEach(([i,data])=>{payload[`tool_img_upload_${i}`]=data;});
   Object.entries(expSvcImgUploads).forEach(([i,data])=>{if(data)payload[`expsvc_img_upload_${i}`]=data;});

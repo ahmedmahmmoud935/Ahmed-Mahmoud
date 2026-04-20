@@ -68,16 +68,31 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
 .filter-tab{background:transparent;border:1px solid #2a2a2a;color:var(--sub);padding:8px 22px;border-radius:25px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .3s;}
 .filter-tab:hover{border-color:var(--accent);color:var(--accent);}
 .filter-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
-.projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:4px;max-width:1200px;margin:0 auto;align-items:start;}
+/* ── VIDEO GRID COLUMNS (controlled by JS var) ── */
+.projects-grid{display:grid;gap:4px;max-width:1200px;margin:0 auto;align-items:start;}
 .project-card{position:relative;overflow:hidden;cursor:pointer;background:#111;}
-.project-card img,.project-card video{width:100%;height:100%;object-fit:cover;transition:transform .5s;display:block;}
+.project-card img{width:100%;height:100%;object-fit:cover;transition:transform .5s;display:block;}
 .project-card.type-image{aspect-ratio:1/1;}.project-card.type-video{aspect-ratio:9/16;}
 .proj-ph{width:100%;height:100%;background:linear-gradient(135deg,#1a1a1a,#2a2a2a);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#444;min-height:180px;}
-.project-overlay{position:absolute;inset:0;background:rgba(0,0,0,.72);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transition:opacity .3s;padding:15px;text-align:center;}
+.project-overlay{position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end;opacity:0;transition:opacity .3s;padding:12px;}
 .project-card:hover .project-overlay{opacity:1;}
-.project-card:hover img,.project-card:hover video{transform:scale(1.06);}
-.p-title{font-weight:700;font-size:14px;margin-bottom:5px;}.p-cat{color:var(--accent);font-size:12px;font-weight:600;}
-.video-badge{position:absolute;top:8px;right:8px;z-index:2;background:rgba(0,0,0,.7);color:#fff;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:11px;}
+.project-card:hover img{transform:scale(1.06);}
+.p-title{font-weight:700;font-size:13px;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.8);}.p-cat{color:var(--accent);font-size:11px;font-weight:600;}
+/* VIDEO THUMBNAIL */
+.vid-thumb{position:absolute;inset:0;z-index:1;}
+.vid-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.vid-play-btn{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.25);transition:background .3s;}
+.vid-play-btn:hover{background:rgba(0,0,0,.45);}
+.vid-play-circle{width:52px;height:52px;background:rgba(255,255,255,.92);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:transform .2s;box-shadow:0 2px 16px rgba(0,0,0,.4);}
+.vid-play-circle i{color:#111;font-size:18px;margin-right:-3px;}
+.vid-play-btn:hover .vid-play-circle{transform:scale(1.1);}
+/* COLS SLIDER (user facing) */
+.cols-control{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:24px;}
+.cols-control label{color:var(--sub);font-size:13px;font-weight:600;}
+.cols-slider{-webkit-appearance:none;appearance:none;width:120px;height:4px;border-radius:2px;background:#2a2a2a;outline:none;cursor:pointer;}
+.cols-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer;}
+.cols-slider::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;}
+.cols-val{color:var(--accent);font-weight:700;font-size:13px;min-width:24px;text-align:center;}
 .contact-sub{color:var(--sub);margin-bottom:48px;font-size:15px;text-align:center;}
 .contact-form{max-width:600px;margin:0 auto;}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
@@ -299,7 +314,21 @@ function buildExp(c,a){
   return`<section id="experience" class="sw"><div class="sh"><h2>${a?'الخبرات':'Experience'}</h2><div class="sl"></div></div><div class="exp-list">${items.map(it=>`<div class="exp-card"><div class="exp-header"><div class="exp-company">${a?(it.company_ar||it.company_en):(it.company_en||'')}</div><div class="exp-period">${it.years||''}</div></div><div class="exp-role">${a?(it.role_ar||it.role_en):(it.role_en||'')}</div></div>`).join('')}</div></section>`;
 }
 function buildProjects(c,a){
-  return`<section id="projects" class="sw alt"><div class="sh"><h2>${a?(c.title_ar||'أعمال مختارة'):(c.title_en||'Selected Work')}</h2><p>${a?(c.subtitle_ar||''):(c.subtitle_en||'')}</p><div class="sl"></div></div><div class="filter-tabs"><button class="filter-tab active" onclick="filterProjects('all',this)">${t('all')}</button><button class="filter-tab" onclick="filterProjects('image',this)"><i class="fa-solid fa-image" style="margin-left:6px;"></i>${t('designs')}</button><button class="filter-tab" onclick="filterProjects('video',this)"><i class="fa-brands fa-instagram" style="margin-left:6px;"></i>${t('reels')}</button></div><div class="projects-grid" id="projectsGrid"><div style="grid-column:1/-1;text-align:center;padding:50px"><div class="spin"></div></div></div></section>`;
+  const defCols=S.video_cols||4;
+  return`<section id="projects" class="sw alt">
+    <div class="sh"><h2>${a?(c.title_ar||'أعمال مختارة'):(c.title_en||'Selected Work')}</h2><p>${a?(c.subtitle_ar||''):(c.subtitle_en||'')}</p><div class="sl"></div></div>
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="filterProjects('all',this)">${t('all')}</button>
+      <button class="filter-tab" onclick="filterProjects('image',this)"><i class="fa-solid fa-image" style="margin-left:6px;"></i>${t('designs')}</button>
+      <button class="filter-tab" onclick="filterProjects('video',this)"><i class="fa-brands fa-instagram" style="margin-left:6px;"></i>${t('reels')}</button>
+    </div>
+    <div class="cols-control">
+      <label>${a?'عدد الفيديوهات في الصف':'Videos per row'}</label>
+      <input type="range" class="cols-slider" id="colsSlider" min="2" max="6" value="${defCols}" oninput="updateCols(this.value)">
+      <span class="cols-val" id="colsVal">${defCols}</span>
+    </div>
+    <div class="projects-grid" id="projectsGrid"><div style="grid-column:1/-1;text-align:center;padding:50px"><div class="spin"></div></div></div>
+  </section>`;
 }
 function buildContact(c,a){
   return`<section id="contact" class="sw"><div class="sh"><h2>${a?(c.title_ar||'تواصل معي'):(c.title_en||"Let's Work Together")}</h2><div class="sl"></div></div><p class="contact-sub">${a?(c.subtitle_ar||''):(c.subtitle_en||'')}</p><div class="contact-form"><div class="form-row"><div class="form-group"><input type="text" placeholder="${t('name')}"></div><div class="form-group"><input type="email" placeholder="${t('email')}"></div></div><div class="form-row"><div class="form-group full"><input type="text" placeholder="${t('subject')}"></div></div><div class="form-row"><div class="form-group full"><textarea placeholder="${t('msg')}"></textarea></div></div><button class="btn-submit" onclick="sendMsg()">${t('send')}</button></div></section>`;
@@ -312,24 +341,45 @@ function footerInner(a){
 }
 function buildFooter(a){return`<footer>${footerInner(a)}</footer>`;}
 
+function updateCols(val){
+  document.getElementById('colsVal').textContent=val;
+  applyGridCols(val);
+}
+function applyGridCols(cols){
+  const grid=document.getElementById('projectsGrid');if(!grid)return;
+  // images: auto-fill minmax, videos: fixed cols count
+  const vidW=Math.floor(100/cols);
+  grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
+}
+
 function filterProjects(type,btn){currentFilter=type;document.querySelectorAll('.filter-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderProjects();}
+
 function renderProjects(){
   const grid=document.getElementById('projectsGrid');if(!grid)return;
+  const cols=document.getElementById('colsSlider')?parseInt(document.getElementById('colsSlider').value):(S.video_cols||4);
   let list=PROJECTS;
   if(currentFilter==='image')list=list.filter(p=>p.mediaType!=='video');
   if(currentFilter==='video')list=list.filter(p=>p.mediaType==='video');
-  if(!list.length){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:70px 20px;color:#444;"><i class="fa-solid fa-images" style="font-size:44px;margin-bottom:14px;display:block;"></i><p>${t('noProjects')}</p></div>`;return;}
+  if(!list.length){
+    grid.style.gridTemplateColumns='';
+    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:70px 20px;color:#444;"><i class="fa-solid fa-images" style="font-size:44px;margin-bottom:14px;display:block;"></i><p>${t('noProjects')}</p></div>`;
+    return;
+  }
+  // apply columns
+  grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
+
   grid.innerHTML=list.map(p=>{
     const ri=PROJECTS.indexOf(p);const isV=p.mediaType==='video';
     if(isV){
-      // Instagram-style: show cover/thumbnail with play button, click plays inline
-      const thumb=p.coverImage?`<div class="vid-thumb"><img src="${p.coverImage}" alt="${p.title}"></div>`:'';
-      return`<div class="project-card type-video" id="vc-${ri}" onclick="playVideoCard(${ri},this)">
+      // video card — click opens video lightbox directly
+      const thumb=p.coverImage?`<div class="vid-thumb"><img src="${p.coverImage}" alt="${p.title}" loading="lazy"></div>`
+        :`<div class="vid-thumb" style="background:linear-gradient(135deg,#1a1a1a,#2a2a2a);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><i class="fa-brands fa-instagram" style="font-size:32px;color:#333;"></i></div>`;
+      return`<div class="project-card type-video" onclick="openVideoLightbox(${ri})">
         ${thumb}
         <div class="vid-play-btn">
           <div class="vid-play-circle"><i class="fa-solid fa-play"></i></div>
         </div>
-        <div class="project-overlay" style="z-index:4;">
+        <div class="project-overlay">
           <div class="p-title">${p.title}</div><div class="p-cat">${p.category}</div>
         </div>
       </div>`;
@@ -340,26 +390,14 @@ function renderProjects(){
   }).join('');
 }
 
-function playVideoCard(idx, cardEl){
-  // if already playing, open project page instead
-  if(cardEl.querySelector('.vid-inline,.vid-inline-iframe')){openProject(idx);return;}
+// Open video directly in fullscreen lightbox
+function openVideoLightbox(idx){
   const p=PROJECTS[idx];if(!p||!p.videoUrl)return;
-  // hide play button overlay
-  const playBtn=cardEl.querySelector('.vid-play-btn');if(playBtn)playBtn.style.display='none';
-  const thumb=cardEl.querySelector('.vid-thumb');if(thumb)thumb.style.display='none';
-  if(isEmbed(p.videoUrl)){
-    const iframe=document.createElement('iframe');
-    iframe.src=p.videoUrl+'&autoplay=1';
-    iframe.className='vid-inline-iframe';iframe.allowFullscreen=true;
-    iframe.allow='autoplay; fullscreen';
-    cardEl.appendChild(iframe);
-  } else {
-    const vid=document.createElement('video');
-    vid.src=p.videoUrl;vid.autoplay=true;vid.controls=true;vid.playsInline=true;
-    vid.className='vid-inline';vid.style.objectFit='cover';
-    cardEl.appendChild(vid);
-    vid.play().catch(()=>{});
-  }
+  currentGallery=[{type:'video',src:p.videoUrl}];
+  lbIdx=0;
+  renderLb();
+  document.getElementById('lightbox').classList.add('active');
+  document.body.style.overflow='hidden';
 }
 
 function isEmbed(url){return url&&(url.includes('youtube.com/embed')||url.includes('player.vimeo.com'));}
@@ -416,10 +454,24 @@ function renderLb(){
   }
   el.className='lb-media';lb.insertBefore(el,lb.querySelector('.lb-prev'));
 }
-function closeLb(){const v=document.querySelector('#lightbox video');if(v){v.pause();v.src='';}document.getElementById('lightbox').classList.remove('active');}
-function lbNav(d){const v=document.querySelector('#lightbox video');if(v){v.pause();v.src='';}lbIdx=(lbIdx+d+currentGallery.length)%currentGallery.length;renderLb();}
+function closeLb(){
+  const v=document.querySelector('#lightbox video');if(v){v.pause();v.src='';}
+  const ifr=document.querySelector('#lightbox iframe');if(ifr)ifr.src='';
+  document.getElementById('lightbox').classList.remove('active');
+  document.body.style.overflow='';
+}
+function lbNav(d){
+  const v=document.querySelector('#lightbox video');if(v){v.pause();v.src='';}
+  const ifr=document.querySelector('#lightbox iframe');if(ifr)ifr.src='';
+  lbIdx=(lbIdx+d+currentGallery.length)%currentGallery.length;renderLb();
+}
 document.getElementById('lightbox').addEventListener('click',function(e){if(e.target===this)closeLb();});
-document.addEventListener('keydown',e=>{if(!document.getElementById('lightbox').classList.contains('active'))return;if(e.key==='Escape')closeLb();if(e.key==='ArrowLeft')lbNav(1);if(e.key==='ArrowRight')lbNav(-1);});
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('lightbox').classList.contains('active'))return;
+  if(e.key==='Escape')closeLb();
+  if(e.key==='ArrowLeft')lbNav(1);
+  if(e.key==='ArrowRight')lbNav(-1);
+});
 window.addEventListener('scroll',()=>{document.getElementById('mainNav').style.boxShadow=window.scrollY>50?'0 4px 30px rgba(0,0,0,.5)':'none';});
 function sendMsg(){showToast(ar()?'تم إرسال رسالتك بنجاح! ✓':'Message sent successfully! ✓');}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}

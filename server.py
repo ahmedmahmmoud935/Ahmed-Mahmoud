@@ -43,8 +43,8 @@ DEFAULT_COLORS = json.dumps({
 
 DEFAULT_CONTENT = json.dumps({
     "hero": {
-        "name_en": "Abdallah Ahmed",
-        "name_ar": "عبدالله أحمد",
+        "name_en": "Ahmed Mahmoud",
+        "name_ar": "أحمد محمود",
         "title_en": "Graphic Designer",
         "title_ar": "مصمم جرافيك",
         "btn1_en": "View Work", "btn1_ar": "أعمالي",
@@ -133,6 +133,7 @@ def init_db():
             ('whatsapp',''),('behance',''),('instagram',''),('linkedin',''),('facebook',''),
             ('photo_url',''),
             ('hero_cover_url',''),
+            ('video_cols', '4'),
             ('colors',   DEFAULT_COLORS),
             ('sections', DEFAULT_SECTIONS),
             ('content',  DEFAULT_CONTENT),
