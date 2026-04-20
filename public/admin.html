@@ -336,12 +336,55 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
           <div class="pi sq" style="width:100px;height:100px;"><img id="covImg" src="" alt=""><span class="cb">COVER</span><button class="ri" onclick="removeCover()"><i class="fa-solid fa-xmark"></i></button></div>
         </div>
       </div>
-      <div class="fg" id="vidGrp" style="display:none;"><label class="fl">ملف الفيديو * (Reel 9:16)</label>
-        <div class="ua"><input type="file" id="vidIn" accept="video/*" onchange="handleVid(this)"><div class="ui"><i class="fa-solid fa-video"></i></div><div class="ut">MP4 / MOV — <span>9:16</span></div></div>
-        <div id="vidProg" style="display:none;margin-top:6px;font-size:12px;color:var(--g2);">جاري التحميل...<div class="pb" id="vidPb" style="width:0%"></div></div>
-        <div id="vidPrev" style="display:none;margin-top:10px;">
-          <div class="pi rv" style="width:55px;height:98px;"><video id="vidEl" muted playsinline style="width:100%;height:100%;object-fit:cover;"></video><span class="cb">REEL</span><button class="ri" onclick="removeVid()"><i class="fa-solid fa-xmark"></i></button></div>
+      <div class="fg" id="vidGrp" style="display:none;"><label class="fl">الفيديو / Reel</label>
+
+        <!-- Video source tabs -->
+        <div style="display:flex;gap:8px;margin-bottom:14px;">
+          <button type="button" id="vsFile" onclick="setVidSrc('file')" style="flex:1;padding:9px;border-radius:7px;font-family:Cairo,sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:1px solid #2a2a2a;background:rgba(249,115,22,.12);color:var(--o);">
+            <i class="fa-solid fa-upload" style="margin-left:6px;"></i>رفع ملف
+          </button>
+          <button type="button" id="vsYT" onclick="setVidSrc('youtube')" style="flex:1;padding:9px;border-radius:7px;font-family:Cairo,sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:1px solid #2a2a2a;background:transparent;color:var(--g2);">
+            <i class="fa-brands fa-youtube" style="margin-left:6px;color:#ff0000;"></i>YouTube
+          </button>
+          <button type="button" id="vsVimeo" onclick="setVidSrc('vimeo')" style="flex:1;padding:9px;border-radius:7px;font-family:Cairo,sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:1px solid #2a2a2a;background:transparent;color:var(--g2);">
+            <i class="fa-brands fa-vimeo-v" style="margin-left:6px;color:#1ab7ea;"></i>Vimeo
+          </button>
         </div>
+
+        <!-- File upload -->
+        <div id="vidSrcFile">
+          <div class="ua"><input type="file" id="vidIn" accept="video/*" onchange="handleVid(this)"><div class="ui"><i class="fa-solid fa-video"></i></div><div class="ut">MP4 / MOV — <span>9:16</span></div></div>
+          <div id="vidProg" style="display:none;margin-top:6px;font-size:12px;color:var(--g2);">جاري التحميل...<div class="pb" id="vidPb" style="width:0%"></div></div>
+          <div id="vidPrev" style="display:none;margin-top:10px;">
+            <div class="pi rv" style="width:55px;height:98px;"><video id="vidEl" muted playsinline style="width:100%;height:100%;object-fit:cover;"></video><span class="cb">REEL</span><button class="ri" onclick="removeVid()"><i class="fa-solid fa-xmark"></i></button></div>
+          </div>
+        </div>
+
+        <!-- YouTube embed -->
+        <div id="vidSrcYoutube" style="display:none;">
+          <div style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:10px;padding:18px;">
+            <div class="fg"><label class="fl"><i class="fa-brands fa-youtube" style="color:#ff0000;margin-left:6px;"></i>رابط YouTube</label>
+              <input class="fi" id="ytUrl" placeholder="https://www.youtube.com/watch?v=... أو https://youtu.be/..." oninput="previewEmbed('youtube')">
+            </div>
+            <div id="ytPreview" style="display:none;margin-top:12px;border-radius:8px;overflow:hidden;aspect-ratio:9/16;max-width:160px;">
+              <iframe id="ytFrame" style="width:100%;height:100%;border:none;" allowfullscreen></iframe>
+            </div>
+            <p style="color:#555;font-size:12px;margin-top:8px;">💡 الرابط العادي أو Shorts أو youtu.be كلهم شغالين</p>
+          </div>
+        </div>
+
+        <!-- Vimeo embed -->
+        <div id="vidSrcVimeo" style="display:none;">
+          <div style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:10px;padding:18px;">
+            <div class="fg"><label class="fl"><i class="fa-brands fa-vimeo-v" style="color:#1ab7ea;margin-left:6px;"></i>رابط Vimeo</label>
+              <input class="fi" id="vimeoUrl" placeholder="https://vimeo.com/123456789" oninput="previewEmbed('vimeo')">
+            </div>
+            <div id="vimeoPreview" style="display:none;margin-top:12px;border-radius:8px;overflow:hidden;aspect-ratio:9/16;max-width:160px;">
+              <iframe id="vimeoFrame" style="width:100%;height:100%;border:none;" allowfullscreen></iframe>
+            </div>
+          </div>
+        </div>
+
       </div>
       <div class="fg"><label class="fl">صور المعرض (متعدد)</label>
         <div class="ua"><input type="file" id="galIn" accept="image/*" multiple onchange="handleGal(this)"><div class="ui"><i class="fa-solid fa-images"></i></div><div class="ut">اختر أكثر من صورة</div></div>
@@ -370,6 +413,8 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 // ══════════════════════════════════════════
 let S={}, projects=[], deleteId=null;
 let covData=null,covExist=false,vidData=null,vidExist=false,galNew=[],galKeep=[],curMT='image';
+let curVidSrc='file'; // 'file' | 'youtube' | 'vimeo'
+let embedUrl=''; // stores the resolved embed URL
 
 // ══════════════════════════════════════════
 // AUTH
@@ -441,22 +486,74 @@ function setMT(type){
   document.getElementById('vidGrp').style.display=type==='video'?'block':'none';
   if(type==='video')document.getElementById('fCat').value='Reels';
 }
+
+function setVidSrc(src){
+  curVidSrc=src;
+  ['file','youtube','vimeo'].forEach(s=>{
+    const btn=document.getElementById('vs'+s.charAt(0).toUpperCase()+s.slice(1));
+    const div=document.getElementById('vidSrc'+s.charAt(0).toUpperCase()+s.slice(1));
+    if(btn){btn.style.background=s===src?'rgba(249,115,22,.12)':'transparent';btn.style.color=s===src?'var(--o)':'var(--g2)';btn.style.borderColor=s===src?'var(--o)':'#2a2a2a';}
+    if(div)div.style.display=s===src?'block':'none';
+  });
+}
+
+// extract YouTube video ID from any YT URL
+function getYTId(url){
+  const m=url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return m?m[1]:null;
+}
+// extract Vimeo video ID
+function getVimeoId(url){
+  const m=url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  return m?m[1]:null;
+}
+
+function previewEmbed(type){
+  if(type==='youtube'){
+    const id=getYTId(document.getElementById('ytUrl').value.trim());
+    if(id){
+      document.getElementById('ytFrame').src=`https://www.youtube.com/embed/${id}`;
+      document.getElementById('ytPreview').style.display='block';
+      embedUrl=`https://www.youtube.com/embed/${id}`;
+    }
+  } else {
+    const id=getVimeoId(document.getElementById('vimeoUrl').value.trim());
+    if(id){
+      document.getElementById('vimeoFrame').src=`https://player.vimeo.com/video/${id}?portrait=0&byline=0&title=0`;
+      document.getElementById('vimeoPreview').style.display='block';
+      embedUrl=`https://player.vimeo.com/video/${id}?portrait=0&byline=0&title=0`;
+    }
+  }
+}
 function openAddModal(){
   document.getElementById('mTitle').textContent='مشروع جديد';document.getElementById('eId').value='';
   document.getElementById('fTitle').value='';document.getElementById('fCat').value='Social Media';document.getElementById('fDesc').value='';
-  covData=null;covExist=false;vidData=null;vidExist=false;galNew=[];galKeep=[];
+  covData=null;covExist=false;vidData=null;vidExist=false;galNew=[];galKeep=[];embedUrl='';
   document.getElementById('covPrev').style.display='none';document.getElementById('vidPrev').style.display='none';
-  document.getElementById('galPrev').innerHTML='';document.getElementById('covIn').value='';document.getElementById('vidIn').value='';document.getElementById('galIn').value='';
-  setMT('image');document.getElementById('projModal').classList.add('open');
+  document.getElementById('galPrev').innerHTML='';document.getElementById('covIn').value='';document.getElementById('galIn').value='';
+  document.getElementById('ytUrl').value='';document.getElementById('vimeoUrl').value='';
+  document.getElementById('ytPreview').style.display='none';document.getElementById('vimeoPreview').style.display='none';
+  setMT('image');setVidSrc('file');document.getElementById('projModal').classList.add('open');
 }
 function openEdit(id){
   const p=projects.find(x=>x.id===id);if(!p)return;
   document.getElementById('mTitle').textContent='تعديل المشروع';document.getElementById('eId').value=id;
   document.getElementById('fTitle').value=p.title;document.getElementById('fCat').value=p.category;document.getElementById('fDesc').value=p.description||'';
-  covData=null;covExist=!!p.coverImage;vidData=null;vidExist=!!p.videoUrl;galNew=[];galKeep=[...(p.images||[])];
+  covData=null;covExist=!!p.coverImage;vidData=null;vidExist=!!p.videoUrl;galNew=[];galKeep=[...(p.images||[])];embedUrl='';
   setMT(p.mediaType||'image');
   if(p.coverImage){document.getElementById('covImg').src=p.coverImage;document.getElementById('covPrev').style.display='block';}else document.getElementById('covPrev').style.display='none';
-  if(p.videoUrl){document.getElementById('vidEl').src=p.videoUrl;document.getElementById('vidPrev').style.display='block';}else document.getElementById('vidPrev').style.display='none';
+  // detect if existing video is an embed URL
+  if(p.videoUrl){
+    if(p.videoUrl.includes('youtube.com/embed')||p.videoUrl.includes('player.vimeo')){
+      embedUrl=p.videoUrl;
+      const isYT=p.videoUrl.includes('youtube');
+      setVidSrc(isYT?'youtube':'vimeo');
+      if(isYT){document.getElementById('ytFrame').src=p.videoUrl;document.getElementById('ytPreview').style.display='block';}
+      else{document.getElementById('vimeoFrame').src=p.videoUrl;document.getElementById('vimeoPreview').style.display='block';}
+    } else {
+      setVidSrc('file');document.getElementById('vidEl').src=p.videoUrl;document.getElementById('vidPrev').style.display='block';
+    }
+  } else { setVidSrc('file'); }
   renderGal();document.getElementById('projModal').classList.add('open');
 }
 function closeModal(){document.getElementById('projModal').classList.remove('open');}
@@ -484,12 +581,28 @@ function rmKeep(i){galKeep.splice(i,1);renderGal();}function rmNew(i){galNew.spl
 async function saveProject(){
   const title=document.getElementById('fTitle').value.trim();
   if(!title){toast('⚠️ أدخل عنوان المشروع');return;}
-  if(curMT==='video'&&!vidData&&!vidExist){toast('⚠️ ارفع ملف الفيديو');return;}
+  // resolve embed URL if needed
+  let finalEmbedUrl='';
+  if(curMT==='video'&&curVidSrc!=='file'){
+    if(curVidSrc==='youtube'){
+      const id=getYTId(document.getElementById('ytUrl').value.trim());
+      if(id)finalEmbedUrl=`https://www.youtube.com/embed/${id}`;
+      else if(embedUrl)finalEmbedUrl=embedUrl;
+    } else {
+      const id=getVimeoId(document.getElementById('vimeoUrl').value.trim());
+      if(id)finalEmbedUrl=`https://player.vimeo.com/video/${id}?portrait=0&byline=0&title=0`;
+      else if(embedUrl)finalEmbedUrl=embedUrl;
+    }
+    if(!finalEmbedUrl&&!vidExist){toast('⚠️ أدخل رابط الفيديو');return;}
+  }
+  if(curMT==='video'&&curVidSrc==='file'&&!vidData&&!vidExist){toast('⚠️ ارفع ملف الفيديو');return;}
   const btn=document.getElementById('saveBtn');btn.innerHTML='<div class="spin"></div> جاري الحفظ...';btn.disabled=true;
   const eid=document.getElementById('eId').value;const isEdit=!!eid;
   const body={title,category:document.getElementById('fCat').value,description:document.getElementById('fDesc').value,mediaType:curMT,keepImages:galKeep,images:galNew};
   if(covData===null&&covExist){}else if(covData==='')body.coverImage='';else if(covData)body.coverImage=covData;else body.coverImage=null;
-  if(vidData===null&&vidExist){}else if(vidData==='')body.videoData='';else if(vidData)body.videoData=vidData;else body.videoData=null;
+  // video: embed URL takes priority over file upload
+  if(finalEmbedUrl){body.embedUrl=finalEmbedUrl;}
+  else if(vidData===null&&vidExist){}else if(vidData==='')body.videoData='';else if(vidData)body.videoData=vidData;else body.videoData=null;
   try{
     const r=await fetch(isEdit?`/api/projects/${eid}`:'/api/projects',{method:isEdit?'PUT':'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     if(r.ok){closeModal();await loadProjects();toast(isEdit?'✓ تم التحديث':'✓ تم الإضافة');}

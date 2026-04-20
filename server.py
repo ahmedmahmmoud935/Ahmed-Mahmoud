@@ -42,8 +42,8 @@ DEFAULT_COLORS = json.dumps({
 
 DEFAULT_CONTENT = json.dumps({
     "hero": {
-        "name_en": "Ahmed Mahmoud",
-        "name_ar": "أحمد محمود",
+        "name_en": "Abdallah Ahmed",
+        "name_ar": "عبدالله أحمد",
         "title_en": "Graphic Designer",
         "title_ar": "مصمم جرافيك",
         "btn1_en": "View Work", "btn1_ar": "أعمالي",
@@ -200,7 +200,12 @@ def create_project():
     title = (d.get('title') or '').strip()
     if not title: return jsonify({'error':'العنوان مطلوب'}),400
     cover_url = save_dataurl(d['coverImage'], ALLOWED_IMG) if d.get('coverImage') else None
-    video_url = save_dataurl(d['videoData'],  ALLOWED_VID) if d.get('videoData')  else None
+    # embedUrl takes priority over file upload for video
+    embed_url = d.get('embedUrl')
+    if embed_url:
+        video_url = embed_url
+    else:
+        video_url = save_dataurl(d['videoData'], ALLOWED_VID) if d.get('videoData') else None
     db = get_db()
     cur = db.execute('INSERT INTO projects(title,category,description,media_type,cover_url,video_url) VALUES(?,?,?,?,?,?)',
         (title,d.get('category','Social Media'),d.get('description',''),d.get('mediaType','image'),cover_url,video_url))
@@ -227,7 +232,14 @@ def update_project(pid):
         return old_url
 
     cover_url = resolve_file('coverImage', row['cover_url'], ALLOWED_IMG)
-    video_url = resolve_file('videoData',  row['video_url'], ALLOWED_VID)
+    # embedUrl takes priority
+    if d.get('embedUrl'):
+        # delete old file-based video if switching to embed
+        if row['video_url'] and not row['video_url'].startswith('http'):
+            delete_file(row['video_url'])
+        video_url = d['embedUrl']
+    else:
+        video_url = resolve_file('videoData', row['video_url'], ALLOWED_VID)
     db.execute('UPDATE projects SET title=?,category=?,description=?,media_type=?,cover_url=?,video_url=? WHERE id=?',
         ((d.get('title') or row['title']).strip(), d.get('category',row['category']),
          d.get('description',row['description']), d.get('mediaType',row['media_type']),
