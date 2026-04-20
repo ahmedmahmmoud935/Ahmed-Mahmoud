@@ -42,8 +42,8 @@ DEFAULT_COLORS = json.dumps({
 
 DEFAULT_CONTENT = json.dumps({
     "hero": {
-        "name_en": "Abdallah Ahmed",
-        "name_ar": "عبدالله أحمد",
+        "name_en": "Ahmed Mahmoud",
+        "name_ar": "أحمد محمود",
         "title_en": "Graphic Designer",
         "title_ar": "مصمم جرافيك",
         "btn1_en": "View Work", "btn1_ar": "أعمالي",
