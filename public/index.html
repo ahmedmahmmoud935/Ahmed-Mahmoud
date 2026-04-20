@@ -121,7 +121,34 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:28px 60p
 .toast.show{transform:translateX(-50%) translateY(0);}
 .spin{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;}
 @keyframes sp{to{transform:rotate(360deg);}}
-@media(max-width:768px){nav{padding:0 18px;}.nav-links{display:none;}#hero{padding:100px 20px 60px;}.about-grid{grid-template-columns:1fr;}.sw{padding:60px 20px;}.form-row{grid-template-columns:1fr;}footer{padding:24px 20px;}.pp-body{padding:30px 20px;}}
+/* ── EXPERTISE ── */
+.expertise-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;max-width:1200px;margin:0 auto;}
+.exp-card-service{background:var(--bg3);border:1px solid #252525;border-radius:16px;padding:30px;transition:all .3s;position:relative;overflow:hidden;}
+.exp-card-service::before{content:'';position:absolute;inset:0;border-radius:16px;border:1px solid transparent;transition:border-color .3s;pointer-events:none;}
+.exp-card-service:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.4);}
+.exp-card-service:hover::before{border-color:var(--accent);}
+.exp-svc-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;}
+.exp-svc-icon{width:52px;height:52px;border-radius:50%;border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--accent);flex-shrink:0;background:rgba(249,115,22,.08);}
+.exp-svc-icon img{width:28px;height:28px;object-fit:contain;}
+.exp-svc-title{font-family:'Montserrat',sans-serif;font-weight:700;font-size:18px;color:var(--accent);}
+.exp-svc-points{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.exp-svc-points li{color:#ccc;font-size:14px;line-height:1.7;padding-right:16px;position:relative;}
+.exp-svc-points li::before{content:'•';color:var(--accent);position:absolute;right:0;font-size:16px;}
+/* ── VIDEO THUMBNAIL (Instagram style) ── */
+.project-card.type-video{aspect-ratio:9/16;position:relative;cursor:pointer;overflow:hidden;background:#000;}
+.vid-thumb{position:absolute;inset:0;z-index:1;}
+.vid-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.vid-play-btn{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.3);transition:background .3s;}
+.vid-play-btn:hover{background:rgba(0,0,0,.5);}
+.vid-play-circle{width:54px;height:54px;background:rgba(255,255,255,.95);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:transform .2s;}
+.vid-play-circle i{color:#111;font-size:20px;margin-right:-3px;}
+.vid-play-btn:hover .vid-play-circle{transform:scale(1.1);}
+/* inline video after click */
+.vid-inline{position:absolute;inset:0;z-index:3;width:100%;height:100%;object-fit:cover;display:block;}
+.vid-inline-iframe{position:absolute;inset:0;z-index:3;width:100%;height:100%;border:none;display:block;}
+/* Arabic font override */
+[lang="ar"] body,[lang="ar"] .hero-sub,[lang="ar"] .nav-links a{font-family:'Cairo',sans-serif;}
+@media(max-width:768px){.expertise-grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -198,11 +225,34 @@ function buildSec(s,ct,a){
   const c=ct[s.id]||{};
   switch(s.id){
     case'hero':return buildHero(c,a);case'about':return buildAbout(c,a);
+    case'expertise':return buildExpertise(c,a);
     case'education':return buildEdu(c,a);case'skills':return buildSkills(c,a);
     case'tools':return buildTools(c,a);case'experience':return buildExp(c,a);
     case'projects':return buildProjects(c,a);case'contact':return buildContact(c,a);
     default:return'';
   }
+}
+
+function buildExpertise(c,a){
+  let items=[];try{items=JSON.parse(c.items||'[]');}catch{}
+  const cards=items.map(it=>{
+    const title=a?(it.title_ar||it.title_en):(it.title_en||'');
+    const pts=(a?(it.points_ar||it.points_en||''):(it.points_en||'')).split('|').filter(Boolean);
+    const iconHtml=it.img_url
+      ?`<img src="${it.img_url}" alt="${title}">`
+      :`<i class="${it.icon||'fa-solid fa-star'}"></i>`;
+    return`<div class="exp-card-service">
+      <div class="exp-svc-header">
+        <div class="exp-svc-icon">${iconHtml}</div>
+        <div class="exp-svc-title">${title}</div>
+      </div>
+      <ul class="exp-svc-points">${pts.map(p=>`<li>${p.trim()}</li>`).join('')}</ul>
+    </div>`;
+  }).join('');
+  return`<section id="expertise" class="sw">
+    <div class="sh"><h2>${a?(c.title_ar||'خدماتي'):(c.title_en||'Key Expertise')}</h2><div class="sl"></div></div>
+    <div class="expertise-grid">${cards}</div>
+  </section>`;
 }
 
 function buildHero(c,a){
@@ -271,10 +321,45 @@ function renderProjects(){
   if(!list.length){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:70px 20px;color:#444;"><i class="fa-solid fa-images" style="font-size:44px;margin-bottom:14px;display:block;"></i><p>${t('noProjects')}</p></div>`;return;}
   grid.innerHTML=list.map(p=>{
     const ri=PROJECTS.indexOf(p);const isV=p.mediaType==='video';
-    const th=p.coverImage?`<img src="${p.coverImage}" alt="${p.title}" loading="lazy">`:`<div class="proj-ph"><i class="fa-solid fa-${isV?'play-circle':'image'}"></i></div>`;
-    if(isV)return`<div class="project-card type-video" onclick="openProject(${ri})">${th}<div class="video-badge"><i class="fa-solid fa-play"></i></div><div class="project-overlay"><i class="fa-solid fa-circle-play" style="font-size:38px;margin-bottom:8px;"></i><div class="p-title">${p.title}</div><div class="p-cat">${p.category}</div></div></div>`;
-    return`<div class="project-card type-image" onclick="openProject(${ri})">${th}<div class="project-overlay"><div class="p-title">${p.title}</div><div class="p-cat">${p.category}</div></div></div>`;
+    if(isV){
+      // Instagram-style: show cover/thumbnail with play button, click plays inline
+      const thumb=p.coverImage?`<div class="vid-thumb"><img src="${p.coverImage}" alt="${p.title}"></div>`:'';
+      return`<div class="project-card type-video" id="vc-${ri}" onclick="playVideoCard(${ri},this)">
+        ${thumb}
+        <div class="vid-play-btn">
+          <div class="vid-play-circle"><i class="fa-solid fa-play"></i></div>
+        </div>
+        <div class="project-overlay" style="z-index:4;">
+          <div class="p-title">${p.title}</div><div class="p-cat">${p.category}</div>
+        </div>
+      </div>`;
+    }
+    const th=p.coverImage?`<img src="${p.coverImage}" alt="${p.title}" loading="lazy">`:`<div class="proj-ph"><i class="fa-solid fa-image"></i></div>`;
+    return`<div class="project-card type-image" onclick="openProject(${ri})">${th}
+      <div class="project-overlay"><div class="p-title">${p.title}</div><div class="p-cat">${p.category}</div></div></div>`;
   }).join('');
+}
+
+function playVideoCard(idx, cardEl){
+  // if already playing, open project page instead
+  if(cardEl.querySelector('.vid-inline,.vid-inline-iframe')){openProject(idx);return;}
+  const p=PROJECTS[idx];if(!p||!p.videoUrl)return;
+  // hide play button overlay
+  const playBtn=cardEl.querySelector('.vid-play-btn');if(playBtn)playBtn.style.display='none';
+  const thumb=cardEl.querySelector('.vid-thumb');if(thumb)thumb.style.display='none';
+  if(isEmbed(p.videoUrl)){
+    const iframe=document.createElement('iframe');
+    iframe.src=p.videoUrl+'&autoplay=1';
+    iframe.className='vid-inline-iframe';iframe.allowFullscreen=true;
+    iframe.allow='autoplay; fullscreen';
+    cardEl.appendChild(iframe);
+  } else {
+    const vid=document.createElement('video');
+    vid.src=p.videoUrl;vid.autoplay=true;vid.controls=true;vid.playsInline=true;
+    vid.className='vid-inline';vid.style.objectFit='cover';
+    cardEl.appendChild(vid);
+    vid.play().catch(()=>{});
+  }
 }
 
 function isEmbed(url){return url&&(url.includes('youtube.com/embed')||url.includes('player.vimeo.com'));}

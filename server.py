@@ -22,14 +22,15 @@ def get_db():
     return conn
 
 DEFAULT_SECTIONS = json.dumps([
-    {"id":"hero",       "label_ar":"الرئيسية",       "label_en":"Hero",        "visible":True,  "order":0},
-    {"id":"about",      "label_ar":"عن النفس",        "label_en":"About",       "visible":True,  "order":1},
-    {"id":"education",  "label_ar":"التعليم",          "label_en":"Education",   "visible":True,  "order":2},
-    {"id":"skills",     "label_ar":"المهارات",         "label_en":"Skills",      "visible":True,  "order":3},
-    {"id":"tools",      "label_ar":"الأدوات",          "label_en":"Tools",       "visible":True,  "order":4},
-    {"id":"experience", "label_ar":"الخبرات",          "label_en":"Experience",  "visible":True,  "order":5},
-    {"id":"projects",   "label_ar":"المشاريع",         "label_en":"Projects",    "visible":True,  "order":6},
-    {"id":"contact",    "label_ar":"تواصل معي",        "label_en":"Contact",     "visible":True,  "order":7}
+    {"id":"hero",       "label_ar":"الرئيسية",       "label_en":"Hero",          "visible":True,  "order":0},
+    {"id":"about",      "label_ar":"عن النفس",        "label_en":"About",         "visible":True,  "order":1},
+    {"id":"expertise",  "label_ar":"الخدمات",         "label_en":"Key Expertise", "visible":True,  "order":2},
+    {"id":"education",  "label_ar":"التعليم",          "label_en":"Education",     "visible":True,  "order":3},
+    {"id":"skills",     "label_ar":"المهارات",         "label_en":"Skills",        "visible":True,  "order":4},
+    {"id":"tools",      "label_ar":"الأدوات",          "label_en":"Tools",         "visible":True,  "order":5},
+    {"id":"experience", "label_ar":"الخبرات",          "label_en":"Experience",    "visible":True,  "order":6},
+    {"id":"projects",   "label_ar":"المشاريع",         "label_en":"Projects",      "visible":True,  "order":7},
+    {"id":"contact",    "label_ar":"تواصل معي",        "label_en":"Contact",       "visible":True,  "order":8}
 ])
 
 DEFAULT_COLORS = json.dumps({
@@ -42,9 +43,9 @@ DEFAULT_COLORS = json.dumps({
 
 DEFAULT_CONTENT = json.dumps({
     "hero": {
-        "name_en": "Ahmed Mahmoud",
-        "name_ar": "أحمد محمود",
-        "title_en": "Multimedia Designer",
+        "name_en": "Abdallah Ahmed",
+        "name_ar": "عبدالله أحمد",
+        "title_en": "Graphic Designer",
         "title_ar": "مصمم جرافيك",
         "btn1_en": "View Work", "btn1_ar": "أعمالي",
         "btn2_en": "Get In Touch", "btn2_ar": "تواصل معي"
@@ -79,6 +80,15 @@ DEFAULT_CONTENT = json.dumps({
             {"company_en":"Casftime Group","company_ar":"مجموعة كاسفتايم","role_en":"Senior Graphic Designer","role_ar":"مصمم جرافيك أول","years":"2023 – Present"},
             {"company_en":"Creative Canvas","company_ar":"كانفاس الإبداعي","role_en":"Graphic Designer","role_ar":"مصمم جرافيك","years":"2021 – 2023"},
             {"company_en":"Ty Print Agency","company_ar":"وكالة تي برينت","role_en":"Junior Designer","role_ar":"مصمم مبتدئ","years":"2019 – 2021"}
+        ])
+    },
+    "expertise": {
+        "title_en": "Key Expertise", "title_ar": "خدماتي",
+        "items": json.dumps([
+            {"title_en":"Graphic Design","title_ar":"تصميم جرافيك","icon":"fa-solid fa-pen-nib","points_en":"Designing creative visuals for social media platforms.|Print design, including packaging, brochures, menus, and company profiles.","points_ar":"تصميم مرئيات إبداعية لمنصات السوشيال ميديا.|تصميم مطبوعات تشمل التغليف والكتيبات والمطاعم وبروفايلات الشركات."},
+            {"title_en":"Brand Identity","title_ar":"هوية بصرية","icon":"fa-solid fa-layer-group","points_en":"Creating complete visual identities for brands.|Logo design, color palettes, and brand guidelines.","points_ar":"إنشاء هويات بصرية متكاملة للعلامات التجارية.|تصميم شعارات وألوان وأدلة العلامة التجارية."},
+            {"title_en":"Social Media","title_ar":"سوشيال ميديا","icon":"fa-brands fa-instagram","points_en":"Managing and designing content for social platforms.|Creating engaging posts, stories, and campaigns.","points_ar":"إدارة وتصميم محتوى لمنصات التواصل الاجتماعي.|إنشاء منشورات وستوريز وحملات جذابة."},
+            {"title_en":"Motion Graphics","title_ar":"موشن جرافيك","icon":"fa-solid fa-film","points_en":"Creating animated graphics and video content.|Motion design for social media and presentations.","points_ar":"إنشاء جرافيك متحرك ومحتوى فيديو.|تصميم موشن للسوشيال ميديا والعروض التقديمية."}
         ])
     },
     "projects": {

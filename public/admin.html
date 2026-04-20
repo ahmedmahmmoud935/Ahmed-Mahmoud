@@ -349,6 +349,9 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
           <button type="button" id="vsVimeo" onclick="setVidSrc('vimeo')" style="flex:1;padding:9px;border-radius:7px;font-family:Cairo,sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:1px solid #2a2a2a;background:transparent;color:var(--g2);">
             <i class="fa-brands fa-vimeo-v" style="margin-left:6px;color:#1ab7ea;"></i>Vimeo
           </button>
+          <button type="button" id="vsEmbed" onclick="setVidSrc('embed')" style="flex:1;padding:9px;border-radius:7px;font-family:Cairo,sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:1px solid #2a2a2a;background:transparent;color:var(--g2);">
+            <i class="fa-solid fa-code" style="margin-left:6px;"></i>Embed Code
+          </button>
         </div>
 
         <!-- File upload -->
@@ -373,18 +376,18 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
           </div>
         </div>
 
-        <!-- Vimeo embed -->
-        <div id="vidSrcVimeo" style="display:none;">
+        <!-- Embed code -->
+        <div id="vidSrcEmbed" style="display:none;">
           <div style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:10px;padding:18px;">
-            <div class="fg"><label class="fl"><i class="fa-brands fa-vimeo-v" style="color:#1ab7ea;margin-left:6px;"></i>رابط Vimeo</label>
-              <input class="fi" id="vimeoUrl" placeholder="https://vimeo.com/123456789" oninput="previewEmbed('vimeo')">
+            <div class="fg"><label class="fl"><i class="fa-solid fa-code" style="color:var(--o);margin-left:6px;"></i>كود الـ Embed (iframe)</label>
+              <textarea class="fta" id="embedCode" placeholder='&lt;iframe src="..." ...&gt;&lt;/iframe&gt;' style="min-height:90px;font-family:monospace;font-size:12px;" oninput="parseEmbedCode()"></textarea>
             </div>
-            <div id="vimeoPreview" style="display:none;margin-top:12px;border-radius:8px;overflow:hidden;aspect-ratio:9/16;max-width:160px;">
-              <iframe id="vimeoFrame" style="width:100%;height:100%;border:none;" allowfullscreen></iframe>
-            </div>
+            <p style="color:#555;font-size:12px;margin-top:6px;">💡 الصق كود الـ embed كاملاً من YouTube / Vimeo / أي منصة</p>
+            <div id="embedPreview" style="display:none;margin-top:12px;border-radius:8px;overflow:hidden;aspect-ratio:9/16;max-width:160px;"></div>
           </div>
         </div>
 
+        <!-- end video group -->
       </div>
       <div class="fg"><label class="fl">صور المعرض (متعدد)</label>
         <div class="ua"><input type="file" id="galIn" accept="image/*" multiple onchange="handleGal(this)"><div class="ui"><i class="fa-solid fa-images"></i></div><div class="ut">اختر أكثر من صورة</div></div>
@@ -489,12 +492,26 @@ function setMT(type){
 
 function setVidSrc(src){
   curVidSrc=src;
-  ['file','youtube','vimeo'].forEach(s=>{
-    const btn=document.getElementById('vs'+s.charAt(0).toUpperCase()+s.slice(1));
-    const div=document.getElementById('vidSrc'+s.charAt(0).toUpperCase()+s.slice(1));
+  const all=['file','youtube','vimeo','embed'];
+  all.forEach(s=>{
+    const key=s.charAt(0).toUpperCase()+s.slice(1);
+    const btn=document.getElementById('vs'+key);
+    const div=document.getElementById('vidSrc'+key);
     if(btn){btn.style.background=s===src?'rgba(249,115,22,.12)':'transparent';btn.style.color=s===src?'var(--o)':'var(--g2)';btn.style.borderColor=s===src?'var(--o)':'#2a2a2a';}
     if(div)div.style.display=s===src?'block':'none';
   });
+}
+
+function parseEmbedCode(){
+  const code=document.getElementById('embedCode').value.trim();
+  // extract src from iframe
+  const m=code.match(/src=["']([^"']+)["']/i);
+  if(m){
+    embedUrl=m[1];
+    const prev=document.getElementById('embedPreview');
+    prev.style.display='block';
+    prev.innerHTML=`<iframe src="${embedUrl}" style="width:100%;height:100%;border:none;" allowfullscreen></iframe>`;
+  }
 }
 
 // extract YouTube video ID from any YT URL
@@ -588,12 +605,18 @@ async function saveProject(){
       const id=getYTId(document.getElementById('ytUrl').value.trim());
       if(id)finalEmbedUrl=`https://www.youtube.com/embed/${id}`;
       else if(embedUrl)finalEmbedUrl=embedUrl;
-    } else {
+    } else if(curVidSrc==='vimeo'){
       const id=getVimeoId(document.getElementById('vimeoUrl').value.trim());
       if(id)finalEmbedUrl=`https://player.vimeo.com/video/${id}?portrait=0&byline=0&title=0`;
       else if(embedUrl)finalEmbedUrl=embedUrl;
+    } else if(curVidSrc==='embed'){
+      // parse from embed code
+      const code=document.getElementById('embedCode').value.trim();
+      const m=code.match(/src=["']([^"']+)["']/i);
+      if(m)finalEmbedUrl=m[1];
+      else if(embedUrl)finalEmbedUrl=embedUrl;
     }
-    if(!finalEmbedUrl&&!vidExist){toast('⚠️ أدخل رابط الفيديو');return;}
+    if(!finalEmbedUrl&&!vidExist){toast('⚠️ أدخل رابط أو كود الفيديو');return;}
   }
   if(curMT==='video'&&curVidSrc==='file'&&!vidData&&!vidExist){toast('⚠️ ارفع ملف الفيديو');return;}
   const btn=document.getElementById('saveBtn');btn.innerHTML='<div class="spin"></div> جاري الحفظ...';btn.disabled=true;
@@ -702,14 +725,14 @@ async function saveSections(){
 // CONTENT
 // ══════════════════════════════════════════
 let ctData={};
-const SEC_LABELS={hero:'الرئيسية',about:'عن النفس',education:'التعليم',skills:'المهارات',tools:'الأدوات',experience:'الخبرات',projects:'المشاريع',contact:'التواصل'};
+const SEC_LABELS={hero:'الرئيسية',about:'عن النفس',expertise:'الخدمات / Key Expertise',education:'التعليم',skills:'المهارات',tools:'الأدوات',experience:'الخبرات',projects:'المشاريع',contact:'التواصل'};
 
 function loadContent(){
   ctData=JSON.parse(JSON.stringify(S.content||{}));
   buildContentTabs();
 }
 function buildContentTabs(){
-  const secs=['hero','about','education','skills','tools','experience','projects','contact'];
+  const secs=['hero','about','expertise','education','skills','tools','experience','projects','contact'];
   document.getElementById('ctabs').innerHTML=secs.map((s,i)=>
     `<button class="ctab ${i===0?'active':''}" onclick="showCSec('${s}',this)">${SEC_LABELS[s]||s}</button>`).join('');
   document.getElementById('contentSections').innerHTML=secs.map((s,i)=>
@@ -746,6 +769,7 @@ function buildCSec(id){
       <div class="fg"><label class="fl">Tags (English) — comma separated</label><input class="fi" id="ab_tags_en" value="${e(c.tags_en||'')}" placeholder="Brand Identity,Social Media,..."></div>
       </div>`;
     case'education':return buildEduEditor(c);
+    case'expertise':return buildExpertiseEditor(c);
     case'skills':return`<div class="card"><div class="card-title">المهارات (Skills)</div>
       <div class="fg"><label class="fl">المهارات (عربي) — فاصل بفاصلة</label><textarea class="fta" id="sk_ar">${e(c.items_ar||'')}</textarea></div>
       <div class="fg"><label class="fl">Skills (English) — comma separated</label><textarea class="fta" id="sk_en">${e(c.items_en||'')}</textarea></div>
@@ -764,6 +788,72 @@ function buildCSec(id){
   }
 }
 function e(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function buildExpertiseEditor(c){
+  let items=[];try{items=JSON.parse(c.items||'[]');}catch{}
+  const titleAr=c.title_ar||'خدماتي';const titleEn=c.title_en||'Key Expertise';
+  return`<div class="card">
+    <div class="card-title">قسم الخدمات (Key Expertise)</div>
+    <div class="frow" style="margin-bottom:20px;">
+      <div class="fg"><label class="fl">عنوان القسم (عربي)</label><input class="fi" id="exp_sec_title_ar" value="${e(titleAr)}"></div>
+      <div class="fg"><label class="fl">Section Title (EN)</label><input class="fi" id="exp_sec_title_en" value="${e(titleEn)}"></div>
+    </div>
+    <div class="card-title" style="margin-bottom:14px;">الكروت</div>
+    <div class="dlist" id="expertiseList">${items.map((it,i)=>expertiseItem(it,i)).join('')}</div>
+    <button class="add-btn" onclick="addExpertise()"><i class="fa-solid fa-plus"></i> إضافة كارت جديد</button>
+  </div>`;
+}
+
+let expSvcImgUploads={};
+function expertiseItem(it,i){
+  const existImg=it.img_url||'';
+  return`<div class="ditem" id="expsvc-${i}">
+  <button class="ditem-del" onclick="delExpertise(${i})"><i class="fa-solid fa-xmark"></i></button>
+  <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px;">
+    <div id="expsvc_img_prev_${i}" style="width:56px;height:56px;border-radius:50%;border:2px solid var(--o);background:rgba(249,115,22,.08);display:flex;align-items:center;justify-content:center;color:var(--o);font-size:18px;overflow:hidden;flex-shrink:0;">
+      ${existImg?`<img src="${existImg}" style="width:100%;height:100%;object-fit:contain;">`:`<i class="${it.icon||'fa-solid fa-star'}"></i>`}
+    </div>
+    <div style="flex:1;min-width:180px;">
+      <div class="frow" style="margin-bottom:8px;">
+        <div class="fg"><label class="fl">أيقونة FontAwesome</label><input class="fi" id="expsvc_icon_${i}" value="${e(it.icon||'fa-solid fa-star')}" placeholder="fa-solid fa-pen-nib" oninput="previewSvcIcon(${i})"></div>
+        <div class="fg"><label class="fl">أو رفع صورة/أيقونة</label>
+          <div class="ua" style="padding:10px;"><input type="file" accept="image/*" onchange="handleExpSvcImg(this,${i})"><div class="ut" style="font-size:12px;">PNG / SVG / <span>اختر</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="frow" style="margin-bottom:10px;">
+    <div class="fg"><label class="fl">العنوان (عربي)</label><input class="fi" id="expsvc_title_ar_${i}" value="${e(it.title_ar||'')}"></div>
+    <div class="fg"><label class="fl">Title (EN)</label><input class="fi" id="expsvc_title_en_${i}" value="${e(it.title_en||'')}"></div>
+  </div>
+  <div class="fg"><label class="fl">النقاط (عربي) — افصل بـ |</label><textarea class="fta" id="expsvc_pts_ar_${i}" style="min-height:70px;">${e(it.points_ar||'')}</textarea></div>
+  <div class="fg"><label class="fl">Points (EN) — separate with |</label><textarea class="fta" id="expsvc_pts_en_${i}" style="min-height:70px;">${e(it.points_en||'')}</textarea></div>
+</div>`;}
+
+function previewSvcIcon(i){
+  const icon=v(`expsvc_icon_${i}`);
+  const prev=document.getElementById(`expsvc_img_prev_${i}`);
+  if(prev&&!expSvcImgUploads[i])prev.innerHTML=`<i class="${icon}"></i>`;
+}
+async function handleExpSvcImg(inp,i){
+  const f=inp.files[0];if(!f)return;const data=await b64(f);
+  expSvcImgUploads[i]=data;
+  document.getElementById(`expsvc_img_prev_${i}`).innerHTML=`<img src="${data}" style="width:100%;height:100%;object-fit:contain;">`;
+}
+function addExpertise(){const list=document.getElementById('expertiseList');const i=list.children.length;list.insertAdjacentHTML('beforeend',expertiseItem({},i));}
+function delExpertise(i){const el=document.getElementById('expsvc-'+i);if(el){el.remove();delete expSvcImgUploads[i];}}
+function getExpertiseItems(){
+  const items=[];
+  document.querySelectorAll('[id^="expsvc-"]').forEach(el=>{
+    const i=el.id.split('-')[1];
+    items.push({
+      title_ar:v(`expsvc_title_ar_${i}`),title_en:v(`expsvc_title_en_${i}`),
+      icon:v(`expsvc_icon_${i}`),
+      img_url:expSvcImgUploads[i]||el.querySelector('img')?.src||'',
+      points_ar:v(`expsvc_pts_ar_${i}`),points_en:v(`expsvc_pts_en_${i}`)
+    });
+  });return items;
+}
 
 function buildEduEditor(c){
   let items=[];try{items=JSON.parse(c.items||'[]');}catch{}
@@ -851,6 +941,7 @@ function gatherContent(){
   const ct={};
   try{ct.hero={name_ar:v('h_name_ar'),name_en:v('h_name_en'),title_ar:v('h_title_ar'),title_en:v('h_title_en'),btn1_ar:v('h_btn1_ar'),btn1_en:v('h_btn1_en'),btn2_ar:v('h_btn2_ar'),btn2_en:v('h_btn2_en')};}catch{}
   try{ct.about={text_ar:v('ab_text_ar'),text_en:v('ab_text_en'),tags_ar:v('ab_tags_ar'),tags_en:v('ab_tags_en')};}catch{}
+  try{ct.expertise={title_ar:v('exp_sec_title_ar'),title_en:v('exp_sec_title_en'),items:JSON.stringify(getExpertiseItems())};}catch{}
   try{ct.education={items:JSON.stringify(getEduItems())};}catch{}
   try{ct.skills={items_ar:v('sk_ar'),items_en:v('sk_en')};}catch{}
   try{ct.tools={items:JSON.stringify(getToolItems())};}catch{}
