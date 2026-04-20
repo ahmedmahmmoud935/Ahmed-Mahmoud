@@ -131,9 +131,8 @@ def init_db():
         ''')
         defaults = [
             ('whatsapp',''),('behance',''),('instagram',''),('linkedin',''),('facebook',''),
-            ('photo_url',''),
-            ('hero_cover_url',''),
-            ('video_cols', '4'),
+            ('photo_url',''),('hero_cover_url',''),('video_cols','4'),
+            ('vimeo_token',''),
             ('colors',   DEFAULT_COLORS),
             ('sections', DEFAULT_SECTIONS),
             ('content',  DEFAULT_CONTENT),
@@ -333,6 +332,63 @@ def update_settings():
         db.execute('INSERT OR REPLACE INTO settings(key,value) VALUES(?,?)',(k, val))
     db.commit()
     return jsonify({'ok':True})
+
+# ─────────────────────────── VIMEO PROXY ─────────────────────────────────────
+import urllib.request, urllib.error
+
+@app.route('/api/vimeo/videos')
+@login_required
+def vimeo_videos():
+    db   = get_db()
+    row  = db.execute("SELECT value FROM settings WHERE key='vimeo_token'").fetchone()
+    token = (row['value'] if row else '').strip()
+    if not token:
+        return jsonify({'error': 'Vimeo token not set'}), 400
+    try:
+        req = urllib.request.Request(
+            'https://api.vimeo.com/me/videos?per_page=100&fields=uri,name,description,duration,pictures',
+            headers={'Authorization': f'bearer {token}', 'Accept': 'application/vnd.vimeo.*+json;version=3.4'}
+        )
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            data = json.loads(resp.read())
+        videos = []
+        for v in data.get('data', []):
+            vid_id = v['uri'].split('/')[-1]
+            thumb  = ''
+            pics   = v.get('pictures', {}).get('sizes', [])
+            if pics:
+                # pick medium thumbnail
+                thumb = sorted(pics, key=lambda x: x.get('width',0))[min(2, len(pics)-1)].get('link','')
+            videos.append({
+                'id':          vid_id,
+                'name':        v.get('name', ''),
+                'description': v.get('description', '') or '',
+                'duration':    v.get('duration', 0),
+                'thumbnail':   thumb,
+                'embed_url':   f'https://player.vimeo.com/video/{vid_id}?portrait=0&byline=0&title=0'
+            })
+        return jsonify({'videos': videos})
+    except urllib.error.HTTPError as e:
+        body = e.read().decode()
+        return jsonify({'error': f'Vimeo API error {e.code}', 'detail': body}), 502
+    except Exception as ex:
+        return jsonify({'error': str(ex)}), 500
+
+@app.route('/api/proxy-image', methods=['POST'])
+@login_required
+def proxy_image():
+    """Fetch an external image and return as base64 data URL (for thumbnails)."""
+    url = (request.get_json() or {}).get('url','').strip()
+    if not url or not url.startswith('http'):
+        return jsonify({'error': 'invalid url'}), 400
+    try:
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            content_type = resp.headers.get_content_type() or 'image/jpeg'
+            data = base64.b64encode(resp.read()).decode()
+        return jsonify({'dataUrl': f'data:{content_type};base64,{data}'})
+    except Exception as ex:
+        return jsonify({'error': str(ex)}), 500
 
 # ─────────────────────────── STATIC ──────────────────────────────────────────
 @app.route('/uploads/<path:filename>')
