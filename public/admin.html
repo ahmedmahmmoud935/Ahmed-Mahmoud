@@ -224,6 +224,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
     <div class="ni active" onclick="setTab('projects',this)"><i class="fa-solid fa-images"></i> المشاريع</div>
     <div class="ni" onclick="setTab('colors',this)"><i class="fa-solid fa-palette"></i> الألوان</div>
     <div class="ni" onclick="setTab('sections',this)"><i class="fa-solid fa-layer-group"></i> ترتيب الأقسام</div>
+    <div class="ni" onclick="setTab('navbar',this)"><i class="fa-solid fa-bars"></i> الشريط العلوي</div>
     <div class="ni" onclick="setTab('content',this)"><i class="fa-solid fa-pen-to-square"></i> المحتوى</div>
     <div class="ni" onclick="setTab('social',this)"><i class="fa-solid fa-share-nodes"></i> التواصل</div>
   </nav>
@@ -292,6 +293,18 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
   <div class="card">
     <div class="card-title">أقسام الموقع</div>
     <div class="sec-list" id="secList"></div>
+  </div>
+</div>
+
+<!-- NAVBAR TAB -->
+<div id="tab-navbar" style="display:none;">
+  <div class="ph"><div><div class="pt">الشريط العلوي</div><div class="ps">تحكم في الروابط الظاهرة في الـ Navbar</div></div>
+    <button class="btn-add" onclick="saveNavbar()"><i class="fa-solid fa-floppy-disk"></i> حفظ</button>
+  </div>
+  <div class="card">
+    <div class="card-title">روابط الـ Navbar</div>
+    <p style="color:var(--g2);font-size:13px;margin-bottom:20px;">فعّل أو أخفِ الروابط — اسحب لإعادة الترتيب — يمكنك تعديل النص</p>
+    <div class="sec-list" id="navbarList"></div>
   </div>
 </div>
 
@@ -659,9 +672,10 @@ async function initApp(){
 // ══ TABS ══
 function setTab(tab,el){
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));el.classList.add('active');
-  ['projects','colors','sections','content','social'].forEach(t=>{
+  ['projects','colors','sections','navbar','content','social'].forEach(t=>{
     document.getElementById('tab-'+t).style.display=t===tab?'block':'none';
   });
+  if(tab==='navbar')renderNavbarList();
 }
 
 // ══ PROJECTS ══
@@ -973,15 +987,25 @@ function buildCSec(id){
     case'projects':return`<div class="card"><div class="card-title">قسم المشاريع</div>
       <div class="frow"><div class="fg"><label class="fl">العنوان (عربي)</label><input class="fi" id="pj_title_ar" value="${e(c.title_ar||'أعمال مختارة')}"></div><div class="fg"><label class="fl">Title (EN)</label><input class="fi" id="pj_title_en" value="${e(c.title_en||'Selected Work')}"></div></div>
       <div class="frow"><div class="fg"><label class="fl">العنوان الفرعي (عربي)</label><input class="fi" id="pj_sub_ar" value="${e(c.subtitle_ar||'')}"></div><div class="fg"><label class="fl">Subtitle (EN)</label><input class="fi" id="pj_sub_en" value="${e(c.subtitle_en||'')}"></div></div>
-      <div class="fg" style="margin-top:8px;">
-        <label class="fl"><i class="fa-brands fa-instagram" style="color:var(--o);margin-left:6px;"></i>عدد الفيديوهات (Reels) في كل صف</label>
-        <div style="display:flex;align-items:center;gap:16px;margin-top:6px;">
-          <input type="range" id="videoColsRange" min="2" max="6" value="${S.video_cols||4}" oninput="document.getElementById('videoColsVal').textContent=this.value" style="-webkit-appearance:none;appearance:none;width:180px;height:4px;border-radius:2px;background:#2a2a2a;outline:none;cursor:pointer;">
-          <style>#videoColsRange::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--o);cursor:pointer;}#videoColsRange::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--o);border:none;cursor:pointer;}</style>
-          <span id="videoColsVal" style="color:var(--o);font-weight:700;font-size:18px;min-width:28px;">${S.video_cols||4}</span>
-          <span style="color:var(--g2);font-size:13px;">فيديو في الصف</span>
+      <div class="frow" style="margin-top:8px;">
+        <div class="fg">
+          <label class="fl"><i class="fa-solid fa-image" style="color:var(--o);margin-left:6px;"></i>عدد التصاميم في كل صف</label>
+          <div style="display:flex;align-items:center;gap:16px;margin-top:6px;">
+            <input type="range" id="imageColsRange" min="2" max="6" value="${S.image_cols||4}" oninput="document.getElementById('imageColsVal').textContent=this.value" style="-webkit-appearance:none;appearance:none;width:180px;height:4px;border-radius:2px;background:#2a2a2a;outline:none;cursor:pointer;">
+            <style>#imageColsRange::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--o);cursor:pointer;}#imageColsRange::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--o);border:none;cursor:pointer;}</style>
+            <span id="imageColsVal" style="color:var(--o);font-weight:700;font-size:18px;min-width:28px;">${S.image_cols||4}</span>
+            <span style="color:var(--g2);font-size:13px;">في الصف</span>
+          </div>
         </div>
-        <p style="color:#555;font-size:12px;margin-top:8px;">💡 المستخدم يقدر يغير العدد ده بنفسه من الموقع عبر السلايدر</p>
+        <div class="fg">
+          <label class="fl"><i class="fa-brands fa-instagram" style="color:var(--o);margin-left:6px;"></i>عدد الريلز في كل صف</label>
+          <div style="display:flex;align-items:center;gap:16px;margin-top:6px;">
+            <input type="range" id="videoColsRange" min="2" max="6" value="${S.video_cols||4}" oninput="document.getElementById('videoColsVal').textContent=this.value" style="-webkit-appearance:none;appearance:none;width:180px;height:4px;border-radius:2px;background:#2a2a2a;outline:none;cursor:pointer;">
+            <style>#videoColsRange::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--o);cursor:pointer;}#videoColsRange::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--o);border:none;cursor:pointer;}</style>
+            <span id="videoColsVal" style="color:var(--o);font-weight:700;font-size:18px;min-width:28px;">${S.video_cols||4}</span>
+            <span style="color:var(--g2);font-size:13px;">في الصف</span>
+          </div>
+        </div>
       </div>
       </div>`;
     case'contact':return`<div class="card"><div class="card-title">التواصل</div>
@@ -1132,7 +1156,8 @@ function gatherContent(){
 async function saveContent(){
   const ct=gatherContent();
   const payload={content:ct};
-  // video cols
+  const imgColsEl=document.getElementById('imageColsRange');
+  if(imgColsEl)payload.image_cols=imgColsEl.value;
   const colsEl=document.getElementById('videoColsRange');
   if(colsEl)payload.video_cols=colsEl.value;
   if(heroCoverData!==null)payload.hero_cover_upload=heroCoverData;
@@ -1339,7 +1364,50 @@ async function changeCredentials(){
   }catch{toast('خطأ في الاتصال');}
 }
 
-// ══ TOAST ══
+// ══ NAVBAR CONTROL ══
+let navbarData=[];
+function renderNavbarList(){
+  try{navbarData=JSON.parse(JSON.stringify(S.navbar_links||[]));}catch{navbarData=[];}
+  if(!navbarData.length){
+    navbarData=[
+      {id:'about',label_ar:'عن النفس',label_en:'About',visible:true},
+      {id:'expertise',label_ar:'الخدمات',label_en:'Services',visible:true},
+      {id:'experience',label_ar:'الخبرات',label_en:'Experience',visible:true},
+      {id:'projects',label_ar:'المشاريع',label_en:'Projects',visible:true},
+      {id:'contact',label_ar:'تواصل',label_en:'Contact',visible:true},
+    ];
+  }
+  buildNavbarUI();
+}
+function buildNavbarUI(){
+  document.getElementById('navbarList').innerHTML=navbarData.map((item,i)=>`
+    <div class="sec-item" draggable="true" data-nid="${item.id}"
+      ondragstart="navDragStart(event,${i})" ondragover="navDragOver(event,${i})"
+      ondrop="navDrop(event,${i})" ondragend="navDragEnd()">
+      <div class="sec-drag"><i class="fa-solid fa-grip-vertical"></i></div>
+      <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center;">
+        <input class="fi" style="padding:7px 10px;font-size:13px;" value="${e(item.label_ar||'')}"
+          oninput="navbarData[${i}].label_ar=this.value" placeholder="عربي">
+        <input class="fi" style="padding:7px 10px;font-size:13px;" value="${e(item.label_en||'')}"
+          oninput="navbarData[${i}].label_en=this.value" placeholder="English">
+      </div>
+      <label class="toggle">
+        <input type="checkbox" ${item.visible?'checked':''} onchange="navbarData[${i}].visible=this.checked">
+        <div class="toggle-track"></div><div class="toggle-thumb"></div>
+      </label>
+    </div>`).join('');
+}
+let _navDragIdx=null;
+function navDragStart(e,i){_navDragIdx=i;setTimeout(()=>{const el=document.querySelectorAll('#navbarList .sec-item')[i];if(el)el.classList.add('dragging');},0);}
+function navDragOver(e,i){e.preventDefault();document.querySelectorAll('#navbarList .sec-item').forEach((el,idx)=>el.classList.toggle('drag-over',idx===i&&idx!==_navDragIdx));}
+function navDrop(e,i){e.preventDefault();if(_navDragIdx===null||_navDragIdx===i)return;const m=navbarData.splice(_navDragIdx,1)[0];navbarData.splice(i,0,m);_navDragIdx=null;buildNavbarUI();}
+function navDragEnd(){_navDragIdx=null;document.querySelectorAll('#navbarList .sec-item').forEach(el=>el.classList.remove('dragging','drag-over'));}
+async function saveNavbar(){
+  try{
+    const r=await fetch('/api/settings',{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({navbar_links:navbarData})});
+    if(r.ok){S.navbar_links=navbarData;toast('✓ تم حفظ الشريط العلوي');}else toast('فشل الحفظ');
+  }catch{toast('خطأ في الاتصال');}
+}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
 
 // ══ CLOSE ON OVERLAY CLICK ══

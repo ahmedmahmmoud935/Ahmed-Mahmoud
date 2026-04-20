@@ -131,8 +131,15 @@ def init_db():
         ''')
         defaults = [
             ('whatsapp',''),('behance',''),('instagram',''),('linkedin',''),('facebook',''),
-            ('photo_url',''),('hero_cover_url',''),('video_cols','4'),
+            ('photo_url',''),('hero_cover_url',''),('video_cols','4'),('image_cols','4'),
             ('vimeo_token',''),
+            ('navbar_links', json.dumps([
+                {"id":"about",      "label_ar":"عن النفس",  "label_en":"About",      "visible":True},
+                {"id":"expertise",  "label_ar":"الخدمات",   "label_en":"Services",   "visible":True},
+                {"id":"experience", "label_ar":"الخبرات",   "label_en":"Experience", "visible":True},
+                {"id":"projects",   "label_ar":"المشاريع",  "label_en":"Projects",   "visible":True},
+                {"id":"contact",    "label_ar":"تواصل",     "label_en":"Contact",    "visible":True},
+            ])),
             ('colors',   DEFAULT_COLORS),
             ('sections', DEFAULT_SECTIONS),
             ('content',  DEFAULT_CONTENT),
