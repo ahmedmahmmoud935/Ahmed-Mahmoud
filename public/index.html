@@ -140,6 +140,128 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
   .pg-nav{padding:0 18px;}.pg-body{padding:30px 18px;}
   .pg-name{font-size:26px;}
 }
+/* ══════════════════════════════════════
+   MOBILE  (≤ 600px)
+══════════════════════════════════════ */
+@media(max-width:600px){
+  /* NAV */
+  nav{padding:0 18px;height:60px;}
+  .nav-links{display:none;}
+  .nav-logo{font-size:14px;}
+
+  /* HERO */
+  #hero{padding:90px 20px 60px;min-height:100svh;}
+  .hero-name{font-size:clamp(36px,10vw,58px);letter-spacing:-1px;margin-bottom:8px;}
+  .hero-sub{font-size:11px;letter-spacing:3px;margin-bottom:24px;}
+  .hero-btns{gap:10px;}
+  .btn-primary,.btn-outline{padding:11px 22px;font-size:14px;}
+
+  /* SECTIONS */
+  .sw{padding:50px 20px;}
+  .sh h2{font-size:24px;}
+  .sh{margin-bottom:36px;}
+  .section-title{font-size:24px;}
+
+  /* ABOUT */
+  .about-grid{grid-template-columns:1fr;gap:30px;}
+  .about-img-wrap{max-width:220px;margin:0 auto;}
+  .about-img-wrap::after{display:none;}
+  .about-text{font-size:14px;}
+
+  /* EDUCATION */
+  .edu-card{padding:18px 16px;flex-direction:column;gap:10px;}
+
+  /* SKILLS */
+  .skill-chip{padding:8px 14px;font-size:13px;}
+
+  /* TOOLS */
+  .tools-grid{grid-template-columns:repeat(3,1fr);gap:10px;}
+  .tool-card{padding:18px 10px;}
+  .tool-icon{font-size:24px;margin-bottom:8px;}
+  .tool-name{font-size:11px;}
+
+  /* EXPERIENCE */
+  .exp-card{padding:18px 16px;}
+  .exp-header{flex-direction:column;gap:6px;}
+  .exp-company{font-size:14px;}
+
+  /* EXPERTISE */
+  .expertise-grid{grid-template-columns:1fr;gap:14px;}
+  .exp-card-service{padding:22px 18px;}
+
+  /* PROJECTS */
+  .filter-tabs{gap:6px;margin-bottom:24px;}
+  .filter-tab{padding:7px 14px;font-size:12px;}
+  .projects-grid.mode-all{grid-template-columns:repeat(3,1fr);gap:2px;}
+  .projects-grid.mode-image{grid-template-columns:repeat(2,1fr);max-width:100%;gap:2px;}
+  .projects-grid.mode-video{gap:6px;}
+  .cols-control{gap:8px;}
+  .cols-control label{font-size:12px;}
+
+  /* PROJECT PAGE */
+  .pg-nav{padding:0 14px;height:52px;}
+  .pg-back{font-size:13px;}
+  .pg-title-nav{font-size:13px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .pg-body{padding:24px 16px;}
+  .pg-name{font-size:22px;}
+  .pg-desc{font-size:14px;}
+  .pg-cover{max-height:260px;}
+  .pg-cover img{max-height:260px;}
+
+  /* CONTACT */
+  .form-row{grid-template-columns:1fr;}
+  .contact-sub{font-size:14px;}
+
+  /* FOOTER */
+  footer{padding:22px 20px;flex-direction:column;align-items:center;text-align:center;gap:14px;}
+
+  /* LIGHTBOX */
+  .lb-nav{width:38px;height:38px;font-size:16px;}
+  .lb-prev{left:6px;}.lb-next{right:6px;}
+  .lb-close{top:12px;right:14px;font-size:26px;}
+
+  /* LANG BTN */
+  .lang-btn{bottom:16px;right:16px;width:40px;height:40px;font-size:12px;}
+}
+
+/* ══════════════════════════════════════
+   TABLET  (601px – 1024px)
+══════════════════════════════════════ */
+@media(min-width:601px) and (max-width:1024px){
+  /* NAV */
+  nav{padding:0 28px;}
+  .nav-links{gap:18px;}
+  .nav-links a{font-size:13px;}
+
+  /* HERO */
+  #hero{padding:110px 36px 70px;}
+  .hero-name{font-size:clamp(44px,7vw,72px);}
+
+  /* SECTIONS */
+  .sw{padding:65px 36px;}
+  .sh h2{font-size:28px;}
+
+  /* ABOUT */
+  .about-grid{grid-template-columns:240px 1fr;gap:40px;}
+
+  /* TOOLS */
+  .tools-grid{grid-template-columns:repeat(auto-fit,minmax(120px,1fr));}
+
+  /* PROJECTS */
+  .projects-grid.mode-all{grid-template-columns:repeat(4,1fr);}
+  .projects-grid.mode-image{grid-template-columns:repeat(3,1fr);}
+
+  /* PROJECT PAGE */
+  .pg-nav{padding:0 28px;}
+  .pg-body{padding:40px 36px;}
+  .pg-name{font-size:30px;}
+
+  /* EXPERTISE */
+  .expertise-grid{grid-template-columns:repeat(2,1fr);}
+
+  /* FOOTER */
+  footer{padding:24px 36px;}
+}
 .contact-sub{color:var(--sub);margin-bottom:48px;font-size:15px;text-align:center;}
 .contact-form{max-width:600px;margin:0 auto;}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
