@@ -108,15 +108,17 @@ def init_db():
     with get_db() as db:
         db.executescript('''
             CREATE TABLE IF NOT EXISTS projects (
-                id         INTEGER PRIMARY KEY AUTOINCREMENT,
-                title      TEXT NOT NULL,
-                category   TEXT NOT NULL,
+                id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                title       TEXT NOT NULL,
+                category    TEXT NOT NULL,
                 description TEXT DEFAULT '',
-                media_type TEXT DEFAULT 'image',
-                cover_url  TEXT DEFAULT NULL,
-                video_url  TEXT DEFAULT NULL,
-                sort_order INTEGER DEFAULT 0,
-                created_at TEXT DEFAULT (datetime('now'))
+                media_type  TEXT DEFAULT 'image',
+                cover_url   TEXT DEFAULT NULL,
+                video_url   TEXT DEFAULT NULL,
+                sort_order  INTEGER DEFAULT 0,
+                created_at  TEXT DEFAULT (datetime('now')),
+                project_type TEXT DEFAULT 'grid',
+                modules     TEXT DEFAULT '[]'
             );
             CREATE TABLE IF NOT EXISTS project_images (
                 id         INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -128,7 +130,15 @@ def init_db():
                 key   TEXT PRIMARY KEY,
                 value TEXT
             );
+            -- migration: add new cols if missing
+            CREATE TABLE IF NOT EXISTS _migrations(id INTEGER PRIMARY KEY);
         ''')
+        # Safe migrations
+        for col, defval in [('project_type',"'grid'"), ('modules',"'[]'")]:
+            try:
+                db.execute(f'ALTER TABLE projects ADD COLUMN {col} TEXT DEFAULT {defval}')
+                db.commit()
+            except: pass
         defaults = [
             ('whatsapp',''),('behance',''),('instagram',''),('linkedin',''),('facebook',''),
             ('photo_url',''),('hero_cover_url',''),('video_cols','4'),('image_cols','4'),
@@ -211,10 +221,66 @@ def delete_file(url):
 # ─────────────────────────── PROJECTS ────────────────────────────────────────
 def project_to_dict(row, db):
     imgs = db.execute('SELECT url FROM project_images WHERE project_id=? ORDER BY sort_order',(row['id'],)).fetchall()
+    mods = []
+    try: mods = json.loads(row['modules'] or '[]')
+    except: pass
     return {'id':row['id'],'title':row['title'],'category':row['category'],
             'description':row['description'] or '','mediaType':row['media_type'],
             'coverImage':row['cover_url'],'videoUrl':row['video_url'],
-            'images':[r['url'] for r in imgs],'date':row['created_at'][:10]}
+            'images':[r['url'] for r in imgs],'date':row['created_at'][:10],
+            'projectType': row['project_type'] or 'grid',
+            'modules': mods}
+
+# ── Modules (Behance editor) ──
+@app.route('/api/projects/<int:pid>/modules', methods=['GET'])
+@login_required
+def get_modules(pid):
+    db  = get_db()
+    row = db.execute('SELECT * FROM projects WHERE id=?',(pid,)).fetchone()
+    if not row: abort(404)
+    mods = []
+    try: mods = json.loads(row['modules'] or '[]')
+    except: pass
+    return jsonify({'modules': mods, 'project': project_to_dict(row, db)})
+
+@app.route('/api/projects/<int:pid>/modules', methods=['PUT'])
+@login_required
+def save_modules(pid):
+    db  = get_db()
+    row = db.execute('SELECT * FROM projects WHERE id=?',(pid,)).fetchone()
+    if not row: abort(404)
+    d = request.get_json()
+    modules = d.get('modules', [])
+    project_type = d.get('projectType', row['project_type'] or 'grid')
+
+    # Process module media uploads
+    processed = []
+    for mod in modules:
+        mod = dict(mod)
+        # image module — save if base64
+        if mod.get('type') == 'image' and mod.get('src','').startswith('data:'):
+            url = save_dataurl(mod['src'], ALLOWED_IMG)
+            mod['src'] = url or mod['src']
+        # photo-grid module — save each image
+        if mod.get('type') == 'photo-grid':
+            new_items = []
+            for item in mod.get('items', []):
+                item = dict(item)
+                if item.get('src','').startswith('data:'):
+                    url = save_dataurl(item['src'], ALLOWED_IMG)
+                    item['src'] = url or item['src']
+                new_items.append(item)
+            mod['items'] = new_items
+        processed.append(mod)
+
+    db.execute('UPDATE projects SET modules=?, project_type=? WHERE id=?',
+               (json.dumps(processed), project_type, pid))
+    db.commit()
+    return jsonify({'ok': True, 'modules': processed})
+
+@app.route('/admin/editor/<int:pid>')
+def project_editor_page(pid):
+    return send_from_directory(app.static_folder, 'editor.html')
 
 @app.route('/api/projects')
 def get_projects():

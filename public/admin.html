@@ -694,10 +694,12 @@ function renderTable(){
   body.innerHTML=projects.map(p=>`
     <div class="trow">
       <div class="rth">${p.coverImage?`<img src="${p.coverImage}" alt="">`:`<i class="fa-solid fa-${p.mediaType==='video'?'play-circle':'image'}"></i>`}</div>
-      <div><div class="rtitle">${p.mediaType==='video'?'<i class="fa-brands fa-instagram" style="color:var(--o);font-size:11px;margin-left:5px;"></i>':''}${p.title}</div><div class="rmeta">${(p.images||[]).length} صورة${p.videoUrl?' · فيديو ✓':''}</div></div>
+      <div><div class="rtitle">${p.mediaType==='video'?'<i class="fa-brands fa-instagram" style="color:var(--o);font-size:11px;margin-left:5px;"></i>':''}${p.title}</div>
+        <div class="rmeta">${(p.images||[]).length} صورة${p.videoUrl?' · فيديو ✓':''}${p.projectType==='free'?' · <span style="color:#3b82f6;font-size:10px;">Behance</span>':''}</div></div>
       <div><span class="rcat">${p.category}</span></div>
       <div style="color:var(--g2);font-size:13px;">${p.date||'-'}</div>
       <div class="ra">
+        ${p.mediaType!=='video'?`<a href="/admin/editor/${p.id}" target="_blank" class="be" style="display:flex;align-items:center;justify-content:center;" title="محرر المشروع"><i class="fa-brands fa-behance" style="font-size:11px;"></i></a>`:''}
         <button class="be" onclick="openEdit(${p.id})" title="تعديل"><i class="fa-solid fa-pen"></i></button>
         <button class="bd" onclick="askDel(${p.id})" title="حذف"><i class="fa-solid fa-trash"></i></button>
       </div>
