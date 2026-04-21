@@ -701,7 +701,7 @@ function setTab(tab,el){
     const d=document.getElementById('tab-'+t);if(d)d.style.display=t===tab?'block':'none';
   });
   if(tab==='navbar')renderNavbarList();
-  if(tab==='reorder')renderReorderList();
+  if(tab==='reorder'){reorderData=[];renderReorderList();}
 }
 
 // ══ PROJECTS ══
@@ -1407,12 +1407,12 @@ async function saveNavbar(){
 // ══ PROJECTS REORDER ══
 let reorderData=[];
 function renderReorderList(){
-  reorderData=[...projects];
+  if(!reorderData.length) reorderData=[...projects];
   const list=document.getElementById('reorderList');if(!list)return;
   list.innerHTML=reorderData.map((p,i)=>`
     <div class="sec-item" draggable="true" data-pid="${p.id}"
-      ondragstart="roDragStart(event,${i})" ondragover="roDragOver(event,${i})"
-      ondrop="roDrop(event,${i})" ondragend="roDragEnd()">
+      ondragstart="roDragStart(event,'${p.id}')" ondragover="roDragOver(event,'${p.id}')"
+      ondrop="roDrop(event,'${p.id}')" ondragend="roDragEnd()">
       <div class="sec-drag"><i class="fa-solid fa-grip-vertical"></i></div>
       <div style="width:42px;height:42px;border-radius:8px;overflow:hidden;background:var(--d3);flex-shrink:0;display:flex;align-items:center;justify-content:center;">
         ${p.coverImage?`<img src="${p.coverImage}" style="width:100%;height:100%;object-fit:cover;">`:`<i class="fa-solid fa-${p.mediaType==='video'?'play-circle':'image'}" style="color:#444;font-size:14px;"></i>`}
@@ -1424,18 +1424,48 @@ function renderReorderList(){
       <span style="color:#555;font-size:12px;">#${i+1}</span>
     </div>`).join('');
 }
-let _roDragIdx=null;
-function roDragStart(e,i){_roDragIdx=i;setTimeout(()=>{const el=document.querySelectorAll('#reorderList .sec-item')[i];if(el)el.classList.add('dragging');},0);}
-function roDragOver(e,i){e.preventDefault();document.querySelectorAll('#reorderList .sec-item').forEach((el,idx)=>el.classList.toggle('drag-over',idx===i&&idx!==_roDragIdx));}
-function roDrop(e,i){e.preventDefault();if(_roDragIdx===null||_roDragIdx===i)return;const m=reorderData.splice(_roDragIdx,1)[0];reorderData.splice(i,0,m);_roDragIdx=null;renderReorderList();}
-function roDragEnd(){_roDragIdx=null;document.querySelectorAll('#reorderList .sec-item').forEach(el=>el.classList.remove('dragging','drag-over'));}
+let _roDragId=null;
+function roDragStart(e,id){
+  _roDragId=String(id);
+  e.dataTransfer.effectAllowed='move';
+  setTimeout(()=>{
+    const el=document.querySelector(`#reorderList [data-pid="${id}"]`);
+    if(el)el.classList.add('dragging');
+  },0);
+}
+function roDragOver(e,id){
+  e.preventDefault();e.dataTransfer.dropEffect='move';
+  document.querySelectorAll('#reorderList .sec-item').forEach(el=>{
+    el.classList.toggle('drag-over',el.dataset.pid===String(id)&&el.dataset.pid!==_roDragId);
+  });
+}
+function roDrop(e,id){
+  e.preventDefault();
+  const toId=String(id);
+  if(!_roDragId||_roDragId===toId)return;
+  const fromIdx=reorderData.findIndex(p=>String(p.id)===_roDragId);
+  const toIdx  =reorderData.findIndex(p=>String(p.id)===toId);
+  if(fromIdx<0||toIdx<0)return;
+  const [moved]=reorderData.splice(fromIdx,1);
+  reorderData.splice(toIdx,0,moved);
+  _roDragId=null;
+  renderReorderList();
+}
+function roDragEnd(){
+  _roDragId=null;
+  document.querySelectorAll('#reorderList .sec-item').forEach(el=>el.classList.remove('dragging','drag-over'));
+}
 async function saveReorder(){
   const ids=reorderData.map(p=>p.id);
   try{
     const r=await fetch('/api/projects/reorder',{method:'PUT',credentials:'include',
       headers:{'Content-Type':'application/json'},body:JSON.stringify({ids})});
-    if(r.ok){projects=reorderData.slice();toast('✓ تم حفظ الترتيب');}
-    else toast('فشل حفظ الترتيب');
+    if(r.ok){
+      projects=reorderData.slice();
+      reorderData=[];  // reset so next open re-reads saved order
+      renderTable();
+      toast('✓ تم حفظ الترتيب');
+    } else toast('فشل حفظ الترتيب');
   }catch{toast('خطأ في الاتصال');}
 }
 
