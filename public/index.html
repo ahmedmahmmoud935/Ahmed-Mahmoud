@@ -69,11 +69,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
 .filter-tab:hover{border-color:var(--accent);color:var(--accent);}
 .filter-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
 /* ── PROJECTS GRID ── */
-.projects-grid{display:grid;gap:3px;max-width:1200px;margin:0 auto;}
-.projects-grid.mode-all{grid-template-columns:repeat(5,1fr);}
-.projects-grid.mode-image{grid-template-columns:repeat(4,1fr);max-width:800px;}
-.projects-grid.mode-video{align-items:start;}
-.projects-grid.mode-all .project-card{aspect-ratio:4/5;}
+.projects-grid{display:grid;gap:3px;max-width:900px;margin:0 auto;}
+.projects-grid.mode-image{grid-template-columns:repeat(4,1fr);}
+.projects-grid.mode-video{align-items:start;max-width:1100px;grid-template-columns:repeat(4,1fr);}
 .projects-grid.mode-image .project-card{aspect-ratio:4/5;}
 .projects-grid.mode-video .project-card{aspect-ratio:9/16;}
 .project-card{position:relative;overflow:hidden;cursor:pointer;background:#111;}
@@ -189,14 +187,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
   .expertise-grid{grid-template-columns:1fr;gap:14px;}
   .exp-card-service{padding:22px 18px;}
 
-  /* PROJECTS */
-  .filter-tabs{gap:6px;margin-bottom:24px;}
-  .filter-tab{padding:7px 14px;font-size:12px;}
-  .projects-grid.mode-all{grid-template-columns:repeat(3,1fr);gap:2px;}
-  .projects-grid.mode-image{grid-template-columns:repeat(2,1fr);max-width:100%;gap:2px;}
-  .projects-grid.mode-video{gap:6px;}
-  .cols-control{gap:8px;}
-  .cols-control label{font-size:12px;}
+  /* PROJECTS — 2 cols on mobile */
+  .projects-grid.mode-image{grid-template-columns:repeat(2,1fr);max-width:100%;}
+  .projects-grid.mode-video{grid-template-columns:repeat(2,1fr);max-width:100%;}
 
   /* PROJECT PAGE */
   .pg-nav{padding:0 14px;height:52px;}
@@ -247,9 +240,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
   /* TOOLS */
   .tools-grid{grid-template-columns:repeat(auto-fit,minmax(120px,1fr));}
 
-  /* PROJECTS */
-  .projects-grid.mode-all{grid-template-columns:repeat(4,1fr);}
+  /* PROJECTS — 3 cols on tablet */
   .projects-grid.mode-image{grid-template-columns:repeat(3,1fr);}
+  .projects-grid.mode-video{grid-template-columns:repeat(3,1fr);}
 
   /* PROJECT PAGE */
   .pg-nav{padding:0 28px;}
@@ -359,9 +352,9 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:28px 60p
 </div>
 <div class="toast" id="toast"></div>
 <script>
-let LANG=localStorage.getItem('lang')||'en', S={}, PROJECTS=[], currentFilter='all', currentGallery=[], lbIdx=0;
+let LANG=localStorage.getItem('lang')||'en', S={}, PROJECTS=[], currentFilter='image', currentGallery=[], lbIdx=0;
 const ar=()=>LANG==='ar';
-const T={en:{back:'Back to Projects',gallery:'Gallery',all:'All',designs:'Designs',reels:'Reels',send:'Send Message',name:'Name',email:'Email',subject:'Subject',msg:'Message',noProjects:'No projects yet',rights:'All rights reserved.'},ar:{back:'العودة للمشاريع',gallery:'المعرض',all:'الكل',designs:'تصاميم',reels:'ريلز',send:'إرسال الرسالة',name:'الاسم',email:'البريد الإلكتروني',subject:'الموضوع',msg:'رسالتك',noProjects:'لا توجد مشاريع بعد',rights:'جميع الحقوق محفوظة.'}};
+const T={en:{back:'Back',gallery:'Gallery',all:'All',designs:'Designs',reels:'Reels',send:'Send Message',name:'Name',email:'Email',subject:'Subject',msg:'Message',noProjects:'No projects yet',rights:'All rights reserved.'},ar:{back:'رجوع',gallery:'المعرض',all:'الكل',designs:'تصاميم',reels:'ريلز',send:'إرسال الرسالة',name:'الاسم',email:'البريد الإلكتروني',subject:'الموضوع',msg:'رسالتك',noProjects:'لا توجد مشاريع بعد',rights:'جميع الحقوق محفوظة.'}};
 const t=k=>(T[LANG]||T.en)[k]||k;
 
 async function boot(){
@@ -484,17 +477,13 @@ function buildExp(c,a){
   return`<section id="experience" class="sw"><div class="sh"><h2>${a?'الخبرات':'Experience'}</h2><div class="sl"></div></div><div class="exp-list">${items.map(it=>`<div class="exp-card"><div class="exp-header"><div class="exp-company">${a?(it.company_ar||it.company_en):(it.company_en||'')}</div><div class="exp-period">${it.years||''}</div></div><div class="exp-role">${a?(it.role_ar||it.role_en):(it.role_en||'')}</div></div>`).join('')}</div></section>`;
 }
 function buildProjects(c,a){
-  const defCols=S.video_cols||4;
-  const defImgCols=S.image_cols||4;
   return`<section id="projects" class="sw alt">
     <div class="sh"><h2>${a?(c.title_ar||'أعمال مختارة'):(c.title_en||'Selected Work')}</h2><p>${a?(c.subtitle_ar||''):(c.subtitle_en||'')}</p><div class="sl"></div></div>
     <div class="filter-tabs">
-      <button class="filter-tab active" onclick="filterProjects('all',this)">${t('all')}</button>
-      <button class="filter-tab" onclick="filterProjects('image',this)"><i class="fa-solid fa-image" style="margin-left:6px;"></i>${t('designs')}</button>
-      <button class="filter-tab" onclick="filterProjects('video',this)"><i class="fa-brands fa-instagram" style="margin-left:6px;"></i>${t('reels')}</button>
+      <button class="filter-tab active" id="tabImage" onclick="filterProjects('image',this)"><i class="fa-solid fa-image" style="margin-left:6px;"></i>${t('designs')}</button>
+      <button class="filter-tab" id="tabVideo" onclick="filterProjects('video',this)"><i class="fa-brands fa-instagram" style="margin-left:6px;"></i>${t('reels')}</button>
     </div>
-    <div class="cols-control" id="colsControl" style="display:none;"></div>
-    <div class="projects-grid mode-all" id="projectsGrid"></div>
+    <div class="projects-grid mode-image" id="projectsGrid"></div>
   </section>`;
 }
 function buildContact(c,a){
@@ -508,69 +497,42 @@ function footerInner(a){
 }
 function buildFooter(a){return`<footer>${footerInner(a)}</footer>`;}
 
-function updateCols(val){
-  document.getElementById('colsVal').textContent=val;
-  const grid=document.getElementById('projectsGrid');
-  if(!grid)return;
-  if(currentFilter==='video'){grid.style.gridTemplateColumns=`repeat(${val},1fr)`;}
-  else if(currentFilter==='image'){
-    grid.style.gridTemplateColumns=`repeat(${val},1fr)`;
-    grid.style.maxWidth=val<=4?`${val*200}px`:'900px';
-  }
-}
-
 function filterProjects(type,btn){
   currentFilter=type;
   document.querySelectorAll('.filter-tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  const cc=document.getElementById('colsControl');
-  if(!cc){renderProjects();return;}
-  if(type==='video'){
-    const cols=S.video_cols||4;
-    cc.style.display='flex';
-    cc.innerHTML=`<label>${ar()?'عدد الريلز في الصف':'Reels per row'}</label>
-      <input type="range" class="cols-slider" id="colsSlider" min="2" max="6" value="${cols}" oninput="updateCols(this.value)">
-      <span class="cols-val" id="colsVal">${cols}</span>`;
-  } else if(type==='image'){
-    const cols=S.image_cols||4;
-    cc.style.display='flex';
-    cc.innerHTML=`<label>${ar()?'عدد التصاميم في الصف':'Designs per row'}</label>
-      <input type="range" class="cols-slider" id="colsSlider" min="2" max="6" value="${cols}" oninput="updateCols(this.value)">
-      <span class="cols-val" id="colsVal">${cols}</span>`;
-  } else {
-    cc.style.display='none';cc.innerHTML='';
-  }
   renderProjects();
 }
 
 function renderProjects(){
   const grid=document.getElementById('projectsGrid');if(!grid)return;
-  const sliderEl=document.getElementById('colsSlider');
-  const imgCols=sliderEl&&currentFilter==='image'?parseInt(sliderEl.value):(S.image_cols||4);
-  const vidCols=sliderEl&&currentFilter==='video'?parseInt(sliderEl.value):(S.video_cols||4);
-  let list=PROJECTS;
-  if(currentFilter==='image')list=list.filter(p=>p.mediaType!=='video');
-  if(currentFilter==='video')list=list.filter(p=>p.mediaType==='video');
+  const imgCols=S.image_cols||4;
+  const vidCols=S.video_cols||4;
+  let list=PROJECTS.filter(p=>currentFilter==='video'?p.mediaType==='video':p.mediaType!=='video');
   grid.className='projects-grid mode-'+currentFilter;
+  grid.style.maxWidth='';
+
   if(!list.length){
-    grid.style.gridTemplateColumns='';grid.style.maxWidth='';
+    grid.style.gridTemplateColumns='';
     grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:70px 20px;color:#444;"><i class="fa-solid fa-images" style="font-size:44px;margin-bottom:14px;display:block;"></i><p>${t('noProjects')}</p></div>`;
     return;
   }
-  if(currentFilter==='all'){
-    grid.style.gridTemplateColumns='repeat(5,1fr)';grid.style.maxWidth='1200px';
-  } else if(currentFilter==='image'){
+
+  if(currentFilter==='image'){
     grid.style.gridTemplateColumns=`repeat(${imgCols},1fr)`;
     grid.style.maxWidth=`${imgCols*200}px`;
   } else {
-    grid.style.gridTemplateColumns=`repeat(${vidCols},1fr)`;grid.style.maxWidth='1200px';
+    grid.style.gridTemplateColumns=`repeat(${vidCols},1fr)`;
+    grid.style.maxWidth='1200px';
   }
+
   grid.innerHTML=list.map(p=>{
-    const ri=PROJECTS.indexOf(p);const isV=p.mediaType==='video';
-    if(isV){
+    const ri=PROJECTS.indexOf(p);
+    if(currentFilter==='video'){
+      // video card — no cover shown, just gradient bg + play icon
       const thumb=p.coverImage
         ?`<div class="vid-thumb"><img src="${p.coverImage}" alt="${p.title}" loading="lazy"></div>`
-        :`<div class="vid-thumb" style="position:absolute;inset:0;background:#1a1a1a;display:flex;align-items:center;justify-content:center;"><i class="fa-brands fa-instagram" style="font-size:28px;color:#333;"></i></div>`;
+        :`<div class="vid-thumb" style="position:absolute;inset:0;background:linear-gradient(135deg,#1a1a1a,#2a2a2a);display:flex;align-items:center;justify-content:center;"><i class="fa-brands fa-instagram" style="font-size:28px;color:#333;"></i></div>`;
       return`<div class="project-card" onclick="openVideoLightbox(${ri})">
         ${thumb}
         <div class="vid-play-btn"><div class="vid-play-circle"><i class="fa-solid fa-play"></i></div></div>
@@ -578,20 +540,133 @@ function renderProjects(){
         <div class="project-overlay"><div class="p-title">${p.title}</div><div class="p-cat">${p.category}</div></div>
       </div>`;
     }
-    const th=p.coverImage?`<img src="${p.coverImage}" alt="${p.title}" loading="lazy">`:`<div class="proj-ph"><i class="fa-solid fa-image"></i></div>`;
+    // image card — NO cover shown, only gallery images as grid
+    const imgs=p.images||[];
+    // use first gallery image (not cover) as thumbnail
+    const thumbSrc=imgs[0]||p.coverImage||'';
+    const th=thumbSrc?`<img src="${thumbSrc}" alt="${p.title}" loading="lazy">`:`<div class="proj-ph"><i class="fa-solid fa-image"></i></div>`;
     return`<div class="project-card" onclick="openProject(${ri})">${th}
       <div class="project-overlay"><div class="p-title">${p.title}</div><div class="p-cat">${p.category}</div></div>
     </div>`;
   }).join('');
 }
 
-// Open video in fullscreen lightbox
+// ── INSTAGRAM REELS LIGHTBOX ──
+let reelList=[], reelIdx=0, reelTouchStartY=0;
+
 function openVideoLightbox(idx){
-  const p=PROJECTS[idx];if(!p||!p.videoUrl)return;
-  currentGallery=[{type:'video',src:p.videoUrl}];
-  lbIdx=0;renderLb();
-  document.getElementById('lightbox').classList.add('active');
+  // build list of all video projects
+  reelList=PROJECTS.filter(p=>p.mediaType==='video');
+  // find this video in reelList
+  const p=PROJECTS[idx];
+  reelIdx=reelList.findIndex(r=>r.id===p.id);
+  if(reelIdx<0)reelIdx=0;
+  openReelLb();
+}
+
+function openReelLb(){
+  // Create/show reel overlay
+  let lb=document.getElementById('reelLb');
+  if(!lb){
+    lb=document.createElement('div');lb.id='reelLb';
+    lb.style.cssText='position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;overflow:hidden;';
+    // top bar
+    lb.innerHTML=`
+      <div style="position:absolute;top:0;left:0;right:0;z-index:10;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(0,0,0,.7),transparent);">
+        <button onclick="closeReelLb()" style="background:none;border:none;color:#fff;font-size:26px;cursor:pointer;padding:4px;"><i class="fa-solid fa-xmark"></i></button>
+        <span id="reelCounter" style="color:rgba(255,255,255,.7);font-size:13px;font-family:Montserrat,sans-serif;"></span>
+        <span style="width:34px;"></span>
+      </div>
+      <div id="reelContainer" style="flex:1;position:relative;overflow:hidden;touch-action:none;"></div>
+      <div style="position:absolute;bottom:0;left:0;right:0;z-index:10;padding:20px;background:linear-gradient(to top,rgba(0,0,0,.8),transparent);">
+        <div id="reelTitle" style="color:#fff;font-weight:700;font-size:15px;margin-bottom:4px;font-family:Cairo,sans-serif;"></div>
+        <div id="reelCat" style="color:var(--accent);font-size:12px;font-weight:600;"></div>
+      </div>
+      <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:5;display:flex;flex-direction:column;gap:10px;pointer-events:none;">
+        <div id="reelUpHint" style="text-align:center;color:rgba(255,255,255,.4);font-size:12px;opacity:0;transition:opacity .3s;"><i class="fa-solid fa-chevron-up"></i><br>السابق</div>
+        <div id="reelDownHint" style="text-align:center;color:rgba(255,255,255,.4);font-size:12px;opacity:0;transition:opacity .3s;"><i class="fa-solid fa-chevron-down"></i><br>التالي</div>
+      </div>`;
+    document.body.appendChild(lb);
+
+    // Touch swipe support
+    lb.addEventListener('touchstart',e=>{reelTouchStartY=e.touches[0].clientY;},{passive:true});
+    lb.addEventListener('touchend',e=>{
+      const dy=reelTouchStartY-e.changedTouches[0].clientY;
+      if(Math.abs(dy)>60){dy>0?reelNav(1):reelNav(-1);}
+    },{passive:true});
+
+    // Keyboard
+    lb._keyHandler=e=>{
+      if(document.getElementById('reelLb').style.display==='none')return;
+      if(e.key==='Escape')closeReelLb();
+      if(e.key==='ArrowDown'||e.key==='ArrowLeft')reelNav(1);
+      if(e.key==='ArrowUp'||e.key==='ArrowRight')reelNav(-1);
+    };
+    document.addEventListener('keydown',lb._keyHandler);
+  }
+  lb.style.display='flex';
   document.body.style.overflow='hidden';
+  renderReel();
+  // show hints briefly
+  setTimeout(()=>{
+    const u=document.getElementById('reelUpHint');const d=document.getElementById('reelDownHint');
+    if(reelIdx>0&&u)u.style.opacity='1';
+    if(reelIdx<reelList.length-1&&d)d.style.opacity='1';
+    setTimeout(()=>{if(u)u.style.opacity='0';if(d)d.style.opacity='0';},1800);
+  },600);
+}
+
+function renderReel(){
+  const p=reelList[reelIdx];if(!p)return;
+  const cont=document.getElementById('reelContainer');
+  // stop any existing iframe/video
+  cont.querySelectorAll('iframe').forEach(f=>f.src='');
+  cont.querySelectorAll('video').forEach(v=>{v.pause();v.src='';});
+  cont.innerHTML='';
+
+  // counter
+  const ctr=document.getElementById('reelCounter');
+  if(ctr)ctr.textContent=`${reelIdx+1} / ${reelList.length}`;
+  const title=document.getElementById('reelTitle');if(title)title.textContent=p.title;
+  const cat=document.getElementById('reelCat');if(cat)cat.textContent=p.category;
+
+  if(p.videoUrl){
+    if(isEmbed(p.videoUrl)){
+      const url=p.videoUrl+(p.videoUrl.includes('?')?'&':'?')+'autoplay=1';
+      const frame=document.createElement('iframe');
+      frame.src=url;frame.allowFullscreen=true;frame.allow='autoplay; fullscreen';
+      frame.style.cssText='width:100%;height:100%;border:none;display:block;';
+      cont.appendChild(frame);
+    } else {
+      const vid=document.createElement('video');
+      vid.src=p.videoUrl;vid.autoplay=true;vid.controls=true;vid.playsInline=true;vid.loop=true;
+      vid.style.cssText='width:100%;height:100%;object-fit:contain;display:block;background:#000;';
+      cont.appendChild(vid);
+      vid.play().catch(()=>{});
+    }
+  } else if(p.coverImage){
+    cont.innerHTML=`<img src="${p.coverImage}" style="width:100%;height:100%;object-fit:contain;display:block;">`;
+  } else {
+    cont.innerHTML=`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#444;font-size:48px;"><i class="fa-brands fa-instagram"></i></div>`;
+  }
+}
+
+function reelNav(dir){
+  const next=reelIdx+dir;
+  if(next<0||next>=reelList.length)return;
+  reelIdx=next;
+  renderReel();
+}
+
+function closeReelLb(){
+  const lb=document.getElementById('reelLb');if(!lb)return;
+  const cont=document.getElementById('reelContainer');
+  if(cont){
+    cont.querySelectorAll('iframe').forEach(f=>f.src='');
+    cont.querySelectorAll('video').forEach(v=>{v.pause();v.src='';});
+  }
+  lb.style.display='none';
+  document.body.style.overflow='';
 }
 
 // Open image project — Behance-style page
@@ -600,8 +675,9 @@ function openProject(idx){
   const p=PROJECTS[idx];if(!p)return;
   _scrollY=window.scrollY;
 
-  // Cover
+  // Cover — reset display first
   const cover=document.getElementById('pgCover');
+  cover.style.display='';
   if(p.coverImage) cover.innerHTML=`<img src="${p.coverImage}" alt="${p.title}">`;
   else cover.innerHTML=`<div class="pg-cover-ph"><i class="fa-solid fa-image"></i></div>`;
 
@@ -627,7 +703,9 @@ function openProject(idx){
     const allImgs=[...(p.coverImage?[p.coverImage]:[]),...(p.images||[]).filter(s=>s!==p.coverImage)];
     currentGallery=allImgs.map(src=>({type:'image',src}));
     if(p.projectType==='grid' && allImgs.length){
-      // Instagram-style 3-col grid, 4:5 ratio
+      // hide cover for grid projects — show all images in Instagram grid
+      document.getElementById('pgCover').innerHTML='';
+      document.getElementById('pgCover').style.display='none';
       pgImages.innerHTML=`
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px;max-width:720px;margin:0 auto;">
           ${allImgs.map((src,i)=>`
