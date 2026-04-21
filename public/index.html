@@ -505,11 +505,11 @@ function openProject(idx){
     const allImgs=[...(p.coverImage?[p.coverImage]:[]),...(p.images||[]).filter(s=>s!==p.coverImage)];
     currentGallery=allImgs.map(src=>({type:'image',src}));
     if(p.projectType==='grid' && allImgs.length){
-      // Instagram-style 3-col grid
+      // Instagram-style 3-col grid, 4:5 ratio
       pgImages.innerHTML=`
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px;max-width:720px;margin:0 auto;">
           ${allImgs.map((src,i)=>`
-            <div style="aspect-ratio:1;overflow:hidden;cursor:pointer;border-radius:3px;" onclick="openLbFromPage(${idx},${i})">
+            <div style="aspect-ratio:4/5;overflow:hidden;cursor:pointer;border-radius:3px;" onclick="openLbFromPage(null,${i})">
               <img src="${src}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s;">
             </div>`).join('')}
         </div>`;

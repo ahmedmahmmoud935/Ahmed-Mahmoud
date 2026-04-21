@@ -200,6 +200,11 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;}
 @keyframes sp{to{transform:rotate(360deg);}}
 .pb{height:3px;background:var(--o);border-radius:2px;transition:width .3s;margin-top:7px;}
+/* TYPE CHOICE BUTTONS */
+.type-choice-btn{background:var(--d3);border:1px solid #2a2a2a;border-radius:14px;padding:24px 16px;cursor:pointer;transition:all .25s;color:var(--w);font-family:'Cairo',sans-serif;width:100%;text-align:center;}
+.type-choice-btn:hover{border-color:var(--o);background:rgba(249,115,22,.06);transform:translateY(-2px);}
+.back-btn{background:none;border:none;color:var(--g2);font-family:'Cairo',sans-serif;font-size:13px;cursor:pointer;margin-bottom:18px;display:flex;align-items:center;gap:6px;padding:0;transition:color .2s;}
+.back-btn:hover{color:var(--w);}
 @media(max-width:900px){#sidebar{display:none;}#adminMain{margin-right:0;padding:18px;}.stats{grid-template-columns:1fr 1fr;}}
 </style>
 </head>
@@ -492,133 +497,144 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
   </div>
 </div>
 <div class="mo" id="projModal">
-  <div class="modal">
+  <div class="modal" style="max-width:620px;">
     <div class="mh"><div class="mt" id="mTitle">مشروع جديد</div><button class="mc" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button></div>
-    <div class="mb">
+    <div class="mb" style="padding:24px 28px;">
       <input type="hidden" id="eId">
 
-      <!-- Title & Category -->
-      <div class="frow" style="margin-bottom:16px;">
-        <div class="fg"><label class="fl">عنوان المشروع *</label><input class="fi" id="fTitle" placeholder="Water Tanks Campaign"></div>
-        <div class="fg"><label class="fl">التصنيف</label>
-          <select class="fse" id="fCat">
-            <option value="Social Media">Social Media</option>
-            <option value="Brand Identity">Brand Identity</option>
-            <option value="Print Design">Print Design</option>
-            <option value="Motion Graphics">Motion Graphics</option>
-            <option value="Packaging">Packaging</option>
-            <option value="Reels">Reels</option>
-            <option value="Other">Other</option>
-          </select>
+      <!-- Step 0: Choose type -->
+      <div id="stepChoose">
+        <p style="color:var(--g2);font-size:13px;margin-bottom:20px;">اختر نوع المشروع:</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <button type="button" onclick="chooseMT('video')" class="type-choice-btn">
+            <i class="fa-brands fa-instagram" style="font-size:32px;color:var(--o);display:block;margin-bottom:12px;"></i>
+            <div style="font-weight:700;font-size:15px;margin-bottom:6px;">رفع فيديو / Reel</div>
+            <div style="font-size:12px;color:var(--g2);">YouTube · Vimeo · ملف مباشر</div>
+          </button>
+          <button type="button" onclick="chooseMT('image')" class="type-choice-btn">
+            <i class="fa-solid fa-images" style="font-size:32px;color:var(--o);display:block;margin-bottom:12px;"></i>
+            <div style="font-weight:700;font-size:15px;margin-bottom:6px;">رفع تصميمات</div>
+            <div style="font-size:12px;color:var(--g2);">شبكة Instagram · أو Behance حر</div>
+          </button>
         </div>
       </div>
 
-      <!-- Media Type -->
-      <div class="fg">
-        <label class="fl">نوع المحتوى</label>
-        <div class="mtb-row">
-          <button type="button" class="mtb-btn active" id="btnImg" onclick="setMT('image')"><i class="fa-solid fa-image" style="margin-left:7px;"></i>تصميم / صورة</button>
-          <button type="button" class="mtb-btn" id="btnVid" onclick="setMT('video')"><i class="fa-brands fa-instagram" style="margin-left:7px;"></i>Reel / فيديو</button>
+      <!-- Step 1A: Image layout choice -->
+      <div id="stepImageLayout" style="display:none;">
+        <button type="button" class="back-btn" onclick="goBack()"><i class="fa-solid fa-arrow-right"></i> رجوع</button>
+        <p style="color:var(--g2);font-size:13px;margin-bottom:20px;">اختر طريقة عرض التصاميم:</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <button type="button" onclick="chooseLayout('grid')" class="type-choice-btn">
+            <i class="fa-solid fa-th" style="font-size:28px;color:var(--o);display:block;margin-bottom:10px;"></i>
+            <div style="font-weight:700;font-size:14px;margin-bottom:5px;">شبكة Instagram</div>
+            <div style="font-size:12px;color:var(--g2);">مناسبة للسوشيال ميديا<br>3 أعمدة · مقاس 4:5</div>
+          </button>
+          <button type="button" onclick="chooseLayout('free')" class="type-choice-btn">
+            <i class="fa-brands fa-behance" style="font-size:28px;color:#1769ff;display:block;margin-bottom:10px;"></i>
+            <div style="font-weight:700;font-size:14px;margin-bottom:5px;">Behance حر</div>
+            <div style="font-size:12px;color:var(--g2);">براندنج · مشاريع كاملة<br>صور · نص · فيديو · شبكة</div>
+          </button>
         </div>
       </div>
 
-      <!-- Description -->
-      <div class="fg"><label class="fl">وصف (اختياري)</label><textarea class="fta" id="fDesc" placeholder="وصف المشروع..."></textarea></div>
-
-      <!-- Cover Image -->
-      <div class="fg">
-        <label class="fl">صورة الغلاف</label>
-        <label class="ua" for="covIn">
-          <div class="ui"><i class="fa-solid fa-image"></i></div>
-          <div class="ut">اسحب أو <span>اختر صورة</span></div>
-        </label>
-        <input type="file" id="covIn" accept="image/*" onchange="handleCover(this)" style="display:none;">
-        <div id="covPrev" style="display:none;margin-top:10px;">
-          <div class="pi sq" style="width:100px;height:100px;">
-            <img id="covImg" src="" alt="">
-            <span class="cb">COVER</span>
-            <button class="ri" onclick="removeCover()"><i class="fa-solid fa-xmark"></i></button>
+      <!-- Step Grid: grid form -->
+      <div id="stepGrid" style="display:none;">
+        <button type="button" class="back-btn" onclick="goBack('imageLayout')"><i class="fa-solid fa-arrow-right"></i> رجوع</button>
+        <div class="frow" style="margin-bottom:12px;">
+          <div class="fg"><label class="fl">عنوان المشروع *</label><input class="fi" id="fTitle" placeholder="اسم المشروع"></div>
+          <div class="fg"><label class="fl">التصنيف</label>
+            <select class="fse" id="fCat"><option value="Social Media">Social Media</option><option value="Brand Identity">Brand Identity</option><option value="Print Design">Print Design</option><option value="Motion Graphics">Motion Graphics</option><option value="Packaging">Packaging</option><option value="Other">Other</option></select>
           </div>
         </div>
+        <div class="fg"><label class="fl">وصف</label><textarea class="fta" id="fDesc" style="min-height:55px;" placeholder="وصف المشروع..."></textarea></div>
+        <div class="fg">
+          <label class="fl">صورة الغلاف</label>
+          <label class="ua" for="covIn"><div class="ui"><i class="fa-solid fa-image"></i></div><div class="ut">اسحب أو <span>اختر صورة</span></div></label>
+          <input type="file" id="covIn" accept="image/*" onchange="handleCover(this)" style="display:none;">
+          <div id="covPrev" style="display:none;margin-top:8px;"><div class="pi sq" style="width:80px;height:80px;"><img id="covImg" src="" alt=""><span class="cb">COVER</span><button class="ri" onclick="removeCover()"><i class="fa-solid fa-xmark"></i></button></div></div>
+        </div>
+        <div class="fg">
+          <label class="fl">صور الشبكة — مقاس 4:5 مُوصى به</label>
+          <label class="ua" for="galIn"><div class="ui"><i class="fa-solid fa-th"></i></div><div class="ut">اختر أكثر من صورة — <span>اضغط هنا</span></div></label>
+          <input type="file" id="galIn" accept="image/*" multiple onchange="handleGal(this)" style="display:none;">
+          <div class="pg" id="galPrev" style="margin-top:8px;"></div>
+        </div>
       </div>
 
-      <!-- Video Group -->
-      <div class="fg" id="vidGrp" style="display:none;">
-        <label class="fl">الفيديو / Reel</label>
-
-        <!-- Source selector -->
-        <div class="vsrc-tabs">
-          <button type="button" class="vsrc-btn active" id="vsFile" onclick="setVidSrc('file')"><i class="fa-solid fa-upload"></i> رفع ملف</button>
-          <button type="button" class="vsrc-btn" id="vsYT" onclick="setVidSrc('youtube')"><i class="fa-brands fa-youtube" style="color:#ff0000;"></i> YouTube</button>
-          <button type="button" class="vsrc-btn" id="vsVimeo" onclick="setVidSrc('vimeo')"><i class="fa-brands fa-vimeo-v" style="color:#1ab7ea;"></i> Vimeo</button>
-          <button type="button" class="vsrc-btn" id="vsEmbed" onclick="setVidSrc('embed')"><i class="fa-solid fa-code"></i> Embed</button>
+      <!-- Step Free: create project then open editor -->
+      <div id="stepFree" style="display:none;">
+        <button type="button" class="back-btn" onclick="goBack('imageLayout')"><i class="fa-solid fa-arrow-right"></i> رجوع</button>
+        <div style="background:rgba(23,105,255,.08);border:1px solid rgba(23,105,255,.3);border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;color:#ccc;">
+          <i class="fa-brands fa-behance" style="color:#1769ff;margin-left:8px;"></i>
+          سيتم إنشاء المشروع ثم فتح <strong>محرر Behance</strong> لإضافة العناصر
         </div>
-
-        <!-- File upload -->
-        <div id="vidSrcFile">
-          <label class="ua" for="vidIn">
-            <div class="ui"><i class="fa-solid fa-video"></i></div>
-            <div class="ut">MP4 / MOV — <span>مقاس 9:16</span></div>
-          </label>
-          <input type="file" id="vidIn" accept="video/*" onchange="handleVid(this)" style="display:none;">
-          <div id="vidProg" style="display:none;margin-top:8px;font-size:12px;color:var(--g2);">جاري التحميل...<div class="pb" id="vidPb" style="width:0%"></div></div>
-          <div id="vidPrev" style="display:none;margin-top:10px;">
-            <div class="pi rv" style="width:55px;height:98px;">
-              <video id="vidEl" muted playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video>
-              <span class="cb">REEL</span>
-              <button class="ri" onclick="removeVid()"><i class="fa-solid fa-xmark"></i></button>
-            </div>
+        <div class="frow" style="margin-bottom:12px;">
+          <div class="fg"><label class="fl">عنوان المشروع *</label><input class="fi" id="fTitleFree" placeholder="اسم المشروع"></div>
+          <div class="fg"><label class="fl">التصنيف</label>
+            <select class="fse" id="fCatFree"><option value="Brand Identity">Brand Identity</option><option value="Social Media">Social Media</option><option value="Print Design">Print Design</option><option value="Motion Graphics">Motion Graphics</option><option value="Packaging">Packaging</option><option value="Other">Other</option></select>
           </div>
         </div>
+        <div class="fg"><label class="fl">وصف</label><textarea class="fta" id="fDescFree" style="min-height:55px;" placeholder="وصف المشروع..."></textarea></div>
+        <div class="fg">
+          <label class="fl">صورة الغلاف (اختياري)</label>
+          <label class="ua" for="covInFree"><div class="ui"><i class="fa-solid fa-image"></i></div><div class="ut">اسحب أو <span>اختر صورة</span></div></label>
+          <input type="file" id="covInFree" accept="image/*" onchange="handleCoverFree(this)" style="display:none;">
+          <div id="covPrevFree" style="display:none;margin-top:8px;"><div class="pi sq" style="width:80px;height:80px;"><img id="covImgFree" src="" alt=""><span class="cb">COVER</span><button class="ri" onclick="removeCoverFree()"><i class="fa-solid fa-xmark"></i></button></div></div>
+        </div>
+      </div>
 
-        <!-- YouTube -->
-        <div id="vidSrcYoutube" style="display:none;">
-          <div style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:10px;padding:16px;">
+      <!-- Step Video -->
+      <div id="stepVideo" style="display:none;">
+        <button type="button" class="back-btn" onclick="goBack()"><i class="fa-solid fa-arrow-right"></i> رجوع</button>
+        <div class="frow" style="margin-bottom:12px;">
+          <div class="fg"><label class="fl">عنوان الفيديو *</label><input class="fi" id="fTitleVid" placeholder="اسم الفيديو"></div>
+          <div class="fg"><label class="fl">التصنيف</label>
+            <select class="fse" id="fCatVid"><option value="Reels">Reels</option><option value="Social Media">Social Media</option><option value="Motion Graphics">Motion Graphics</option><option value="Other">Other</option></select>
+          </div>
+        </div>
+        <div class="fg"><label class="fl">وصف</label><textarea class="fta" id="fDescVid" style="min-height:50px;" placeholder="وصف..."></textarea></div>
+        <div class="fg">
+          <label class="fl">صورة الغلاف (Thumbnail)</label>
+          <label class="ua" for="covInVid"><div class="ui"><i class="fa-solid fa-image"></i></div><div class="ut">اختر صورة غلاف</div></label>
+          <input type="file" id="covInVid" accept="image/*" onchange="handleCoverVid(this)" style="display:none;">
+          <div id="covPrevVid" style="display:none;margin-top:8px;"><div class="pi sq" style="width:80px;height:80px;"><img id="covImgVid" src="" alt=""><span class="cb">COVER</span><button class="ri" onclick="removeCoverVid()"><i class="fa-solid fa-xmark"></i></button></div></div>
+        </div>
+        <div class="fg">
+          <label class="fl">مصدر الفيديو</label>
+          <div class="vsrc-tabs" style="margin-bottom:10px;">
+            <button type="button" class="vsrc-btn active" id="vsFile" onclick="setVidSrc('file')"><i class="fa-solid fa-upload"></i> ملف</button>
+            <button type="button" class="vsrc-btn" id="vsYT" onclick="setVidSrc('youtube')"><i class="fa-brands fa-youtube" style="color:#ff0000;"></i> YouTube</button>
+            <button type="button" class="vsrc-btn" id="vsVimeo" onclick="setVidSrc('vimeo')"><i class="fa-brands fa-vimeo-v" style="color:#1ab7ea;"></i> Vimeo</button>
+            <button type="button" class="vsrc-btn" id="vsEmbed" onclick="setVidSrc('embed')"><i class="fa-solid fa-code"></i> Embed</button>
+          </div>
+          <div id="vidSrcFile">
+            <label class="ua" for="vidIn"><div class="ui"><i class="fa-solid fa-video"></i></div><div class="ut">MP4 / MOV — <span>9:16</span></div></label>
+            <input type="file" id="vidIn" accept="video/*" onchange="handleVid(this)" style="display:none;">
+            <div id="vidProg" style="display:none;margin-top:6px;font-size:12px;color:var(--g2);">جاري التحميل...<div class="pb" id="vidPb" style="width:0%"></div></div>
+            <div id="vidPrev" style="display:none;margin-top:8px;"><div class="pi rv" style="width:50px;height:90px;"><video id="vidEl" muted playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video><span class="cb">REEL</span><button class="ri" onclick="removeVid()"><i class="fa-solid fa-xmark"></i></button></div></div>
+          </div>
+          <div id="vidSrcYoutube" style="display:none;"><div style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:10px;padding:13px;">
             <label class="fl"><i class="fa-brands fa-youtube" style="color:#ff0000;margin-left:6px;"></i>رابط YouTube</label>
-            <input class="fi" id="ytUrl" placeholder="https://youtube.com/watch?v=... أو youtu.be/..." oninput="previewEmbed('youtube')" style="margin-bottom:10px;">
-            <p style="color:#555;font-size:12px;">💡 رابط عادي أو Shorts أو youtu.be</p>
-            <div id="ytPreview" style="display:none;margin-top:10px;border-radius:8px;overflow:hidden;aspect-ratio:9/16;max-width:140px;">
-              <iframe id="ytFrame" style="width:100%;height:100%;border:none;" allowfullscreen></iframe>
-            </div>
-          </div>
-        </div>
-
-        <!-- Vimeo -->
-        <div id="vidSrcVimeo" style="display:none;">
-          <div style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:10px;padding:16px;">
+            <input class="fi" id="ytUrl" placeholder="https://youtube.com/watch?v=..." oninput="previewEmbed('youtube')" style="margin-bottom:8px;">
+            <div id="ytPreview" style="display:none;border-radius:8px;overflow:hidden;aspect-ratio:9/16;max-width:110px;"><iframe id="ytFrame" style="width:100%;height:100%;border:none;" allowfullscreen></iframe></div>
+          </div></div>
+          <div id="vidSrcVimeo" style="display:none;"><div style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:10px;padding:13px;">
             <label class="fl"><i class="fa-brands fa-vimeo-v" style="color:#1ab7ea;margin-left:6px;"></i>رابط Vimeo</label>
-            <input class="fi" id="vimeoUrl" placeholder="https://vimeo.com/123456789" oninput="previewEmbed('vimeo')" style="margin-bottom:10px;">
-            <div id="vimeoPreview" style="display:none;margin-top:10px;border-radius:8px;overflow:hidden;aspect-ratio:9/16;max-width:140px;">
-              <iframe id="vimeoFrame" style="width:100%;height:100%;border:none;" allowfullscreen></iframe>
-            </div>
-          </div>
-        </div>
-
-        <!-- Embed Code -->
-        <div id="vidSrcEmbed" style="display:none;">
-          <div style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:10px;padding:16px;">
-            <label class="fl"><i class="fa-solid fa-code" style="color:var(--o);margin-left:6px;"></i>كود الـ Embed (iframe)</label>
-            <textarea class="fta" id="embedCode" placeholder='&lt;iframe src="..."&gt;&lt;/iframe&gt;' style="min-height:80px;font-family:monospace;font-size:12px;" oninput="parseEmbedCode()"></textarea>
-            <p style="color:#555;font-size:12px;margin-top:6px;">💡 الصق الـ iframe كاملاً من أي منصة</p>
-            <div id="embedPreview" style="display:none;margin-top:10px;border-radius:8px;overflow:hidden;aspect-ratio:9/16;max-width:140px;"></div>
-          </div>
+            <input class="fi" id="vimeoUrl" placeholder="https://vimeo.com/123456789" oninput="previewEmbed('vimeo')" style="margin-bottom:8px;">
+            <div id="vimeoPreview" style="display:none;border-radius:8px;overflow:hidden;aspect-ratio:9/16;max-width:110px;"><iframe id="vimeoFrame" style="width:100%;height:100%;border:none;" allowfullscreen></iframe></div>
+          </div></div>
+          <div id="vidSrcEmbed" style="display:none;"><div style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:10px;padding:13px;">
+            <label class="fl"><i class="fa-solid fa-code" style="color:var(--o);margin-left:6px;"></i>كود Embed</label>
+            <textarea class="fta" id="embedCode" placeholder="<iframe ...></iframe>" style="min-height:65px;font-size:12px;font-family:monospace;" oninput="parseEmbedCode()"></textarea>
+            <div id="embedPreview" style="display:none;margin-top:8px;border-radius:8px;overflow:hidden;aspect-ratio:9/16;max-width:110px;"></div>
+          </div></div>
         </div>
       </div>
 
-      <!-- Gallery -->
-      <div class="fg">
-        <label class="fl">صور المعرض (متعدد)</label>
-        <label class="ua" for="galIn">
-          <div class="ui"><i class="fa-solid fa-images"></i></div>
-          <div class="ut">اختر أكثر من صورة — <span>اضغط هنا</span></div>
-        </label>
-        <input type="file" id="galIn" accept="image/*" multiple onchange="handleGal(this)" style="display:none;">
-        <div class="pg" id="galPrev"></div>
-      </div>
     </div>
     <div class="mf">
       <button class="btn-cancel" onclick="closeModal()">إلغاء</button>
-      <button class="btn-save" id="saveBtn" onclick="saveProject()"><i class="fa-solid fa-floppy-disk"></i> حفظ المشروع</button>
+      <button class="btn-save" id="saveBtn" onclick="saveProject()" style="display:none;"><i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span></button>
     </div>
   </div>
 </div>
@@ -706,65 +722,36 @@ function renderTable(){
     </div>`).join('');
 }
 
-// ══ MODAL HELPERS ══
-const b64=f=>new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(f);});
+// ══ MODAL STEP FLOW ══
+let curMT='image', curLayout='grid', curVidSrc='file', embedUrl='';
+let covData=null,covExist=false,vidData=null,vidExist=false,galNew=[],galKeep=[];
+let covDataFree=null,covDataVid=null;
+let curStep='choose';
 
-function setMT(type){
-  curMT=type;
-  document.getElementById('btnImg').classList.toggle('active',type==='image');
-  document.getElementById('btnVid').classList.toggle('active',type==='video');
-  document.getElementById('vidGrp').style.display=type==='video'?'block':'none';
-  if(type==='video')document.getElementById('fCat').value='Reels';
-}
-
-function setVidSrc(src){
-  curVidSrc=src;
-  ['file','youtube','vimeo','embed'].forEach(s=>{
-    const key=s.charAt(0).toUpperCase()+s.slice(1);
-    const btn=document.getElementById('vs'+key);
-    const div=document.getElementById('vidSrc'+key);
-    if(btn)btn.classList.toggle('active',s===src);
-    if(div)div.style.display=s===src?'block':'none';
+function showStep(step){
+  curStep=step;
+  ['stepChoose','stepImageLayout','stepGrid','stepFree','stepVideo'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.style.display='none';
   });
+  const map={choose:'stepChoose',imageLayout:'stepImageLayout',grid:'stepGrid',free:'stepFree',video:'stepVideo'};
+  const el=document.getElementById(map[step]);if(el)el.style.display='block';
+  const btn=document.getElementById('saveBtn');
+  if(btn)btn.style.display=(step==='grid'||step==='free'||step==='video')?'flex':'none';
+  const lbl=document.getElementById('saveBtnLabel');
+  if(lbl)lbl.textContent=step==='free'?'إنشاء وفتح المحرر':'حفظ';
 }
+function goBack(to){if(to==='imageLayout')showStep('imageLayout');else showStep('choose');}
+function chooseMT(type){curMT=type;if(type==='video')showStep('video');else showStep('imageLayout');}
+function chooseLayout(layout){curLayout=layout;showStep(layout);}
 
-function getYTId(url){const m=url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);return m?m[1]:null;}
-function getVimeoId(url){const m=url.match(/vimeo\.com\/(?:video\/)?(\d+)/);return m?m[1]:null;}
-
-function previewEmbed(type){
-  if(type==='youtube'){
-    const id=getYTId(document.getElementById('ytUrl').value.trim());
-    if(id){const url=`https://www.youtube.com/embed/${id}`;document.getElementById('ytFrame').src=url;document.getElementById('ytPreview').style.display='block';embedUrl=url;}
-  } else {
-    const id=getVimeoId(document.getElementById('vimeoUrl').value.trim());
-    if(id){const url=`https://player.vimeo.com/video/${id}?portrait=0&byline=0&title=0`;document.getElementById('vimeoFrame').src=url;document.getElementById('vimeoPreview').style.display='block';embedUrl=url;}
-  }
-}
-
-function parseEmbedCode(){
-  const code=document.getElementById('embedCode').value.trim();
-  const m=code.match(/src=["']([^"']+)["']/i);
-  if(m){embedUrl=m[1];const prev=document.getElementById('embedPreview');prev.style.display='block';prev.innerHTML=`<iframe src="${embedUrl}" style="width:100%;height:100%;border:none;" allowfullscreen></iframe>`;}
-}
-
-// ══ OPEN MODAL ══
 function openAddModal(){
   document.getElementById('mTitle').textContent='مشروع جديد';
   document.getElementById('eId').value='';
-  document.getElementById('fTitle').value='';
-  document.getElementById('fCat').value='Social Media';
-  document.getElementById('fDesc').value='';
-  covData=null;covExist=false;vidData=null;vidExist=false;galNew=[];galKeep=[];embedUrl='';
-  document.getElementById('covPrev').style.display='none';
-  document.getElementById('vidPrev').style.display='none';
+  covData=null;covExist=false;vidData=null;vidExist=false;galNew=[];galKeep=[];covDataFree=null;covDataVid=null;embedUrl='';
+  ['fTitle','fDesc','fTitleFree','fDescFree','fTitleVid','fDescVid','ytUrl','vimeoUrl','embedCode'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['covPrev','covPrevFree','covPrevVid','vidPrev','ytPreview','vimeoPreview','embedPreview'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
   document.getElementById('galPrev').innerHTML='';
-  document.getElementById('ytUrl').value='';
-  document.getElementById('vimeoUrl').value='';
-  document.getElementById('embedCode').value='';
-  document.getElementById('ytPreview').style.display='none';
-  document.getElementById('vimeoPreview').style.display='none';
-  document.getElementById('embedPreview').style.display='none';
-  setMT('image');setVidSrc('file');
+  setVidSrc('file');showStep('choose');
   document.getElementById('projModal').classList.add('open');
 }
 
@@ -772,54 +759,45 @@ function openEdit(id){
   const p=projects.find(x=>x.id===id);if(!p)return;
   document.getElementById('mTitle').textContent='تعديل المشروع';
   document.getElementById('eId').value=id;
-  document.getElementById('fTitle').value=p.title;
-  document.getElementById('fCat').value=p.category;
-  document.getElementById('fDesc').value=p.description||'';
-  covData=null;covExist=!!p.coverImage;vidData=null;vidExist=!!p.videoUrl;galNew=[];galKeep=[...(p.images||[])];embedUrl='';
-  setMT(p.mediaType||'image');
-  if(p.coverImage){document.getElementById('covImg').src=p.coverImage;document.getElementById('covPrev').style.display='block';}
-  else document.getElementById('covPrev').style.display='none';
-  // detect embed
-  if(p.videoUrl){
-    const isYT=p.videoUrl.includes('youtube.com/embed');
-    const isVimeo=p.videoUrl.includes('player.vimeo.com');
-    if(isYT){setVidSrc('youtube');document.getElementById('ytFrame').src=p.videoUrl;document.getElementById('ytPreview').style.display='block';embedUrl=p.videoUrl;}
-    else if(isVimeo){setVidSrc('vimeo');document.getElementById('vimeoFrame').src=p.videoUrl;document.getElementById('vimeoPreview').style.display='block';embedUrl=p.videoUrl;}
-    else{setVidSrc('file');document.getElementById('vidEl').src=p.videoUrl;document.getElementById('vidPrev').style.display='block';}
-  } else setVidSrc('file');
-  document.getElementById('ytUrl').value='';document.getElementById('vimeoUrl').value='';document.getElementById('embedCode').value='';
-  renderGal();
+  covData=null;covExist=!!p.coverImage;vidData=null;vidExist=!!p.videoUrl;galNew=[];galKeep=[...(p.images||[])];covDataFree=null;covDataVid=null;embedUrl='';
+  if(p.mediaType==='video'){
+    document.getElementById('fTitleVid').value=p.title;document.getElementById('fDescVid').value=p.description||'';document.getElementById('fCatVid').value=p.category;
+    if(p.coverImage){document.getElementById('covImgVid').src=p.coverImage;document.getElementById('covPrevVid').style.display='block';}
+    if(p.videoUrl){const isYT=p.videoUrl.includes('youtube.com/embed');const isV=p.videoUrl.includes('player.vimeo.com');
+      if(isYT){setVidSrc('youtube');document.getElementById('ytFrame').src=p.videoUrl;document.getElementById('ytPreview').style.display='block';embedUrl=p.videoUrl;}
+      else if(isV){setVidSrc('vimeo');document.getElementById('vimeoFrame').src=p.videoUrl;document.getElementById('vimeoPreview').style.display='block';embedUrl=p.videoUrl;}
+      else{setVidSrc('file');document.getElementById('vidEl').src=p.videoUrl;document.getElementById('vidPrev').style.display='block';}}
+    else setVidSrc('file');
+    showStep('video');
+  } else if(p.projectType==='free'){
+    document.getElementById('fTitleFree').value=p.title;document.getElementById('fDescFree').value=p.description||'';document.getElementById('fCatFree').value=p.category;
+    if(p.coverImage){document.getElementById('covImgFree').src=p.coverImage;document.getElementById('covPrevFree').style.display='block';}
+    showStep('free');
+  } else {
+    document.getElementById('fTitle').value=p.title;document.getElementById('fDesc').value=p.description||'';document.getElementById('fCat').value=p.category;
+    if(p.coverImage){document.getElementById('covImg').src=p.coverImage;document.getElementById('covPrev').style.display='block';}
+    renderGal();showStep('grid');
+  }
   document.getElementById('projModal').classList.add('open');
 }
-
 function closeModal(){document.getElementById('projModal').classList.remove('open');}
 
-// ══ FILE HANDLERS ══
-async function handleCover(inp){
-  const f=inp.files[0];if(!f)return;
-  covData=await b64(f);covExist=false;
-  document.getElementById('covImg').src=covData;
-  document.getElementById('covPrev').style.display='block';
-}
+const b64=f=>new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(f);});
+async function handleCover(inp){const f=inp.files[0];if(!f)return;covData=await b64(f);covExist=false;document.getElementById('covImg').src=covData;document.getElementById('covPrev').style.display='block';}
 function removeCover(){covData='';covExist=false;document.getElementById('covPrev').style.display='none';}
-
+async function handleCoverFree(inp){const f=inp.files[0];if(!f)return;covDataFree=await b64(f);document.getElementById('covImgFree').src=covDataFree;document.getElementById('covPrevFree').style.display='block';}
+function removeCoverFree(){covDataFree='';document.getElementById('covPrevFree').style.display='none';}
+async function handleCoverVid(inp){const f=inp.files[0];if(!f)return;covDataVid=await b64(f);document.getElementById('covImgVid').src=covDataVid;document.getElementById('covPrevVid').style.display='block';}
+function removeCoverVid(){covDataVid='';document.getElementById('covPrevVid').style.display='none';}
 async function handleVid(inp){
-  const f=inp.files[0];if(!f)return;
-  document.getElementById('vidProg').style.display='block';
+  const f=inp.files[0];if(!f)return;document.getElementById('vidProg').style.display='block';
   let prog=0;const iv=setInterval(()=>{prog=Math.min(prog+8,90);document.getElementById('vidPb').style.width=prog+'%';},150);
-  vidData=await b64(f);clearInterval(iv);
-  document.getElementById('vidPb').style.width='100%';
+  vidData=await b64(f);clearInterval(iv);document.getElementById('vidPb').style.width='100%';
   setTimeout(()=>document.getElementById('vidProg').style.display='none',600);
-  vidExist=false;document.getElementById('vidEl').src=vidData;document.getElementById('vidPrev').style.display='block';
-  toast('✓ تم تحميل الفيديو');
+  vidExist=false;document.getElementById('vidEl').src=vidData;document.getElementById('vidPrev').style.display='block';toast('✓ تم تحميل الفيديو');
 }
 function removeVid(){vidData='';vidExist=false;document.getElementById('vidPrev').style.display='none';}
-
-async function handleGal(inp){
-  const fs=Array.from(inp.files);
-  const nb=await Promise.all(fs.map(b64));
-  galNew=[...galNew,...nb];renderGal();
-}
+async function handleGal(inp){const fs=Array.from(inp.files);const nb=await Promise.all(fs.map(b64));galNew=[...galNew,...nb];renderGal();}
 function renderGal(){
   const g=document.getElementById('galPrev');
   g.innerHTML=[
@@ -830,58 +808,55 @@ function renderGal(){
 function rmKeep(i){galKeep.splice(i,1);renderGal();}
 function rmNew(i){galNew.splice(i,1);renderGal();}
 
-// ══ SAVE PROJECT ══
-async function saveProject(){
-  const title=document.getElementById('fTitle').value.trim();
-  if(!title){toast('⚠️ أدخل عنوان المشروع');return;}
-
-  let finalEmbedUrl='';
-  if(curMT==='video'&&curVidSrc!=='file'){
-    if(curVidSrc==='youtube'){
-      const id=getYTId(document.getElementById('ytUrl').value.trim());
-      finalEmbedUrl=id?`https://www.youtube.com/embed/${id}`:embedUrl;
-    } else if(curVidSrc==='vimeo'){
-      const id=getVimeoId(document.getElementById('vimeoUrl').value.trim());
-      finalEmbedUrl=id?`https://player.vimeo.com/video/${id}?portrait=0&byline=0&title=0`:embedUrl;
-    } else if(curVidSrc==='embed'){
-      const code=document.getElementById('embedCode').value.trim();
-      const m=code.match(/src=["']([^"']+)["']/i);
-      finalEmbedUrl=m?m[1]:embedUrl;
-    }
-    if(!finalEmbedUrl&&!vidExist){toast('⚠️ أدخل رابط أو كود الفيديو');return;}
-  }
-  if(curMT==='video'&&curVidSrc==='file'&&!vidData&&!vidExist){toast('⚠️ ارفع ملف الفيديو');return;}
-
-  const btn=document.getElementById('saveBtn');
-  btn.innerHTML='<div class="spin"></div> جاري الحفظ...';btn.disabled=true;
-
-  const eid=document.getElementById('eId').value;const isEdit=!!eid;
-  const body={
-    title,category:document.getElementById('fCat').value,
-    description:document.getElementById('fDesc').value,
-    mediaType:curMT,keepImages:galKeep,images:galNew
-  };
-  // cover
-  if(covData===null&&covExist){}
-  else if(covData==='')body.coverImage='';
-  else if(covData)body.coverImage=covData;
-  else body.coverImage=null;
-  // video
-  if(finalEmbedUrl){body.embedUrl=finalEmbedUrl;}
-  else if(vidData===null&&vidExist){}
-  else if(vidData==='')body.videoData='';
-  else if(vidData)body.videoData=vidData;
-  else body.videoData=null;
-
-  try{
-    const r=await fetch(isEdit?`/api/projects/${eid}`:'/api/projects',{
-      method:isEdit?'PUT':'POST',credentials:'include',
-      headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    if(r.ok){closeModal();await loadProjects();toast(isEdit?'✓ تم التحديث':'✓ تم الإضافة بنجاح');}
-    else{const e=await r.json();toast('خطأ: '+(e.error||'فشل الحفظ'));}
-  }catch{toast('خطأ في الاتصال بالسيرفر');}
-  btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> حفظ المشروع';btn.disabled=false;
+function setVidSrc(src){
+  curVidSrc=src;
+  ['file','youtube','vimeo','embed'].forEach(s=>{
+    const k=s.charAt(0).toUpperCase()+s.slice(1);
+    const btn=document.getElementById('vs'+k);const div=document.getElementById('vidSrc'+k);
+    if(btn)btn.classList.toggle('active',s===src);if(div)div.style.display=s===src?'block':'none';
+  });
 }
+function getYTId(url){const m=url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);return m?m[1]:null;}
+function getVimeoId(url){const m=url.match(/vimeo\.com\/(?:video\/)?(\d+)/);return m?m[1]:null;}
+function previewEmbed(type){
+  if(type==='youtube'){const id=getYTId(document.getElementById('ytUrl').value.trim());if(id){const url=`https://www.youtube.com/embed/${id}`;document.getElementById('ytFrame').src=url;document.getElementById('ytPreview').style.display='block';embedUrl=url;}}
+  else{const id=getVimeoId(document.getElementById('vimeoUrl').value.trim());if(id){const url=`https://player.vimeo.com/video/${id}?portrait=0&byline=0&title=0`;document.getElementById('vimeoFrame').src=url;document.getElementById('vimeoPreview').style.display='block';embedUrl=url;}}
+}
+function parseEmbedCode(){const code=document.getElementById('embedCode').value.trim();const m=code.match(/src=["\']([^"\']+)["\']/i);if(m){embedUrl=m[1];const prev=document.getElementById('embedPreview');prev.style.display='block';prev.innerHTML=`<iframe src="${embedUrl}" style="width:100%;height:100%;border:none;" allowfullscreen></iframe>`;}}
+
+async function saveProject(){
+  const btn=document.getElementById('saveBtn');btn.innerHTML='<div class="spin"></div> جاري الحفظ...';btn.disabled=true;
+  const eid=document.getElementById('eId').value;const isEdit=!!eid;
+  let body={};
+  if(curStep==='video'){
+    const title=v('fTitleVid');if(!title){toast('⚠️ أدخل عنوان الفيديو');btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span>';btn.disabled=false;return;}
+    let fe='';
+    if(curVidSrc==='youtube'){const id=getYTId(document.getElementById('ytUrl').value.trim());if(id)fe=`https://www.youtube.com/embed/${id}`;else if(embedUrl)fe=embedUrl;}
+    else if(curVidSrc==='vimeo'){const id=getVimeoId(document.getElementById('vimeoUrl').value.trim());if(id)fe=`https://player.vimeo.com/video/${id}?portrait=0&byline=0&title=0`;else if(embedUrl)fe=embedUrl;}
+    else if(curVidSrc==='embed'){const code=document.getElementById('embedCode').value.trim();const m=code.match(/src=["\']([^"\']+)["\']/i);if(m)fe=m[1];else if(embedUrl)fe=embedUrl;}
+    else if(curVidSrc==='file'&&!vidData&&!vidExist){toast('⚠️ ارفع ملف الفيديو');btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span>';btn.disabled=false;return;}
+    body={title,category:document.getElementById('fCatVid').value,description:v('fDescVid'),mediaType:'video',keepImages:[],images:[]};
+    if(covDataVid)body.coverImage=covDataVid;else if(!covExist)body.coverImage=null;
+    if(fe)body.embedUrl=fe;else if(vidData)body.videoData=vidData;
+  } else if(curStep==='free'){
+    const title=v('fTitleFree');if(!title){toast('⚠️ أدخل عنوان المشروع');btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span>';btn.disabled=false;return;}
+    body={title,category:document.getElementById('fCatFree').value,description:v('fDescFree'),mediaType:'image',keepImages:[],images:[],projectType:'free'};
+    if(covDataFree)body.coverImage=covDataFree;
+  } else {
+    const title=v('fTitle');if(!title){toast('⚠️ أدخل عنوان المشروع');btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span>';btn.disabled=false;return;}
+    body={title,category:document.getElementById('fCat').value,description:v('fDesc'),mediaType:'image',keepImages:galKeep,images:galNew,projectType:'grid'};
+    if(covData===null&&covExist){}else if(covData==='')body.coverImage='';else if(covData)body.coverImage=covData;else body.coverImage=null;
+  }
+  try{
+    const r=await fetch(isEdit?`/api/projects/${eid}`:'/api/projects',{method:isEdit?'PUT':'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(r.ok){const proj=await r.json();closeModal();await loadProjects();
+      if(curStep==='free'&&!isEdit){toast('✓ تم الإنشاء — جاري فتح المحرر...');setTimeout(()=>window.open(`/admin/editor/${proj.id}`,'_blank'),800);}
+      else toast(isEdit?'✓ تم التحديث':'✓ تم الإضافة');}
+    else{const e=await r.json();toast('خطأ: '+(e.error||'فشل'));}
+  }catch{toast('خطأ في الاتصال');}
+  btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span>';btn.disabled=false;
+}
+
 
 // ══ DELETE ══
 function askDel(id){deleteId=id;document.getElementById('confModal').classList.add('open');}
