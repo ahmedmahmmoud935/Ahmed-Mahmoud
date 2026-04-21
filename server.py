@@ -7,8 +7,8 @@ app = Flask(__name__, static_folder='public', static_url_path='')
 app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
 CORS(app, supports_credentials=True)
 
-DB_PATH    = os.path.join(os.path.dirname(__file__), 'portfolio.db')
-UPLOAD_DIR = os.path.join(os.path.dirname(__file__), 'public', 'uploads')
+DB_PATH    = '/var/data/portfolio.db'
+UPLOAD_DIR = '/var/data/uploads'
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 ADMIN_USER = os.environ.get('ADMIN_USER', 'admin')
