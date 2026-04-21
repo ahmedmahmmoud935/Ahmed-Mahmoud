@@ -227,6 +227,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
   <div class="sb-logo"><i class="fa-solid fa-gem"></i> Portfolio Admin</div>
   <nav class="sb-nav">
     <div class="ni active" onclick="setTab('projects',this)"><i class="fa-solid fa-images"></i> المشاريع</div>
+    <div class="ni" onclick="setTab('reorder',this)"><i class="fa-solid fa-sort"></i> ترتيب المشاريع</div>
     <div class="ni" onclick="setTab('colors',this)"><i class="fa-solid fa-palette"></i> الألوان</div>
     <div class="ni" onclick="setTab('sections',this)"><i class="fa-solid fa-layer-group"></i> ترتيب الأقسام</div>
     <div class="ni" onclick="setTab('navbar',this)"><i class="fa-solid fa-bars"></i> الشريط العلوي</div>
@@ -258,6 +259,18 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
   <div class="tw">
     <div class="thead"><div></div><div>المشروع</div><div>التصنيف</div><div>التاريخ</div><div>إجراءات</div></div>
     <div id="tBody"><div class="empty"><div class="spin"></div></div></div>
+  </div>
+</div>
+
+<!-- REORDER TAB -->
+<div id="tab-reorder" style="display:none;">
+  <div class="ph">
+    <div><div class="pt">ترتيب المشاريع</div><div class="ps">اسحب لإعادة الترتيب</div></div>
+    <button class="btn-add" onclick="saveReorder()"><i class="fa-solid fa-floppy-disk"></i> حفظ الترتيب</button>
+  </div>
+  <div class="card">
+    <div class="card-title">اسحب المشروع لتغيير ترتيبه</div>
+    <div class="sec-list" id="reorderList"></div>
   </div>
 </div>
 
@@ -684,10 +697,11 @@ async function initApp(){
 // ══ TABS ══
 function setTab(tab,el){
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));el.classList.add('active');
-  ['projects','colors','sections','navbar','content','social'].forEach(t=>{
-    document.getElementById('tab-'+t).style.display=t===tab?'block':'none';
+  ['projects','reorder','colors','sections','navbar','content','social'].forEach(t=>{
+    const d=document.getElementById('tab-'+t);if(d)d.style.display=t===tab?'block':'none';
   });
   if(tab==='navbar')renderNavbarList();
+  if(tab==='reorder')renderReorderList();
 }
 
 // ══ PROJECTS ══
@@ -960,26 +974,16 @@ function buildCSec(id){
     case'projects':return`<div class="card"><div class="card-title">قسم المشاريع</div>
       <div class="frow"><div class="fg"><label class="fl">العنوان (عربي)</label><input class="fi" id="pj_title_ar" value="${e(c.title_ar||'أعمال مختارة')}"></div><div class="fg"><label class="fl">Title (EN)</label><input class="fi" id="pj_title_en" value="${e(c.title_en||'Selected Work')}"></div></div>
       <div class="frow"><div class="fg"><label class="fl">العنوان الفرعي (عربي)</label><input class="fi" id="pj_sub_ar" value="${e(c.subtitle_ar||'')}"></div><div class="fg"><label class="fl">Subtitle (EN)</label><input class="fi" id="pj_sub_en" value="${e(c.subtitle_en||'')}"></div></div>
-      <div class="frow" style="margin-top:8px;">
-        <div class="fg">
-          <label class="fl"><i class="fa-solid fa-image" style="color:var(--o);margin-left:6px;"></i>عدد التصاميم في كل صف</label>
-          <div style="display:flex;align-items:center;gap:16px;margin-top:6px;">
-            <input type="range" id="imageColsRange" min="2" max="6" value="${S.image_cols||4}" oninput="document.getElementById('imageColsVal').textContent=this.value" style="-webkit-appearance:none;appearance:none;width:180px;height:4px;border-radius:2px;background:#2a2a2a;outline:none;cursor:pointer;">
-            <style>#imageColsRange::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--o);cursor:pointer;}#imageColsRange::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--o);border:none;cursor:pointer;}</style>
-            <span id="imageColsVal" style="color:var(--o);font-weight:700;font-size:18px;min-width:28px;">${S.image_cols||4}</span>
-            <span style="color:var(--g2);font-size:13px;">في الصف</span>
-          </div>
-        </div>
-        <div class="fg">
-          <label class="fl"><i class="fa-brands fa-instagram" style="color:var(--o);margin-left:6px;"></i>عدد الريلز في كل صف</label>
-          <div style="display:flex;align-items:center;gap:16px;margin-top:6px;">
-            <input type="range" id="videoColsRange" min="2" max="6" value="${S.video_cols||4}" oninput="document.getElementById('videoColsVal').textContent=this.value" style="-webkit-appearance:none;appearance:none;width:180px;height:4px;border-radius:2px;background:#2a2a2a;outline:none;cursor:pointer;">
-            <style>#videoColsRange::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--o);cursor:pointer;}#videoColsRange::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--o);border:none;cursor:pointer;}</style>
-            <span id="videoColsVal" style="color:var(--o);font-weight:700;font-size:18px;min-width:28px;">${S.video_cols||4}</span>
-            <span style="color:var(--g2);font-size:13px;">في الصف</span>
-          </div>
-        </div>
-      </div>
+
+      <div class="card-title" style="margin-top:20px;font-size:13px;">🖼️ عدد التصاميم في كل صف</div>
+      ${colsRow('image','موبايل','imageM',S.image_cols_mobile||2)}
+      ${colsRow('image','تابلت','imageT',S.image_cols_tablet||3)}
+      ${colsRow('image','لابتوب','imageD',S.image_cols_desktop||4)}
+
+      <div class="card-title" style="margin-top:20px;font-size:13px;">🎬 عدد الريلز في كل صف</div>
+      ${colsRow('video','موبايل','videoM',S.video_cols_mobile||2)}
+      ${colsRow('video','تابلت','videoT',S.video_cols_tablet||3)}
+      ${colsRow('video','لابتوب','videoD',S.video_cols_desktop||4)}
       </div>`;
     case'contact':return`<div class="card"><div class="card-title">التواصل</div>
       <div class="frow"><div class="fg"><label class="fl">العنوان (عربي)</label><input class="fi" id="co_title_ar" value="${e(c.title_ar||'تواصل معي')}"></div><div class="fg"><label class="fl">Title (EN)</label><input class="fi" id="co_title_en" value="${e(c.title_en||"Let's Work Together")}"></div></div>
@@ -1113,6 +1117,19 @@ function delExpItem(i){const el=document.getElementById('exp-'+i);if(el)el.remov
 function getExpItems(){const items=[];document.querySelectorAll('[id^="exp-"]').forEach(el=>{const i=el.id.split('-')[1];items.push({company_ar:v(`exp_co_ar_${i}`),company_en:v(`exp_co_en_${i}`),role_ar:v(`exp_role_ar_${i}`),role_en:v(`exp_role_en_${i}`),years:v(`exp_years_${i}`)});});return items;}
 
 // ══ GATHER & SAVE CONTENT ══
+// helper: cols row UI
+function colsRow(type,label,id,val){
+  return`<div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
+    <span style="color:var(--g2);font-size:13px;min-width:55px;">${label}</span>
+    <input type="range" id="cols_${id}" min="1" max="6" value="${val}"
+      oninput="document.getElementById('colsV_${id}').textContent=this.value"
+      style="-webkit-appearance:none;width:160px;height:4px;border-radius:2px;background:#2a2a2a;outline:none;cursor:pointer;">
+    <style>#cols_${id}::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--o);cursor:pointer;}</style>
+    <span id="colsV_${id}" style="color:var(--o);font-weight:700;font-size:16px;min-width:20px;">${val}</span>
+    <span style="color:#555;font-size:12px;">في الصف</span>
+  </div>`;
+}
+
 function gatherContent(){
   const ct={};
   try{ct.hero={name_ar:v('h_name_ar'),name_en:v('h_name_en'),title_ar:v('h_title_ar'),title_en:v('h_title_en'),btn1_ar:v('h_btn1_ar'),btn1_en:v('h_btn1_en'),btn2_ar:v('h_btn2_ar'),btn2_en:v('h_btn2_en')};}catch{}
@@ -1129,10 +1146,15 @@ function gatherContent(){
 async function saveContent(){
   const ct=gatherContent();
   const payload={content:ct};
-  const imgColsEl=document.getElementById('imageColsRange');
-  if(imgColsEl)payload.image_cols=imgColsEl.value;
-  const colsEl=document.getElementById('videoColsRange');
-  if(colsEl)payload.video_cols=colsEl.value;
+  // responsive cols
+  ['imageM','imageT','imageD','videoM','videoT','videoD'].forEach(id=>{
+    const el=document.getElementById('cols_'+id);
+    if(el){
+      const key={imageM:'image_cols_mobile',imageT:'image_cols_tablet',imageD:'image_cols_desktop',
+                 videoM:'video_cols_mobile',videoT:'video_cols_tablet',videoD:'video_cols_desktop'}[id];
+      payload[key]=el.value;
+    }
+  });
   if(heroCoverData!==null)payload.hero_cover_upload=heroCoverData;
   Object.entries(toolImgUploads).forEach(([i,data])=>{payload[`tool_img_upload_${i}`]=data;});
   Object.entries(expSvcImgUploads).forEach(([i,data])=>{if(data)payload[`expsvc_img_upload_${i}`]=data;});
@@ -1381,6 +1403,61 @@ async function saveNavbar(){
     if(r.ok){S.navbar_links=navbarData;toast('✓ تم حفظ الشريط العلوي');}else toast('فشل الحفظ');
   }catch{toast('خطأ في الاتصال');}
 }
+
+// ══ PROJECTS REORDER ══
+let reorderData=[];
+function renderReorderList(){
+  reorderData=[...projects];
+  const list=document.getElementById('reorderList');if(!list)return;
+  list.innerHTML=reorderData.map((p,i)=>`
+    <div class="sec-item" draggable="true" data-pid="${p.id}"
+      ondragstart="roDragStart(event,${i})" ondragover="roDragOver(event,${i})"
+      ondrop="roDrop(event,${i})" ondragend="roDragEnd()">
+      <div class="sec-drag"><i class="fa-solid fa-grip-vertical"></i></div>
+      <div style="width:42px;height:42px;border-radius:8px;overflow:hidden;background:var(--d3);flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+        ${p.coverImage?`<img src="${p.coverImage}" style="width:100%;height:100%;object-fit:cover;">`:`<i class="fa-solid fa-${p.mediaType==='video'?'play-circle':'image'}" style="color:#444;font-size:14px;"></i>`}
+      </div>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:14px;">${p.title}</div>
+        <div style="color:var(--g2);font-size:12px;">${p.category} · ${p.mediaType==='video'?'Reel':'تصميم'}</div>
+      </div>
+      <span style="color:#555;font-size:12px;">#${i+1}</span>
+    </div>`).join('');
+}
+let _roDragIdx=null;
+function roDragStart(e,i){_roDragIdx=i;setTimeout(()=>{const el=document.querySelectorAll('#reorderList .sec-item')[i];if(el)el.classList.add('dragging');},0);}
+function roDragOver(e,i){e.preventDefault();document.querySelectorAll('#reorderList .sec-item').forEach((el,idx)=>el.classList.toggle('drag-over',idx===i&&idx!==_roDragIdx));}
+function roDrop(e,i){e.preventDefault();if(_roDragIdx===null||_roDragIdx===i)return;const m=reorderData.splice(_roDragIdx,1)[0];reorderData.splice(i,0,m);_roDragIdx=null;renderReorderList();}
+function roDragEnd(){_roDragIdx=null;document.querySelectorAll('#reorderList .sec-item').forEach(el=>el.classList.remove('dragging','drag-over'));}
+async function saveReorder(){
+  const ids=reorderData.map(p=>p.id);
+  try{
+    const r=await fetch('/api/projects/reorder',{method:'PUT',credentials:'include',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify({ids})});
+    if(r.ok){projects=reorderData.slice();toast('✓ تم حفظ الترتيب');}
+    else toast('فشل حفظ الترتيب');
+  }catch{toast('خطأ في الاتصال');}
+}
+
+// ══ CHANGE PASSWORD ══
+async function changeCredentials(){
+  const oldP=v('sOldPass'),newU=v('sNewUser'),newP=v('sNewPass'),confP=v('sConfPass');
+  if(!oldP){toast('⚠️ أدخل كلمة المرور الحالية');return;}
+  if(newP&&newP!==confP){toast('⚠️ كلمة المرور غير متطابقة');return;}
+  if(newP&&newP.length<6){toast('⚠️ كلمة المرور 6 أحرف على الأقل');return;}
+  const body={old_password:oldP};if(newU)body.username=newU;if(newP)body.password=newP;
+  try{
+    const r=await fetch('/api/auth/credentials',{method:'PUT',credentials:'include',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json();
+    if(r.ok){
+      toast('✓ تم التغيير — ستُحوَّل لتسجيل الدخول');
+      ['sOldPass','sNewPass','sConfPass'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+      setTimeout(()=>fetch('/api/auth/logout',{method:'POST',credentials:'include'}).then(()=>location.reload()),2000);
+    } else toast('⚠️ '+(d.error||'فشل'));
+  }catch{toast('خطأ في الاتصال');}
+}
+
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
 
 // ══ CLOSE ON OVERLAY CLICK ══

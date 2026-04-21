@@ -141,7 +141,10 @@ def init_db():
             except: pass
         defaults = [
             ('whatsapp',''),('behance',''),('instagram',''),('linkedin',''),('facebook',''),
-            ('photo_url',''),('hero_cover_url',''),('video_cols','4'),('image_cols','4'),
+            ('photo_url',''),('hero_cover_url',''),
+            ('video_cols','4'),('image_cols','4'),
+            ('video_cols_mobile','2'),('video_cols_tablet','3'),('video_cols_desktop','4'),
+            ('image_cols_mobile','2'),('image_cols_tablet','3'),('image_cols_desktop','4'),
             ('vimeo_token',''),
             ('navbar_links', json.dumps([
                 {"id":"about",      "label_ar":"عن النفس",  "label_en":"About",      "visible":True},
@@ -281,6 +284,16 @@ def save_modules(pid):
 @app.route('/admin/editor/<int:pid>')
 def project_editor_page(pid):
     return send_from_directory(app.static_folder, 'editor.html')
+
+@app.route('/api/projects/reorder', methods=['PUT'])
+@login_required
+def reorder_projects():
+    ids = request.get_json().get('ids', [])
+    db  = get_db()
+    for i, pid in enumerate(ids):
+        db.execute('UPDATE projects SET sort_order=? WHERE id=?', (len(ids)-i, pid))
+    db.commit()
+    return jsonify({'ok': True})
 
 @app.route('/api/projects')
 def get_projects():

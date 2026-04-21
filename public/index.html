@@ -187,7 +187,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
   .expertise-grid{grid-template-columns:1fr;gap:14px;}
   .exp-card-service{padding:22px 18px;}
 
-  /* PROJECTS — 2 cols on mobile */
+  /* PROJECTS — 2 cols on mobile (overridden by JS from settings) */
   .projects-grid.mode-image{grid-template-columns:repeat(2,1fr);max-width:100%;}
   .projects-grid.mode-video{grid-template-columns:repeat(2,1fr);max-width:100%;}
 
@@ -504,10 +504,21 @@ function filterProjects(type,btn){
   renderProjects();
 }
 
+function getColsSetting(type){
+  const w=window.innerWidth;
+  if(type==='image'){
+    if(w<=600) return parseInt(S.image_cols_mobile)||2;
+    if(w<=1024) return parseInt(S.image_cols_tablet)||3;
+    return parseInt(S.image_cols_desktop||S.image_cols)||4;
+  } else {
+    if(w<=600) return parseInt(S.video_cols_mobile)||2;
+    if(w<=1024) return parseInt(S.video_cols_tablet)||3;
+    return parseInt(S.video_cols_desktop||S.video_cols)||4;
+  }
+}
+
 function renderProjects(){
   const grid=document.getElementById('projectsGrid');if(!grid)return;
-  const imgCols=S.image_cols||4;
-  const vidCols=S.video_cols||4;
   let list=PROJECTS.filter(p=>currentFilter==='video'?p.mediaType==='video':p.mediaType!=='video');
   grid.className='projects-grid mode-'+currentFilter;
   grid.style.maxWidth='';
@@ -518,11 +529,12 @@ function renderProjects(){
     return;
   }
 
+  const cols=getColsSetting(currentFilter);
   if(currentFilter==='image'){
-    grid.style.gridTemplateColumns=`repeat(${imgCols},1fr)`;
-    grid.style.maxWidth=`${imgCols*200}px`;
+    grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
+    grid.style.maxWidth=`${cols*200}px`;
   } else {
-    grid.style.gridTemplateColumns=`repeat(${vidCols},1fr)`;
+    grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
     grid.style.maxWidth='1200px';
   }
 
@@ -550,6 +562,8 @@ function renderProjects(){
     </div>`;
   }).join('');
 }
+
+window.addEventListener("resize",()=>{if(document.getElementById("projectsGrid"))renderProjects();});
 
 // ── INSTAGRAM REELS LIGHTBOX ──
 let reelList=[], reelIdx=0, reelTouchStartY=0;
