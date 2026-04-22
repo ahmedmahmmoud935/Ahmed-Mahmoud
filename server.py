@@ -330,8 +330,8 @@ def create_project():
     else:
         video_url = save_dataurl(d['videoData'], ALLOWED_VID) if d.get('videoData') else None
     db = get_db()
-    cur = db.execute('INSERT INTO projects(title,category,description,media_type,cover_url,video_url) VALUES(?,?,?,?,?,?)',
-        (title,d.get('category','Social Media'),d.get('description',''),d.get('mediaType','image'),cover_url,video_url))
+    cur = db.execute('INSERT INTO projects(title,category,description,media_type,cover_url,video_url,project_type) VALUES(?,?,?,?,?,?,?)',
+        (title,d.get('category','Social Media'),d.get('description',''),d.get('mediaType','image'),cover_url,video_url,d.get('projectType','grid')))
     pid = cur.lastrowid
     for i,img in enumerate(d.get('images',[])):
         url = save_dataurl(img, ALLOWED_IMG)
@@ -368,6 +368,10 @@ def update_project(pid):
          d.get('description',row['description']), d.get('mediaType',row['media_type']),
          cover_url, video_url, pid))
 
+    # Update project_type if provided
+    if 'projectType' in d:
+        db.execute('UPDATE projects SET project_type=? WHERE id=?', (d['projectType'], pid))
+
     keep = d.get('keepImages') or []
     new_imgs = d.get('images') or []
     if 'keepImages' in d or 'images' in d:
@@ -382,6 +386,16 @@ def update_project(pid):
             if img.startswith('data:'):
                 url = save_dataurl(img, ALLOWED_IMG)
                 if url: db.execute('INSERT INTO project_images(project_id,url,sort_order) VALUES(?,?,?)',(pid,url,len(keep)+i))
+
+    # For grid projects: sync modules array from cover + images (so editor shows them correctly)
+    ptype = d.get('projectType', row['project_type'] or 'grid')
+    if ptype == 'grid' and d.get('mediaType','image') != 'video':
+        updated_row = db.execute('SELECT cover_url FROM projects WHERE id=?',(pid,)).fetchone()
+        imgs = db.execute('SELECT url FROM project_images WHERE project_id=? ORDER BY sort_order',(pid,)).fetchall()
+        all_urls = [u for u in [updated_row['cover_url']] + [r['url'] for r in imgs] if u]
+        mods = [{'type':'image','src':u} for u in all_urls]
+        db.execute('UPDATE projects SET modules=? WHERE id=?', (json.dumps(mods), pid))
+
     db.commit()
     return jsonify(project_to_dict(db.execute('SELECT * FROM projects WHERE id=?',(pid,)).fetchone(),db))
 

@@ -183,16 +183,22 @@ function setType(t,doRender=true){
 
 function render(){ pType==='grid'?renderGrid():renderFree(); }
 
+function showEmpty(msg){
+  const cv=document.getElementById('canvas');
+  cv.innerHTML=`<div class="empty-state">
+    <i class="fa-regular fa-image" style="color:#333;"></i>
+    <h3>ابدأ ببناء مشروعك</h3>
+    <p>${msg}</p>
+  </div>`;
+}
+
 /* ── GRID ── */
 function renderGrid(){
-  const cv=document.getElementById('canvas');
   if(!gridImages.length){
-    cv.innerHTML=''; cv.appendChild(document.getElementById('emptyEl'));
-    document.getElementById('emptyEl').style.display='block';
-    document.getElementById('emptyMsg').textContent='ارفع صور من القائمة الجانبية';
+    showEmpty('ارفع صور من القائمة الجانبية');
     return;
   }
-  document.getElementById('emptyEl').style.display='none';
+  const cv=document.getElementById('canvas');
   let h='<p style="color:var(--g2);font-size:12px;text-align:center;margin-bottom:14px;">شبكة 4:5 — أول صورة = الغلاف — ✕ لحذف</p>';
   h+='<div class="ig-grid">';
   gridImages.forEach((img,i)=>{
@@ -222,14 +228,11 @@ function gridDel(i){ gridImages.splice(i,1); render(); }
 
 /* ── FREE ── */
 function renderFree(){
-  const cv=document.getElementById('canvas');
   if(!modules.length){
-    cv.innerHTML=''; cv.appendChild(document.getElementById('emptyEl'));
-    document.getElementById('emptyEl').style.display='block';
-    document.getElementById('emptyMsg').textContent='اضغط على عنصر من القائمة الجانبية';
+    showEmpty('اضغط على عنصر من القائمة الجانبية لإضافته');
     return;
   }
-  document.getElementById('emptyEl').style.display='none';
+  const cv=document.getElementById('canvas');
   cv.innerHTML='';
   modules.forEach((m,i)=>{
     const w=document.createElement('div');
