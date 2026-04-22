@@ -1,5 +1,5 @@
 import os, sqlite3, json, secrets, uuid, re, base64
-from flask import Flask, request, jsonify, session, send_from_directory, abort
+from flask import Flask, request, jsonify, session, send_from_directory, abort, redirect
 from flask_cors import CORS
 from functools import wraps
 
@@ -278,11 +278,26 @@ def save_modules(pid):
 
     db.execute('UPDATE projects SET modules=?, project_type=? WHERE id=?',
                (json.dumps(processed), project_type, pid))
+
+    # For grid type: first module image becomes the cover, rest become gallery
+    if project_type == 'grid' and processed:
+        img_modules = [m for m in processed if m.get('type') == 'image' and m.get('src')]
+        if img_modules:
+            cover = img_modules[0]['src']
+            db.execute('UPDATE projects SET cover_url=? WHERE id=?', (cover, pid))
+            # Save rest as project_images
+            db.execute('DELETE FROM project_images WHERE project_id=?', (pid,))
+            for i, m in enumerate(img_modules[1:]):
+                db.execute('INSERT INTO project_images(project_id,url,sort_order) VALUES(?,?,?)',
+                           (pid, m['src'], i))
+
     db.commit()
     return jsonify({'ok': True, 'modules': processed})
 
 @app.route('/admin/editor/<int:pid>')
 def project_editor_page(pid):
+    if not session.get('logged_in'):
+        return redirect('/admin')
     return send_from_directory(app.static_folder, 'editor.html')
 
 @app.route('/api/projects/reorder', methods=['PUT'])

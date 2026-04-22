@@ -725,7 +725,7 @@ function renderTable(){
       <div><span class="rcat">${p.category}</span></div>
       <div style="color:var(--g2);font-size:13px;">${p.date||'-'}</div>
       <div class="ra">
-        ${p.mediaType!=='video'?`<a href="/admin/editor/${p.id}" target="_blank" class="be" style="display:flex;align-items:center;justify-content:center;" title="محرر المشروع"><i class="fa-brands fa-behance" style="font-size:11px;"></i></a>`:''}
+        ${p.mediaType!=='video'?`<a href="/admin/editor/${p.id}" class="be" style="display:flex;align-items:center;justify-content:center;" title="محرر المشروع"><i class="fa-brands fa-behance" style="font-size:11px;"></i></a>`:''}
         <button class="be" onclick="openEdit(${p.id})" title="تعديل"><i class="fa-solid fa-pen"></i></button>
         <button class="bd" onclick="askDel(${p.id})" title="حذف"><i class="fa-solid fa-trash"></i></button>
       </div>
@@ -860,7 +860,10 @@ async function saveProject(){
   try{
     const r=await fetch(isEdit?`/api/projects/${eid}`:'/api/projects',{method:isEdit?'PUT':'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     if(r.ok){const proj=await r.json();closeModal();await loadProjects();
-      if(curStep==='free'&&!isEdit){toast('✓ تم الإنشاء — جاري فتح المحرر...');setTimeout(()=>window.open(`/admin/editor/${proj.id}`,'_blank'),800);}
+      if(curStep==='free'&&!isEdit){
+        toast('✓ تم الإنشاء — جاري فتح المحرر...');
+        setTimeout(()=>{ location.href=`/admin/editor/${proj.id}`; },800);
+      }
       else toast(isEdit?'✓ تم التحديث':'✓ تم الإضافة');}
     else{const e=await r.json();toast('خطأ: '+(e.error||'فشل'));}
   }catch{toast('خطأ في الاتصال');}
