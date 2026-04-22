@@ -6,176 +6,123 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-:root{--o:#F97316;--od:#EA6C0A;--d:#0A0A0A;--d2:#111;--d3:#161616;--d4:#222;--g2:#888;--w:#fff;--red:#ef4444;--blue:#3b82f6;}
+:root{--o:#F97316;--od:#EA6C0A;--d:#0A0A0A;--d2:#111;--d3:#161616;--d4:#222;--g2:#888;--w:#fff;--red:#ef4444;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-height:100vh;}
-
-/* ── TOP BAR ── */
-.topbar{position:fixed;top:0;left:0;right:0;z-index:200;height:58px;background:var(--d2);border-bottom:1px solid var(--d4);display:flex;align-items:center;gap:0;padding:0 24px;}
-.tb-back{display:flex;align-items:center;gap:8px;color:var(--g2);text-decoration:none;font-size:14px;font-weight:600;transition:color .2s;padding:8px 0;margin-left:20px;}
-.tb-back:hover{color:var(--w);}
-.tb-title{font-family:'Montserrat',sans-serif;font-weight:700;font-size:15px;flex:1;text-align:center;}
-.tb-project-type{display:flex;gap:6px;margin-left:16px;}
-.pt-btn{padding:7px 14px;border-radius:7px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:1px solid var(--d4);background:transparent;color:var(--g2);transition:all .2s;}
+.topbar{position:fixed;top:0;left:0;right:0;z-index:200;height:58px;background:var(--d2);border-bottom:1px solid var(--d4);display:flex;align-items:center;padding:0 20px;gap:12px;}
+.tb-back{display:flex;align-items:center;gap:8px;color:var(--g2);text-decoration:none;font-size:14px;font-weight:600;transition:color .2s;white-space:nowrap;}.tb-back:hover{color:var(--w);}
+.tb-title{font-family:'Montserrat',sans-serif;font-weight:700;font-size:15px;flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pt-btn{padding:7px 13px;border-radius:7px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:1px solid var(--d4);background:transparent;color:var(--g2);transition:all .2s;}
 .pt-btn.active{background:var(--o);border-color:var(--o);color:#fff;}
-.tb-save{background:var(--o);color:#fff;border:none;padding:9px 22px;border-radius:8px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;transition:background .2s;}
-.tb-save:hover{background:var(--od);}
-.tb-save:disabled{background:#444;cursor:not-allowed;}
-
-/* ── LAYOUT ── */
+.tb-save{background:var(--o);color:#fff;border:none;padding:9px 20px;border-radius:8px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;}
+.tb-save:hover{background:var(--od);}.tb-save:disabled{background:#444;cursor:not-allowed;}
 .editor-layout{display:flex;margin-top:58px;min-height:calc(100vh - 58px);}
-
-/* ── CANVAS ── */
-.canvas{flex:1;max-width:900px;margin:0 auto;padding:40px 24px 120px;}
-
-/* ── SIDEBAR ── */
-.sidebar{width:240px;flex-shrink:0;background:var(--d2);border-right:1px solid var(--d4);position:sticky;top:58px;height:calc(100vh - 58px);overflow-y:auto;padding:20px 16px;}
-[dir=rtl] .sidebar{border-right:none;border-left:1px solid var(--d4);}
-.sb-section{margin-bottom:28px;}
-.sb-label{font-size:11px;font-weight:700;color:var(--g2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;}
-.add-btn{width:100%;display:flex;align-items:center;gap:10px;padding:10px 13px;border-radius:9px;border:1px solid var(--d4);background:transparent;color:var(--g2);font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;text-align:right;}
-.add-btn:hover{border-color:var(--o);color:var(--o);background:rgba(249,115,22,.06);}
-.add-btn i{width:18px;text-align:center;font-size:14px;}
-
-/* ── MODULE CARDS ── */
-.mod-wrap{position:relative;margin-bottom:4px;}
+.sidebar{width:220px;flex-shrink:0;background:var(--d2);border-left:1px solid var(--d4);position:sticky;top:58px;height:calc(100vh - 58px);overflow-y:auto;padding:18px 14px;}
+.sb-section{margin-bottom:24px;}
+.sb-label{font-size:11px;font-weight:700;color:var(--g2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;}
+.sb-btn{width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;border:1px solid var(--d4);background:transparent;color:var(--g2);font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;text-align:right;margin-bottom:6px;position:relative;}
+.sb-btn:hover{border-color:var(--o);color:var(--o);background:rgba(249,115,22,.06);}
+.sb-btn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.fg-label{font-size:12px;color:var(--g2);margin-bottom:5px;font-weight:600;display:block;}
+.fi{width:100%;background:var(--d3);border:1px solid var(--d4);color:var(--w);padding:10px 12px;border-radius:8px;font-family:'Cairo',sans-serif;font-size:13px;outline:none;transition:border-color .2s;margin-bottom:10px;}.fi:focus{border-color:var(--o);}
+.fse{width:100%;background:var(--d3);border:1px solid var(--d4);color:var(--w);padding:10px 12px;border-radius:8px;font-family:'Cairo',sans-serif;font-size:13px;outline:none;cursor:pointer;margin-bottom:10px;}
+.canvas{flex:1;padding:32px 24px 120px;max-width:860px;margin:0 auto;}
+.mod-wrap{margin-bottom:6px;position:relative;}
 .mod-wrap.dragging{opacity:.4;}
-.mod-wrap.drag-over::before{content:'';display:block;height:4px;background:var(--o);border-radius:2px;margin-bottom:4px;}
-.mod-card{background:var(--d2);border:1px solid var(--d4);border-radius:12px;overflow:hidden;transition:border-color .2s;}
-.mod-card:hover{border-color:#444;}
-.mod-card.selected{border-color:var(--o);}
-.mod-toolbar{display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--d3);border-bottom:1px solid var(--d4);}
-.mod-type-tag{font-size:11px;font-weight:700;color:var(--g2);letter-spacing:.5px;flex:1;}
-.mod-tool{width:28px;height:28px;border:none;background:transparent;color:var(--g2);cursor:pointer;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .2s;}
-.mod-tool:hover{background:rgba(255,255,255,.08);color:var(--w);}
-.mod-tool.danger:hover{background:rgba(239,68,68,.15);color:var(--red);}
+.mod-wrap.drag-over::before{content:'';display:block;height:3px;background:var(--o);border-radius:2px;margin-bottom:6px;}
+.mod-card{background:var(--d2);border:1px solid var(--d4);border-radius:12px;overflow:hidden;}
+.mod-toolbar{display:flex;align-items:center;gap:4px;padding:8px 12px;background:var(--d3);border-bottom:1px solid var(--d4);}
+.mod-tag{font-size:11px;font-weight:700;color:var(--g2);flex:1;letter-spacing:.5px;}
+.mod-btn{width:28px;height:28px;border:none;background:transparent;color:var(--g2);cursor:pointer;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;}
+.mod-btn:hover{background:rgba(255,255,255,.08);color:var(--w);}
+.mod-btn.del:hover{background:rgba(239,68,68,.15);color:var(--red);}
 .drag-handle{cursor:grab;color:#444;}
-.drag-handle:hover{color:var(--g2);}
 .mod-body{padding:14px;}
-
-/* ── IMAGE MODULE ── */
-.img-upload-area{border:2px dashed var(--d4);border-radius:8px;padding:28px;text-align:center;cursor:pointer;transition:all .3s;position:relative;}
-.img-upload-area:hover{border-color:var(--o);background:rgba(249,115,22,.04);}
-.img-upload-area input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
-.img-upload-area i{font-size:28px;color:#444;margin-bottom:10px;display:block;}
-.img-upload-area p{color:var(--g2);font-size:13px;}
-.img-upload-area p span{color:var(--o);}
-.img-preview{position:relative;border-radius:8px;overflow:hidden;}
-.img-preview img{width:100%;display:block;border-radius:8px;}
-.img-replace-btn{position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,.75);color:#fff;border:none;padding:6px 12px;border-radius:6px;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;backdrop-filter:blur(4px);}
-
-/* ── PHOTO GRID MODULE ── */
-.photo-grid-layout-btns{display:flex;gap:6px;margin-bottom:12px;}
-.grid-layout-btn{flex:1;padding:7px;border:1px solid var(--d4);border-radius:7px;background:transparent;color:var(--g2);cursor:pointer;font-size:11px;font-family:'Cairo',sans-serif;font-weight:600;transition:all .2s;text-align:center;}
-.grid-layout-btn.active{border-color:var(--o);color:var(--o);background:rgba(249,115,22,.08);}
-.photo-grid-items{display:grid;gap:4px;}
-.photo-grid-items.cols-2{grid-template-columns:1fr 1fr;}
-.photo-grid-items.cols-3{grid-template-columns:1fr 1fr 1fr;}
-.photo-grid-items.cols-2-left{grid-template-columns:2fr 1fr;}
-.photo-grid-items.cols-2-right{grid-template-columns:1fr 2fr;}
-.grid-item{position:relative;aspect-ratio:1;background:var(--d3);border-radius:6px;overflow:hidden;cursor:pointer;border:1px dashed var(--d4);}
-.grid-item img{width:100%;height:100%;object-fit:cover;display:block;}
-.grid-item-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);opacity:0;transition:opacity .2s;}
-.grid-item:hover .grid-item-overlay{opacity:1;}
-.grid-item-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#444;font-size:12px;gap:6px;}
-.grid-item-empty i{font-size:22px;}
-.grid-item input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
-
-/* ── TEXT MODULE ── */
-.text-mod-type{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
-.text-type-btn{padding:5px 12px;border:1px solid var(--d4);border-radius:6px;background:transparent;color:var(--g2);font-family:'Cairo',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;}
-.text-type-btn.active{border-color:var(--o);color:var(--o);background:rgba(249,115,22,.08);}
-.text-input{width:100%;background:var(--d3);border:1px solid var(--d4);color:var(--w);padding:12px 14px;border-radius:8px;font-family:'Cairo',sans-serif;font-size:14px;outline:none;resize:vertical;transition:border-color .2s;min-height:80px;}
-.text-input.heading{font-size:22px;font-weight:700;min-height:50px;}
-.text-input.subtitle{font-size:16px;font-weight:600;color:var(--g2);min-height:50px;}
-.text-input:focus{border-color:var(--o);}
-
-/* ── VIDEO/EMBED MODULE ── */
-.embed-input{width:100%;background:var(--d3);border:1px solid var(--d4);color:var(--w);padding:11px 14px;border-radius:8px;font-family:'Cairo',sans-serif;font-size:13px;outline:none;transition:border-color .2s;margin-bottom:10px;}
-.embed-input:focus{border-color:var(--o);}
-.embed-preview{border-radius:8px;overflow:hidden;background:#000;margin-top:10px;}
-.embed-preview iframe{width:100%;border:none;display:block;}
-.embed-tabs{display:flex;gap:6px;margin-bottom:12px;}
-.embed-tab{padding:6px 14px;border:1px solid var(--d4);border-radius:6px;background:transparent;color:var(--g2);font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;}
-.embed-tab.active{border-color:var(--o);color:var(--o);background:rgba(249,115,22,.08);}
-
-/* ── SEPARATOR MODULE ── */
-.separator-line{height:1px;background:linear-gradient(to left,transparent,var(--d4),transparent);margin:8px 0;}
-
-/* ── GRID PREVIEW (Instagram mode) ── */
-.ig-grid-preview{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;max-width:600px;margin:0 auto;}
-.ig-grid-item{aspect-ratio:1;background:var(--d3);border-radius:4px;overflow:hidden;position:relative;}
-.ig-grid-item img{width:100%;height:100%;object-fit:cover;display:block;}
-.ig-add-slot{display:flex;flex-direction:column;align-items:center;justify-content:center;color:#444;font-size:12px;gap:4px;cursor:pointer;border:1px dashed var(--d4);border-radius:4px;}
-.ig-add-slot:hover{border-color:var(--o);color:var(--o);}
-.ig-add-slot i{font-size:18px;}
-.ig-grid-item input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
-.ig-item-del{position:absolute;top:4px;right:4px;width:22px;height:22px;background:rgba(0,0,0,.75);color:#fff;border:none;border-radius:50%;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-
-/* ── EMPTY STATE ── */
-.empty-canvas{text-align:center;padding:80px 20px;color:#444;}
-.empty-canvas i{font-size:52px;margin-bottom:18px;display:block;}
-.empty-canvas h3{font-family:'Montserrat',sans-serif;font-size:18px;font-weight:700;margin-bottom:8px;color:#666;}
-.empty-canvas p{font-size:13px;line-height:1.8;}
-
-/* ── TOAST & UTILS ── */
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(100px);background:#1a1a1a;border:1px solid var(--o);color:#fff;padding:13px 28px;border-radius:8px;font-size:14px;transition:transform .4s;z-index:9999;}
+.upload-zone{border:2px dashed var(--d4);border-radius:8px;padding:26px 16px;text-align:center;position:relative;cursor:pointer;transition:all .3s;}
+.upload-zone:hover{border-color:var(--o);background:rgba(249,115,22,.04);}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.upload-zone i{font-size:26px;color:#444;display:block;margin-bottom:8px;}
+.upload-zone p{color:var(--g2);font-size:13px;}.upload-zone span{color:var(--o);}
+.img-prev{position:relative;border-radius:8px;overflow:hidden;}
+.img-prev img{width:100%;display:block;}
+.img-prev-actions{position:absolute;bottom:8px;right:8px;}
+.img-prev-btn{background:rgba(0,0,0,.75);color:#fff;border:none;padding:6px 12px;border-radius:6px;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;position:relative;}
+.img-prev-btn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.grid-layouts{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
+.gl-btn{padding:6px 10px;border:1px solid var(--d4);border-radius:6px;background:transparent;color:var(--g2);cursor:pointer;font-size:11px;font-family:'Cairo',sans-serif;font-weight:600;}
+.gl-btn.active{border-color:var(--o);color:var(--o);background:rgba(249,115,22,.08);}
+.pg-grid{display:grid;gap:4px;}
+.pg-grid.c2{grid-template-columns:1fr 1fr;}.pg-grid.c3{grid-template-columns:1fr 1fr 1fr;}
+.pg-grid.c2l{grid-template-columns:2fr 1fr;}.pg-grid.c2r{grid-template-columns:1fr 2fr;}
+.pg-slot{aspect-ratio:1;background:var(--d3);border-radius:6px;overflow:hidden;position:relative;border:1px dashed var(--d4);}
+.pg-slot img{width:100%;height:100%;object-fit:cover;display:block;}
+.pg-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#444;font-size:12px;gap:5px;}
+.pg-empty i{font-size:20px;}
+.pg-slot input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.pg-del{position:absolute;top:4px;right:4px;width:22px;height:22px;background:rgba(0,0,0,.75);color:#fff;border:none;border-radius:50%;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;}
+.text-types{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.tt-btn{padding:5px 12px;border:1px solid var(--d4);border-radius:6px;background:transparent;color:var(--g2);font-family:'Cairo',sans-serif;font-size:12px;font-weight:600;cursor:pointer;}
+.tt-btn.active{border-color:var(--o);color:var(--o);background:rgba(249,115,22,.08);}
+.txt-inp{width:100%;background:var(--d3);border:1px solid var(--d4);color:var(--w);padding:12px 13px;border-radius:8px;font-family:'Cairo',sans-serif;font-size:14px;outline:none;resize:vertical;min-height:80px;}.txt-inp:focus{border-color:var(--o);}
+.txt-inp.h1{font-size:22px;font-weight:700;min-height:52px;}.txt-inp.h2{font-size:16px;font-weight:600;min-height:52px;}
+.embed-tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.emb-tab{padding:6px 12px;border:1px solid var(--d4);border-radius:6px;background:transparent;color:var(--g2);font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;}
+.emb-tab.active{border-color:var(--o);color:var(--o);background:rgba(249,115,22,.08);}
+.emb-input{width:100%;background:var(--d3);border:1px solid var(--d4);color:var(--w);padding:10px 13px;border-radius:8px;font-family:'Cairo',sans-serif;font-size:13px;outline:none;margin-bottom:8px;}.emb-input:focus{border-color:var(--o);}
+.emb-preview{border-radius:8px;overflow:hidden;background:#000;margin-top:8px;}
+.emb-preview iframe{width:100%;border:none;display:block;}
+.sep-line{height:1px;background:linear-gradient(to left,transparent,#2a2a2a,transparent);margin:6px 0;}
+.ig-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;max-width:540px;margin:0 auto;}
+.ig-item{aspect-ratio:4/5;background:var(--d3);border-radius:3px;overflow:hidden;position:relative;}
+.ig-item img{width:100%;height:100%;object-fit:cover;display:block;}
+.ig-del{position:absolute;top:4px;right:4px;width:22px;height:22px;background:rgba(0,0,0,.75);color:#fff;border:none;border-radius:50%;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;}
+.ig-badge{position:absolute;bottom:4px;left:4px;background:var(--o);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;}
+.empty-state{text-align:center;padding:80px 20px;color:#444;}
+.empty-state i{font-size:48px;margin-bottom:16px;display:block;}
+.empty-state h3{font-family:'Montserrat',sans-serif;font-size:17px;font-weight:700;color:#555;margin-bottom:8px;}
+.empty-state p{font-size:13px;line-height:1.8;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:#1a1a1a;border:1px solid var(--o);color:#fff;padding:12px 26px;border-radius:8px;font-size:14px;transition:transform .4s;z-index:9999;}
 .toast.show{transform:translateX(-50%) translateY(0);}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;}
 @keyframes sp{to{transform:rotate(360deg);}}
-.fi{width:100%;background:var(--d3);border:1px solid var(--d4);color:var(--w);padding:10px 13px;border-radius:8px;font-family:'Cairo',sans-serif;font-size:13px;outline:none;transition:border-color .2s;margin-bottom:10px;}
-.fi:focus{border-color:var(--o);}
-.fse{width:100%;background:var(--d3);border:1px solid var(--d4);color:var(--w);padding:10px 13px;border-radius:8px;font-family:'Cairo',sans-serif;font-size:13px;outline:none;cursor:pointer;margin-bottom:10px;}
-.fg-label{font-size:12px;color:var(--g2);margin-bottom:5px;font-weight:600;display:block;}
 </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
 <div class="topbar">
-  <a href="/admin" class="tb-back"><i class="fa-solid fa-arrow-right"></i> لوحة التحكم</a>
+  <a href="/admin" class="tb-back"><i class="fa-solid fa-arrow-right"></i> رجوع</a>
   <div class="tb-title" id="tbTitle">محرر المشروع</div>
-  <div class="tb-project-type">
-    <button class="pt-btn active" id="ptGrid" onclick="setProjectType('grid')">
-      <i class="fa-th" style="margin-left:5px;"></i>Instagram Grid
-    </button>
-    <button class="pt-btn" id="ptFree" onclick="setProjectType('free')">
-      <i class="fa-brands fa-behance" style="margin-left:5px;"></i>Behance Free
-    </button>
+  <div style="display:flex;gap:6px;">
+    <button class="pt-btn active" id="ptGrid" onclick="setType('grid')"><i class="fa-th" style="margin-left:4px;"></i>شبكة</button>
+    <button class="pt-btn" id="ptFree" onclick="setType('free')"><i class="fa-brands fa-behance" style="margin-left:4px;"></i>حر</button>
   </div>
-  <button class="tb-save" id="saveBtn" onclick="saveProject()">
-    <div class="spin" id="saveSpin" style="display:none;"></div>
+  <button class="tb-save" id="saveBtn" onclick="doSave()">
+    <span class="spin" id="saveSpin" style="display:none;"></span>
     <i class="fa-solid fa-floppy-disk"></i> حفظ
   </button>
 </div>
 
-<!-- LAYOUT -->
 <div class="editor-layout">
-
-  <!-- SIDEBAR -->
   <div class="sidebar">
-    <!-- Grid mode -->
-    <div class="sb-section" id="sidebarGrid">
-      <div class="sb-label">محتوى الشبكة</div>
-      <label class="add-btn" style="cursor:pointer;border-style:dashed;" for="igBulkUpload">
-        <i class="fa-solid fa-images" style="color:var(--o);"></i> رفع صور (متعدد)
+    <div id="sbGrid" class="sb-section">
+      <div class="sb-label">الشبكة</div>
+      <label class="sb-btn" style="border-style:dashed;">
+        <i class="fa-solid fa-images" style="color:var(--o);"></i> رفع صور
+        <input type="file" accept="image/*" multiple onchange="gridAdd(this)">
       </label>
-      <input type="file" id="igBulkUpload" accept="image/*" multiple style="display:none;" onchange="addGridImages(this)">
+      <p style="color:#555;font-size:11px;line-height:1.7;margin-top:4px;">أول صورة = الغلاف<br>مقاس 4:5 مُوصى به</p>
     </div>
-
-    <!-- Free mode -->
-    <div class="sb-section" id="sidebarFree" style="display:none;">
+    <div id="sbFree" class="sb-section" style="display:none;">
       <div class="sb-label">إضافة عنصر</div>
-      <button class="add-btn" onclick="addModule('image')"><i class="fa-solid fa-image" style="color:var(--o);"></i> صورة</button>
-      <button class="add-btn" onclick="addModule('photo-grid')"><i class="fa-solid fa-grip" style="color:#3b82f6;"></i> شبكة صور</button>
-      <button class="add-btn" onclick="addModule('text')"><i class="fa-solid fa-font" style="color:#22c55e;"></i> نص / عنوان</button>
-      <button class="add-btn" onclick="addModule('video')"><i class="fa-brands fa-youtube" style="color:#ff0000;"></i> فيديو / Embed</button>
-      <button class="add-btn" onclick="addModule('separator')"><i class="fa-solid fa-minus" style="color:#555;"></i> فاصل</button>
+      <button class="sb-btn" onclick="addMod('image')"><i class="fa-solid fa-image" style="color:var(--o);"></i> صورة كاملة</button>
+      <button class="sb-btn" onclick="addMod('grid')"><i class="fa-solid fa-grip" style="color:#3b82f6;"></i> شبكة صور</button>
+      <button class="sb-btn" onclick="addMod('text')"><i class="fa-solid fa-font" style="color:#22c55e;"></i> نص / عنوان</button>
+      <button class="sb-btn" onclick="addMod('video')"><i class="fa-brands fa-youtube" style="color:#ff0000;"></i> فيديو</button>
+      <button class="sb-btn" onclick="addMod('sep')"><i class="fa-solid fa-minus" style="color:#555;"></i> فاصل</button>
     </div>
-
     <div class="sb-section">
-      <div class="sb-label">معلومات المشروع</div>
-      <label class="fg-label">العنوان</label>
+      <div class="sb-label">معلومات</div>
+      <label class="fg-label">العنوان *</label>
       <input class="fi" id="projTitle" placeholder="عنوان المشروع">
       <label class="fg-label">التصنيف</label>
       <select class="fse" id="projCat">
@@ -187,404 +134,227 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
         <option value="Other">Other</option>
       </select>
       <label class="fg-label">الوصف</label>
-      <textarea class="fi" id="projDesc" style="min-height:80px;resize:vertical;" placeholder="وصف المشروع..."></textarea>
+      <textarea class="fi" id="projDesc" style="min-height:80px;resize:vertical;" placeholder="وصف..."></textarea>
     </div>
   </div>
 
-  <!-- CANVAS -->
   <div class="canvas" id="canvas">
-    <div class="empty-canvas" id="emptyState">
-      <i class="fa-brands fa-behance" style="color:#333;"></i>
+    <div class="empty-state" id="emptyEl">
+      <i class="fa-regular fa-image" style="color:#333;"></i>
       <h3>ابدأ ببناء مشروعك</h3>
-      <p>اختر نوع المشروع من الأعلى<br>ثم أضف العناصر من القائمة الجانبية</p>
+      <p id="emptyMsg">ارفع صور من القائمة الجانبية</p>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toastEl"></div>
 
 <script>
 const PID = parseInt(location.pathname.split('/').pop());
-let PROJECT = null;
-let modules = [];       // free mode
-let gridImages = [];    // grid mode
-let projectType = 'grid';
-let dragSrc = null;
+let PROJECT=null, modules=[], gridImages=[], pType='grid', dragIdx=null;
 
-// ══ INIT ══
 (async()=>{
   try{
-    const r = await fetch(`/api/projects/${PID}/modules`, {credentials:'include'});
+    const r=await fetch('/api/projects/'+PID+'/modules',{credentials:'include'});
     if(r.status===401){location.href='/admin';return;}
-    if(!r.ok){toast('خطأ في تحميل المشروع');return;}
-    const d = await r.json();
-    PROJECT = d.project;
-    modules = d.modules || [];
-    projectType = PROJECT.projectType || 'grid';
-
-    // Populate info
-    document.getElementById('projTitle').value = PROJECT.title || '';
-    document.getElementById('projDesc').value = PROJECT.description || '';
-    document.getElementById('projCat').value = PROJECT.category || 'Brand Identity';
-    document.getElementById('tbTitle').textContent = PROJECT.title || 'محرر المشروع';
-
-    // Populate grid images from existing project images
-    if(projectType === 'grid'){
-      gridImages = [PROJECT.coverImage, ...(PROJECT.images||[])].filter(Boolean).map(src=>({src}));
+    if(!r.ok){toast('خطأ في التحميل');return;}
+    const d=await r.json();
+    PROJECT=d.project; modules=d.modules||[]; pType=PROJECT.projectType||'grid';
+    document.getElementById('projTitle').value=PROJECT.title||'';
+    document.getElementById('projDesc').value=PROJECT.description||'';
+    document.getElementById('projCat').value=PROJECT.category||'Brand Identity';
+    document.getElementById('tbTitle').textContent=PROJECT.title||'محرر';
+    if(pType==='grid'){
+      const imgs=[PROJECT.coverImage,...(PROJECT.images||[])].filter(Boolean);
+      gridImages=imgs.map(src=>({src,isNew:false}));
     }
-
-    setProjectType(projectType, false);
-    renderCanvas();
+    setType(pType,false); render();
   }catch(e){toast('خطأ: '+e.message);}
 })();
 
-// ══ PROJECT TYPE ══
-function setProjectType(type, rerender=true){
-  projectType = type;
-  document.getElementById('ptGrid').classList.toggle('active', type==='grid');
-  document.getElementById('ptFree').classList.toggle('active', type==='free');
-  document.getElementById('sidebarGrid').style.display = type==='grid'?'block':'none';
-  document.getElementById('sidebarFree').style.display = type==='free'?'block':'none';
-  if(rerender) renderCanvas();
+function setType(t,doRender=true){
+  pType=t;
+  document.getElementById('ptGrid').classList.toggle('active',t==='grid');
+  document.getElementById('ptFree').classList.toggle('active',t==='free');
+  document.getElementById('sbGrid').style.display=t==='grid'?'block':'none';
+  document.getElementById('sbFree').style.display=t==='free'?'block':'none';
+  if(doRender)render();
 }
 
-// ══ CANVAS RENDER ══
-function renderCanvas(){
-  const canvas = document.getElementById('canvas');
-  const empty  = document.getElementById('emptyState');
+function render(){ pType==='grid'?renderGrid():renderFree(); }
 
-  if(projectType === 'grid'){
-    renderGrid(canvas, empty);
-  } else {
-    renderFree(canvas, empty);
-  }
-}
-
-// ── GRID MODE ──
-function renderGrid(canvas, empty){
+/* ── GRID ── */
+function renderGrid(){
+  const cv=document.getElementById('canvas');
   if(!gridImages.length){
-    canvas.innerHTML = '';
-    canvas.appendChild(empty);
-    empty.style.display = 'block';
+    cv.innerHTML=''; cv.appendChild(document.getElementById('emptyEl'));
+    document.getElementById('emptyEl').style.display='block';
+    document.getElementById('emptyMsg').textContent='ارفع صور من القائمة الجانبية';
     return;
   }
-  empty.style.display = 'none';
-  canvas.innerHTML = `
-    <p style="color:var(--g2);font-size:12px;text-align:center;margin-bottom:16px;">شبكة Instagram — 3 أعمدة — اضغط ✕ لحذف صورة</p>
-    <div class="ig-grid-preview" id="igGrid"></div>
-    <div style="text-align:center;margin-top:16px;">
-      <label class="add-btn" style="display:inline-flex;width:auto;padding:10px 20px;cursor:pointer;border-style:dashed;" for="igAddMore">
-        <i class="fa-solid fa-plus" style="color:var(--o);"></i> إضافة صور
-      </label>
-      <input type="file" id="igAddMore" accept="image/*" multiple style="display:none;" onchange="addGridImages(this)">
-    </div>`;
-  const grid = document.getElementById('igGrid');
-  grid.innerHTML = gridImages.map((img,i)=>`
-    <div class="ig-grid-item">
-      <img src="${img.src}" alt="">
-      <button class="ig-item-del" onclick="removeGridImage(${i})"><i class="fa-solid fa-xmark"></i></button>
-    </div>`).join('');
+  document.getElementById('emptyEl').style.display='none';
+  let h='<p style="color:var(--g2);font-size:12px;text-align:center;margin-bottom:14px;">شبكة 4:5 — أول صورة = الغلاف — ✕ لحذف</p>';
+  h+='<div class="ig-grid">';
+  gridImages.forEach((img,i)=>{
+    h+=`<div class="ig-item"><img src="${img.src}" alt="">${i===0?'<span class="ig-badge">COVER</span>':''}<button class="ig-del" onclick="gridDel(${i})"><i class="fa-solid fa-xmark"></i></button></div>`;
+  });
+  h+='</div>';
+  h+=`<div style="text-align:center;margin-top:14px;">
+    <label class="sb-btn" style="display:inline-flex;width:auto;padding:10px 20px;border-style:dashed;cursor:pointer;">
+      <i class="fa-solid fa-plus" style="color:var(--o);"></i> إضافة صور
+      <input type="file" accept="image/*" multiple onchange="gridAdd(this)">
+    </label>
+  </div>`;
+  cv.innerHTML=h;
 }
 
-function addGridImages(inp){
-  const files = Array.from(inp.files);
-  let loaded = 0;
+function gridAdd(inp){
+  const files=Array.from(inp.files); if(!files.length)return;
+  let done=0;
   files.forEach(f=>{
-    const reader = new FileReader();
-    reader.onload = e=>{
-      gridImages.push({src: e.target.result, isNew: true});
-      loaded++;
-      if(loaded===files.length) renderCanvas();
-    };
-    reader.readAsDataURL(f);
+    const fr=new FileReader();
+    fr.onload=e=>{ gridImages.push({src:e.target.result,isNew:true}); done++; if(done===files.length)render(); };
+    fr.readAsDataURL(f);
   });
   inp.value='';
 }
-function removeGridImage(i){ gridImages.splice(i,1); renderCanvas(); }
+function gridDel(i){ gridImages.splice(i,1); render(); }
 
-// ── FREE MODE ──
-function renderFree(canvas, empty){
+/* ── FREE ── */
+function renderFree(){
+  const cv=document.getElementById('canvas');
   if(!modules.length){
-    canvas.innerHTML = '';
-    canvas.appendChild(empty);
-    empty.style.display = 'block';
+    cv.innerHTML=''; cv.appendChild(document.getElementById('emptyEl'));
+    document.getElementById('emptyEl').style.display='block';
+    document.getElementById('emptyMsg').textContent='اضغط على عنصر من القائمة الجانبية';
     return;
   }
-  empty.style.display = 'none';
-  canvas.innerHTML = '';
-  modules.forEach((mod, i)=>{
-    const wrap = document.createElement('div');
-    wrap.className = 'mod-wrap';
-    wrap.draggable = true;
-    wrap.dataset.idx = i;
-    wrap.innerHTML = buildModuleHTML(mod, i);
-    wrap.addEventListener('dragstart', e=>dragStart(e,i));
-    wrap.addEventListener('dragover',  e=>dragOver(e,i));
-    wrap.addEventListener('drop',      e=>drop(e,i));
-    wrap.addEventListener('dragend',   dragEnd);
-    canvas.appendChild(wrap);
-  });
-  canvas.appendChild(empty); // keep it (hidden)
-  empty.style.display = 'none';
-  // attach change listeners
-  attachListeners();
-}
-
-function buildModuleHTML(mod, i){
-  const toolbar = `
-    <div class="mod-toolbar">
-      <span class="drag-handle mod-tool"><i class="fa-solid fa-grip-lines"></i></span>
-      <span class="mod-type-tag">${modLabel(mod.type)}</span>
-      <button class="mod-tool" onclick="moveModule(${i},-1)" title="أعلى"><i class="fa-solid fa-chevron-up"></i></button>
-      <button class="mod-tool" onclick="moveModule(${i},1)" title="أسفل"><i class="fa-solid fa-chevron-down"></i></button>
-      <button class="mod-tool danger" onclick="removeModule(${i})" title="حذف"><i class="fa-solid fa-trash"></i></button>
-    </div>`;
-  let body = '';
-  switch(mod.type){
-    case 'image':     body = buildImageBody(mod,i); break;
-    case 'photo-grid':body = buildPhotoGridBody(mod,i); break;
-    case 'text':      body = buildTextBody(mod,i); break;
-    case 'video':     body = buildVideoBody(mod,i); break;
-    case 'separator': body = buildSeparatorBody(mod,i); break;
-    default: body = '<div class="mod-body"><p style="color:#555">عنصر غير معروف</p></div>';
-  }
-  return `<div class="mod-card" id="mod-${i}">${toolbar}${body}</div>`;
-}
-
-function modLabel(type){
-  return {image:'صورة','photo-grid':'شبكة صور',text:'نص',video:'فيديو / Embed',separator:'فاصل'}[type]||type;
-}
-
-// ── IMAGE MODULE ──
-function buildImageBody(mod, i){
-  if(mod.src){
-    return `<div class="mod-body">
-      <div class="img-preview">
-        <img src="${mod.src}" alt="">
-        <button class="img-replace-btn" onclick="triggerImgReplace(${i})">
-          <i class="fa-solid fa-arrow-rotate-right"></i> استبدال
-        </button>
-      </div>
-      <input type="file" id="img-file-${i}" accept="image/*" style="display:none;" onchange="handleImgReplace(this,${i})">
-    </div>`;
-  }
-  return `<div class="mod-body">
-    <div class="img-upload-area">
-      <input type="file" accept="image/*" id="img-file-${i}" onchange="handleImgUpload(this,${i})">
-      <i class="fa-solid fa-image"></i>
-      <p>اسحب صورة أو <span>اضغط للاختيار</span></p>
-    </div>
-  </div>`;
-}
-function triggerImgReplace(i){ document.getElementById(`img-file-${i}`).click(); }
-function handleImgUpload(inp, i){ readFile(inp, data=>{ modules[i].src=data; renderCanvas(); }); }
-function handleImgReplace(inp, i){ readFile(inp, data=>{ modules[i].src=data; renderCanvas(); }); }
-
-// ── PHOTO GRID MODULE ──
-function buildPhotoGridBody(mod, i){
-  const layout = mod.layout || '2';
-  const items  = mod.items  || [{},{},{}];
-  const gridClass = {
-    '2':'cols-2', '3':'cols-3',
-    '2L':'cols-2-left', '2R':'cols-2-right'
-  }[layout] || 'cols-2';
-  const layouts = [
-    {k:'2',   label:'2 مربع'},
-    {k:'3',   label:'3 مربع'},
-    {k:'2L',  label:'2+1 كبير'},
-    {k:'2R',  label:'1+2 كبير'},
-  ];
-  return `<div class="mod-body">
-    <div class="photo-grid-layout-btns">
-      ${layouts.map(l=>`<button class="grid-layout-btn ${layout===l.k?'active':''}"
-        onclick="setGridLayout(${i},'${l.k}')">${l.label}</button>`).join('')}
-    </div>
-    <div class="photo-grid-items ${gridClass}" id="pg-items-${i}">
-      ${items.map((item,j)=>buildGridItem(item,i,j)).join('')}
-    </div>
-  </div>`;
-}
-function buildGridItem(item,mi,ji){
-  return `<div class="grid-item" id="gi-${mi}-${ji}" onclick="triggerGridItem(${mi},${ji})">
-    ${item.src?`<img src="${item.src}" alt="">`:'<div class="grid-item-empty"><i class="fa-solid fa-plus"></i><span>إضافة</span></div>'}
-    <div class="grid-item-overlay"><i class="fa-solid fa-pen" style="color:#fff;font-size:18px;"></i></div>
-    <input type="file" accept="image/*" id="gi-file-${mi}-${ji}" style="display:none;" onchange="handleGridItemUpload(this,${mi},${ji})">
-  </div>`;
-}
-function triggerGridItem(mi,ji){ document.getElementById(`gi-file-${mi}-${ji}`).click(); }
-function handleGridItemUpload(inp,mi,ji){
-  readFile(inp, data=>{
-    if(!modules[mi].items) modules[mi].items=[];
-    if(!modules[mi].items[ji]) modules[mi].items[ji]={};
-    modules[mi].items[ji].src = data;
-    renderCanvas();
+  document.getElementById('emptyEl').style.display='none';
+  cv.innerHTML='';
+  modules.forEach((m,i)=>{
+    const w=document.createElement('div');
+    w.className='mod-wrap'; w.draggable=true;
+    w.innerHTML=buildMod(m,i);
+    w.addEventListener('dragstart',()=>{ dragIdx=i; setTimeout(()=>w.classList.add('dragging'),0); });
+    w.addEventListener('dragover',e=>{ e.preventDefault(); document.querySelectorAll('.mod-wrap').forEach((el,j)=>el.classList.toggle('drag-over',j===i&&j!==dragIdx)); });
+    w.addEventListener('drop',e=>{ e.preventDefault(); if(dragIdx===null||dragIdx===i)return; const mv=modules.splice(dragIdx,1)[0]; modules.splice(i,0,mv); dragIdx=null; render(); });
+    w.addEventListener('dragend',()=>{ dragIdx=null; document.querySelectorAll('.mod-wrap').forEach(el=>el.classList.remove('dragging','drag-over')); });
+    cv.appendChild(w);
   });
 }
-function setGridLayout(mi, layout){
-  modules[mi].layout = layout;
-  // adjust items count
-  const count = {2:2,3:3,'2L':2,'2R':2}[layout]||2;
-  if(!modules[mi].items) modules[mi].items=[];
-  while(modules[mi].items.length < count) modules[mi].items.push({});
-  renderCanvas();
+
+function buildMod(m,i){
+  const tags={image:'صورة',grid:'شبكة صور',text:'نص',video:'فيديو',sep:'فاصل'};
+  const tb=`<div class="mod-toolbar">
+    <span class="drag-handle mod-btn" title="اسحب"><i class="fa-solid fa-grip-lines"></i></span>
+    <span class="mod-tag">${tags[m.type]||m.type}</span>
+    <button class="mod-btn" onclick="modUp(${i})"><i class="fa-solid fa-chevron-up"></i></button>
+    <button class="mod-btn" onclick="modDown(${i})"><i class="fa-solid fa-chevron-down"></i></button>
+    <button class="mod-btn del" onclick="modDel(${i})"><i class="fa-solid fa-trash"></i></button>
+  </div>`;
+  let body='';
+  if(m.type==='image') body=bImage(m,i);
+  else if(m.type==='grid') body=bGrid(m,i);
+  else if(m.type==='text') body=bText(m,i);
+  else if(m.type==='video') body=bVideo(m,i);
+  else if(m.type==='sep') body=`<div class="mod-body"><div class="sep-line"></div><p style="color:#555;font-size:12px;text-align:center;">فاصل</p></div>`;
+  return `<div class="mod-card">${tb}${body}</div>`;
 }
 
-// ── TEXT MODULE ──
-function buildTextBody(mod, i){
-  const textType = mod.textType || 'paragraph';
-  const types = [{k:'heading',l:'عنوان كبير'},{k:'subtitle',l:'عنوان فرعي'},{k:'paragraph',l:'فقرة'}];
+/* Image */
+function bImage(m,i){
+  if(m.src) return `<div class="mod-body"><div class="img-prev"><img src="${m.src}" alt=""><div class="img-prev-actions"><label class="img-prev-btn"><i class="fa-solid fa-arrow-rotate-right"></i> استبدال<input type="file" accept="image/*" onchange="imgReplace(event,${i})"></label></div></div></div>`;
+  return `<div class="mod-body"><div class="upload-zone"><input type="file" accept="image/*" onchange="imgUpload(event,${i})"><i class="fa-solid fa-image"></i><p>اسحب أو <span>اختر صورة</span></p></div></div>`;
+}
+function imgUpload(e,i){ const f=e.target.files[0];if(!f)return; readF(f,d=>{modules[i].src=d;render();}); }
+function imgReplace(e,i){ const f=e.target.files[0];if(!f)return; readF(f,d=>{modules[i].src=d;render();}); }
+
+/* Grid */
+function bGrid(m,i){
+  const layout=m.layout||'2', items=m.items||[{},{}];
+  const cls={'2':'c2','3':'c3','2l':'c2l','2r':'c2r'}[layout]||'c2';
+  const layouts=[{k:'2',l:'2 مربع'},{k:'3',l:'3 مربع'},{k:'2l',l:'كبير+صغير'},{k:'2r',l:'صغير+كبير'}];
+  const slots=items.map((item,j)=>`<div class="pg-slot">
+    ${item.src?`<img src="${item.src}" alt=""><button class="pg-del" onclick="gSlotDel(${i},${j})"><i class="fa-solid fa-xmark"></i></button>`:`<div class="pg-empty"><i class="fa-solid fa-plus"></i><span>إضافة</span></div>`}
+    <input type="file" accept="image/*" onchange="gSlotUp(event,${i},${j})">
+  </div>`).join('');
   return `<div class="mod-body">
-    <div class="text-mod-type">
-      ${types.map(tt=>`<button class="text-type-btn ${textType===tt.k?'active':''}"
-        onclick="setTextType(${i},'${tt.k}')">${tt.l}</button>`).join('')}
-    </div>
-    <textarea class="text-input ${textType}" id="text-val-${i}"
-      data-mi="${i}" placeholder="${textType==='heading'?'عنوان المشروع...':textType==='subtitle'?'عنوان فرعي...':'اكتب نصاً...'}"
-      oninput="modules[${i}].value=this.value">${mod.value||''}</textarea>
+    <div class="grid-layouts">${layouts.map(l=>`<button class="gl-btn ${layout===l.k?'active':''}" onclick="setGL(${i},'${l.k}')">${l.l}</button>`).join('')}</div>
+    <div class="pg-grid ${cls}">${slots}</div>
   </div>`;
 }
-function setTextType(i, type){
-  modules[i].textType = type;
-  renderCanvas();
-}
+function gSlotUp(e,mi,si){ const f=e.target.files[0];if(!f)return; readF(f,d=>{ if(!modules[mi].items)modules[mi].items=[]; if(!modules[mi].items[si])modules[mi].items[si]={}; modules[mi].items[si].src=d; render(); }); }
+function gSlotDel(mi,si){ if(modules[mi].items&&modules[mi].items[si])modules[mi].items[si]={}; render(); }
+function setGL(i,layout){ modules[i].layout=layout; const n={'2':2,'3':3,'2l':2,'2r':2}[layout]||2; if(!modules[i].items)modules[i].items=[]; while(modules[i].items.length<n)modules[i].items.push({}); render(); }
 
-// ── VIDEO/EMBED MODULE ──
-function buildVideoBody(mod, i){
-  const embedType = mod.embedType || 'youtube';
-  const tabs = [{k:'youtube',l:'YouTube'},{k:'vimeo',l:'Vimeo'},{k:'embed',l:'Embed Code'}];
-  let preview = '';
-  if(mod.embedUrl){
-    const h = mod.embedType==='embed' ? 400 : Math.round(400*9/16);
-    preview = `<div class="embed-preview"><iframe src="${mod.embedUrl}" height="${h}" allowfullscreen allow="autoplay; fullscreen"></iframe></div>`;
-  }
+/* Text */
+function bText(m,i){
+  const tt=m.textType||'p';
+  const cls={h1:'h1',h2:'h2',p:''}[tt]||'';
   return `<div class="mod-body">
-    <div class="embed-tabs">
-      ${tabs.map(tab=>`<button class="embed-tab ${embedType===tab.k?'active':''}"
-        onclick="setEmbedType(${i},'${tab.k}')">${tab.l}</button>`).join('')}
+    <div class="text-types">
+      ${[{k:'h1',l:'عنوان كبير'},{k:'h2',l:'عنوان فرعي'},{k:'p',l:'فقرة'}].map(t=>`<button class="tt-btn ${tt===t.k?'active':''}" onclick="setTT(${i},'${t.k}')">${t.l}</button>`).join('')}
     </div>
-    ${embedType==='embed'
-      ?`<textarea class="embed-input" id="embed-code-${i}" style="min-height:90px;font-size:12px;font-family:monospace;"
-          placeholder='&lt;iframe src="..."&gt;&lt;/iframe&gt;'
-          oninput="parseEmbedCode(${i},this.value)">${mod.rawEmbed||''}</textarea>`
-      :`<input class="embed-input" id="embed-url-${i}"
-          placeholder="${embedType==='youtube'?'https://youtube.com/watch?v=...':'https://vimeo.com/...'}"
-          value="${mod.rawUrl||''}"
-          oninput="parseEmbedUrl(${i},this.value,'${embedType}')">`
-    }
-    ${preview}
+    <textarea class="txt-inp ${cls}" oninput="modules[${i}].value=this.value"
+      placeholder="${tt==='h1'?'عنوان...':tt==='h2'?'عنوان فرعي...':'اكتب نصاً...'}">${m.value||''}</textarea>
   </div>`;
 }
-function setEmbedType(i, type){ modules[i].embedType=type; modules[i].embedUrl=''; modules[i].rawEmbed=''; modules[i].rawUrl=''; renderCanvas(); }
-function parseEmbedUrl(i, val, type){
-  modules[i].rawUrl = val;
-  if(type==='youtube'){
-    const m=val.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-    if(m) modules[i].embedUrl = `https://www.youtube.com/embed/${m[1]}`;
-  } else {
-    const m=val.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-    if(m) modules[i].embedUrl = `https://player.vimeo.com/video/${m[1]}?portrait=0&byline=0&title=0`;
-  }
-}
-function parseEmbedCode(i, code){
-  modules[i].rawEmbed = code;
-  const m=code.match(/src=["']([^"']+)["']/i);
-  if(m) modules[i].embedUrl = m[1];
-}
+function setTT(i,t){ modules[i].textType=t; render(); }
 
-// ── SEPARATOR MODULE ──
-function buildSeparatorBody(mod, i){
-  return `<div class="mod-body"><div class="separator-line"></div><p style="color:#555;font-size:12px;text-align:center;">فاصل</p></div>`;
+/* Video */
+function bVideo(m,i){
+  const et=m.embedType||'youtube';
+  const tabs=[{k:'youtube',l:'YouTube'},{k:'vimeo',l:'Vimeo'},{k:'code',l:'Embed Code'}];
+  let preview='';
+  if(m.embedUrl){ const h=m.embedUrl.includes('player.vimeo')?711:450; preview=`<div class="emb-preview"><iframe src="${m.embedUrl}" height="${h}" allowfullscreen allow="autoplay; fullscreen"></iframe></div>`; }
+  const inp=et==='code'
+    ?`<textarea class="emb-input" style="min-height:80px;font-family:monospace;font-size:12px;" oninput="parseCode(${i},this.value)" placeholder="&lt;iframe src=&quot;...&quot;&gt;&lt;/iframe&gt;">${m.rawCode||''}</textarea>`
+    :`<input class="emb-input" value="${m.rawUrl||''}" oninput="parseUrl(${i},this.value,'${et}')" placeholder="${et==='youtube'?'https://youtube.com/watch?v=...':'https://vimeo.com/...'}">`;
+  return `<div class="mod-body">
+    <div class="embed-tabs">${tabs.map(t=>`<button class="emb-tab ${et===t.k?'active':''}" onclick="setEmb(${i},'${t.k}')">${t.l}</button>`).join('')}</div>
+    ${inp}${preview}
+  </div>`;
 }
-
-// ══ MODULE ACTIONS ══
-function addModule(type){
-  const defaults = {
-    image:       {type:'image', src:''},
-    'photo-grid':{type:'photo-grid', layout:'2', items:[{},{} ]},
-    text:        {type:'text', textType:'paragraph', value:''},
-    video:       {type:'video', embedType:'youtube', embedUrl:'', rawUrl:''},
-    separator:   {type:'separator'},
-  };
-  modules.push({...defaults[type]});
-  renderCanvas();
-  // scroll to bottom
-  setTimeout(()=>window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}),100);
+function setEmb(i,t){ modules[i].embedType=t; modules[i].embedUrl=''; modules[i].rawUrl=''; modules[i].rawCode=''; render(); }
+function parseUrl(i,val,type){
+  modules[i].rawUrl=val;
+  if(type==='youtube'){ const m=val.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/); if(m)modules[i].embedUrl=`https://www.youtube.com/embed/${m[1]}`; }
+  else{ const m=val.match(/vimeo\.com\/(?:video\/)?(\d+)/); if(m)modules[i].embedUrl=`https://player.vimeo.com/video/${m[1]}?portrait=0&byline=0&title=0`; }
 }
-function removeModule(i){ modules.splice(i,1); renderCanvas(); }
-function moveModule(i, dir){
-  const j = i+dir;
-  if(j<0||j>=modules.length) return;
-  [modules[i],modules[j]]=[modules[j],modules[i]];
-  renderCanvas();
+function parseCode(i,code){ modules[i].rawCode=code; const m=code.match(/src=["']([^"']+)["']/i); if(m)modules[i].embedUrl=m[1]; }
+
+/* Module actions */
+function addMod(type){
+  const def={image:{type:'image',src:''},grid:{type:'grid',layout:'2',items:[{},{}]},text:{type:'text',textType:'p',value:''},video:{type:'video',embedType:'youtube',embedUrl:'',rawUrl:''},sep:{type:'sep'}};
+  modules.push({...def[type]}); render();
+  setTimeout(()=>window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}),80);
 }
+function modDel(i){ modules.splice(i,1); render(); }
+function modUp(i){ if(i>0){[modules[i],modules[i-1]]=[modules[i-1],modules[i]];render();} }
+function modDown(i){ if(i<modules.length-1){[modules[i],modules[i+1]]=[modules[i+1],modules[i]];render();} }
 
-// ══ DRAG & DROP (free mode) ══
-function dragStart(e,i){ dragSrc=i; setTimeout(()=>document.querySelectorAll('.mod-wrap')[i]?.classList.add('dragging'),0); }
-function dragOver(e,i){ e.preventDefault(); document.querySelectorAll('.mod-wrap').forEach((el,idx)=>el.classList.toggle('drag-over',idx===i&&idx!==dragSrc)); }
-function drop(e,i){ e.preventDefault(); if(dragSrc===null||dragSrc===i)return; const m=modules.splice(dragSrc,1)[0]; modules.splice(i,0,m); dragSrc=null; renderCanvas(); }
-function dragEnd(){ dragSrc=null; document.querySelectorAll('.mod-wrap').forEach(el=>el.classList.remove('dragging','drag-over')); }
+/* File reader */
+function readF(f,cb){ const r=new FileReader(); r.onload=e=>cb(e.target.result); r.readAsDataURL(f); }
 
-// ══ ATTACH LISTENERS ══
-function attachListeners(){
-  // text areas — already use inline oninput
-}
-
-// ══ FILE READER ══
-function readFile(inp, cb){
-  const f=inp.files[0]; if(!f)return;
-  const r=new FileReader(); r.onload=e=>cb(e.target.result); r.readAsDataURL(f);
-  inp.value='';
-}
-
-// ══ SAVE ══
-async function saveProject(){
-  const btn=document.getElementById('saveBtn');
-  const spin=document.getElementById('saveSpin');
+/* Save */
+async function doSave(){
+  const title=document.getElementById('projTitle').value.trim();
+  if(!title){toast('⚠️ أدخل عنوان المشروع');return;}
+  const btn=document.getElementById('saveBtn'), spin=document.getElementById('saveSpin');
   btn.disabled=true; spin.style.display='inline-block';
-
-  const title = document.getElementById('projTitle').value.trim();
-  if(!title){toast('⚠️ أدخل عنوان المشروع'); btn.disabled=false; spin.style.display='none'; return;}
-
-  // 1. Save project info
+  try{ await fetch('/api/projects/'+PID,{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,category:document.getElementById('projCat').value,description:document.getElementById('projDesc').value})}); }catch{}
+  const payload=pType==='grid'
+    ?{modules:gridImages.map(img=>({type:'image',src:img.src})),projectType:'grid'}
+    :{modules,projectType:'free'};
   try{
-    await fetch(`/api/projects/${PID}`,{method:'PUT',credentials:'include',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({title, category:document.getElementById('projCat').value, description:document.getElementById('projDesc').value})
-    });
-  }catch(e){ toast('خطأ في حفظ معلومات المشروع'); }
-
-  // 2. Save modules or grid
-  let payload;
-  if(projectType==='grid'){
-    // For grid mode: save as modules array of image objects
-    const mods = gridImages.map(img=>({type:'image',src:img.src}));
-    payload = {modules: mods, projectType: 'grid'};
-  } else {
-    payload = {modules, projectType: 'free'};
-  }
-
-  try{
-    const r=await fetch(`/api/projects/${PID}/modules`,{method:'PUT',credentials:'include',
-      headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    if(r.ok){
-      const d=await r.json();
-      if(projectType==='free') modules=d.modules;
-      else {
-        // update gridImages src from saved URLs
-        const savedMods=d.modules||[];
-        gridImages=savedMods.map(m=>({src:m.src}));
-      }
-      toast('✓ تم الحفظ بنجاح');
-      document.getElementById('tbTitle').textContent=title;
-    } else {
-      const e=await r.json(); toast('خطأ: '+(e.error||'فشل الحفظ'));
-    }
-  }catch(e){ toast('خطأ في الاتصال'); }
+    const r=await fetch('/api/projects/'+PID+'/modules',{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    if(r.ok){ const d=await r.json(); if(pType==='free')modules=d.modules||[]; else gridImages=(d.modules||[]).map(m=>({src:m.src,isNew:false})); toast('✓ تم الحفظ'); document.getElementById('tbTitle').textContent=title; }
+    else{ const e=await r.json(); toast('خطأ: '+(e.error||'فشل')); }
+  }catch{toast('خطأ في الاتصال');}
   btn.disabled=false; spin.style.display='none';
 }
 
-// ══ TOAST ══
-function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3500); }
+function toast(msg){ const t=document.getElementById('toastEl'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3500); }
 </script>
 </body>
 </html>
