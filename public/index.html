@@ -108,17 +108,22 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
   position:sticky;top:0;z-index:10;
   background:rgba(10,10,10,.96);backdrop-filter:blur(16px);
   border-bottom:1px solid var(--border);
-  padding:0 60px;height:60px;
+  padding:0 60px;height:64px;
   display:flex;align-items:center;justify-content:space-between;
 }
 .pg-back{
   display:flex;align-items:center;gap:10px;
-  color:var(--sub);font-size:14px;font-weight:600;
-  cursor:pointer;border:none;background:none;
-  font-family:'Cairo',sans-serif;transition:color .3s;padding:0;
+  background:var(--accent);color:#fff;
+  font-size:14px;font-weight:700;
+  cursor:pointer;border:none;
+  font-family:'Cairo',sans-serif;
+  padding:10px 22px;border-radius:30px;
+  transition:all .25s;
+  box-shadow:0 4px 14px rgba(249,115,22,.3);
 }
-.pg-back:hover{color:var(--accent);}
-.pg-back i{font-size:16px;}
+.pg-back:hover{background:var(--accent2);transform:translateX(-3px);box-shadow:0 6px 20px rgba(249,115,22,.45);}
+[dir=ltr] .pg-back:hover{transform:translateX(3px);}
+.pg-back i{font-size:14px;}
 .pg-title-nav{font-family:'Montserrat',sans-serif;font-weight:700;font-size:15px;color:var(--sub);}
 .pg-cover{width:100%;max-height:560px;overflow:hidden;position:relative;background:#0a0a0a;}
 .pg-cover img{width:100%;max-height:560px;object-fit:cover;display:block;}
@@ -689,50 +694,60 @@ function openProject(idx){
   const p=PROJECTS[idx];if(!p)return;
   _scrollY=window.scrollY;
 
-  // Cover — reset display first
   const cover=document.getElementById('pgCover');
-  cover.style.display='';
-  if(p.coverImage) cover.innerHTML=`<img src="${p.coverImage}" alt="${p.title}">`;
-  else cover.innerHTML=`<div class="pg-cover-ph"><i class="fa-solid fa-image"></i></div>`;
+  const pgHeader=document.querySelector('.pg-header');
+  const pgBody=document.querySelector('.pg-body');
+  const pgImages=document.getElementById('pgImages');
 
-  document.getElementById('pgCat').textContent=p.category.toUpperCase();
+  document.getElementById('pgCat').textContent=(p.category||'').toUpperCase();
   document.getElementById('pgName').textContent=p.title;
   document.getElementById('pgTitleNav').textContent=p.title;
   document.getElementById('pgDesc').textContent=p.description||'';
 
-  const pgImages=document.getElementById('pgImages');
-
   if(p.projectType==='free' && p.modules && p.modules.length){
+    // Free (Behance) mode — show cover + modules
+    cover.style.display='';
+    pgHeader.style.textAlign='';
+    pgBody.style.maxWidth='';
+    if(p.coverImage) cover.innerHTML=`<img src="${p.coverImage}" alt="${p.title}">`;
+    else cover.innerHTML='';
     PROJECT_MODS = p.modules;
-    // Render modules (Behance free mode)
     pgImages.innerHTML=renderModules(p.modules);
-    // Set up lightbox for image clicks
     currentGallery=[];
     p.modules.forEach(mod=>{
       if(mod.type==='image'&&mod.src) currentGallery.push({type:'image',src:mod.src});
       if(mod.type==='photo-grid') (mod.items||[]).forEach(it=>{if(it.src)currentGallery.push({type:'image',src:it.src});});
     });
+  } else if(p.projectType==='grid' || !p.projectType){
+    // GRID mode — NO large cover, centered title, wider grid starts immediately
+    cover.style.display='none';
+    cover.innerHTML='';
+    pgHeader.style.textAlign='center';
+    pgBody.style.maxWidth='1400px';
+    // Exclude cover from grid — show only gallery images
+    const gridImgs=(p.images||[]).filter(s=>s!==p.coverImage);
+    // If no gallery images but has cover, fall back to cover
+    const displayImgs=gridImgs.length?gridImgs:(p.coverImage?[p.coverImage]:[]);
+    currentGallery=displayImgs.map(src=>({type:'image',src}));
+    pgImages.innerHTML=`
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;max-width:1100px;margin:0 auto;">
+        ${displayImgs.map((src,i)=>`
+          <div style="aspect-ratio:4/5;overflow:hidden;cursor:pointer;border-radius:3px;" onclick="openLbFromPage(null,${i})">
+            <img src="${src}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s;">
+          </div>`).join('')}
+      </div>`;
   } else {
-    // Grid / default: all images stacked or in grid
+    // Default stacked
+    cover.style.display='';
+    pgHeader.style.textAlign='';
+    pgBody.style.maxWidth='';
+    if(p.coverImage) cover.innerHTML=`<img src="${p.coverImage}" alt="${p.title}">`;
+    else cover.innerHTML=`<div class="pg-cover-ph"><i class="fa-solid fa-image"></i></div>`;
     const allImgs=[...(p.coverImage?[p.coverImage]:[]),...(p.images||[]).filter(s=>s!==p.coverImage)];
     currentGallery=allImgs.map(src=>({type:'image',src}));
-    if(p.projectType==='grid' && allImgs.length){
-      // hide cover for grid projects — show all images in Instagram grid
-      document.getElementById('pgCover').innerHTML='';
-      document.getElementById('pgCover').style.display='none';
-      pgImages.innerHTML=`
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px;max-width:720px;margin:0 auto;">
-          ${allImgs.map((src,i)=>`
-            <div style="aspect-ratio:4/5;overflow:hidden;cursor:pointer;border-radius:3px;" onclick="openLbFromPage(null,${i})">
-              <img src="${src}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s;">
-            </div>`).join('')}
-        </div>`;
-    } else {
-      // Default stacked
-      pgImages.innerHTML=allImgs.slice(1).map((src,i)=>
-        `<div class="pg-img-item" onclick="openLbFromPage(${idx},${i+1})"><img src="${src}" alt="" loading="lazy"></div>`
-      ).join('');
-    }
+    pgImages.innerHTML=allImgs.slice(1).map((src,i)=>
+      `<div class="pg-img-item" onclick="openLbFromPage(${idx},${i+1})"><img src="${src}" alt="" loading="lazy"></div>`
+    ).join('');
   }
 
   document.getElementById('projectPage').style.display='block';
