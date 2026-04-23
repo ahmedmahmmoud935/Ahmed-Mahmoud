@@ -54,8 +54,9 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 .pg-grid{display:grid;gap:4px;}
 .pg-grid.c2{grid-template-columns:1fr 1fr;}.pg-grid.c3{grid-template-columns:1fr 1fr 1fr;}
 .pg-grid.c2l{grid-template-columns:2fr 1fr;}.pg-grid.c2r{grid-template-columns:1fr 2fr;}
-.pg-slot{aspect-ratio:1;background:var(--d3);border-radius:6px;overflow:hidden;position:relative;border:1px dashed var(--d4);}
-.pg-slot img{width:100%;height:100%;object-fit:cover;display:block;}
+.pg-slot{background:var(--d3);border-radius:6px;overflow:hidden;position:relative;border:1px dashed var(--d4);}
+.pg-slot img{width:100%;height:auto;display:block;}
+.pg-slot.empty{aspect-ratio:1;}
 .pg-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#444;font-size:12px;gap:5px;}
 .pg-empty i{font-size:20px;}
 .pg-slot input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
@@ -165,8 +166,8 @@ let PROJECT=null, modules=[], gridImages=[], pType='grid', dragIdx=null;
     document.getElementById('projCat').value=PROJECT.category||'Brand Identity';
     document.getElementById('tbTitle').textContent=PROJECT.title||'محرر';
     if(pType==='grid'){
-      const imgs=[PROJECT.coverImage,...(PROJECT.images||[])].filter(Boolean);
-      gridImages=imgs.map(src=>({src,isNew:false}));
+      // Gallery only — cover is separate
+      gridImages = (PROJECT.images||[]).map(src=>({src,isNew:false}));
     }
     setType(pType,false); render();
   }catch(e){toast('خطأ: '+e.message);}
@@ -199,10 +200,10 @@ function renderGrid(){
     return;
   }
   const cv=document.getElementById('canvas');
-  let h='<p style="color:var(--g2);font-size:12px;text-align:center;margin-bottom:14px;">شبكة 4:5 — أول صورة = الغلاف — ✕ لحذف</p>';
+  let h='<p style="color:var(--g2);font-size:12px;text-align:center;margin-bottom:14px;">صور المشروع — شبكة 4:5 — ✕ لحذف</p>';
   h+='<div class="ig-grid">';
   gridImages.forEach((img,i)=>{
-    h+=`<div class="ig-item"><img src="${img.src}" alt="">${i===0?'<span class="ig-badge">COVER</span>':''}<button class="ig-del" onclick="gridDel(${i})"><i class="fa-solid fa-xmark"></i></button></div>`;
+    h+=`<div class="ig-item"><img src="${img.src}" alt=""><button class="ig-del" onclick="gridDel(${i})"><i class="fa-solid fa-xmark"></i></button></div>`;
   });
   h+='</div>';
   h+=`<div style="text-align:center;margin-top:14px;">
@@ -277,13 +278,13 @@ function bGrid(m,i){
   const layout=m.layout||'2', items=m.items||[{},{}];
   const cls={'2':'c2','3':'c3','2l':'c2l','2r':'c2r'}[layout]||'c2';
   const layouts=[{k:'2',l:'2 مربع'},{k:'3',l:'3 مربع'},{k:'2l',l:'كبير+صغير'},{k:'2r',l:'صغير+كبير'}];
-  const slots=items.map((item,j)=>`<div class="pg-slot">
+  const slots=items.map((item,j)=>`<div class="pg-slot ${item.src?'':'empty'}">
     ${item.src?`<img src="${item.src}" alt=""><button class="pg-del" onclick="gSlotDel(${i},${j})"><i class="fa-solid fa-xmark"></i></button>`:`<div class="pg-empty"><i class="fa-solid fa-plus"></i><span>إضافة</span></div>`}
     <input type="file" accept="image/*" onchange="gSlotUp(event,${i},${j})">
   </div>`).join('');
   return `<div class="mod-body">
     <div class="grid-layouts">${layouts.map(l=>`<button class="gl-btn ${layout===l.k?'active':''}" onclick="setGL(${i},'${l.k}')">${l.l}</button>`).join('')}</div>
-    <div class="pg-grid ${cls}">${slots}</div>
+    <div class="pg-grid ${cls}" style="align-items:start;">${slots}</div>
   </div>`;
 }
 function gSlotUp(e,mi,si){ const f=e.target.files[0];if(!f)return; readF(f,d=>{ if(!modules[mi].items)modules[mi].items=[]; if(!modules[mi].items[si])modules[mi].items[si]={}; modules[mi].items[si].src=d; render(); }); }

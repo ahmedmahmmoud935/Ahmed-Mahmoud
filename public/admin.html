@@ -550,7 +550,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
         </div>
       </div>
 
-      <!-- Step Grid: simplified - one gallery, first = cover -->
+      <!-- Step Grid: cover separate from gallery -->
       <div id="stepGrid" style="display:none;">
         <button type="button" class="back-btn" onclick="goBack('imageLayout')"><i class="fa-solid fa-arrow-right"></i> رجوع</button>
         <div class="frow" style="margin-bottom:12px;">
@@ -561,15 +561,19 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
         </div>
         <div class="fg"><label class="fl">وصف</label><textarea class="fta" id="fDesc" style="min-height:55px;" placeholder="وصف المشروع..."></textarea></div>
         <div class="fg">
-          <label class="fl">صور الشبكة (4:5 Instagram)</label>
-          <p style="color:#555;font-size:12px;margin-bottom:8px;">💡 <strong style="color:var(--o);">أول صورة</strong> ترفعها ستكون الغلاف تلقائياً</p>
+          <label class="fl">صورة الغلاف</label>
+          <p style="color:#555;font-size:12px;margin-bottom:8px;">💡 تظهر في كرت المشروع فقط — مش ضمن الصور داخل المشروع</p>
+          <label class="ua" for="covIn"><div class="ui"><i class="fa-solid fa-image"></i></div><div class="ut">اسحب أو <span>اختر صورة الغلاف</span></div></label>
+          <input type="file" id="covIn" accept="image/*" onchange="handleCover(this)" style="display:none;">
+          <div id="covPrev" style="display:none;margin-top:8px;"><div class="pi sq" style="width:100px;height:125px;position:relative;"><img id="covImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:6px;"><span class="cb" style="position:absolute;bottom:6px;left:6px;background:var(--o);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;">COVER</span><button class="ri" onclick="removeCover()" style="position:absolute;top:6px;right:6px;"><i class="fa-solid fa-xmark"></i></button></div></div>
+        </div>
+        <div class="fg">
+          <label class="fl">صور المشروع (Instagram 4:5)</label>
+          <p style="color:#555;font-size:12px;margin-bottom:8px;">هذه الصور تظهر داخل صفحة المشروع في شبكة 3 أعمدة</p>
           <label class="ua" for="galIn"><div class="ui"><i class="fa-solid fa-th"></i></div><div class="ut">اختر أكثر من صورة — <span>اضغط هنا</span></div></label>
           <input type="file" id="galIn" accept="image/*" multiple onchange="handleGal(this)" style="display:none;">
           <div class="pg" id="galPrev" style="margin-top:8px;"></div>
         </div>
-        <!-- Hidden cover inputs kept for compatibility -->
-        <input type="file" id="covIn" style="display:none;">
-        <div id="covPrev" style="display:none;"><img id="covImg" src=""></div>
       </div>
 
       <!-- Step Free: create project then open editor -->
@@ -768,12 +772,8 @@ function openEdit(id){
   document.getElementById('mTitle').textContent='تعديل المشروع';
   document.getElementById('eId').value=id;
   covData=null;covExist=!!p.coverImage;vidData=null;vidExist=!!p.videoUrl;galNew=[];covDataFree=null;covDataVid=null;embedUrl='';
-  // For grid: cover becomes first in galKeep
-  if(p.mediaType!=='video' && p.projectType!=='free'){
-    galKeep = [...(p.coverImage?[p.coverImage]:[]), ...(p.images||[])];
-  } else {
-    galKeep = [...(p.images||[])];
-  }
+  // Gallery is gallery, cover is cover — keep them separate
+  galKeep = [...(p.images||[])];
   if(p.mediaType==='video'){
     document.getElementById('fTitleVid').value=p.title;document.getElementById('fDescVid').value=p.description||'';document.getElementById('fCatVid').value=p.category;
     if(p.coverImage){document.getElementById('covImgVid').src=p.coverImage;document.getElementById('covPrevVid').style.display='block';}
@@ -814,13 +814,10 @@ function removeVid(){vidData='';vidExist=false;document.getElementById('vidPrev'
 async function handleGal(inp){const fs=Array.from(inp.files);const nb=await Promise.all(fs.map(b64));galNew=[...galNew,...nb];renderGal();}
 function renderGal(){
   const g=document.getElementById('galPrev');
-  const allItems=[...galKeep.map(u=>({url:u,kept:true})),...galNew.map(u=>({url:u,kept:false}))];
-  g.innerHTML=allItems.map((it,i)=>`
-    <div class="pi sq" style="position:relative;">
-      <img src="${it.url}" alt="">
-      ${i===0?'<span class="cb" style="background:var(--o);color:#fff;">COVER</span>':''}
-      <button class="ri" onclick="${it.kept?`rmKeep(${galKeep.indexOf(it.url)})`:`rmNew(${galNew.indexOf(it.url)})`}"><i class="fa-solid fa-xmark"></i></button>
-    </div>`).join('');
+  g.innerHTML=[
+    ...galKeep.map((u,i)=>`<div class="pi sq"><img src="${u}" alt=""><button class="ri" onclick="rmKeep(${i})"><i class="fa-solid fa-xmark"></i></button></div>`),
+    ...galNew.map((u,i)=>`<div class="pi sq"><img src="${u}" alt=""><button class="ri" onclick="rmNew(${i})"><i class="fa-solid fa-xmark"></i></button></div>`)
+  ].join('');
 }
 function rmKeep(i){galKeep.splice(i,1);renderGal();}
 function rmNew(i){galNew.splice(i,1);renderGal();}
@@ -861,16 +858,18 @@ async function saveProject(){
     if(covDataFree)body.coverImage=covDataFree;
   } else {
     const title=v('fTitle');if(!title){toast('⚠️ أدخل عنوان المشروع');btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span>';btn.disabled=false;return;}
-    // GRID: first image (from keep or new) = cover, rest = gallery
-    let coverImg=null, keepList=[...galKeep], newList=[...galNew];
-    if(keepList.length){
-      coverImg=keepList.shift(); // first kept = cover
-    } else if(newList.length){
-      coverImg=newList.shift(); // first new = cover
+    // GRID: cover is SEPARATE from gallery
+    body={title,category:document.getElementById('fCat').value,description:v('fDesc'),mediaType:'image',keepImages:galKeep,images:galNew,projectType:'grid'};
+    // Cover handling: preserve existing unless explicitly changed
+    if(covData===null && covExist){
+      // no change, keep existing cover
+    } else if(covData==='') {
+      body.coverImage=''; // cover removed
+    } else if(covData) {
+      body.coverImage=covData; // new cover uploaded
+    } else {
+      body.coverImage=null;
     }
-    body={title,category:document.getElementById('fCat').value,description:v('fDesc'),mediaType:'image',keepImages:keepList,images:newList,projectType:'grid'};
-    if(coverImg!==null) body.coverImage=coverImg;
-    else body.coverImage=null;
   }
   try{
     const r=await fetch(isEdit?`/api/projects/${eid}`:'/api/projects',{method:isEdit?'PUT':'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});

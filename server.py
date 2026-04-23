@@ -320,15 +320,13 @@ def save_modules(pid):
     db.execute('UPDATE projects SET modules=?, project_type=? WHERE id=?',
                (json.dumps(processed), project_type, pid))
 
-    # For grid type: first module image becomes the cover, rest become gallery
+    # For grid type via editor: sync gallery (project_images) from modules, KEEP cover_url intact
     if project_type == 'grid' and processed:
         img_modules = [m for m in processed if m.get('type') == 'image' and m.get('src')]
         if img_modules:
-            cover = img_modules[0]['src']
-            db.execute('UPDATE projects SET cover_url=? WHERE id=?', (cover, pid))
-            # Save rest as project_images
+            # Gallery = all image modules (cover stays separate)
             db.execute('DELETE FROM project_images WHERE project_id=?', (pid,))
-            for i, m in enumerate(img_modules[1:]):
+            for i, m in enumerate(img_modules):
                 db.execute('INSERT INTO project_images(project_id,url,sort_order) VALUES(?,?,?)',
                            (pid, m['src'], i))
 
@@ -428,13 +426,11 @@ def update_project(pid):
                 url = save_dataurl(img, ALLOWED_IMG)
                 if url: db.execute('INSERT INTO project_images(project_id,url,sort_order) VALUES(?,?,?)',(pid,url,len(keep)+i))
 
-    # For grid projects: sync modules array from cover + images (so editor shows them correctly)
+    # For grid projects: sync modules array from GALLERY ONLY (cover is separate, stays in cover_url)
     ptype = d.get('projectType', row['project_type'] or 'grid')
     if ptype == 'grid' and d.get('mediaType','image') != 'video':
-        updated_row = db.execute('SELECT cover_url FROM projects WHERE id=?',(pid,)).fetchone()
         imgs = db.execute('SELECT url FROM project_images WHERE project_id=? ORDER BY sort_order',(pid,)).fetchall()
-        all_urls = [u for u in [updated_row['cover_url']] + [r['url'] for r in imgs] if u]
-        mods = [{'type':'image','src':u} for u in all_urls]
+        mods = [{'type':'image','src':r['url']} for r in imgs if r['url']]
         db.execute('UPDATE projects SET modules=? WHERE id=?', (json.dumps(mods), pid))
 
     db.commit()

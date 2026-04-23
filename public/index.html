@@ -724,24 +724,25 @@ function openProject(idx){
       currentGallery=[];
     }
   } else if(p.projectType==='grid' || !p.projectType){
-    // GRID mode — NO top banner, centered title, full grid (cover first)
+    // GRID mode — NO top banner, centered title, gallery only (cover is for card display, not here)
     cover.style.display='none';
     cover.innerHTML='';
     pgHeader.style.textAlign='center';
     pgBody.style.maxWidth='1400px';
-    // Build grid: cover first, then gallery (filter duplicates)
-    const seen=new Set();
-    const allImgs=[];
-    if(p.coverImage){ allImgs.push(p.coverImage); seen.add(p.coverImage); }
-    (p.images||[]).forEach(s=>{ if(!seen.has(s)){ allImgs.push(s); seen.add(s); } });
-    currentGallery=allImgs.map(src=>({type:'image',src}));
-    pgImages.innerHTML=`
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;max-width:1100px;margin:0 auto;">
-        ${allImgs.map((src,i)=>`
-          <div style="aspect-ratio:4/5;overflow:hidden;cursor:pointer;border-radius:3px;" onclick="openLbFromPage(null,${i})">
-            <img src="${src}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s;">
-          </div>`).join('')}
-      </div>`;
+    // Show ONLY gallery images (cover is independent, shown in project card)
+    const displayImgs=(p.images||[]).slice();
+    currentGallery=displayImgs.map(src=>({type:'image',src}));
+    if(displayImgs.length){
+      pgImages.innerHTML=`
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;max-width:1100px;margin:0 auto;">
+          ${displayImgs.map((src,i)=>`
+            <div style="aspect-ratio:4/5;overflow:hidden;cursor:pointer;border-radius:3px;" onclick="openLbFromPage(null,${i})">
+              <img src="${src}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s;">
+            </div>`).join('')}
+        </div>`;
+    } else {
+      pgImages.innerHTML='<div style="padding:60px 20px;text-align:center;color:#555;font-size:14px;">لا توجد صور في هذا المشروع</div>';
+    }
   } else {
     // Default stacked
     cover.style.display='';
@@ -773,11 +774,11 @@ function renderModules(mods){
       const items=mod.items||[];
       const layout=(mod.layout||'2').toString().toLowerCase();
       const gridClass={'2':'repeat(2,1fr)','3':'repeat(3,1fr)','2l':'2fr 1fr','2r':'1fr 2fr'}[layout]||'repeat(2,1fr)';
-      return `<div style="display:grid;grid-template-columns:${gridClass};gap:4px;margin-bottom:4px;">
+      return `<div style="display:grid;grid-template-columns:${gridClass};gap:4px;margin-bottom:4px;align-items:start;">
         ${items.map((it,j)=>{
           const src=(it&&it.src)||'';
           return src
-            ?`<div style="overflow:hidden;border-radius:4px;cursor:pointer;" onclick="openLbByItem(${i},${j})"><img src="${src}" alt="" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;transition:transform .3s;"></div>`
+            ?`<div style="overflow:hidden;border-radius:4px;cursor:pointer;" onclick="openLbByItem(${i},${j})"><img src="${src}" alt="" loading="lazy" style="width:100%;height:auto;display:block;transition:transform .3s;"></div>`
             :`<div style="aspect-ratio:1;background:#1a1a1a;border-radius:4px;"></div>`;
         }).join('')}
       </div>`;
