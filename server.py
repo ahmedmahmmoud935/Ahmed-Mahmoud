@@ -222,11 +222,50 @@ def delete_file(url):
         if os.path.exists(p): os.remove(p)
 
 # ─────────────────────────── PROJECTS ────────────────────────────────────────
+def _migrate_modules_base64(mods, pid, db):
+    """Convert any lingering base64 data in modules to uploaded URLs. Returns (new_mods, changed)."""
+    changed = False
+    out = []
+    for mod in mods or []:
+        if not isinstance(mod, dict):
+            out.append(mod); continue
+        mod = dict(mod)
+        mtype = mod.get('type')
+        if mtype == 'image':
+            src = mod.get('src', '')
+            if isinstance(src, str) and src.startswith('data:'):
+                url = save_dataurl(src, ALLOWED_IMG)
+                if url:
+                    mod['src'] = url
+                    changed = True
+        elif mtype in ('photo-grid', 'grid'):
+            new_items = []
+            for item in mod.get('items', []) or []:
+                if isinstance(item, dict):
+                    item = dict(item)
+                    s = item.get('src', '')
+                    if isinstance(s, str) and s.startswith('data:'):
+                        url = save_dataurl(s, ALLOWED_IMG)
+                        if url:
+                            item['src'] = url
+                            changed = True
+                new_items.append(item)
+            mod['items'] = new_items
+        out.append(mod)
+    if changed:
+        try:
+            db.execute('UPDATE projects SET modules=? WHERE id=?', (json.dumps(out), pid))
+            db.commit()
+        except: pass
+    return out
+
 def project_to_dict(row, db):
     imgs = db.execute('SELECT url FROM project_images WHERE project_id=? ORDER BY sort_order',(row['id'],)).fetchall()
     mods = []
     try: mods = json.loads(row['modules'] or '[]')
     except: pass
+    # Auto-migrate old base64 data (one-time heal)
+    mods = _migrate_modules_base64(mods, row['id'], db)
     return {'id':row['id'],'title':row['title'],'category':row['category'],
             'description':row['description'] or '','mediaType':row['media_type'],
             'coverImage':row['cover_url'],'videoUrl':row['video_url'],
@@ -260,18 +299,20 @@ def save_modules(pid):
     processed = []
     for mod in modules:
         mod = dict(mod)
+        mtype = mod.get('type')
         # image module — save if base64
-        if mod.get('type') == 'image' and mod.get('src','').startswith('data:'):
+        if mtype == 'image' and mod.get('src','').startswith('data:'):
             url = save_dataurl(mod['src'], ALLOWED_IMG)
             mod['src'] = url or mod['src']
-        # photo-grid module — save each image
-        if mod.get('type') == 'photo-grid':
+        # photo-grid / grid module — save each image (editor uses 'grid')
+        if mtype in ('photo-grid', 'grid'):
             new_items = []
-            for item in mod.get('items', []):
-                item = dict(item)
-                if item.get('src','').startswith('data:'):
-                    url = save_dataurl(item['src'], ALLOWED_IMG)
-                    item['src'] = url or item['src']
+            for item in mod.get('items', []) or []:
+                item = dict(item) if isinstance(item, dict) else {}
+                src = item.get('src', '') if isinstance(item, dict) else ''
+                if src and src.startswith('data:'):
+                    url = save_dataurl(src, ALLOWED_IMG)
+                    item['src'] = url or src
                 new_items.append(item)
             mod['items'] = new_items
         processed.append(mod)

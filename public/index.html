@@ -704,34 +704,40 @@ function openProject(idx){
   document.getElementById('pgTitleNav').textContent=p.title;
   document.getElementById('pgDesc').textContent=p.description||'';
 
-  if(p.projectType==='free' && p.modules && p.modules.length){
-    // Free (Behance) mode — show cover + modules
-    cover.style.display='';
-    pgHeader.style.textAlign='';
-    pgBody.style.maxWidth='';
-    if(p.coverImage) cover.innerHTML=`<img src="${p.coverImage}" alt="${p.title}">`;
-    else cover.innerHTML='';
-    PROJECT_MODS = p.modules;
-    pgImages.innerHTML=renderModules(p.modules);
-    currentGallery=[];
-    p.modules.forEach(mod=>{
-      if(mod.type==='image'&&mod.src) currentGallery.push({type:'image',src:mod.src});
-      if(mod.type==='photo-grid') (mod.items||[]).forEach(it=>{if(it.src)currentGallery.push({type:'image',src:it.src});});
-    });
+  if(p.projectType==='free'){
+    // Free (Behance) mode — NO top banner, modules fill the page
+    cover.style.display='none';
+    cover.innerHTML='';
+    pgHeader.style.textAlign='center';
+    pgBody.style.maxWidth='1100px';
+    const mods = p.modules && p.modules.length ? p.modules : [];
+    PROJECT_MODS = mods;
+    if(mods.length){
+      pgImages.innerHTML=renderModules(mods);
+      currentGallery=[];
+      mods.forEach(mod=>{
+        if(mod.type==='image'&&mod.src) currentGallery.push({type:'image',src:mod.src});
+        if(mod.type==='photo-grid') (mod.items||[]).forEach(it=>{if(it.src)currentGallery.push({type:'image',src:it.src});});
+      });
+    } else {
+      pgImages.innerHTML='<div style="padding:60px 20px;text-align:center;color:#555;font-size:14px;">لا توجد عناصر بعد في هذا المشروع</div>';
+      currentGallery=[];
+    }
   } else if(p.projectType==='grid' || !p.projectType){
-    // GRID mode — NO large cover, centered title, wider grid starts immediately
+    // GRID mode — NO top banner, centered title, full grid (cover first)
     cover.style.display='none';
     cover.innerHTML='';
     pgHeader.style.textAlign='center';
     pgBody.style.maxWidth='1400px';
-    // Exclude cover from grid — show only gallery images
-    const gridImgs=(p.images||[]).filter(s=>s!==p.coverImage);
-    // If no gallery images but has cover, fall back to cover
-    const displayImgs=gridImgs.length?gridImgs:(p.coverImage?[p.coverImage]:[]);
-    currentGallery=displayImgs.map(src=>({type:'image',src}));
+    // Build grid: cover first, then gallery (filter duplicates)
+    const seen=new Set();
+    const allImgs=[];
+    if(p.coverImage){ allImgs.push(p.coverImage); seen.add(p.coverImage); }
+    (p.images||[]).forEach(s=>{ if(!seen.has(s)){ allImgs.push(s); seen.add(s); } });
+    currentGallery=allImgs.map(src=>({type:'image',src}));
     pgImages.innerHTML=`
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;max-width:1100px;margin:0 auto;">
-        ${displayImgs.map((src,i)=>`
+        ${allImgs.map((src,i)=>`
           <div style="aspect-ratio:4/5;overflow:hidden;cursor:pointer;border-radius:3px;" onclick="openLbFromPage(null,${i})">
             <img src="${src}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s;">
           </div>`).join('')}
@@ -757,40 +763,54 @@ function openProject(idx){
 
 function renderModules(mods){
   return mods.map((mod,i)=>{
-    switch(mod.type){
-      case 'image':
-        if(!mod.src) return '';
-        return `<div class="pg-img-item" onclick="openLbByMod(${i})"><img src="${mod.src}" alt="" loading="lazy"></div>`;
-      case 'photo-grid':{
-        const items=mod.items||[];
-        const gridClass={'2':'repeat(2,1fr)','3':'repeat(3,1fr)','2L':'2fr 1fr','2R':'1fr 2fr'}[mod.layout||'2']||'repeat(2,1fr)';
-        return `<div style="display:grid;grid-template-columns:${gridClass};gap:4px;margin-bottom:4px;">
-          ${items.map((it,j)=>it.src
-            ?`<div style="overflow:hidden;border-radius:4px;cursor:pointer;" onclick="openLbByItem(${i},${j})"><img src="${it.src}" alt="" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;transition:transform .3s;"></div>`
-            :'').join('')}
-        </div>`;
-      }
-      case 'text':{
-        const styles={
-          heading:'font-family:Montserrat,sans-serif;font-size:32px;font-weight:800;margin:32px 0 12px;color:var(--text);',
-          subtitle:'font-family:Montserrat,sans-serif;font-size:18px;font-weight:600;color:var(--sub);margin:18px 0 10px;',
-          paragraph:'font-size:15px;line-height:1.9;color:#ccc;margin:14px 0;'
-        };
-        const tag={heading:'h2',subtitle:'h3',paragraph:'p'}[mod.textType||'paragraph']||'p';
-        return `<${tag} style="${styles[mod.textType||'paragraph']||styles.paragraph}">${(mod.value||'').replace(/\n/g,'<br>')}</${tag}>`;
-      }
-      case 'video':{
-        if(!mod.embedUrl) return '';
-        const isReel=mod.embedUrl.includes('player.vimeo')&&mod.embedUrl.includes('portrait');
-        const h=isReel?600:450;
-        return `<div style="border-radius:10px;overflow:hidden;background:#000;margin-bottom:4px;">
-          <iframe src="${mod.embedUrl}" height="${h}" style="width:100%;border:none;display:block;" allowfullscreen allow="autoplay; fullscreen"></iframe>
-        </div>`;
-      }
-      case 'separator':
-        return `<div style="height:1px;background:linear-gradient(to left,transparent,#2a2a2a,transparent);margin:32px 0;"></div>`;
-      default: return '';
+    const type=mod.type;
+    if(type==='image'){
+      if(!mod.src) return '';
+      return `<div class="pg-img-item" onclick="openLbByMod(${i})"><img src="${mod.src}" alt="" loading="lazy"></div>`;
     }
+    // photo-grid OR grid (editor uses 'grid')
+    if(type==='photo-grid' || type==='grid'){
+      const items=mod.items||[];
+      const layout=(mod.layout||'2').toString().toLowerCase();
+      const gridClass={'2':'repeat(2,1fr)','3':'repeat(3,1fr)','2l':'2fr 1fr','2r':'1fr 2fr'}[layout]||'repeat(2,1fr)';
+      return `<div style="display:grid;grid-template-columns:${gridClass};gap:4px;margin-bottom:4px;">
+        ${items.map((it,j)=>{
+          const src=(it&&it.src)||'';
+          return src
+            ?`<div style="overflow:hidden;border-radius:4px;cursor:pointer;" onclick="openLbByItem(${i},${j})"><img src="${src}" alt="" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;transition:transform .3s;"></div>`
+            :`<div style="aspect-ratio:1;background:#1a1a1a;border-radius:4px;"></div>`;
+        }).join('')}
+      </div>`;
+    }
+    if(type==='text'){
+      // Support both old keys (heading/subtitle/paragraph) and new (h1/h2/p)
+      const tt=mod.textType||'p';
+      const styleMap={
+        h1:'font-family:Montserrat,sans-serif;font-size:32px;font-weight:800;margin:32px 0 12px;color:var(--text);',
+        heading:'font-family:Montserrat,sans-serif;font-size:32px;font-weight:800;margin:32px 0 12px;color:var(--text);',
+        h2:'font-family:Montserrat,sans-serif;font-size:20px;font-weight:600;color:var(--sub);margin:20px 0 10px;',
+        subtitle:'font-family:Montserrat,sans-serif;font-size:20px;font-weight:600;color:var(--sub);margin:20px 0 10px;',
+        p:'font-size:15px;line-height:1.9;color:#ccc;margin:14px 0;',
+        paragraph:'font-size:15px;line-height:1.9;color:#ccc;margin:14px 0;'
+      };
+      const tagMap={h1:'h2',heading:'h2',h2:'h3',subtitle:'h3',p:'p',paragraph:'p'};
+      const tag=tagMap[tt]||'p';
+      const style=styleMap[tt]||styleMap.p;
+      return `<${tag} style="${style}">${(mod.value||'').replace(/\n/g,'<br>')}</${tag}>`;
+    }
+    if(type==='video'){
+      if(!mod.embedUrl) return '';
+      const isReel=mod.embedUrl.includes('player.vimeo')&&mod.embedUrl.includes('portrait');
+      const h=isReel?600:450;
+      return `<div style="border-radius:10px;overflow:hidden;background:#000;margin-bottom:4px;">
+        <iframe src="${mod.embedUrl}" height="${h}" style="width:100%;border:none;display:block;" allowfullscreen allow="autoplay; fullscreen"></iframe>
+      </div>`;
+    }
+    // separator OR sep (editor uses 'sep')
+    if(type==='separator' || type==='sep'){
+      return `<div style="height:1px;background:linear-gradient(to left,transparent,#2a2a2a,transparent);margin:32px 0;"></div>`;
+    }
+    return '';
   }).join('');
 }
 
