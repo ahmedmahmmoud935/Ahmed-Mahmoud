@@ -483,9 +483,14 @@ def update_project(pid):
         for i,url in enumerate(keep):
             db.execute('INSERT INTO project_images(project_id,url,sort_order) VALUES(?,?,?)',(pid,url,i))
         for i,img in enumerate(new_imgs):
+            if not img: continue
             if img.startswith('data:'):
                 url = save_dataurl(img, ALLOWED_IMG)
-                if url: db.execute('INSERT INTO project_images(project_id,url,sort_order) VALUES(?,?,?)',(pid,url,len(keep)+i))
+            elif img.startswith('/uploads/'):
+                url = img  # already uploaded
+            else:
+                url = None
+            if url: db.execute('INSERT INTO project_images(project_id,url,sort_order) VALUES(?,?,?)',(pid,url,len(keep)+i))
 
     # For grid projects: sync modules array from GALLERY ONLY (cover is separate, stays in cover_url)
     ptype = d.get('projectType', row['project_type'] or 'grid')
