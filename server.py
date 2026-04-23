@@ -204,17 +204,55 @@ def auth_check():
 ALLOWED_IMG = {'jpg','jpeg','png','gif','webp'}
 ALLOWED_VID = {'mp4','mov','webm','avi'}
 
+# Allow up to 100MB request bodies (cover image + gallery in base64 can be huge)
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024
+
+@app.errorhandler(413)
+def too_large(e):
+    return jsonify({'error': 'الملف كبير جداً — حاول ضغط الصور'}), 413
+
 def save_dataurl(dataurl, allowed_exts):
+    if not dataurl or not isinstance(dataurl, str):
+        return None
     m = re.match(r'data:([^;]+);base64,(.+)', dataurl, re.DOTALL)
     if not m: return None
     mime, b64 = m.group(1), m.group(2)
-    ext = {'image/jpeg':'jpg','image/png':'png','image/gif':'gif','image/webp':'webp',
-           'video/mp4':'mp4','video/quicktime':'mov','video/webm':'webm','video/avi':'avi'}.get(mime,'bin')
+    ext = {'image/jpeg':'jpg','image/jpg':'jpg','image/png':'png','image/gif':'gif','image/webp':'webp',
+           'image/heic':'jpg','image/heif':'jpg',  # treat HEIC as jpg (browser usually converts)
+           'video/mp4':'mp4','video/quicktime':'mov','video/webm':'webm','video/avi':'avi'}.get(mime.lower(),'bin')
     if ext not in allowed_exts: return None
     fname = f"{uuid.uuid4().hex}.{ext}"
-    with open(os.path.join(UPLOAD_DIR, fname), 'wb') as f:
-        f.write(base64.b64decode(b64))
-    return f"/uploads/{fname}"
+    try:
+        with open(os.path.join(UPLOAD_DIR, fname), 'wb') as f:
+            f.write(base64.b64decode(b64))
+        return f"/uploads/{fname}"
+    except Exception as e:
+        print(f"save_dataurl error: {e}")
+        return None
+
+# Direct file upload endpoint — returns URL immediately so admin doesn't need base64 in save body
+@app.route('/api/upload', methods=['POST'])
+@login_required
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({'error': 'لا يوجد ملف'}), 400
+    f = request.files['file']
+    if not f.filename:
+        return jsonify({'error': 'اسم الملف فارغ'}), 400
+    kind = request.form.get('kind', 'image')
+    allowed = ALLOWED_VID if kind == 'video' else ALLOWED_IMG
+    ext = f.filename.rsplit('.', 1)[-1].lower() if '.' in f.filename else ''
+    # Normalize heic/heif to jpg (Safari often sends these)
+    if ext in ('heic', 'heif'):
+        ext = 'jpg'
+    if ext not in allowed:
+        return jsonify({'error': f'نوع غير مسموح: {ext}'}), 400
+    fname = f"{uuid.uuid4().hex}.{ext}"
+    try:
+        f.save(os.path.join(UPLOAD_DIR, fname))
+        return jsonify({'url': f"/uploads/{fname}"})
+    except Exception as e:
+        return jsonify({'error': f'فشل الحفظ: {str(e)}'}), 500
 
 def delete_file(url):
     if url and url.startswith('/uploads/'):
@@ -361,19 +399,37 @@ def create_project():
     d = request.get_json()
     title = (d.get('title') or '').strip()
     if not title: return jsonify({'error':'العنوان مطلوب'}),400
-    cover_url = save_dataurl(d['coverImage'], ALLOWED_IMG) if d.get('coverImage') else None
+    # Accept either data URL or pre-uploaded URL for cover
+    cov = d.get('coverImage')
+    if cov and cov.startswith('data:'):
+        cover_url = save_dataurl(cov, ALLOWED_IMG)
+    elif cov and cov.startswith('/uploads/'):
+        cover_url = cov
+    else:
+        cover_url = None
     # embedUrl takes priority over file upload for video
     embed_url = d.get('embedUrl')
     if embed_url:
         video_url = embed_url
     else:
-        video_url = save_dataurl(d['videoData'], ALLOWED_VID) if d.get('videoData') else None
+        vd = d.get('videoData')
+        if vd and vd.startswith('data:'):
+            video_url = save_dataurl(vd, ALLOWED_VID)
+        elif vd and vd.startswith('/uploads/'):
+            video_url = vd
+        else:
+            video_url = None
     db = get_db()
     cur = db.execute('INSERT INTO projects(title,category,description,media_type,cover_url,video_url,project_type) VALUES(?,?,?,?,?,?,?)',
         (title,d.get('category','Social Media'),d.get('description',''),d.get('mediaType','image'),cover_url,video_url,d.get('projectType','grid')))
     pid = cur.lastrowid
     for i,img in enumerate(d.get('images',[])):
-        url = save_dataurl(img, ALLOWED_IMG)
+        if img.startswith('data:'):
+            url = save_dataurl(img, ALLOWED_IMG)
+        elif img.startswith('/uploads/'):
+            url = img
+        else:
+            url = None
         if url: db.execute('INSERT INTO project_images(project_id,url,sort_order) VALUES(?,?,?)',(pid,url,i))
     db.commit()
     return jsonify(project_to_dict(db.execute('SELECT * FROM projects WHERE id=?',(pid,)).fetchone(),db)),201
@@ -391,6 +447,11 @@ def update_project(pid):
         if v is None:   return old_url
         if v == '':     delete_file(old_url); return None
         if v.startswith('data:'): delete_file(old_url); return save_dataurl(v, allowed)
+        # Already uploaded URL (pre-uploaded via /api/upload)
+        if v.startswith('/uploads/'):
+            if v != old_url:
+                delete_file(old_url)
+            return v
         return old_url
 
     cover_url = resolve_file('coverImage', row['cover_url'], ALLOWED_IMG)

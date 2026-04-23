@@ -54,6 +54,13 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 .tw{background:var(--d2);border:1px solid var(--d4);border-radius:12px;overflow:hidden;}
 .thead{display:grid;grid-template-columns:56px 1fr 140px 120px 105px;gap:10px;padding:13px 18px;background:var(--d3);border-bottom:1px solid var(--d4);font-size:12px;font-weight:700;color:var(--g2);text-transform:uppercase;letter-spacing:.5px;}
 .trow{display:grid;grid-template-columns:56px 1fr 140px 120px 105px;gap:10px;padding:15px 18px;border-bottom:1px solid var(--d4);align-items:center;transition:background .2s;}
+
+/* Project filter tabs */
+.proj-filter-tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.pft-btn{display:flex;align-items:center;gap:8px;padding:9px 18px;border-radius:9px;border:1px solid var(--d4);background:transparent;color:var(--g2);font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
+.pft-btn:hover{border-color:var(--g2);color:var(--w);}
+.pft-btn.active{background:var(--o);border-color:var(--o);color:#fff;}
+.pft-btn i{font-size:13px;}
 .trow:last-child{border-bottom:none;}.trow:hover{background:rgba(255,255,255,.02);}
 .rth{width:44px;height:44px;border-radius:8px;object-fit:cover;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#444;font-size:15px;overflow:hidden;}
 .rth img{width:100%;height:100%;object-fit:cover;}
@@ -205,7 +212,132 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 .type-choice-btn:hover{border-color:var(--o);background:rgba(249,115,22,.06);transform:translateY(-2px);}
 .back-btn{background:none;border:none;color:var(--g2);font-family:'Cairo',sans-serif;font-size:13px;cursor:pointer;margin-bottom:18px;display:flex;align-items:center;gap:6px;padding:0;transition:color .2s;}
 .back-btn:hover{color:var(--w);}
-@media(max-width:900px){#sidebar{display:none;}#adminMain{margin-right:0;padding:18px;}.stats{grid-template-columns:1fr 1fr;}}
+
+/* Mobile menu toggle button (hidden on desktop) */
+.mbtn-menu{display:none;}
+.sb-overlay{display:none;}
+
+@media(max-width:900px){
+  /* Mobile top bar with menu button */
+  .mbtn-menu{
+    display:flex;position:fixed;top:12px;right:12px;z-index:150;
+    width:44px;height:44px;background:var(--o);color:#fff;border:none;
+    border-radius:10px;cursor:pointer;align-items:center;justify-content:center;
+    font-size:18px;box-shadow:0 4px 14px rgba(249,115,22,.4);
+  }
+  .mbtn-menu:active{transform:scale(.95);}
+
+  /* Sidebar as slide-in drawer */
+  #sidebar{
+    display:flex !important;width:280px;max-width:82vw;
+    transform:translateX(110%);transition:transform .3s ease;
+    box-shadow:-4px 0 30px rgba(0,0,0,.5);
+  }
+  #sidebar.open{transform:translateX(0);}
+
+  /* Overlay when sidebar open */
+  .sb-overlay{
+    display:block;position:fixed;inset:0;background:rgba(0,0,0,.6);
+    z-index:99;opacity:0;pointer-events:none;transition:opacity .3s;
+    backdrop-filter:blur(4px);
+  }
+  .sb-overlay.show{opacity:1;pointer-events:auto;}
+
+  /* Main content full width */
+  #adminMain{margin-right:0 !important;padding:70px 14px 24px;}
+
+  /* Stats responsive */
+  .stats{grid-template-columns:1fr 1fr !important;gap:10px;}
+  .sc{padding:16px 12px !important;}
+  .sn{font-size:22px !important;}
+
+  /* Tables — turn into cards */
+  .ptbl{display:block;}
+  .ptbl thead{display:none;}
+  .ptbl tbody, .ptbl tr{display:block;width:100%;}
+  .ptbl tr{
+    background:var(--d2);border:1px solid var(--d4);
+    border-radius:12px;padding:14px;margin-bottom:10px;
+  }
+  .ptbl td{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:6px 0 !important;border:none !important;gap:10px;
+  }
+  .ptbl td::before{
+    content:attr(data-label);color:var(--g2);font-size:12px;font-weight:600;
+  }
+  .ptbl td:first-child{justify-content:flex-start;}
+  .ptbl td:first-child::before{display:none;}
+
+  /* Projects table (.trow grid) — convert to stacked cards */
+  .thead{display:none !important;}
+  .trow{
+    grid-template-columns:56px 1fr !important;
+    grid-template-areas:"thumb info" "cat cat" "date actions" !important;
+    padding:14px !important;gap:10px 12px !important;
+    border-bottom:none !important;
+    background:var(--d2);border:1px solid var(--d4);
+    border-radius:12px;margin-bottom:10px;
+  }
+  .trow > div:nth-child(1){grid-area:thumb;}
+  .trow > div:nth-child(2){grid-area:info;min-width:0;}
+  .trow > div:nth-child(3){grid-area:cat;}
+  .trow > div:nth-child(4){grid-area:date;font-size:12px !important;}
+  .trow > div:nth-child(5){grid-area:actions;justify-self:flex-end;}
+  .rtitle{font-size:13px !important;word-break:break-word;}
+  .rmeta{font-size:11px !important;}
+  .tw{background:transparent !important;border:none !important;}
+
+  /* Proj filter tabs on mobile */
+  .proj-filter-tabs{gap:6px;}
+  .pft-btn{flex:1;justify-content:center;padding:8px 10px !important;font-size:12px !important;}
+
+  /* Header */
+  .ph{flex-direction:column;align-items:stretch !important;gap:14px;}
+  .pt{font-size:22px !important;}
+  .ps{font-size:13px !important;}
+
+  /* Modal — full screen on mobile */
+  .modal{padding:10px !important;}
+  .mbox{max-width:100% !important;max-height:96vh !important;border-radius:14px;padding:18px !important;}
+  .mh{font-size:17px !important;}
+
+  /* Form rows stack */
+  .frow{grid-template-columns:1fr !important;}
+
+  /* Upload area compact */
+  .ua{padding:20px 12px !important;}
+  .ui{width:36px !important;height:36px !important;font-size:16px !important;}
+  .ut{font-size:13px !important;}
+
+  /* Buttons wrap */
+  .btn-add, .btn-vimeo{font-size:13px !important;padding:9px 14px !important;}
+
+  /* Tab content */
+  .cd{padding:16px !important;margin-bottom:14px !important;}
+  .ct{font-size:15px !important;}
+
+  /* Sections/navbar items */
+  .sec-item{padding:10px !important;gap:8px !important;}
+
+  /* Gallery preview smaller */
+  .pi.sq{width:64px !important;height:64px !important;}
+  .pg{gap:6px !important;}
+
+  /* Color pickers grid */
+  .ccol{grid-template-columns:1fr !important;}
+
+  /* Hide footer link in sidebar on mobile (login already shown) */
+  .sb-footer{padding:14px 18px !important;}
+}
+
+@media(max-width:480px){
+  .stats{grid-template-columns:1fr !important;}
+  .pt{font-size:20px !important;}
+  .mbox{padding:14px !important;}
+  .fi, .fta, .fse{font-size:14px !important;padding:10px 12px !important;}
+  .pi.sq{width:56px !important;height:56px !important;}
+}
 </style>
 </head>
 <body>
@@ -221,6 +353,10 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
     <div class="lerr" id="lerr">بيانات غير صحيحة</div>
   </div>
 </div>
+
+<!-- Mobile menu button (hidden on desktop) -->
+<button class="mbtn-menu" onclick="toggleSidebar()" id="mbtnMenu"><i class="fa-solid fa-bars"></i></button>
+<div class="sb-overlay" onclick="toggleSidebar(false)"></div>
 
 <!-- SIDEBAR -->
 <div id="sidebar">
@@ -255,6 +391,11 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
     <div class="sc"><div class="si"><i class="fa-solid fa-image"></i></div><div class="sn" id="stImg">0</div><div class="sl-stat">تصاميم</div></div>
     <div class="sc"><div class="si"><i class="fa-brands fa-instagram"></i></div><div class="sn" id="stReel">0</div><div class="sl-stat">Reels</div></div>
     <div class="sc"><div class="si"><i class="fa-solid fa-images"></i></div><div class="sn" id="stFiles">0</div><div class="sl-stat">صور</div></div>
+  </div>
+  <div class="proj-filter-tabs">
+    <button class="pft-btn active" id="pftAll" onclick="setProjFilter('all')"><i class="fa-solid fa-layer-group"></i> الكل</button>
+    <button class="pft-btn" id="pftImg" onclick="setProjFilter('image')"><i class="fa-solid fa-image"></i> التصاميم</button>
+    <button class="pft-btn" id="pftVid" onclick="setProjFilter('video')"><i class="fa-brands fa-instagram"></i> الفيديوهات</button>
   </div>
   <div class="tw">
     <div class="thead"><div></div><div>المشروع</div><div>التصنيف</div><div>التاريخ</div><div>إجراءات</div></div>
@@ -704,11 +845,37 @@ function setTab(tab,el){
   });
   if(tab==='navbar')renderNavbarList();
   if(tab==='reorder'){reorderData=[];renderReorderList();}
+  // Auto-close sidebar on mobile
+  if(window.innerWidth<=900)toggleSidebar(false);
+}
+
+// ══ MOBILE SIDEBAR ══
+function toggleSidebar(force){
+  const sb=document.getElementById('sidebar');
+  const ov=document.querySelector('.sb-overlay');
+  const btn=document.getElementById('mbtnMenu');
+  const willOpen = force===undefined ? !sb.classList.contains('open') : force;
+  if(willOpen){
+    sb.classList.add('open');
+    if(ov)ov.classList.add('show');
+    if(btn)btn.innerHTML='<i class="fa-solid fa-xmark"></i>';
+  } else {
+    sb.classList.remove('open');
+    if(ov)ov.classList.remove('show');
+    if(btn)btn.innerHTML='<i class="fa-solid fa-bars"></i>';
+  }
 }
 
 // ══ PROJECTS ══
 async function loadProjects(){
   try{projects=await fetch('/api/projects',{credentials:'include'}).then(r=>r.json());}catch{projects=[];}
+  renderTable();
+}
+let projFilter='all';
+function setProjFilter(f){
+  projFilter=f;
+  ['pftAll','pftImg','pftVid'].forEach(id=>document.getElementById(id).classList.remove('active'));
+  document.getElementById({all:'pftAll',image:'pftImg',video:'pftVid'}[f]).classList.add('active');
   renderTable();
 }
 function renderTable(){
@@ -718,8 +885,17 @@ function renderTable(){
   document.getElementById('stReel').textContent=vids.length;
   document.getElementById('stFiles').textContent=projects.reduce((a,p)=>a+(p.images||[]).length+(p.coverImage?1:0),0);
   const body=document.getElementById('tBody');
-  if(!projects.length){body.innerHTML='<div class="empty"><i class="fa-solid fa-folder-open"></i><p>لا توجد مشاريع — أضف أول مشروع!</p></div>';return;}
-  body.innerHTML=projects.map(p=>`
+  // filter by type
+  const filtered = projFilter==='all'
+    ? projects
+    : projects.filter(p => projFilter==='video' ? p.mediaType==='video' : p.mediaType!=='video');
+  if(!filtered.length){
+    const msg = projFilter==='video' ? 'لا توجد فيديوهات — أضف أول فيديو!'
+              : projFilter==='image' ? 'لا توجد تصاميم — أضف أول تصميم!'
+              : 'لا توجد مشاريع — أضف أول مشروع!';
+    body.innerHTML=`<div class="empty"><i class="fa-solid fa-folder-open"></i><p>${msg}</p></div>`;return;
+  }
+  body.innerHTML=filtered.map(p=>`
     <div class="trow">
       <div class="rth">${p.coverImage?`<img src="${p.coverImage}" alt="">`:`<i class="fa-solid fa-${p.mediaType==='video'?'play-circle':'image'}"></i>`}</div>
       <div><div class="rtitle">${p.mediaType==='video'?'<i class="fa-brands fa-instagram" style="color:var(--o);font-size:11px;margin-left:5px;"></i>':''}${p.title}</div>
@@ -797,21 +973,68 @@ function openEdit(id){
 function closeModal(){document.getElementById('projModal').classList.remove('open');}
 
 const b64=f=>new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(f);});
-async function handleCover(inp){const f=inp.files[0];if(!f)return;covData=await b64(f);covExist=false;document.getElementById('covImg').src=covData;document.getElementById('covPrev').style.display='block';}
+
+// Upload a file directly to server, returns URL. Falls back to base64 on failure.
+async function uploadFile(file, kind='image'){
+  try{
+    const fd=new FormData();
+    fd.append('file',file);
+    fd.append('kind',kind);
+    const r=await fetch('/api/upload',{method:'POST',credentials:'include',body:fd});
+    if(r.ok){ const d=await r.json(); return d.url; }
+    // fallback to base64
+    return await b64(file);
+  }catch{
+    return await b64(file);
+  }
+}
+
+async function handleCover(inp){
+  const f=inp.files[0];if(!f)return;
+  document.getElementById('covPrev').style.display='block';
+  document.getElementById('covImg').src='';
+  // show loading state
+  toast('⏳ جاري رفع الغلاف...');
+  covData=await uploadFile(f,'image');
+  covExist=false;
+  document.getElementById('covImg').src=covData;
+  toast('✓ تم رفع الغلاف');
+}
 function removeCover(){covData='';covExist=false;document.getElementById('covPrev').style.display='none';}
-async function handleCoverFree(inp){const f=inp.files[0];if(!f)return;covDataFree=await b64(f);document.getElementById('covImgFree').src=covDataFree;document.getElementById('covPrevFree').style.display='block';}
+async function handleCoverFree(inp){
+  const f=inp.files[0];if(!f)return;
+  toast('⏳ جاري رفع الغلاف...');
+  covDataFree=await uploadFile(f,'image');
+  document.getElementById('covImgFree').src=covDataFree;document.getElementById('covPrevFree').style.display='block';
+  toast('✓ تم رفع الغلاف');
+}
 function removeCoverFree(){covDataFree='';document.getElementById('covPrevFree').style.display='none';}
-async function handleCoverVid(inp){const f=inp.files[0];if(!f)return;covDataVid=await b64(f);document.getElementById('covImgVid').src=covDataVid;document.getElementById('covPrevVid').style.display='block';}
+async function handleCoverVid(inp){
+  const f=inp.files[0];if(!f)return;
+  toast('⏳ جاري رفع الغلاف...');
+  covDataVid=await uploadFile(f,'image');
+  document.getElementById('covImgVid').src=covDataVid;document.getElementById('covPrevVid').style.display='block';
+  toast('✓ تم رفع الغلاف');
+}
 function removeCoverVid(){covDataVid='';document.getElementById('covPrevVid').style.display='none';}
 async function handleVid(inp){
-  const f=inp.files[0];if(!f)return;document.getElementById('vidProg').style.display='block';
+  const f=inp.files[0];if(!f)return;
+  document.getElementById('vidProg').style.display='block';
   let prog=0;const iv=setInterval(()=>{prog=Math.min(prog+8,90);document.getElementById('vidPb').style.width=prog+'%';},150);
-  vidData=await b64(f);clearInterval(iv);document.getElementById('vidPb').style.width='100%';
+  vidData=await uploadFile(f,'video');
+  clearInterval(iv);document.getElementById('vidPb').style.width='100%';
   setTimeout(()=>document.getElementById('vidProg').style.display='none',600);
   vidExist=false;document.getElementById('vidEl').src=vidData;document.getElementById('vidPrev').style.display='block';toast('✓ تم تحميل الفيديو');
 }
 function removeVid(){vidData='';vidExist=false;document.getElementById('vidPrev').style.display='none';}
-async function handleGal(inp){const fs=Array.from(inp.files);const nb=await Promise.all(fs.map(b64));galNew=[...galNew,...nb];renderGal();}
+async function handleGal(inp){
+  const fs=Array.from(inp.files);if(!fs.length)return;
+  toast(`⏳ جاري رفع ${fs.length} صورة...`);
+  const uploaded=await Promise.all(fs.map(f=>uploadFile(f,'image')));
+  galNew=[...galNew,...uploaded.filter(Boolean)];
+  renderGal();
+  toast(`✓ تم رفع ${uploaded.filter(Boolean).length} صورة`);
+}
 function renderGal(){
   const g=document.getElementById('galPrev');
   g.innerHTML=[
@@ -879,8 +1102,14 @@ async function saveProject(){
         setTimeout(()=>{ location.href=`/admin/editor/${proj.id}`; },800);
       }
       else toast(isEdit?'✓ تم التحديث':'✓ تم الإضافة');}
-    else{const e=await r.json();toast('خطأ: '+(e.error||'فشل'));}
-  }catch{toast('خطأ في الاتصال');}
+    else{
+      let errMsg='فشل الحفظ';
+      try{const e=await r.json();errMsg=e.error||errMsg;}
+      catch{errMsg=`خطأ ${r.status} — ${r.statusText||''}`;}
+      if(r.status===413)errMsg='الصور كبيرة جداً — أعد المحاولة أو قم بضغطها';
+      toast('⚠️ '+errMsg);
+    }
+  }catch(e){toast('⚠️ خطأ في الاتصال: '+(e.message||''));}
   btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span>';btn.disabled=false;
 }
 
