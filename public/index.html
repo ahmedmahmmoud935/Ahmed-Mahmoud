@@ -65,6 +65,14 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
 .exp-period{background:rgba(249,115,22,.12);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;}
 .exp-role{color:var(--sub);font-size:14px;}
 .filter-tabs{display:flex;gap:10px;justify-content:center;margin-bottom:35px;flex-wrap:wrap;}
+
+/* Category sub-filter (under Designs/Reels) */
+.cat-filter-tabs{display:flex;gap:8px;justify-content:center;margin-bottom:30px;flex-wrap:wrap;max-width:900px;margin-left:auto;margin-right:auto;padding:0 20px;}
+.cat-filter-tabs:empty{display:none;}
+.cat-filter-btn{padding:7px 16px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text-soft);cursor:pointer;font-size:12px;font-family:'Cairo',sans-serif;font-weight:600;transition:all .25s;white-space:nowrap;}
+.cat-filter-btn:hover{border-color:var(--accent);color:var(--accent);}
+.cat-filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+@media(max-width:600px){.cat-filter-btn{padding:5px 12px;font-size:11px;}}
 .filter-tab{background:transparent;border:1px solid #2a2a2a;color:var(--sub);padding:8px 22px;border-radius:25px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .3s;}
 .filter-tab:hover{border-color:var(--accent);color:var(--accent);}
 .filter-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
@@ -399,7 +407,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:28px 60p
 </div>
 <div class="toast" id="toast"></div>
 <script>
-let LANG=localStorage.getItem('lang')||'en', S={}, PROJECTS=[], currentFilter='image', currentGallery=[], lbIdx=0;
+let LANG=localStorage.getItem('lang')||'en', S={}, PROJECTS=[], currentFilter='image', currentCategory='all', currentGallery=[], lbIdx=0;
 const ar=()=>LANG==='ar';
 const T={en:{back:'Back',gallery:'Gallery',all:'All',designs:'Designs',reels:'Reels',send:'Send Message',name:'Name',email:'Email',subject:'Subject',msg:'Message',noProjects:'No projects yet',rights:'All rights reserved.'},ar:{back:'رجوع',gallery:'المعرض',all:'الكل',designs:'تصاميم',reels:'ريلز',send:'إرسال الرسالة',name:'الاسم',email:'البريد الإلكتروني',subject:'الموضوع',msg:'رسالتك',noProjects:'لا توجد مشاريع بعد',rights:'جميع الحقوق محفوظة.'}};
 const t=k=>(T[LANG]||T.en)[k]||k;
@@ -443,7 +451,7 @@ function buildPage(){
   document.getElementById('mainPage').innerHTML=secs.map(s=>buildSec(s,ct,a)).join('')+buildFooter(a);
   document.getElementById('pgFooter').innerHTML=footerInner(a);
   document.getElementById('pgBackLabel').textContent=a?'رجوع':'Back';
-  applyLang();renderProjects();
+  applyLang();renderCategoryFilter();renderProjects();
 }
 
 function buildSec(s,ct,a){
@@ -530,6 +538,7 @@ function buildProjects(c,a){
       <button class="filter-tab active" id="tabImage" onclick="filterProjects('image',this)"><i class="fa-solid fa-image" style="margin-left:6px;"></i>${t('designs')}</button>
       <button class="filter-tab" id="tabVideo" onclick="filterProjects('video',this)"><i class="fa-brands fa-instagram" style="margin-left:6px;"></i>${t('reels')}</button>
     </div>
+    <div class="cat-filter-tabs" id="catFilterTabs"></div>
     <div class="projects-grid mode-image" id="projectsGrid"></div>
   </section>`;
 }
@@ -546,9 +555,43 @@ function buildFooter(a){return`<footer>${footerInner(a)}</footer>`;}
 
 function filterProjects(type,btn){
   currentFilter=type;
+  currentCategory='all'; // reset category when switching
   document.querySelectorAll('.filter-tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
+  renderCategoryFilter();
   renderProjects();
+}
+
+function filterByCategory(cat,btn){
+  currentCategory=cat;
+  document.querySelectorAll('.cat-filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderProjects();
+}
+
+// Render category buttons based on what's available in the current filter type
+function renderCategoryFilter(){
+  const wrap=document.getElementById('catFilterTabs');
+  if(!wrap) return;
+  // Get unique categories from projects matching current type
+  const list=PROJECTS.filter(p=>currentFilter==='video'?p.mediaType==='video':p.mediaType!=='video');
+  // Combine: admin-defined cats (if available) + actual project cats (in case some are legacy)
+  const adminCats = currentFilter==='video' ? (S.video_categories||[]) : (S.image_categories||[]);
+  const projectCats = list.map(p=>p.category).filter(Boolean);
+  // Only include admin categories that have at least one project, plus any legacy categories
+  const usedCats = new Set(projectCats);
+  const orderedCats = [
+    ...adminCats.filter(c=>usedCats.has(c)),         // admin order, only used ones
+    ...projectCats.filter(c=>!adminCats.includes(c)) // legacy ones not in admin list
+  ];
+  const cats = [...new Set(orderedCats)];
+  // No need to show filter if there's only one (or no) category
+  if(cats.length<=1){ wrap.innerHTML=''; return; }
+  const labelAll = LANG==='ar' ? 'الكل' : 'All';
+  wrap.innerHTML = `
+    <button class="cat-filter-btn ${currentCategory==='all'?'active':''}" onclick="filterByCategory('all',this)">${labelAll}</button>
+    ${cats.map(c=>`<button class="cat-filter-btn ${currentCategory===c?'active':''}" onclick="filterByCategory('${c.replace(/'/g,'&#39;')}',this)">${c}</button>`).join('')}
+  `;
 }
 
 function getColsSetting(type){
@@ -567,6 +610,10 @@ function getColsSetting(type){
 function renderProjects(){
   const grid=document.getElementById('projectsGrid');if(!grid)return;
   let list=PROJECTS.filter(p=>currentFilter==='video'?p.mediaType==='video':p.mediaType!=='video');
+  // Apply category filter
+  if(currentCategory && currentCategory!=='all'){
+    list=list.filter(p=>p.category===currentCategory);
+  }
   grid.className='projects-grid mode-'+currentFilter;
   grid.style.maxWidth='';
 
@@ -646,9 +693,9 @@ function openReelLb(){
 
       <!-- HUGE CENTER UNMUTE OVERLAY (pulsing, appears when muted) -->
       <div id="reelCenterUnmute" onclick="unmuteReel()" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:35;cursor:pointer;pointer-events:auto;opacity:0;transition:opacity .3s;">
-        <div class="pulse-btn" style="background:rgba(249,115,22,.95);color:#fff;width:110px;height:110px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;box-shadow:0 8px 40px rgba(249,115,22,.6),0 0 0 0 rgba(249,115,22,.5);backdrop-filter:blur(8px);">
-          <i class="fa-solid fa-volume-xmark" style="font-size:28px;"></i>
-          <span style="font-size:10px;font-weight:700;letter-spacing:.5px;">تشغيل الصوت</span>
+        <div class="pulse-btn" style="background:rgba(249,115,22,.95);color:#fff;width:120px;height:120px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;box-shadow:0 8px 40px rgba(249,115,22,.6),0 0 0 0 rgba(249,115,22,.5);backdrop-filter:blur(8px);">
+          <i class="fa-solid fa-volume-xmark" style="font-size:30px;"></i>
+          <span style="font-size:11px;font-weight:700;letter-spacing:.5px;">اضغط للصوت</span>
         </div>
       </div>
 
@@ -749,11 +796,25 @@ function unmuteReel(){
   reelMuted=false;
   userHasUnmuted=true;
   updateMuteUI();
-  // On mobile (small screens), postMessage to iframe is unreliable.
-  // Force reload the iframe with muted=0 — the click counts as user interaction
-  // so autoplay-with-sound is allowed.
+  // On mobile, postMessage alone is unreliable — also reload iframe with muted=0
   if(window.innerWidth <= 768){
     renderReel();
+    // After iframe reloads, send postMessage to ensure volume is up + playing
+    setTimeout(()=>{
+      const cont=document.getElementById('reelContainer');
+      const iframe=cont&&cont.querySelector('iframe');
+      if(!iframe) return;
+      const src=iframe.src;
+      try{
+        if(src.includes('player.vimeo')){
+          iframe.contentWindow.postMessage(JSON.stringify({method:'setVolume',value:1}),'*');
+          iframe.contentWindow.postMessage(JSON.stringify({method:'play'}),'*');
+        } else if(src.includes('youtube.com')){
+          iframe.contentWindow.postMessage(JSON.stringify({event:'command',func:'unMute',args:[]}),'*');
+          iframe.contentWindow.postMessage(JSON.stringify({event:'command',func:'playVideo',args:[]}),'*');
+        }
+      }catch{}
+    }, 1200);
   } else {
     applyMuteToIframe();
   }

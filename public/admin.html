@@ -364,6 +364,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
   <nav class="sb-nav">
     <div class="ni active" onclick="setTab('projects',this)"><i class="fa-solid fa-images"></i> المشاريع</div>
     <div class="ni" onclick="setTab('reorder',this)"><i class="fa-solid fa-sort"></i> ترتيب المشاريع</div>
+    <div class="ni" onclick="setTab('categories',this)"><i class="fa-solid fa-tags"></i> التصنيفات</div>
     <div class="ni" onclick="setTab('colors',this)"><i class="fa-solid fa-palette"></i> الألوان</div>
     <div class="ni" onclick="setTab('sections',this)"><i class="fa-solid fa-layer-group"></i> ترتيب الأقسام</div>
     <div class="ni" onclick="setTab('navbar',this)"><i class="fa-solid fa-bars"></i> الشريط العلوي</div>
@@ -413,6 +414,33 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
     <div class="card-title">اسحب المشروع لتغيير ترتيبه</div>
     <div class="sec-list" id="reorderList"></div>
   </div>
+</div>
+
+<!-- CATEGORIES TAB -->
+<div id="tab-categories" style="display:none;">
+  <div class="ph">
+    <div><div class="pt">التصنيفات</div><div class="ps">أضف وعدل تصنيفات التصاميم والريلز — هتظهر كفلتر في الموقع</div></div>
+    <button class="btn-add" onclick="saveCategories()"><i class="fa-solid fa-floppy-disk"></i> حفظ</button>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+    <div class="card">
+      <div class="card-title"><i class="fa-solid fa-image" style="color:var(--o);margin-left:6px;"></i> تصنيفات التصاميم</div>
+      <div id="imgCatsList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
+      <div style="display:flex;gap:8px;">
+        <input id="newImgCat" type="text" placeholder="اسم التصنيف الجديد..." style="flex:1;padding:9px 12px;background:#0a0a0a;border:1px solid #222;border-radius:8px;color:#fff;font-family:inherit;">
+        <button onclick="addCat('image')" class="btn-add" style="padding:9px 16px;"><i class="fa-solid fa-plus"></i></button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="fa-brands fa-instagram" style="color:var(--o);margin-left:6px;"></i> تصنيفات الريلز</div>
+      <div id="vidCatsList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
+      <div style="display:flex;gap:8px;">
+        <input id="newVidCat" type="text" placeholder="اسم التصنيف الجديد..." style="flex:1;padding:9px 12px;background:#0a0a0a;border:1px solid #222;border-radius:8px;color:#fff;font-family:inherit;">
+        <button onclick="addCat('video')" class="btn-add" style="padding:9px 16px;"><i class="fa-solid fa-plus"></i></button>
+      </div>
+    </div>
+  </div>
+  <p style="text-align:center;color:#777;font-size:12px;margin-top:16px;">💡 لو حذفت تصنيف مستخدم في مشاريع، المشاريع هتفضل بالاسم القديم — لازم تعدلها يدوياً</p>
 </div>
 
 <!-- COLORS TAB -->
@@ -697,7 +725,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
         <div class="frow" style="margin-bottom:12px;">
           <div class="fg"><label class="fl">عنوان المشروع *</label><input class="fi" id="fTitle" placeholder="اسم المشروع"></div>
           <div class="fg"><label class="fl">التصنيف</label>
-            <select class="fse" id="fCat"><option value="Social Media">Social Media</option><option value="Brand Identity">Brand Identity</option><option value="Print Design">Print Design</option><option value="Motion Graphics">Motion Graphics</option><option value="Packaging">Packaging</option><option value="Other">Other</option></select>
+            <select class="fse" id="fCat" data-cat-type="image"></select>
           </div>
         </div>
         <div class="fg"><label class="fl">وصف</label><textarea class="fta" id="fDesc" style="min-height:55px;" placeholder="وصف المشروع..."></textarea></div>
@@ -727,7 +755,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
         <div class="frow" style="margin-bottom:12px;">
           <div class="fg"><label class="fl">عنوان المشروع *</label><input class="fi" id="fTitleFree" placeholder="اسم المشروع"></div>
           <div class="fg"><label class="fl">التصنيف</label>
-            <select class="fse" id="fCatFree"><option value="Brand Identity">Brand Identity</option><option value="Social Media">Social Media</option><option value="Print Design">Print Design</option><option value="Motion Graphics">Motion Graphics</option><option value="Packaging">Packaging</option><option value="Other">Other</option></select>
+            <select class="fse" id="fCatFree" data-cat-type="image"></select>
           </div>
         </div>
         <div class="fg"><label class="fl">وصف</label><textarea class="fta" id="fDescFree" style="min-height:55px;" placeholder="وصف المشروع..."></textarea></div>
@@ -745,7 +773,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
         <div class="frow" style="margin-bottom:12px;">
           <div class="fg"><label class="fl">عنوان الفيديو *</label><input class="fi" id="fTitleVid" placeholder="اسم الفيديو"></div>
           <div class="fg"><label class="fl">التصنيف</label>
-            <select class="fse" id="fCatVid"><option value="Reels">Reels</option><option value="Social Media">Social Media</option><option value="Motion Graphics">Motion Graphics</option><option value="Other">Other</option></select>
+            <select class="fse" id="fCatVid" data-cat-type="video"></select>
           </div>
         </div>
         <div class="fg"><label class="fl">وصف</label><textarea class="fta" id="fDescVid" style="min-height:50px;" placeholder="وصف..."></textarea></div>
@@ -835,18 +863,94 @@ async function initApp(){
   try{S=await fetch('/api/settings',{credentials:'include'}).then(r=>r.json());}catch{S={};}
   await loadProjects();
   loadColors();loadSections();loadContent();loadSocial();
+  // Populate category dropdowns once settings are loaded
+  refreshCategoryDropdowns();
 }
 
 // ══ TABS ══
 function setTab(tab,el){
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));el.classList.add('active');
-  ['projects','reorder','colors','sections','navbar','content','social'].forEach(t=>{
+  ['projects','reorder','categories','colors','sections','navbar','content','social'].forEach(t=>{
     const d=document.getElementById('tab-'+t);if(d)d.style.display=t===tab?'block':'none';
   });
   if(tab==='navbar')renderNavbarList();
   if(tab==='reorder'){reorderData=[];renderReorderList();}
+  if(tab==='categories')renderCategoriesUI();
   // Auto-close sidebar on mobile
   if(window.innerWidth<=900)toggleSidebar(false);
+}
+
+// ══ CATEGORIES MANAGEMENT ══
+function renderCategoriesUI(){
+  const imgList=document.getElementById('imgCatsList');
+  const vidList=document.getElementById('vidCatsList');
+  const imgCats=Array.isArray(S.image_categories)?S.image_categories:[];
+  const vidCats=Array.isArray(S.video_categories)?S.video_categories:[];
+  const renderRow=(cat,idx,kind)=>`
+    <div style="display:flex;gap:8px;align-items:center;background:#0a0a0a;border:1px solid #1f1f1f;border-radius:8px;padding:6px 10px;">
+      <input type="text" value="${(cat||'').replace(/"/g,'&quot;')}" onchange="editCat('${kind}',${idx},this.value)" style="flex:1;background:transparent;border:none;color:#fff;font-family:inherit;font-size:13px;padding:4px;">
+      <button onclick="delCat('${kind}',${idx})" style="background:#3a1010;border:1px solid #5a1414;color:#ff6b6b;cursor:pointer;width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-trash"></i></button>
+    </div>`;
+  imgList.innerHTML = imgCats.length ? imgCats.map((c,i)=>renderRow(c,i,'image')).join('') : '<p style="color:#666;font-size:12px;text-align:center;padding:14px;">لا توجد تصنيفات بعد</p>';
+  vidList.innerHTML = vidCats.length ? vidCats.map((c,i)=>renderRow(c,i,'video')).join('') : '<p style="color:#666;font-size:12px;text-align:center;padding:14px;">لا توجد تصنيفات بعد</p>';
+}
+function addCat(kind){
+  const inputId = kind==='image' ? 'newImgCat' : 'newVidCat';
+  const settingKey = kind==='image' ? 'image_categories' : 'video_categories';
+  const inp=document.getElementById(inputId);
+  const val=(inp.value||'').trim();
+  if(!val){toast('اكتب اسم التصنيف');return;}
+  if(!Array.isArray(S[settingKey])) S[settingKey]=[];
+  if(S[settingKey].includes(val)){toast('التصنيف موجود بالفعل');return;}
+  S[settingKey].push(val);
+  inp.value='';
+  renderCategoriesUI();
+}
+function editCat(kind,idx,newVal){
+  const settingKey = kind==='image' ? 'image_categories' : 'video_categories';
+  const v=(newVal||'').trim();
+  if(!v){toast('الاسم لا يمكن أن يكون فارغاً');renderCategoriesUI();return;}
+  S[settingKey][idx]=v;
+}
+function delCat(kind,idx){
+  const settingKey = kind==='image' ? 'image_categories' : 'video_categories';
+  if(!confirm('حذف هذا التصنيف؟ المشاريع المستخدمة له ستحتفظ بالاسم القديم.'))return;
+  S[settingKey].splice(idx,1);
+  renderCategoriesUI();
+}
+async function saveCategories(){
+  try{
+    const r=await fetch('/api/settings',{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({image_categories:S.image_categories||[],video_categories:S.video_categories||[]})});
+    if(r.ok){toast('✓ تم حفظ التصنيفات');refreshCategoryDropdowns();}
+    else toast('فشل الحفظ');
+  }catch{toast('خطأ في الاتصال');}
+}
+// Update all category dropdowns in modals
+function refreshCategoryDropdowns(){
+  const imgCats=Array.isArray(S.image_categories)?S.image_categories:[];
+  const vidCats=Array.isArray(S.video_categories)?S.video_categories:[];
+  document.querySelectorAll('select[data-cat-type="image"]').forEach(sel=>{
+    const cur=sel.value;
+    sel.innerHTML=imgCats.map(c=>`<option value="${c}" ${c===cur?'selected':''}>${c}</option>`).join('');
+  });
+  document.querySelectorAll('select[data-cat-type="video"]').forEach(sel=>{
+    const cur=sel.value;
+    sel.innerHTML=vidCats.map(c=>`<option value="${c}" ${c===cur?'selected':''}>${c}</option>`).join('');
+  });
+}
+// Set a category value safely — if not in list, add it as legacy option
+function setCategorySafe(selectId, value){
+  const sel=document.getElementById(selectId);
+  if(!sel)return;
+  if(!value){sel.selectedIndex=0;return;}
+  let found=false;
+  for(const opt of sel.options){if(opt.value===value){found=true;break;}}
+  if(!found){
+    const o=document.createElement('option');
+    o.value=value; o.textContent=value+' (قديم)';
+    sel.insertBefore(o, sel.firstChild);
+  }
+  sel.value=value;
 }
 
 // ══ MOBILE SIDEBAR ══
@@ -951,7 +1055,8 @@ function openEdit(id){
   // Gallery is gallery, cover is cover — keep them separate
   galKeep = [...(p.images||[])];
   if(p.mediaType==='video'){
-    document.getElementById('fTitleVid').value=p.title;document.getElementById('fDescVid').value=p.description||'';document.getElementById('fCatVid').value=p.category;
+    document.getElementById('fTitleVid').value=p.title;document.getElementById('fDescVid').value=p.description||'';
+    setCategorySafe('fCatVid',p.category);
     if(p.coverImage){document.getElementById('covImgVid').src=p.coverImage;document.getElementById('covPrevVid').style.display='block';}
     if(p.videoUrl){const isYT=p.videoUrl.includes('youtube.com/embed');const isV=p.videoUrl.includes('player.vimeo.com');
       if(isYT){setVidSrc('youtube');document.getElementById('ytFrame').src=p.videoUrl;document.getElementById('ytPreview').style.display='block';embedUrl=p.videoUrl;}
@@ -960,11 +1065,13 @@ function openEdit(id){
     else setVidSrc('file');
     showStep('video');
   } else if(p.projectType==='free'){
-    document.getElementById('fTitleFree').value=p.title;document.getElementById('fDescFree').value=p.description||'';document.getElementById('fCatFree').value=p.category;
+    document.getElementById('fTitleFree').value=p.title;document.getElementById('fDescFree').value=p.description||'';
+    setCategorySafe('fCatFree',p.category);
     if(p.coverImage){document.getElementById('covImgFree').src=p.coverImage;document.getElementById('covPrevFree').style.display='block';}
     showStep('free');
   } else {
-    document.getElementById('fTitle').value=p.title;document.getElementById('fDesc').value=p.description||'';document.getElementById('fCat').value=p.category;
+    document.getElementById('fTitle').value=p.title;document.getElementById('fDesc').value=p.description||'';
+    setCategorySafe('fCat',p.category);
     if(p.coverImage){document.getElementById('covImg').src=p.coverImage;document.getElementById('covPrev').style.display='block';}
     renderGal();showStep('grid');
   }

@@ -219,6 +219,12 @@ def init_db():
             ('video_cols_mobile','2'),('video_cols_tablet','3'),('video_cols_desktop','4'),
             ('image_cols_mobile','2'),('image_cols_tablet','3'),('image_cols_desktop','4'),
             ('vimeo_token',''),
+            ('image_categories', json.dumps([
+                'Social Media','Brand Identity','Logo Design','Print Design','Packaging','Posters','UI/UX'
+            ])),
+            ('video_categories', json.dumps([
+                'Reels','Motion Graphics','Video Editing','AI Videos','Promo Ads','Tutorials'
+            ])),
             ('navbar_links', json.dumps([
                 {"id":"about",      "label_ar":"عن النفس",  "label_en":"About",      "visible":True},
                 {"id":"expertise",  "label_ar":"الخدمات",   "label_en":"Services",   "visible":True},
