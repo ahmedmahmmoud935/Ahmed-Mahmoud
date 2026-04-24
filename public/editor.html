@@ -275,21 +275,60 @@ function imgReplace(e,i){ const f=e.target.files[0];if(!f)return; readF(f,d=>{mo
 
 /* Grid */
 function bGrid(m,i){
-  const layout=m.layout||'2', items=m.items||[{},{}];
-  const cls={'2':'c2','3':'c3','2l':'c2l','2r':'c2r'}[layout]||'c2';
-  const layouts=[{k:'2',l:'2 مربع'},{k:'3',l:'3 مربع'},{k:'2l',l:'كبير+صغير'},{k:'2r',l:'صغير+كبير'}];
-  const slots=items.map((item,j)=>`<div class="pg-slot ${item.src?'':'empty'}">
-    ${item.src?`<img src="${item.src}" alt=""><button class="pg-del" onclick="gSlotDel(${i},${j})"><i class="fa-solid fa-xmark"></i></button>`:`<div class="pg-empty"><i class="fa-solid fa-plus"></i><span>إضافة</span></div>`}
-    <input type="file" accept="image/*" onchange="gSlotUp(event,${i},${j})">
-  </div>`).join('');
+  const items=(m.items||[]).filter(it=>it&&it.src);
+  const rowId='edpg-'+i;
+  const slotsHtml=items.map((item,j)=>`
+    <div class="pg-slot" data-src="${item.src}" style="flex:1 1 0;position:relative;min-width:0;">
+      <img src="${item.src}" alt="" onload="equalizeEditorPgRow('${rowId}')" style="width:100%;height:100%;object-fit:cover;display:block;">
+      <button class="pg-del" onclick="gSlotDel(${i},${j})" style="position:absolute;top:4px;right:4px;z-index:2;"><i class="fa-solid fa-xmark"></i></button>
+    </div>`).join('');
   return `<div class="mod-body">
-    <div class="grid-layouts">${layouts.map(l=>`<button class="gl-btn ${layout===l.k?'active':''}" onclick="setGL(${i},'${l.k}')">${l.l}</button>`).join('')}</div>
-    <div class="pg-grid ${cls}" style="align-items:start;">${slots}</div>
+    <p style="color:#555;font-size:11px;margin-bottom:10px;text-align:center;">💡 الصور تتحاذى تلقائياً في نفس الارتفاع زي <strong style="color:var(--o);">Behance</strong></p>
+    ${items.length
+      ? `<div id="${rowId}" class="pg-flex-row" style="display:flex;gap:4px;align-items:stretch;margin-bottom:10px;min-height:140px;">${slotsHtml}</div>`
+      : ''
+    }
+    <label class="sb-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;border-style:dashed;cursor:pointer;padding:14px;color:var(--o);">
+      <i class="fa-solid fa-plus"></i> ${items.length? 'إضافة المزيد':'رفع الصور'}
+      <input type="file" accept="image/*" multiple onchange="gAddImages(event,${i})">
+    </label>
   </div>`;
 }
-function gSlotUp(e,mi,si){ const f=e.target.files[0];if(!f)return; readF(f,d=>{ if(!modules[mi].items)modules[mi].items=[]; if(!modules[mi].items[si])modules[mi].items[si]={}; modules[mi].items[si].src=d; render(); }); }
-function gSlotDel(mi,si){ if(modules[mi].items&&modules[mi].items[si])modules[mi].items[si]={}; render(); }
-function setGL(i,layout){ modules[i].layout=layout; const n={'2':2,'3':3,'2l':2,'2r':2}[layout]||2; if(!modules[i].items)modules[i].items=[]; while(modules[i].items.length<n)modules[i].items.push({}); render(); }
+
+function gAddImages(e,mi){
+  const files=Array.from(e.target.files); if(!files.length)return;
+  if(!modules[mi].items) modules[mi].items=[];
+  let done=0;
+  files.forEach(f=>{
+    readF(f,d=>{
+      modules[mi].items.push({src:d});
+      done++;
+      if(done===files.length) render();
+    });
+  });
+  e.target.value='';
+}
+function gSlotDel(mi,si){
+  if(modules[mi].items) modules[mi].items.splice(si,1);
+  render();
+}
+
+// Editor: equalize heights using aspect ratios (Behance-style)
+function equalizeEditorPgRow(rowId){
+  const row=document.getElementById(rowId);
+  if(!row) return;
+  const cells=row.querySelectorAll('.pg-slot');
+  let allLoaded=true, ratios=[];
+  cells.forEach(cell=>{
+    const img=cell.querySelector('img');
+    if(!img || !img.naturalWidth){ allLoaded=false; return; }
+    ratios.push(img.naturalWidth / img.naturalHeight);
+  });
+  if(!allLoaded || !ratios.length) return;
+  cells.forEach((cell, idx)=>{
+    cell.style.flex = ratios[idx] + ' 1 0';
+  });
+}
 
 /* Text */
 function bText(m,i){
@@ -329,7 +368,7 @@ function parseCode(i,code){ modules[i].rawCode=code; const m=code.match(/src=["'
 
 /* Module actions */
 function addMod(type){
-  const def={image:{type:'image',src:''},grid:{type:'grid',layout:'2',items:[{},{}]},text:{type:'text',textType:'p',value:''},video:{type:'video',embedType:'youtube',embedUrl:'',rawUrl:''},sep:{type:'sep'}};
+  const def={image:{type:'image',src:''},grid:{type:'grid',items:[]},text:{type:'text',textType:'p',value:''},video:{type:'video',embedType:'youtube',embedUrl:'',rawUrl:''},sep:{type:'sep'}};
   modules.push({...def[type]}); render();
   setTimeout(()=>window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}),80);
 }

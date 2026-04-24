@@ -343,6 +343,8 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:28px 60p
 .toast.show{transform:translateX(-50%) translateY(0);}
 .spin{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;}
 @keyframes sp{to{transform:rotate(360deg);}}
+@keyframes pulseBtn{0%,100%{box-shadow:0 8px 40px rgba(249,115,22,.6),0 0 0 0 rgba(249,115,22,.7);transform:scale(1);}50%{box-shadow:0 8px 40px rgba(249,115,22,.8),0 0 0 24px rgba(249,115,22,0);transform:scale(1.06);}}
+.pulse-btn{animation:pulseBtn 1.6s ease-in-out infinite;}
 /* ── EXPERTISE ── */
 .expertise-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;max-width:1200px;margin:0 auto;}
 .exp-card-service{background:var(--bg3);border:1px solid #252525;border-radius:16px;padding:30px;transition:all .3s;position:relative;overflow:hidden;}
@@ -611,6 +613,8 @@ window.addEventListener("resize",()=>{if(document.getElementById("projectsGrid")
 
 // ── INSTAGRAM REELS LIGHTBOX ──
 let reelList=[], reelIdx=0, reelTouchStartY=0, reelTouchStartX=0, reelMuted=true;
+// Has the user unmuted at least once? Then subsequent reels stay unmuted
+let userHasUnmuted=false;
 
 function openVideoLightbox(idx){
   // build list of all video projects
@@ -625,6 +629,8 @@ function openVideoLightbox(idx){
 function openReelLb(){
   // Create/show reel overlay
   let lb=document.getElementById('reelLb');
+  // If user has unmuted previously in this session, start unmuted
+  reelMuted = !userHasUnmuted;
   if(!lb){
     lb=document.createElement('div');lb.id='reelLb';
     lb.style.cssText='position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;overflow:hidden;';
@@ -636,6 +642,14 @@ function openReelLb(){
       <div id="reelTopBar" style="position:absolute;top:16px;left:16px;right:70px;z-index:30;display:flex;align-items:center;gap:10px;transition:opacity .3s;pointer-events:none;">
         <span id="reelCounter" style="color:rgba(255,255,255,.9);font-size:13px;font-family:Montserrat,sans-serif;background:rgba(0,0,0,.6);padding:6px 12px;border-radius:14px;pointer-events:auto;backdrop-filter:blur(6px);"></span>
         <button id="reelUnmuteBtn" onclick="toggleReelMute()" style="background:var(--accent);border:none;color:#fff;font-size:14px;cursor:pointer;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;pointer-events:auto;box-shadow:0 2px 12px rgba(249,115,22,.5);margin-right:auto;"><i class="fa-solid fa-volume-xmark"></i></button>
+      </div>
+
+      <!-- HUGE CENTER UNMUTE OVERLAY (pulsing, appears when muted) -->
+      <div id="reelCenterUnmute" onclick="unmuteReel()" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:35;cursor:pointer;pointer-events:auto;opacity:0;transition:opacity .3s;">
+        <div class="pulse-btn" style="background:rgba(249,115,22,.95);color:#fff;width:110px;height:110px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;box-shadow:0 8px 40px rgba(249,115,22,.6),0 0 0 0 rgba(249,115,22,.5);backdrop-filter:blur(8px);">
+          <i class="fa-solid fa-volume-xmark" style="font-size:28px;"></i>
+          <span style="font-size:10px;font-weight:700;letter-spacing:.5px;">تشغيل الصوت</span>
+        </div>
       </div>
 
       <!-- STAGE: side zones + centered video -->
@@ -724,26 +738,42 @@ function openReelLb(){
 
 function toggleReelMute(){
   reelMuted=!reelMuted;
+  if(!reelMuted) userHasUnmuted=true; // remember user's choice for next reels
+  updateMuteUI();
+  applyMuteToIframe();
+}
+
+// Direct unmute action (from center button click)
+function unmuteReel(){
+  if(!reelMuted) return;
+  reelMuted=false;
+  userHasUnmuted=true;
+  updateMuteUI();
+  applyMuteToIframe();
+}
+
+function updateMuteUI(){
   const btn=document.getElementById('reelUnmuteBtn');
-  if(btn){
-    btn.innerHTML=reelMuted?'<i class="fa-solid fa-volume-xmark"></i>':'<i class="fa-solid fa-volume-high"></i>';
-  }
-  // Try to control Vimeo/YouTube iframes via postMessage (no reload)
+  if(btn) btn.innerHTML=reelMuted?'<i class="fa-solid fa-volume-xmark"></i>':'<i class="fa-solid fa-volume-high"></i>';
+  const center=document.getElementById('reelCenterUnmute');
+  if(center) center.style.opacity=reelMuted?'1':'0';
+  if(center) center.style.pointerEvents=reelMuted?'auto':'none';
+}
+
+function applyMuteToIframe(){
   const cont=document.getElementById('reelContainer');
   const iframe=cont&&cont.querySelector('iframe');
   if(iframe){
     const src=iframe.src;
-    // Vimeo: use postMessage API
     if(src.includes('player.vimeo')){
       try{
         iframe.contentWindow.postMessage(JSON.stringify({
-          method: reelMuted?'setVolume':'setVolume',
+          method:'setVolume',
           value: reelMuted?0:1
         }),'*');
         return;
       }catch{}
     }
-    // YouTube: use postMessage API
     if(src.includes('youtube.com')){
       try{
         iframe.contentWindow.postMessage(JSON.stringify({
@@ -755,11 +785,9 @@ function toggleReelMute(){
       }catch{}
     }
   }
-  // Fallback for HTML5 <video>
   const vid=cont&&cont.querySelector('video');
   if(vid){vid.muted=reelMuted;return;}
-  // Last resort: reload iframe
-  renderReel();
+  renderReel(); // last resort
 }
 
 function renderReel(){
@@ -825,6 +853,9 @@ function renderReel(){
   } else {
     cont.innerHTML=`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#444;font-size:48px;"><i class="fa-brands fa-instagram"></i></div>`;
   }
+  // Auto-unmute subsequent reels if user unmuted before
+  if(userHasUnmuted) reelMuted=false;
+  updateMuteUI();
 }
 
 function reelNav(dir){
@@ -832,6 +863,28 @@ function reelNav(dir){
   if(next<0||next>=reelList.length)return;
   reelIdx=next;
   renderReel();
+}
+
+// Behance-style photo-grid: equalize row so all images have same HEIGHT,
+// and each image's WIDTH is proportional to its natural aspect ratio
+// (so no empty gaps, images stay uncropped)
+function equalizePgRow(rowId){
+  const row=document.getElementById(rowId);
+  if(!row) return;
+  const cells=row.querySelectorAll('[data-src]');
+  let allLoaded=true, ratios=[];
+  cells.forEach(cell=>{
+    const img=cell.querySelector('img');
+    if(!img || !img.naturalWidth){ allLoaded=false; return; }
+    ratios.push(img.naturalWidth / img.naturalHeight);
+  });
+  if(!allLoaded || !ratios.length) return;
+  // Use object-fit: contain now (no cropping) since widths are proportional
+  cells.forEach((cell, idx)=>{
+    cell.style.flex = ratios[idx] + ' 1 0';
+    const img=cell.querySelector('img');
+    if(img) img.style.objectFit='cover'; // still fills its cell exactly
+  });
 }
 
 function closeReelLb(){
@@ -927,17 +980,17 @@ function renderModules(mods){
       return `<div class="pg-img-item" onclick="openLbByMod(${i})"><img src="${mod.src}" alt="" loading="lazy"></div>`;
     }
     // photo-grid OR grid (editor uses 'grid')
+    // Behance-style: flexbox where all images share the same height,
+    // each width is proportional to its natural aspect ratio — no empty gaps.
     if(type==='photo-grid' || type==='grid'){
-      const items=mod.items||[];
-      const layout=(mod.layout||'2').toString().toLowerCase();
-      const gridClass={'2':'repeat(2,1fr)','3':'repeat(3,1fr)','2l':'2fr 1fr','2r':'1fr 2fr'}[layout]||'repeat(2,1fr)';
-      return `<div style="display:grid;grid-template-columns:${gridClass};gap:4px;margin-bottom:4px;align-items:start;">
-        ${items.map((it,j)=>{
-          const src=(it&&it.src)||'';
-          return src
-            ?`<div style="overflow:hidden;border-radius:4px;cursor:pointer;" onclick="openLbByItem(${i},${j})"><img src="${src}" alt="" loading="lazy" style="width:100%;height:auto;display:block;transition:transform .3s;"></div>`
-            :`<div style="aspect-ratio:1;background:#1a1a1a;border-radius:4px;"></div>`;
-        }).join('')}
+      const items=(mod.items||[]).filter(it=>it&&it.src);
+      if(!items.length) return '';
+      const rowId='pgrow-'+Math.random().toString(36).slice(2,9);
+      return `<div id="${rowId}" class="pg-flex-row" style="display:flex;gap:4px;margin-bottom:4px;align-items:stretch;min-height:140px;flex-wrap:wrap;">
+        ${items.map((it,j)=>`
+          <div data-src="${it.src}" style="flex:1 1 0;overflow:hidden;border-radius:4px;cursor:pointer;min-width:0;background:#111;" onclick="openLbByItem(${i},${j})">
+            <img src="${it.src}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;" onload="equalizePgRow('${rowId}')">
+          </div>`).join('')}
       </div>`;
     }
     if(type==='text'){
