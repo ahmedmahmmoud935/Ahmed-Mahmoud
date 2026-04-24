@@ -493,9 +493,15 @@ function buildHero(c,a){
   const b1=a?(c.btn1_ar||''):(c.btn1_en||'');const b2=a?(c.btn2_ar||''):(c.btn2_en||'');
   const ps=name.split(' ');const f=ps[0]||name;const l=ps.slice(1).join(' ');
   const cover=S.hero_cover_url;
-  const heroBg=cover?`style="background-image:url('${cover}');background-size:cover;background-position:center;"`:'' ;
-  const overlay=cover?`<div style="position:absolute;inset:0;background:rgba(0,0,0,0.55);pointer-events:none;"></div>`:'';
-  return`<section id="hero" ${heroBg}>${overlay}
+  // Size: 'cover', 'contain', or a percentage number stored as 'XXX%'
+  const sizeRaw = S.hero_cover_size || 'cover';
+  const bgSize = (sizeRaw==='cover'||sizeRaw==='contain') ? sizeRaw : (sizeRaw.endsWith('%')?sizeRaw:sizeRaw+'%');
+  const px = parseInt(S.hero_cover_pos_x||'50');
+  const py = parseInt(S.hero_cover_pos_y||'50');
+  const overlay = parseInt(S.hero_cover_overlay||'55')/100;
+  const heroBg=cover?`style="background-image:url('${cover}');background-size:${bgSize};background-position:${px}% ${py}%;background-repeat:no-repeat;"`:'' ;
+  const overlayHtml=cover?`<div style="position:absolute;inset:0;background:rgba(0,0,0,${overlay});pointer-events:none;"></div>`:'';
+  return`<section id="hero" ${heroBg}>${overlayHtml}
     <div class="hero-name" style="position:relative;z-index:1;"><span class="first">${f}</span> <span class="last">${l}</span></div>
     <div class="hero-sub" style="position:relative;z-index:1;">${title}</div>
     <div class="hero-btns" style="position:relative;z-index:1;"><a href="#projects" class="btn-primary">${b1}</a><a href="#contact" class="btn-outline">${b2}</a></div>

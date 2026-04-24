@@ -219,6 +219,10 @@ def init_db():
             ('video_cols_mobile','2'),('video_cols_tablet','3'),('video_cols_desktop','4'),
             ('image_cols_mobile','2'),('image_cols_tablet','3'),('image_cols_desktop','4'),
             ('vimeo_token',''),
+            ('hero_cover_size','cover'),     # cover | contain | <number>%
+            ('hero_cover_pos_x','50'),       # 0-100
+            ('hero_cover_pos_y','50'),       # 0-100
+            ('hero_cover_overlay','55'),     # 0-100 darkness
             ('image_categories', json.dumps([
                 'Social Media','Brand Identity','Logo Design','Print Design','Packaging','Posters','UI/UX'
             ])),

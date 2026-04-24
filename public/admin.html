@@ -510,15 +510,6 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
     <button class="btn-add" onclick="saveSocial()"><i class="fa-solid fa-floppy-disk"></i> حفظ</button>
   </div>
   <div class="card">
-    <div class="card-title">الصورة الشخصية</div>
-    <div class="photo-wrap">
-      <div class="photo-preview" id="photoPreview"><i class="fa-solid fa-user"></i></div>
-      <label class="ua" style="flex:1;min-width:200px;" for="photoInput">
-        <div class="ui"><i class="fa-solid fa-camera"></i></div>
-        <div class="ut">اسحب صورة أو <span>اضغط للاختيار</span></div>
-      </label>
-      <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoUpload(this)" style="display:none;">
-    </div>
     <div class="card-title">الروابط</div>
     <div class="frow" style="margin-bottom:14px;">
       <div class="fg"><label class="fl"><i class="fa-brands fa-whatsapp" style="color:#25d366;"></i> WhatsApp</label><input class="fi" id="sWa" placeholder="https://wa.me/..."></div>
@@ -1284,11 +1275,34 @@ function buildContentTabs(){
   const secs=['hero','about','expertise','education','skills','tools','experience','projects','contact'];
   document.getElementById('ctabs').innerHTML=secs.map((s,i)=>`<button class="ctab ${i===0?'active':''}" onclick="showCSec('${s}',this)">${SEC_LABELS[s]||s}</button>`).join('');
   document.getElementById('contentSections').innerHTML=secs.map((s,i)=>`<div class="csec ${i===0?'active':''}" id="cs-${s}">${buildCSec(s)}</div>`).join('');
-  // Show existing hero cover preview if exists
+  // Restore hero cover preview + control values
   if(S.hero_cover_url){
-    const prev=document.getElementById('heroCoverPreview');
-    if(prev) prev.innerHTML=`<img src="${S.hero_cover_url}" style="width:100%;height:100%;object-fit:cover;">`;
+    updateHeroPreviewImg(S.hero_cover_url);
   }
+  // Restore photo preview
+  if(S.photo_url){
+    const pp=document.getElementById('photoPreview');
+    if(pp) pp.innerHTML=`<img src="${S.photo_url}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
+  }
+  // Restore slider/select values
+  const sizeSel=document.getElementById('h_cover_size');
+  if(sizeSel && S.hero_cover_size){
+    // Set value if matching option exists, else 'cover'
+    let found=false;
+    for(const o of sizeSel.options){if(o.value===S.hero_cover_size){found=true;break;}}
+    sizeSel.value = found ? S.hero_cover_size : 'cover';
+  }
+  const ov=document.getElementById('h_overlay');
+  const ovv=document.getElementById('h_overlay_val');
+  if(ov){const val=S.hero_cover_overlay||'55'; ov.value=val; if(ovv)ovv.textContent=val;}
+  const px=document.getElementById('h_posx');
+  const pxv=document.getElementById('h_posx_val');
+  if(px){const val=S.hero_cover_pos_x||'50'; px.value=val; if(pxv)pxv.textContent=val;}
+  const py=document.getElementById('h_posy');
+  const pyv=document.getElementById('h_posy_val');
+  if(py){const val=S.hero_cover_pos_y||'50'; py.value=val; if(pyv)pyv.textContent=val;}
+  // Apply to preview
+  if(S.hero_cover_url) updateHeroPreview();
 }
 function showCSec(id,btn){
   document.querySelectorAll('.ctab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
@@ -1304,9 +1318,9 @@ function buildCSec(id){
       <div class="frow"><div class="fg"><label class="fl">زر 1 (عربي)</label><input class="fi" id="h_btn1_ar" value="${e(c.btn1_ar||'أعمالي')}"></div><div class="fg"><label class="fl">Btn 1 (EN)</label><input class="fi" id="h_btn1_en" value="${e(c.btn1_en||'View Work')}"></div></div>
       <div class="frow"><div class="fg"><label class="fl">زر 2 (عربي)</label><input class="fi" id="h_btn2_ar" value="${e(c.btn2_ar||'تواصل معي')}"></div><div class="fg"><label class="fl">Btn 2 (EN)</label><input class="fi" id="h_btn2_en" value="${e(c.btn2_en||'Get In Touch')}"></div></div>
       <div class="fg" style="margin-top:14px;"><label class="fl">صورة الخلفية</label>
-        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;">
-          <div id="heroCoverPreview" style="width:200px;height:110px;border-radius:10px;background:#0a0a0a;border:1px solid #222;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#444;flex-shrink:0;"><i class="fa-solid fa-image" style="font-size:28px;"></i></div>
-          <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:180px;">
+        <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;">
+          <div id="heroCoverPreview" style="width:240px;height:135px;border-radius:10px;background:#0a0a0a;border:1px solid #222;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#444;flex-shrink:0;position:relative;"><i class="fa-solid fa-image" style="font-size:28px;"></i></div>
+          <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:200px;">
             <label class="ua" for="heroCoverInput" style="cursor:pointer;text-align:center;">
               <div class="ut" style="padding:14px;"><i class="fa-solid fa-upload" style="margin-left:6px;"></i> رفع صورة جديدة</div>
             </label>
@@ -1314,10 +1328,52 @@ function buildCSec(id){
             <button type="button" onclick="removeHeroCover()" style="background:#3a1010;border:1px solid #5a1414;color:#ff6b6b;cursor:pointer;padding:10px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;"><i class="fa-solid fa-trash" style="margin-left:6px;"></i> حذف الصورة</button>
           </div>
         </div>
-        <p style="color:#666;font-size:11px;margin-top:8px;">💡 الصورة تظهر كخلفية في القسم الأول من الموقع</p>
       </div>
+      <div class="frow" style="margin-top:10px;">
+        <div class="fg">
+          <label class="fl">طريقة العرض</label>
+          <select class="fse" id="h_cover_size" onchange="updateHeroPreview()">
+            <option value="cover">ملء الشاشة (Cover)</option>
+            <option value="contain">احتواء كامل (Contain)</option>
+            <option value="100%">حجم طبيعي 100%</option>
+            <option value="120%">تكبير 120%</option>
+            <option value="150%">تكبير 150%</option>
+            <option value="80%">تصغير 80%</option>
+            <option value="60%">تصغير 60%</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl">شدة الطبقة السوداء: <span id="h_overlay_val">55</span>%</label>
+          <input type="range" min="0" max="90" step="5" id="h_overlay" oninput="document.getElementById('h_overlay_val').textContent=this.value;updateHeroPreview()" style="width:100%;">
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fg">
+          <label class="fl">الموضع الأفقي: <span id="h_posx_val">50</span>%</label>
+          <input type="range" min="0" max="100" step="5" id="h_posx" oninput="document.getElementById('h_posx_val').textContent=this.value;updateHeroPreview()" style="width:100%;">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:#666;margin-top:2px;"><span>يسار</span><span>وسط</span><span>يمين</span></div>
+        </div>
+        <div class="fg">
+          <label class="fl">الموضع العمودي: <span id="h_posy_val">50</span>%</label>
+          <input type="range" min="0" max="100" step="5" id="h_posy" oninput="document.getElementById('h_posy_val').textContent=this.value;updateHeroPreview()" style="width:100%;">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:#666;margin-top:2px;"><span>أعلى</span><span>وسط</span><span>أسفل</span></div>
+        </div>
+      </div>
+      <p style="color:#666;font-size:11px;margin-top:8px;">💡 المعاينة تظهر التغييرات لحظياً. اضغط حفظ لتطبيقها على الموقع</p>
       </div>`;
     case'about':return`<div class="card"><div class="card-title">عن النفس (About)</div>
+      <div class="fg" style="margin-bottom:18px;"><label class="fl">الصورة الشخصية</label>
+        <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;">
+          <div id="photoPreview" style="width:130px;height:130px;border-radius:50%;background:#0a0a0a;border:1px solid #222;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#444;flex-shrink:0;"><i class="fa-solid fa-user" style="font-size:32px;"></i></div>
+          <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:180px;">
+            <label class="ua" for="photoInput" style="cursor:pointer;text-align:center;">
+              <div class="ut" style="padding:14px;"><i class="fa-solid fa-upload" style="margin-left:6px;"></i> رفع صورة جديدة</div>
+            </label>
+            <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoUpload(this)" style="display:none;">
+            <button type="button" onclick="removePhoto()" style="background:#3a1010;border:1px solid #5a1414;color:#ff6b6b;cursor:pointer;padding:10px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;"><i class="fa-solid fa-trash" style="margin-left:6px;"></i> حذف الصورة</button>
+          </div>
+        </div>
+      </div>
       <div class="fg"><label class="fl">النص (عربي)</label><textarea class="fta" id="ab_text_ar">${e(c.text_ar||'')}</textarea></div>
       <div class="fg"><label class="fl">Text (EN)</label><textarea class="fta" id="ab_text_en">${e(c.text_en||'')}</textarea></div>
       <div class="fg"><label class="fl">الوسوم (عربي) — فاصل بفاصلة</label><input class="fi" id="ab_tags_ar" value="${e(c.tags_ar||'')}"></div>
@@ -1515,49 +1571,111 @@ async function saveContent(){
       payload[key]=el.value;
     }
   });
+  // Hero cover image + style controls
   if(heroCoverData!==null)payload.hero_cover_upload=heroCoverData;
+  if(photoData!==null)payload.photo_upload=photoData;
+  const sizeSel=document.getElementById('h_cover_size');
+  const ov=document.getElementById('h_overlay');
+  const px=document.getElementById('h_posx');
+  const py=document.getElementById('h_posy');
+  if(sizeSel) payload.hero_cover_size=sizeSel.value;
+  if(ov) payload.hero_cover_overlay=ov.value;
+  if(px) payload.hero_cover_pos_x=px.value;
+  if(py) payload.hero_cover_pos_y=py.value;
+
   Object.entries(toolImgUploads).forEach(([i,data])=>{payload[`tool_img_upload_${i}`]=data;});
   Object.entries(expSvcImgUploads).forEach(([i,data])=>{if(data)payload[`expsvc_img_upload_${i}`]=data;});
   try{
     const r=await fetch('/api/settings',{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    if(r.ok){S.content=ct;toolImgUploads={};expSvcImgUploads={};heroCoverData=null;toast('✓ تم حفظ المحتوى');}
+    if(r.ok){
+      S.content=ct;
+      // Update local S so re-rendering uses new values
+      if(sizeSel)S.hero_cover_size=sizeSel.value;
+      if(ov)S.hero_cover_overlay=ov.value;
+      if(px)S.hero_cover_pos_x=px.value;
+      if(py)S.hero_cover_pos_y=py.value;
+      if(heroCoverData && heroCoverData.startsWith('/uploads/')) S.hero_cover_url=heroCoverData;
+      if(heroCoverData==='') S.hero_cover_url='';
+      if(photoData && photoData.startsWith('/uploads/')) S.photo_url=photoData;
+      if(photoData==='') S.photo_url='';
+      toolImgUploads={};expSvcImgUploads={};heroCoverData=null;photoData=null;
+      toast('✓ تم حفظ المحتوى');
+    }
     else toast('فشل الحفظ');
   }catch{toast('خطأ في الاتصال');}
 }
 
 // ══ SOCIAL / PHOTO ══
-async function handlePhotoUpload(inp){const f=inp.files[0];if(!f)return;photoData=await b64(f);document.getElementById('photoPreview').innerHTML=`<img src="${photoData}" alt="">`;}
+async function handlePhotoUpload(inp){
+  const f=inp.files[0];if(!f)return;
+  toast('⏳ جاري رفع الصورة...');
+  photoData = await uploadFile(f,'image');
+  const prev=document.getElementById('photoPreview');
+  if(prev) prev.innerHTML=`<img src="${photoData}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
+  toast('✓ تم رفع الصورة');
+}
+function removePhoto(){
+  if(!confirm('حذف الصورة الشخصية؟'))return;
+  photoData=''; // explicit removal
+  const prev=document.getElementById('photoPreview');
+  if(prev) prev.innerHTML='<i class="fa-solid fa-user" style="font-size:32px;"></i>';
+}
 async function handleHeroCover(inp){
   const f=inp.files[0];if(!f)return;
   toast('⏳ جاري رفع الصورة...');
-  // Direct upload (avoids 413 errors on large images)
   heroCoverData = await uploadFile(f,'image');
-  const prev=document.getElementById('heroCoverPreview');
-  if(prev) prev.innerHTML=`<img src="${heroCoverData}" style="width:100%;height:100%;object-fit:cover;">`;
+  updateHeroPreviewImg(heroCoverData);
   toast('✓ تم رفع الصورة');
 }
 function removeHeroCover(){
   if(!confirm('حذف صورة الخلفية؟'))return;
-  heroCoverData = ''; // empty string = explicit removal
+  heroCoverData = '';
   const prev=document.getElementById('heroCoverPreview');
   if(prev) prev.innerHTML='<i class="fa-solid fa-image" style="font-size:28px;"></i>';
+}
+
+// Update preview image source (used after upload)
+function updateHeroPreviewImg(src){
+  const prev=document.getElementById('heroCoverPreview');
+  if(!prev) return;
+  prev.innerHTML=`
+    <div id="heroPrevImg" style="width:100%;height:100%;background-image:url('${src}');background-size:cover;background-position:50% 50%;background-repeat:no-repeat;"></div>
+    <div id="heroPrevOverlay" style="position:absolute;inset:0;background:rgba(0,0,0,.55);pointer-events:none;"></div>`;
+  updateHeroPreview();
+}
+
+// Apply size/pos/overlay to live preview
+function updateHeroPreview(){
+  const img=document.getElementById('heroPrevImg');
+  const ov=document.getElementById('heroPrevOverlay');
+  const sizeSel=document.getElementById('h_cover_size');
+  const overlay=document.getElementById('h_overlay');
+  const posx=document.getElementById('h_posx');
+  const posy=document.getElementById('h_posy');
+  if(img && sizeSel){
+    const s=sizeSel.value;
+    img.style.backgroundSize = (s==='cover'||s==='contain')?s:s;
+  }
+  if(img && posx && posy){
+    img.style.backgroundPosition = `${posx.value}% ${posy.value}%`;
+  }
+  if(ov && overlay){
+    ov.style.background = `rgba(0,0,0,${overlay.value/100})`;
+  }
 }
 
 function loadSocial(){
   document.getElementById('sWa').value=S.whatsapp||'';document.getElementById('sIg').value=S.instagram||'';
   document.getElementById('sBe').value=S.behance||'';document.getElementById('sLi').value=S.linkedin||'';document.getElementById('sFb').value=S.facebook||'';
   document.getElementById('sVimeoToken').value=S.vimeo_token||'';
-  if(S.photo_url)document.getElementById('photoPreview').innerHTML=`<img src="${S.photo_url}" alt="">`;
   // show/hide vimeo token warning
   const warn=document.getElementById('vimeoTokenWarn');
   if(warn)warn.style.display=S.vimeo_token?'none':'flex';
 }
 async function saveSocial(){
   const d={whatsapp:v('sWa'),instagram:v('sIg'),behance:v('sBe'),linkedin:v('sLi'),facebook:v('sFb'),vimeo_token:v('sVimeoToken')};
-  if(photoData)d.photo_upload=photoData;
-  if(heroCoverData)d.hero_cover_upload=heroCoverData;
   try{const r=await fetch('/api/settings',{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
-    if(r.ok){Object.assign(S,d);photoData=null;heroCoverData=null;toast('✓ تم الحفظ');
+    if(r.ok){Object.assign(S,d);toast('✓ تم الحفظ');
       const warn=document.getElementById('vimeoTokenWarn');if(warn)warn.style.display=d.vimeo_token?'none':'flex';
     }else toast('فشل');}catch{toast('خطأ');}
 }
