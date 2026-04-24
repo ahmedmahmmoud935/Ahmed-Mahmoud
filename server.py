@@ -1,18 +1,91 @@
-import os, sqlite3, json, secrets, uuid, re, base64
+import os, sqlite3, json, secrets, uuid, re, base64, time, shutil, threading
+from datetime import datetime, timedelta
+from collections import defaultdict, deque
 from flask import Flask, request, jsonify, session, send_from_directory, abort, redirect
 from flask_cors import CORS
 from functools import wraps
 
 app = Flask(__name__, static_folder='public', static_url_path='')
-app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
+
+# ─────────────── SECURITY CONFIG ───────────────
+# SECRET_KEY MUST be set as env var in production (Render)
+# If missing, generate one but warn — sessions will break on restart
+_env_secret = os.environ.get('SECRET_KEY')
+if not _env_secret:
+    print("⚠️  WARNING: SECRET_KEY not set in environment! Using random key — all sessions will be lost on restart.")
+    print("⚠️  Set SECRET_KEY env var in Render for production.")
+    _env_secret = secrets.token_hex(32)
+app.secret_key = _env_secret
+
+# Session cookie hardening
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,     # JS can't read the cookie (prevents XSS theft)
+    SESSION_COOKIE_SAMESITE='Lax',    # prevents CSRF on most cross-site requests
+    SESSION_COOKIE_SECURE=os.environ.get('RENDER', '') == 'true',  # HTTPS-only on Render
+    PERMANENT_SESSION_LIFETIME=timedelta(days=7),
+)
+
 CORS(app, supports_credentials=True)
 
 DB_PATH    = '/var/data/portfolio.db'
 UPLOAD_DIR = '/var/data/uploads'
+BACKUP_DIR = '/var/data/backups'
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+os.makedirs(BACKUP_DIR, exist_ok=True)
 
 ADMIN_USER = os.environ.get('ADMIN_USER', 'admin')
 ADMIN_PASS = os.environ.get('ADMIN_PASS', 'admin123')
+
+# ─────────────── RATE LIMITING ───────────────
+# Track login attempts per IP: {ip: deque of timestamps}
+_login_attempts = defaultdict(lambda: deque(maxlen=20))
+LOGIN_MAX_ATTEMPTS = 5          # max 5 attempts
+LOGIN_WINDOW = 15 * 60          # per 15 minutes
+LOGIN_LOCKOUT = 30 * 60         # lock for 30 minutes after exceeding
+
+def check_rate_limit(ip):
+    """Returns (allowed: bool, wait_seconds: int)"""
+    now = time.time()
+    attempts = _login_attempts[ip]
+    # drop attempts outside window
+    while attempts and (now - attempts[0] > LOGIN_WINDOW):
+        attempts.popleft()
+    if len(attempts) >= LOGIN_MAX_ATTEMPTS:
+        oldest = attempts[0]
+        wait = int(LOGIN_LOCKOUT - (now - oldest))
+        if wait > 0:
+            return False, wait
+        attempts.clear()
+    return True, 0
+
+def record_failed_login(ip):
+    _login_attempts[ip].append(time.time())
+
+def reset_login_attempts(ip):
+    _login_attempts[ip].clear()
+
+# ─────────────── AUTO BACKUP ───────────────
+def auto_backup_db():
+    """Run every 6 hours, keep last 7 backups."""
+    def _loop():
+        while True:
+            try:
+                if os.path.exists(DB_PATH):
+                    stamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                    backup_path = os.path.join(BACKUP_DIR, f'portfolio_{stamp}.db')
+                    shutil.copy2(DB_PATH, backup_path)
+                    # Keep only last 7 backups
+                    backups = sorted([f for f in os.listdir(BACKUP_DIR) if f.endswith('.db')])
+                    while len(backups) > 7:
+                        try: os.remove(os.path.join(BACKUP_DIR, backups.pop(0)))
+                        except: pass
+                    print(f"✅ Database backup: {backup_path}")
+            except Exception as e:
+                print(f"⚠️ Backup failed: {e}")
+            time.sleep(6 * 60 * 60)  # every 6 hours
+    threading.Thread(target=_loop, daemon=True).start()
+
+auto_backup_db()
 
 # ─────────────────────────── DB ─────────────────────────────────────────────
 def get_db():
@@ -186,11 +259,29 @@ def login_required(f):
 
 @app.route('/api/auth/login', methods=['POST'])
 def login():
-    d = request.get_json()
+    # Rate limit: get client IP (handle proxy headers)
+    ip = request.headers.get('X-Forwarded-For', request.remote_addr or 'unknown').split(',')[0].strip()
+    allowed, wait = check_rate_limit(ip)
+    if not allowed:
+        mins = wait // 60 + 1
+        return jsonify({'error': f'محاولات كثيرة جداً — حاول بعد {mins} دقيقة'}), 429
+
+    d = request.get_json() or {}
+    # Refresh creds from DB in case they were changed
+    _load_creds()
     if d.get('username') == ADMIN_USER and d.get('password') == ADMIN_PASS:
         session['logged_in'] = True
+        session.permanent = True
+        reset_login_attempts(ip)
         return jsonify({'ok': True})
-    return jsonify({'error': 'بيانات غير صحيحة'}), 401
+
+    # Failed login — track it
+    record_failed_login(ip)
+    remaining = LOGIN_MAX_ATTEMPTS - len(_login_attempts[ip])
+    msg = 'بيانات غير صحيحة'
+    if 0 < remaining <= 2:
+        msg += f' — متبقي {remaining} محاولة'
+    return jsonify({'error': msg}), 401
 
 @app.route('/api/auth/logout', methods=['POST'])
 def logout():
