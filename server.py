@@ -631,11 +631,17 @@ def update_settings():
     # handle image uploads
     for upload_key, store_key in [('photo_upload','photo_url'), ('hero_cover_upload','hero_cover_url')]:
         img = d.pop(upload_key, None)
-        if img and img.startswith('data:'):
+        if img and isinstance(img, str) and img.startswith('data:'):
             old = db.execute(f"SELECT value FROM settings WHERE key='{store_key}'").fetchone()
             if old and old['value']: delete_file(old['value'])
             url = save_dataurl(img, ALLOWED_IMG)
             db.execute('INSERT OR REPLACE INTO settings(key,value) VALUES(?,?)',(store_key, url or ''))
+        elif img and isinstance(img, str) and img.startswith('/uploads/'):
+            # Pre-uploaded via /api/upload — accept the URL directly
+            old = db.execute(f"SELECT value FROM settings WHERE key='{store_key}'").fetchone()
+            if old and old['value'] and old['value'] != img:
+                delete_file(old['value'])
+            db.execute('INSERT OR REPLACE INTO settings(key,value) VALUES(?,?)',(store_key, img))
         elif img == '':
             old = db.execute(f"SELECT value FROM settings WHERE key='{store_key}'").fetchone()
             if old and old['value']: delete_file(old['value'])

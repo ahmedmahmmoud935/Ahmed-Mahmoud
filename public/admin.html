@@ -519,17 +519,6 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
       </label>
       <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoUpload(this)" style="display:none;">
     </div>
-    <div class="card-title" style="margin-top:10px;">صورة خلفية Hero</div>
-    <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-bottom:20px;">
-      <div id="heroCoverPreview" style="width:180px;height:100px;border-radius:10px;background:var(--d3);border:1px solid #222;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#444;flex-shrink:0;"><i class="fa-solid fa-image" style="font-size:28px;"></i></div>
-      <div style="flex:1;min-width:180px;">
-        <label class="ua" for="heroCoverInput">
-          <div class="ui" style="font-size:22px;"><i class="fa-solid fa-upload"></i></div>
-          <div class="ut">اختر صورة غلاف للـ Hero</div>
-        </label>
-        <input type="file" id="heroCoverInput" accept="image/*" onchange="handleHeroCover(this)" style="display:none;">
-      </div>
-    </div>
     <div class="card-title">الروابط</div>
     <div class="frow" style="margin-bottom:14px;">
       <div class="fg"><label class="fl"><i class="fa-brands fa-whatsapp" style="color:#25d366;"></i> WhatsApp</label><input class="fi" id="sWa" placeholder="https://wa.me/..."></div>
@@ -1295,6 +1284,11 @@ function buildContentTabs(){
   const secs=['hero','about','expertise','education','skills','tools','experience','projects','contact'];
   document.getElementById('ctabs').innerHTML=secs.map((s,i)=>`<button class="ctab ${i===0?'active':''}" onclick="showCSec('${s}',this)">${SEC_LABELS[s]||s}</button>`).join('');
   document.getElementById('contentSections').innerHTML=secs.map((s,i)=>`<div class="csec ${i===0?'active':''}" id="cs-${s}">${buildCSec(s)}</div>`).join('');
+  // Show existing hero cover preview if exists
+  if(S.hero_cover_url){
+    const prev=document.getElementById('heroCoverPreview');
+    if(prev) prev.innerHTML=`<img src="${S.hero_cover_url}" style="width:100%;height:100%;object-fit:cover;">`;
+  }
 }
 function showCSec(id,btn){
   document.querySelectorAll('.ctab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
@@ -1309,6 +1303,19 @@ function buildCSec(id){
       <div class="frow"><div class="fg"><label class="fl">التخصص (عربي)</label><input class="fi" id="h_title_ar" value="${e(c.title_ar||'')}"></div><div class="fg"><label class="fl">Title (EN)</label><input class="fi" id="h_title_en" value="${e(c.title_en||'')}"></div></div>
       <div class="frow"><div class="fg"><label class="fl">زر 1 (عربي)</label><input class="fi" id="h_btn1_ar" value="${e(c.btn1_ar||'أعمالي')}"></div><div class="fg"><label class="fl">Btn 1 (EN)</label><input class="fi" id="h_btn1_en" value="${e(c.btn1_en||'View Work')}"></div></div>
       <div class="frow"><div class="fg"><label class="fl">زر 2 (عربي)</label><input class="fi" id="h_btn2_ar" value="${e(c.btn2_ar||'تواصل معي')}"></div><div class="fg"><label class="fl">Btn 2 (EN)</label><input class="fi" id="h_btn2_en" value="${e(c.btn2_en||'Get In Touch')}"></div></div>
+      <div class="fg" style="margin-top:14px;"><label class="fl">صورة الخلفية</label>
+        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;">
+          <div id="heroCoverPreview" style="width:200px;height:110px;border-radius:10px;background:#0a0a0a;border:1px solid #222;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#444;flex-shrink:0;"><i class="fa-solid fa-image" style="font-size:28px;"></i></div>
+          <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:180px;">
+            <label class="ua" for="heroCoverInput" style="cursor:pointer;text-align:center;">
+              <div class="ut" style="padding:14px;"><i class="fa-solid fa-upload" style="margin-left:6px;"></i> رفع صورة جديدة</div>
+            </label>
+            <input type="file" id="heroCoverInput" accept="image/*" onchange="handleHeroCover(this)" style="display:none;">
+            <button type="button" onclick="removeHeroCover()" style="background:#3a1010;border:1px solid #5a1414;color:#ff6b6b;cursor:pointer;padding:10px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;"><i class="fa-solid fa-trash" style="margin-left:6px;"></i> حذف الصورة</button>
+          </div>
+        </div>
+        <p style="color:#666;font-size:11px;margin-top:8px;">💡 الصورة تظهر كخلفية في القسم الأول من الموقع</p>
+      </div>
       </div>`;
     case'about':return`<div class="card"><div class="card-title">عن النفس (About)</div>
       <div class="fg"><label class="fl">النص (عربي)</label><textarea class="fta" id="ab_text_ar">${e(c.text_ar||'')}</textarea></div>
@@ -1520,14 +1527,27 @@ async function saveContent(){
 
 // ══ SOCIAL / PHOTO ══
 async function handlePhotoUpload(inp){const f=inp.files[0];if(!f)return;photoData=await b64(f);document.getElementById('photoPreview').innerHTML=`<img src="${photoData}" alt="">`;}
-async function handleHeroCover(inp){const f=inp.files[0];if(!f)return;heroCoverData=await b64(f);document.getElementById('heroCoverPreview').innerHTML=`<img src="${heroCoverData}" style="width:100%;height:100%;object-fit:cover;">`;}
+async function handleHeroCover(inp){
+  const f=inp.files[0];if(!f)return;
+  toast('⏳ جاري رفع الصورة...');
+  // Direct upload (avoids 413 errors on large images)
+  heroCoverData = await uploadFile(f,'image');
+  const prev=document.getElementById('heroCoverPreview');
+  if(prev) prev.innerHTML=`<img src="${heroCoverData}" style="width:100%;height:100%;object-fit:cover;">`;
+  toast('✓ تم رفع الصورة');
+}
+function removeHeroCover(){
+  if(!confirm('حذف صورة الخلفية؟'))return;
+  heroCoverData = ''; // empty string = explicit removal
+  const prev=document.getElementById('heroCoverPreview');
+  if(prev) prev.innerHTML='<i class="fa-solid fa-image" style="font-size:28px;"></i>';
+}
 
 function loadSocial(){
   document.getElementById('sWa').value=S.whatsapp||'';document.getElementById('sIg').value=S.instagram||'';
   document.getElementById('sBe').value=S.behance||'';document.getElementById('sLi').value=S.linkedin||'';document.getElementById('sFb').value=S.facebook||'';
   document.getElementById('sVimeoToken').value=S.vimeo_token||'';
   if(S.photo_url)document.getElementById('photoPreview').innerHTML=`<img src="${S.photo_url}" alt="">`;
-  if(S.hero_cover_url)document.getElementById('heroCoverPreview').innerHTML=`<img src="${S.hero_cover_url}" style="width:100%;height:100%;object-fit:cover;">`;
   // show/hide vimeo token warning
   const warn=document.getElementById('vimeoTokenWarn');
   if(warn)warn.style.display=S.vimeo_token?'none':'flex';
