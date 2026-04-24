@@ -684,9 +684,9 @@ function openReelLb(){
 
       <!-- HUGE CENTER UNMUTE OVERLAY (pulsing, appears when muted) -->
       <div id="reelCenterUnmute" onclick="unmuteReel()" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:35;cursor:pointer;pointer-events:auto;opacity:0;transition:opacity .3s;">
-        <div class="pulse-btn" style="background:rgba(249,115,22,.95);color:#fff;width:110px;height:110px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;box-shadow:0 8px 40px rgba(249,115,22,.6),0 0 0 0 rgba(249,115,22,.5);backdrop-filter:blur(8px);">
-          <i class="fa-solid fa-volume-xmark" style="font-size:28px;"></i>
-          <span style="font-size:10px;font-weight:700;letter-spacing:.5px;">تشغيل الصوت</span>
+        <div class="pulse-btn" style="background:rgba(249,115,22,.95);color:#fff;width:120px;height:120px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;box-shadow:0 8px 40px rgba(249,115,22,.6),0 0 0 0 rgba(249,115,22,.5);backdrop-filter:blur(8px);">
+          <i class="fa-solid fa-volume-xmark" style="font-size:30px;"></i>
+          <span style="font-size:11px;font-weight:700;letter-spacing:.5px;">اضغط للصوت</span>
         </div>
       </div>
 
@@ -787,11 +787,25 @@ function unmuteReel(){
   reelMuted=false;
   userHasUnmuted=true;
   updateMuteUI();
-  // On mobile (small screens), postMessage to iframe is unreliable.
-  // Force reload the iframe with muted=0 — the click counts as user interaction
-  // so autoplay-with-sound is allowed.
+  // On mobile, postMessage alone is unreliable — also reload iframe with muted=0
   if(window.innerWidth <= 768){
     renderReel();
+    // After iframe reloads, send postMessage to ensure volume is up + playing
+    setTimeout(()=>{
+      const cont=document.getElementById('reelContainer');
+      const iframe=cont&&cont.querySelector('iframe');
+      if(!iframe) return;
+      const src=iframe.src;
+      try{
+        if(src.includes('player.vimeo')){
+          iframe.contentWindow.postMessage(JSON.stringify({method:'setVolume',value:1}),'*');
+          iframe.contentWindow.postMessage(JSON.stringify({method:'play'}),'*');
+        } else if(src.includes('youtube.com')){
+          iframe.contentWindow.postMessage(JSON.stringify({event:'command',func:'unMute',args:[]}),'*');
+          iframe.contentWindow.postMessage(JSON.stringify({event:'command',func:'playVideo',args:[]}),'*');
+        }
+      }catch{}
+    }, 1200);
   } else {
     applyMuteToIframe();
   }
