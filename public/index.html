@@ -654,13 +654,13 @@ function openReelLb(){
 
       <!-- STAGE: side zones + centered video -->
       <div id="reelStage" style="flex:1;position:relative;overflow:hidden;">
-        <!-- PREV zone (right side in RTL) -->
-        <div id="reelPrevZone" class="reel-side-zone" onclick="reelNav(-1)" style="position:absolute;top:0;bottom:0;right:0;width:18%;z-index:20;display:flex;align-items:center;justify-content:center;cursor:pointer;">
-          <button class="reel-nav-btn" onclick="event.stopPropagation();reelNav(-1)"><i class="fa-solid fa-chevron-right"></i></button>
-        </div>
-        <!-- NEXT zone (left side in RTL) -->
-        <div id="reelNextZone" class="reel-side-zone" onclick="reelNav(1)" style="position:absolute;top:0;bottom:0;left:0;width:18%;z-index:20;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+        <!-- RIGHT zone (advances forward in RTL — like Instagram) -->
+        <div id="reelPrevZone" class="reel-side-zone" onclick="reelNav(1)" style="position:absolute;top:0;bottom:0;right:0;width:18%;z-index:20;display:flex;align-items:center;justify-content:center;cursor:pointer;">
           <button class="reel-nav-btn" onclick="event.stopPropagation();reelNav(1)"><i class="fa-solid fa-chevron-left"></i></button>
+        </div>
+        <!-- LEFT zone (goes back in RTL) -->
+        <div id="reelNextZone" class="reel-side-zone" onclick="reelNav(-1)" style="position:absolute;top:0;bottom:0;left:0;width:18%;z-index:20;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+          <button class="reel-nav-btn" onclick="event.stopPropagation();reelNav(-1)"><i class="fa-solid fa-chevron-right"></i></button>
         </div>
         <!-- VIDEO wrapper: class-based sizing -->
         <div id="reelVideoWrap">
@@ -743,13 +743,20 @@ function toggleReelMute(){
   applyMuteToIframe();
 }
 
-// Direct unmute action (from center button click)
+// Direct unmute action (from center button click) — force reload on mobile
 function unmuteReel(){
   if(!reelMuted) return;
   reelMuted=false;
   userHasUnmuted=true;
   updateMuteUI();
-  applyMuteToIframe();
+  // On mobile (small screens), postMessage to iframe is unreliable.
+  // Force reload the iframe with muted=0 — the click counts as user interaction
+  // so autoplay-with-sound is allowed.
+  if(window.innerWidth <= 768){
+    renderReel();
+  } else {
+    applyMuteToIframe();
+  }
 }
 
 function updateMuteUI(){
@@ -805,15 +812,17 @@ function renderReel(){
   const cat=document.getElementById('reelCat');if(cat)cat.textContent=p.category;
 
   // Enable/disable nav buttons based on position
-  const prevZone=document.getElementById('reelPrevZone');
-  const nextZone=document.getElementById('reelNextZone');
+  const prevZone=document.getElementById('reelPrevZone'); // now goes to NEXT (right side)
+  const nextZone=document.getElementById('reelNextZone'); // now goes to PREV (left side)
   if(prevZone){
     const btn=prevZone.querySelector('button');
-    if(btn){btn.disabled=reelIdx<=0; prevZone.style.pointerEvents=reelIdx<=0?'none':'auto';}
+    const atEnd=reelIdx>=reelList.length-1;
+    if(btn){btn.disabled=atEnd; prevZone.style.pointerEvents=atEnd?'none':'auto';}
   }
   if(nextZone){
     const btn=nextZone.querySelector('button');
-    if(btn){btn.disabled=reelIdx>=reelList.length-1; nextZone.style.pointerEvents=reelIdx>=reelList.length-1?'none':'auto';}
+    const atStart=reelIdx<=0;
+    if(btn){btn.disabled=atStart; nextZone.style.pointerEvents=atStart?'none':'auto';}
   }
 
   if(p.videoUrl){
@@ -896,6 +905,9 @@ function closeReelLb(){
   }
   lb.style.display='none';
   document.body.style.overflow='';
+  // Reset so unmute button reappears on next open
+  userHasUnmuted=false;
+  reelMuted=true;
 }
 
 // Open image project — Behance-style page
@@ -927,7 +939,10 @@ function openProject(idx){
       currentGallery=[];
       mods.forEach(mod=>{
         if(mod.type==='image'&&mod.src) currentGallery.push({type:'image',src:mod.src});
-        if(mod.type==='photo-grid') (mod.items||[]).forEach(it=>{if(it.src)currentGallery.push({type:'image',src:it.src});});
+        // Editor uses 'grid', legacy uses 'photo-grid' — handle both
+        if(mod.type==='photo-grid' || mod.type==='grid'){
+          (mod.items||[]).forEach(it=>{if(it&&it.src)currentGallery.push({type:'image',src:it.src});});
+        }
       });
     } else {
       pgImages.innerHTML='<div style="padding:60px 20px;text-align:center;color:#555;font-size:14px;">لا توجد عناصر بعد في هذا المشروع</div>';
