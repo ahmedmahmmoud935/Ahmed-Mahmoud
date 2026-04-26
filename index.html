@@ -18,7 +18,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
 .nav-links{display:flex;gap:30px;list-style:none;}
 .nav-links a{color:var(--sub);text-decoration:none;font-size:14px;font-weight:600;font-family:'Montserrat',sans-serif;transition:color .3s;letter-spacing:.5px;}
 .nav-links a:hover{color:var(--text);}
-#hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:120px 60px 80px;position:relative;overflow:hidden;}
+#hero{min-height:85vh;display:flex;flex-direction:column;justify-content:center;padding:120px 60px 80px;position:relative;overflow:hidden;}
 #hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%,rgba(249,115,22,.07) 0%,transparent 60%);pointer-events:none;}
 .hero-name{font-family:'Montserrat',sans-serif;font-size:clamp(48px,7vw,88px);font-weight:900;line-height:1.05;margin-bottom:10px;letter-spacing:-2px;}
 .hero-name .first{color:var(--text);}.hero-name .last{color:var(--accent);}
@@ -78,11 +78,16 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
 .filter-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
 /* ── PROJECTS GRID ── */
 .projects-grid{display:grid;gap:3px;max-width:900px;margin:0 auto;}
-.projects-grid.mode-image{grid-template-columns:repeat(4,1fr);}
+/* Image mode: Behance-style uniform grid — all cards same size, image fits via object-fit:cover */
+.projects-grid.mode-image{grid-template-columns:repeat(3,1fr);gap:14px;max-width:1300px;}
+.projects-grid.mode-image .project-card{aspect-ratio:4/3;border-radius:8px;}
 .projects-grid.mode-video{align-items:start;max-width:1100px;grid-template-columns:repeat(4,1fr);}
-.projects-grid.mode-image .project-card{aspect-ratio:4/5;}
+/* Default video card aspect: vertical reel */
 .projects-grid.mode-video .project-card{aspect-ratio:9/16;}
+/* Horizontal video card (when cover image is wider than tall) */
+.projects-grid.mode-video .project-card.horizontal{aspect-ratio:4/5;}
 .project-card{position:relative;overflow:hidden;cursor:pointer;background:#111;will-change:transform;transform:translate3d(0,0,0);-webkit-transform:translate3d(0,0,0);backface-visibility:hidden;-webkit-backface-visibility:hidden;-webkit-perspective:1000;perspective:1000;}
+.projects-grid.mode-image .project-card img{width:100%;height:100%;object-fit:cover;}
 
 /* Reel nav buttons */
 .reel-nav-btn{
@@ -187,7 +192,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
 .pg-img-item:hover img{transform:scale(1.01);}
 @media(max-width:768px){
   .projects-grid.mode-all{grid-template-columns:repeat(3,1fr);}
-  .projects-grid.mode-image{grid-template-columns:repeat(2,1fr);max-width:100%;}
+  .projects-grid.mode-image{grid-template-columns:repeat(2,1fr);max-width:100%;gap:12px;}
   .pg-nav{padding:0 18px;}.pg-body{padding:30px 18px;}
   .pg-name{font-size:26px;}
 }
@@ -201,7 +206,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
   .nav-logo{font-size:14px;}
 
   /* HERO */
-  #hero{padding:90px 20px 60px;min-height:100svh;}
+  #hero{padding:90px 20px 60px;min-height:80svh;}
   .hero-name{font-size:clamp(36px,10vw,58px);letter-spacing:-1px;margin-bottom:8px;}
   .hero-sub{font-size:11px;letter-spacing:3px;margin-bottom:24px;}
   .hero-btns{gap:10px;}
@@ -241,7 +246,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
   .exp-card-service{padding:22px 18px;}
 
   /* PROJECTS — 2 cols on mobile (overridden by JS from settings) */
-  .projects-grid.mode-image{grid-template-columns:repeat(2,1fr);max-width:100%;}
+  .projects-grid.mode-image{grid-template-columns:repeat(2,1fr);max-width:100%;gap:10px;}
   .projects-grid.mode-video{grid-template-columns:repeat(2,1fr);max-width:100%;}
 
   /* PROJECT PAGE */
@@ -493,9 +498,15 @@ function buildHero(c,a){
   const b1=a?(c.btn1_ar||''):(c.btn1_en||'');const b2=a?(c.btn2_ar||''):(c.btn2_en||'');
   const ps=name.split(' ');const f=ps[0]||name;const l=ps.slice(1).join(' ');
   const cover=S.hero_cover_url;
-  const heroBg=cover?`style="background-image:url('${cover}');background-size:cover;background-position:center;"`:'' ;
-  const overlay=cover?`<div style="position:absolute;inset:0;background:rgba(0,0,0,0.55);pointer-events:none;"></div>`:'';
-  return`<section id="hero" ${heroBg}>${overlay}
+  // Size: 'cover', 'contain', or a percentage number stored as 'XXX%'
+  const sizeRaw = S.hero_cover_size || 'cover';
+  const bgSize = (sizeRaw==='cover'||sizeRaw==='contain') ? sizeRaw : (sizeRaw.endsWith('%')?sizeRaw:sizeRaw+'%');
+  const px = parseInt(S.hero_cover_pos_x||'50');
+  const py = parseInt(S.hero_cover_pos_y||'50');
+  const overlay = parseInt(S.hero_cover_overlay||'55')/100;
+  const heroBg=cover?`style="background-image:url('${cover}');background-size:${bgSize};background-position:${px}% ${py}%;background-repeat:no-repeat;"`:'' ;
+  const overlayHtml=cover?`<div style="position:absolute;inset:0;background:rgba(0,0,0,${overlay});pointer-events:none;"></div>`:'';
+  return`<section id="hero" ${heroBg}>${overlayHtml}
     <div class="hero-name" style="position:relative;z-index:1;"><span class="first">${f}</span> <span class="last">${l}</span></div>
     <div class="hero-sub" style="position:relative;z-index:1;">${title}</div>
     <div class="hero-btns" style="position:relative;z-index:1;"><a href="#projects" class="btn-primary">${b1}</a><a href="#contact" class="btn-outline">${b2}</a></div>
@@ -626,7 +637,7 @@ function renderProjects(){
   const cols=getColsSetting(currentFilter);
   if(currentFilter==='image'){
     grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
-    grid.style.maxWidth=`${cols*200}px`;
+    grid.style.maxWidth='1300px';
   } else {
     grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
     grid.style.maxWidth='1200px';
@@ -637,7 +648,7 @@ function renderProjects(){
     if(currentFilter==='video'){
       // video card — no cover shown, just gradient bg + play icon
       const thumb=p.coverImage
-        ?`<div class="vid-thumb"><img src="${p.coverImage}" alt="${p.title}" decoding="async"></div>`
+        ?`<div class="vid-thumb"><img src="${p.coverImage}" alt="${p.title}" decoding="async" onload="if(this.naturalWidth>this.naturalHeight)this.closest('.project-card').classList.add('horizontal')"></div>`
         :`<div class="vid-thumb" style="position:absolute;inset:0;background:linear-gradient(135deg,#1a1a1a,#2a2a2a);display:flex;align-items:center;justify-content:center;"><i class="fa-brands fa-instagram" style="font-size:28px;color:#333;"></i></div>`;
       return`<div class="project-card" onclick="openVideoLightbox(${ri})">
         ${thumb}
@@ -646,7 +657,7 @@ function renderProjects(){
         <div class="project-overlay"><div class="p-title">${p.title}</div><div class="p-cat">${p.category}</div></div>
       </div>`;
     }
-    // image card — cover is the card thumbnail (falls back to first gallery image)
+    // image card — uniform aspect ratio (4:3 Behance-style)
     const imgs=p.images||[];
     const thumbSrc=p.coverImage||imgs[0]||'';
     const th=thumbSrc?`<img src="${thumbSrc}" alt="${p.title}" decoding="async">`:`<div class="proj-ph"><i class="fa-solid fa-image"></i></div>`;
