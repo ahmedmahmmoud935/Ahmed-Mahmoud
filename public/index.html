@@ -3,9 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0A0A">
 <title id="pageTitle">Portfolio</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<!-- Preconnect to external origins (start TCP/TLS handshake early) -->
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+
+<!-- Fonts: only essential weights, swap for instant render -->
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Montserrat:wght@600;800;900&display=swap" rel="stylesheet">
+
+<!-- Font Awesome (async to avoid render-blocking) -->
+<link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
 <style>
 :root{--accent:#F97316;--accent2:#EA6C0A;--bg:#0A0A0A;--bg2:#111111;--bg3:#161616;--text:#FFFFFF;--sub:#999999;--border:#1e1e1e;}
 *{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
@@ -643,12 +654,15 @@ function renderProjects(){
     grid.style.maxWidth='1200px';
   }
 
-  grid.innerHTML=list.map(p=>{
+  grid.innerHTML=list.map((p,idx)=>{
     const ri=PROJECTS.indexOf(p);
+    // Eager-load first 4 cards (above the fold), lazy-load the rest
+    const loading = idx < 4 ? 'eager' : 'lazy';
+    const fetchPri = idx === 0 ? 'high' : 'auto';
     if(currentFilter==='video'){
       // video card — no cover shown, just gradient bg + play icon
       const thumb=p.coverImage
-        ?`<div class="vid-thumb"><img src="${p.coverImage}" alt="${p.title}" decoding="async" onload="if(this.naturalWidth>this.naturalHeight)this.closest('.project-card').classList.add('horizontal')"></div>`
+        ?`<div class="vid-thumb"><img src="${p.coverImage}" alt="${p.title}" loading="${loading}" fetchpriority="${fetchPri}" decoding="async" onload="if(this.naturalWidth>this.naturalHeight)this.closest('.project-card').classList.add('horizontal')"></div>`
         :`<div class="vid-thumb" style="position:absolute;inset:0;background:linear-gradient(135deg,#1a1a1a,#2a2a2a);display:flex;align-items:center;justify-content:center;"><i class="fa-brands fa-instagram" style="font-size:28px;color:#333;"></i></div>`;
       return`<div class="project-card" onclick="openVideoLightbox(${ri})">
         ${thumb}
@@ -660,7 +674,7 @@ function renderProjects(){
     // image card — uniform aspect ratio (4:3 Behance-style)
     const imgs=p.images||[];
     const thumbSrc=p.coverImage||imgs[0]||'';
-    const th=thumbSrc?`<img src="${thumbSrc}" alt="${p.title}" decoding="async">`:`<div class="proj-ph"><i class="fa-solid fa-image"></i></div>`;
+    const th=thumbSrc?`<img src="${thumbSrc}" alt="${p.title}" loading="${loading}" fetchpriority="${fetchPri}" decoding="async">`:`<div class="proj-ph"><i class="fa-solid fa-image"></i></div>`;
     return`<div class="project-card" onclick="openProject(${ri})">${th}
       <div class="project-overlay"><div class="p-title">${p.title}</div><div class="p-cat">${p.category}</div></div>
     </div>`;

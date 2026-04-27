@@ -323,13 +323,59 @@ def save_dataurl(dataurl, allowed_exts):
            'video/mp4':'mp4','video/quicktime':'mov','video/webm':'webm','video/avi':'avi'}.get(mime.lower(),'bin')
     if ext not in allowed_exts: return None
     fname = f"{uuid.uuid4().hex}.{ext}"
+    fpath = os.path.join(UPLOAD_DIR, fname)
     try:
-        with open(os.path.join(UPLOAD_DIR, fname), 'wb') as f:
+        with open(fpath, 'wb') as f:
             f.write(base64.b64decode(b64))
+        # Optimize images (not videos)
+        if ext in ('jpg','jpeg','png','webp'):
+            optimize_image(fpath)
         return f"/uploads/{fname}"
     except Exception as e:
         print(f"save_dataurl error: {e}")
         return None
+
+# Optional image optimization (graceful fallback if Pillow unavailable)
+try:
+    from PIL import Image, ImageOps
+    HAS_PIL = True
+except ImportError:
+    HAS_PIL = False
+    print("⚠️ Pillow not installed — images won't be optimized")
+
+def optimize_image(filepath, max_dim=1920, quality=82):
+    """Resize and recompress an image in-place to reduce file size.
+    Returns True if optimized, False if skipped (e.g., GIF or error)."""
+    if not HAS_PIL: return False
+    try:
+        ext = filepath.rsplit('.', 1)[-1].lower()
+        if ext in ('gif', 'svg'): return False  # don't touch animated/vector
+        img = Image.open(filepath)
+        # Auto-rotate based on EXIF (phones sometimes save rotated)
+        img = ImageOps.exif_transpose(img)
+        # Convert RGBA to RGB for jpg
+        if ext in ('jpg', 'jpeg') and img.mode in ('RGBA', 'P'):
+            bg = Image.new('RGB', img.size, (255, 255, 255))
+            bg.paste(img, mask=img.split()[-1] if img.mode == 'RGBA' else None)
+            img = bg
+        # Resize if larger than max_dim on either side
+        if img.width > max_dim or img.height > max_dim:
+            img.thumbnail((max_dim, max_dim), Image.LANCZOS)
+        # Save with optimized settings
+        save_kwargs = {'optimize': True}
+        if ext in ('jpg', 'jpeg'):
+            save_kwargs['quality'] = quality
+            save_kwargs['progressive'] = True
+        elif ext == 'webp':
+            save_kwargs['quality'] = quality
+            save_kwargs['method'] = 6
+        elif ext == 'png':
+            save_kwargs['compress_level'] = 7
+        img.save(filepath, **save_kwargs)
+        return True
+    except Exception as e:
+        print(f"optimize_image error for {filepath}: {e}")
+        return False
 
 # Direct file upload endpoint — returns URL immediately so admin doesn't need base64 in save body
 @app.route('/api/upload', methods=['POST'])
@@ -349,8 +395,12 @@ def upload_file():
     if ext not in allowed:
         return jsonify({'error': f'نوع غير مسموح: {ext}'}), 400
     fname = f"{uuid.uuid4().hex}.{ext}"
+    fpath = os.path.join(UPLOAD_DIR, fname)
     try:
-        f.save(os.path.join(UPLOAD_DIR, fname))
+        f.save(fpath)
+        # Optimize images (skip videos)
+        if kind != 'video':
+            optimize_image(fpath)
         return jsonify({'url': f"/uploads/{fname}"})
     except Exception as e:
         return jsonify({'error': f'فشل الحفظ: {str(e)}'}), 500
@@ -822,7 +872,10 @@ def change_credentials():
 # ─────────────────────────── STATIC ──────────────────────────────────────────
 @app.route('/uploads/<path:filename>')
 def uploaded_file(filename):
-    return send_from_directory(UPLOAD_DIR, filename)
+    response = send_from_directory(UPLOAD_DIR, filename)
+    # Aggressive caching for uploads (filename is unique uuid so safe to cache forever)
+    response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+    return response
 
 @app.route('/admin')
 @app.route('/admin.html')
