@@ -87,19 +87,6 @@ def auto_backup_db():
 
 auto_backup_db()
 
-
-@app.after_request
-def add_cache_headers(response):
-    """Speed up static assets on PageSpeed without caching API responses."""
-    path = request.path or ''
-    if path.startswith('/api/'):
-        response.headers['Cache-Control'] = 'no-store'
-    elif path.startswith('/uploads/'):
-        response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
-    elif any(path.endswith(ext) for ext in ('.css','.js','.png','.jpg','.jpeg','.gif','.webp','.svg','.ico','.woff2')):
-        response.headers['Cache-Control'] = 'public, max-age=604800'
-    return response
-
 # ─────────────────────────── DB ─────────────────────────────────────────────
 def get_db():
     conn = sqlite3.connect(DB_PATH)
