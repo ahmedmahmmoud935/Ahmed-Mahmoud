@@ -4,12 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title id="pageTitle">Portfolio</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
 <style>
 :root{--accent:#F97316;--accent2:#EA6C0A;--bg:#0A0A0A;--bg2:#111111;--bg3:#161616;--text:#FFFFFF;--sub:#999999;--border:#1e1e1e;}
 *{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
 body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;transition:background .4s,color .4s;}
+img{content-visibility:auto;}
+.sw{content-visibility:auto;contain-intrinsic-size:1px 900px;}
 .lang-btn{position:fixed;bottom:24px;right:24px;z-index:990;background:var(--accent);color:#fff;border:none;width:46px;height:46px;border-radius:50%;font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.4);transition:transform .3s,background .3s;display:flex;align-items:center;justify-content:center;}
 .lang-btn:hover{transform:scale(1.1);background:var(--accent2);}
 nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:center;justify-content:space-between;padding:0 60px;height:70px;background:rgba(10,10,10,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:box-shadow .3s;}
@@ -374,6 +380,18 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:28px 60p
 /* ── Arabic font override ── */
 [lang="ar"] .hero-sub,[lang="ar"] .nav-links a{font-family:'Cairo',sans-serif;}
 @media(max-width:768px){.expertise-grid{grid-template-columns:1fr;}}
+
+/* Performance tweaks for PageSpeed mobile */
+@media(max-width:600px){
+  nav{backdrop-filter:none;-webkit-backdrop-filter:none;}
+  #hero::before{display:none;}
+  #hero{background-position:center !important;}
+  .project-card,.project-card img{will-change:auto;}
+  .tool-card:hover,.exp-card-service:hover,.btn-submit:hover{transform:none;}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;scroll-behavior:auto !important;transition-duration:.01ms !important;}
+}
 </style>
 </head>
 <body>
@@ -382,7 +400,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:28px 60p
   <a href="#hero" class="nav-logo"><i class="fa-solid fa-gem"></i> <span id="navName">Portfolio</span></a>
   <ul class="nav-links" id="navLinks"></ul>
 </nav>
-<div id="mainPage"></div>
+<div id="mainPage"><section id="hero" aria-label="Loading hero"><div class="hero-name"><span class="first">Ahmed</span> <span class="last">Mahmoud</span></div><div class="hero-sub">Graphic Designer</div></section></div>
 
 <!-- PROJECT DETAIL PAGE (Behance-style) -->
 <div id="projectPage">
@@ -477,7 +495,7 @@ function buildExpertise(c,a){
     const title=a?(it.title_ar||it.title_en):(it.title_en||'');
     const pts=(a?(it.points_ar||it.points_en||''):(it.points_en||'')).split('|').filter(Boolean);
     const iconHtml=it.img_url
-      ?`<img src="${it.img_url}" alt="${title}">`
+      ?`<img src="${it.img_url}" alt="${title}" loading="lazy" decoding="async">`
       :`<i class="${it.icon||'fa-solid fa-star'}"></i>`;
     return`<div class="exp-card-service">
       <div class="exp-svc-header">
@@ -515,7 +533,7 @@ function buildHero(c,a){
 function buildAbout(c,a){
   const text=a?(c.text_ar||''):(c.text_en||'');
   const tags=(a?(c.tags_ar||''):(c.tags_en||'')).split(',').filter(Boolean);
-  const photo=S.photo_url?`<img id="aboutPhoto" src="${S.photo_url}" alt="photo">`:`<div class="about-ph"><i class="fa-solid fa-user"></i></div>`;
+  const photo=S.photo_url?`<img id="aboutPhoto" src="${S.photo_url}" alt="photo" loading="lazy" decoding="async">`:`<div class="about-ph"><i class="fa-solid fa-user"></i></div>`;
   return`<section id="about" class="sw"><div class="about-grid"><div class="about-img-wrap">${photo}</div><div><h2 class="section-title">${a?'عن النفس':'About Me'}</h2><p class="about-text">${text}</p><div class="tags-row">${tags.map(tg=>`<span class="tag">${tg.trim()}</span>`).join('')}</div></div></div></section>`;
 }
 function buildEdu(c,a){
@@ -532,7 +550,7 @@ function buildTools(c,a){
     // tool can have a custom image or a fontawesome icon
     const imgUrl=S[`tool_img_url_${i}`]||it.img_url||'';
     const iconHtml=imgUrl
-      ?`<img src="${imgUrl}" alt="${it.name}" style="width:52px;height:52px;object-fit:contain;border-radius:8px;">`
+      ?`<img src="${imgUrl}" alt="${it.name}" loading="lazy" decoding="async" style="width:52px;height:52px;object-fit:contain;border-radius:8px;">`
       :`<i class="${it.icon||'fa-solid fa-wrench'}"></i>`;
     return`<div class="tool-card"><div class="tool-icon">${iconHtml}</div><div class="tool-name">${it.name}</div></div>`;
   }).join('');
@@ -648,7 +666,7 @@ function renderProjects(){
     if(currentFilter==='video'){
       // video card — no cover shown, just gradient bg + play icon
       const thumb=p.coverImage
-        ?`<div class="vid-thumb"><img src="${p.coverImage}" alt="${p.title}" decoding="async" onload="if(this.naturalWidth>this.naturalHeight)this.closest('.project-card').classList.add('horizontal')"></div>`
+        ?`<div class="vid-thumb"><img src="${p.coverImage}" alt="${p.title}" loading="lazy" decoding="async" onload="if(this.naturalWidth>this.naturalHeight)this.closest('.project-card').classList.add('horizontal')"></div>`
         :`<div class="vid-thumb" style="position:absolute;inset:0;background:linear-gradient(135deg,#1a1a1a,#2a2a2a);display:flex;align-items:center;justify-content:center;"><i class="fa-brands fa-instagram" style="font-size:28px;color:#333;"></i></div>`;
       return`<div class="project-card" onclick="openVideoLightbox(${ri})">
         ${thumb}
@@ -660,7 +678,7 @@ function renderProjects(){
     // image card — uniform aspect ratio (4:3 Behance-style)
     const imgs=p.images||[];
     const thumbSrc=p.coverImage||imgs[0]||'';
-    const th=thumbSrc?`<img src="${thumbSrc}" alt="${p.title}" decoding="async">`:`<div class="proj-ph"><i class="fa-solid fa-image"></i></div>`;
+    const th=thumbSrc?`<img src="${thumbSrc}" alt="${p.title}" loading="lazy" decoding="async">`:`<div class="proj-ph"><i class="fa-solid fa-image"></i></div>`;
     return`<div class="project-card" onclick="openProject(${ri})">${th}
       <div class="project-overlay"><div class="p-title">${p.title}</div><div class="p-cat">${p.category}</div></div>
     </div>`;
@@ -906,7 +924,7 @@ function renderReel(){
       const thumb = p.coverImage || '';
       cont.innerHTML = `
         <div onclick="startReelPlayback()" style="width:100%;height:100%;position:relative;cursor:pointer;background:#000;">
-          ${thumb ? `<img src="${thumb}" style="width:100%;height:100%;object-fit:cover;display:block;">` : `<div style="width:100%;height:100%;background:linear-gradient(135deg,#1a1a1a,#2a2a2a);"></div>`}
+          ${thumb ? `<img src="${thumb}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block;">` : `<div style="width:100%;height:100%;background:linear-gradient(135deg,#1a1a1a,#2a2a2a);"></div>`}
           <div style="position:absolute;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;">
             <div class="pulse-btn" style="background:rgba(249,115,22,.95);color:#fff;width:90px;height:90px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 40px rgba(249,115,22,.6),0 0 0 0 rgba(249,115,22,.5);backdrop-filter:blur(8px);">
               <i class="fa-solid fa-play" style="font-size:34px;margin-right:-4px;"></i>
@@ -1075,12 +1093,12 @@ function openProject(idx){
     cover.style.display='';
     pgHeader.style.textAlign='';
     pgBody.style.maxWidth='';
-    if(p.coverImage) cover.innerHTML=`<img src="${p.coverImage}" alt="${p.title}">`;
+    if(p.coverImage) cover.innerHTML=`<img src="${p.coverImage}" alt="${p.title}" loading="lazy" decoding="async">`;
     else cover.innerHTML=`<div class="pg-cover-ph"><i class="fa-solid fa-image"></i></div>`;
     const allImgs=[...(p.coverImage?[p.coverImage]:[]),...(p.images||[]).filter(s=>s!==p.coverImage)];
     currentGallery=allImgs.map(src=>({type:'image',src}));
     pgImages.innerHTML=allImgs.slice(1).map((src,i)=>
-      `<div class="pg-img-item" onclick="openLbFromPage(${idx},${i+1})"><img src="${src}" alt="" loading="lazy"></div>`
+      `<div class="pg-img-item" onclick="openLbFromPage(${idx},${i+1})"><img src="${src}" alt="" loading="lazy" decoding="async"></div>`
     ).join('');
   }
 
@@ -1094,7 +1112,7 @@ function renderModules(mods){
     const type=mod.type;
     if(type==='image'){
       if(!mod.src) return '';
-      return `<div class="pg-img-item" onclick="openLbByMod(${i})"><img src="${mod.src}" alt="" loading="lazy"></div>`;
+      return `<div class="pg-img-item" onclick="openLbByMod(${i})"><img src="${mod.src}" alt="" loading="lazy" decoding="async"></div>`;
     }
     // photo-grid OR grid (editor uses 'grid')
     // Behance-style: flexbox where all images share the same height,
@@ -1106,7 +1124,7 @@ function renderModules(mods){
       return `<div id="${rowId}" class="pg-flex-row" style="display:flex;gap:4px;margin-bottom:4px;align-items:stretch;min-height:140px;flex-wrap:wrap;">
         ${items.map((it,j)=>`
           <div data-src="${it.src}" style="flex:1 1 0;overflow:hidden;border-radius:4px;cursor:pointer;min-width:0;background:#111;" onclick="openLbByItem(${i},${j})">
-            <img src="${it.src}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;" onload="equalizePgRow('${rowId}')">
+            <img src="${it.src}" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block;" onload="equalizePgRow('${rowId}')">
           </div>`).join('')}
       </div>`;
     }
