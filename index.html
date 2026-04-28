@@ -28,11 +28,11 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
 @keyframes waPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
 
 /* Compact lang button in nav */
-.nav-lang-btn{background:var(--accent);color:#fff;border:2px solid var(--accent);padding:7px 16px;border-radius:18px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;}
-.nav-lang-btn:hover{background:transparent;border-color:var(--accent);color:var(--accent);}
+.nav-lang-btn{background:transparent;color:var(--text);border:1px solid var(--border);padding:6px 12px;border-radius:18px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;}
+.nav-lang-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff;}
 /* In LTR (English): push button further left from links; in RTL (Arabic): push further right */
-[dir="ltr"] .nav-lang-btn{margin-left:40px;}
-[dir="rtl"] .nav-lang-btn{margin-right:40px;}
+[dir="ltr"] .nav-lang-btn{margin-left:28px;}
+[dir="rtl"] .nav-lang-btn{margin-right:28px;}
 nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:center;justify-content:space-between;padding:0 60px;height:70px;background:rgba(10,10,10,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:box-shadow .3s;}
 .nav-logo{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:700;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px;}
 .nav-logo i{color:var(--accent);}
@@ -107,8 +107,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
 .projects-grid.mode-video .project-card{aspect-ratio:9/16;}
 /* Horizontal video card (when cover image is wider than tall) */
 .projects-grid.mode-video .project-card.horizontal{aspect-ratio:4/5;}
-.project-card{position:relative;overflow:hidden;cursor:pointer;background:#111;will-change:transform;transform:translate3d(0,0,0);-webkit-transform:translate3d(0,0,0);backface-visibility:hidden;-webkit-backface-visibility:hidden;-webkit-perspective:1000;perspective:1000;contain:layout paint;}
-.projects-grid.mode-image .project-card img{width:100%;height:100%;object-fit:cover;transform:translate3d(0,0,0);-webkit-transform:translate3d(0,0,0);}
+.project-card{position:relative;overflow:hidden;cursor:pointer;background:#111;contain:layout paint style;}
+.projects-grid.mode-image .project-card img{width:100%;height:100%;object-fit:cover;}
 
 /* Reel nav buttons */
 .reel-nav-btn{
@@ -149,10 +149,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
   }
   .reel-nav-btn{width:36px;height:36px;font-size:14px;}
 }
-.project-card img{width:100%;height:100%;object-fit:cover;transition:transform .45s;display:block;will-change:transform;-webkit-transform:translate3d(0,0,0);transform:translate3d(0,0,0);}
-.project-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,transparent 50%);display:flex;flex-direction:column;justify-content:flex-end;padding:12px;opacity:0;transition:opacity .3s;}
-.project-card:hover .project-overlay{opacity:1;}
-.project-card:hover img{transform:scale(1.05);}
+.project-card img{width:100%;height:100%;object-fit:cover;display:block;}
+.project-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,transparent 50%);display:flex;flex-direction:column;justify-content:flex-end;padding:12px;opacity:0;transition:opacity .25s;}
+@media(hover:hover){.project-card img{transition:transform .4s;}.project-card:hover .project-overlay{opacity:1;}.project-card:hover img{transform:scale(1.04);}}
+@media(hover:none){.project-overlay{opacity:1;background:linear-gradient(to top,rgba(0,0,0,.55) 0%,transparent 45%);}}
 .p-title{font-weight:700;font-size:12px;color:#fff;line-height:1.3;}.p-cat{color:var(--accent);font-size:10px;font-weight:600;margin-top:2px;}
 .proj-ph{width:100%;height:100%;background:linear-gradient(135deg,#1a1a1a,#2a2a2a);display:flex;align-items:center;justify-content:center;color:#333;font-size:28px;}
 /* VIDEO */
@@ -392,11 +392,19 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:28px 60p
 .exp-svc-icon{width:52px;height:52px;border-radius:50%;border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--accent);flex-shrink:0;background:rgba(249,115,22,.08);}
 .exp-svc-icon img{width:28px;height:28px;object-fit:contain;}
 .exp-svc-title{font-family:'Montserrat',sans-serif;font-weight:700;font-size:18px;color:var(--accent);}
-.exp-svc-points{list-style:none;display:flex;flex-direction:column;gap:10px;padding:0;}
-.exp-svc-points li{color:#ccc;font-size:14px;line-height:1.7;list-style:none;padding-right:0;}
+.exp-svc-points{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.exp-svc-points li{color:#ccc;font-size:14px;line-height:1.7;}
 /* ── Arabic font override ── */
 [lang="ar"] .hero-sub,[lang="ar"] .nav-links a{font-family:'Cairo',sans-serif;}
 @media(max-width:768px){.expertise-grid{grid-template-columns:1fr;}}
+/* Skeleton loading for project cards */
+.proj-skeleton{background:linear-gradient(90deg,#1a1a1a 25%,#222 50%,#1a1a1a 75%);background-size:200% 100%;animation:skelAnim 1.4s infinite;}
+@keyframes skelAnim{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+/* Prevent image flicker: images start invisible, fade in on load */
+.project-card img{opacity:0;transition:opacity .3s;}
+.project-card img.loaded{opacity:1;}
+/* content-visibility for off-screen sections */
+#education,#skills,#tools,#experience{content-visibility:auto;contain-intrinsic-size:0 400px;}
 </style>
 </head>
 <body>
@@ -439,6 +447,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:28px 60p
 <div class="toast" id="toast"></div>
 <script>
 let LANG=localStorage.getItem('lang')||'en', S={}, PROJECTS=[], currentFilter='image', currentCategory='all', currentGallery=[], lbIdx=0;
+let _lastCols={image:0,video:0};
 const ar=()=>LANG==='ar';
 const T={en:{back:'Back',gallery:'Gallery',all:'All',designs:'Designs',reels:'Reels',send:'Send Message',name:'Name',email:'Email',subject:'Subject',msg:'Message',noProjects:'No projects yet',rights:'All rights reserved.'},ar:{back:'رجوع',gallery:'المعرض',all:'الكل',designs:'تصاميم',reels:'ريلز',send:'إرسال الرسالة',name:'الاسم',email:'البريد الإلكتروني',subject:'الموضوع',msg:'رسالتك',noProjects:'لا توجد مشاريع بعد',rights:'جميع الحقوق محفوظة.'}};
 const t=k=>(T[LANG]||T.en)[k]||k;
@@ -677,14 +686,20 @@ function renderProjects(){
   }
 
   const cols=getColsSetting(currentFilter);
-  if(currentFilter==='image'){
-    grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
-    grid.style.maxWidth='1300px';
-  } else {
-    grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
-    grid.style.maxWidth='1200px';
-  }
+  _lastCols[currentFilter]=cols;
+  grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
+  grid.style.maxWidth=currentFilter==='image'?'1300px':'1200px';
 
+  // Show skeleton cards while images load (prevents blank flash)
+  if(!grid.children.length || grid.dataset.filter !== currentFilter){
+    const skeletonCols = getColsSetting(currentFilter);
+    const skeletonCount = Math.min(list.length, skeletonCols * 2);
+    const skAR = currentFilter==='video' ? 'aspect-ratio:9/16' : 'aspect-ratio:4/3';
+    grid.innerHTML = Array(skeletonCount).fill(0).map(()=>`<div class="project-card proj-skeleton" style="${skAR};border-radius:8px;"></div>`).join('');
+  }
+  grid.dataset.filter = currentFilter;
+  // Use requestAnimationFrame to avoid blocking the main thread
+  requestAnimationFrame(()=>{
   grid.innerHTML=list.map((p,idx)=>{
     const ri=PROJECTS.indexOf(p);
     // Eager-load first 4 cards (above the fold), lazy-load the rest
@@ -693,7 +708,7 @@ function renderProjects(){
     if(currentFilter==='video'){
       // video card — no cover shown, just gradient bg + play icon
       const thumb=p.coverImage
-        ?`<div class="vid-thumb"><img src="${p.coverImage}" alt="${p.title}" loading="${loading}" fetchpriority="${fetchPri}" decoding="async" onload="if(this.naturalWidth>this.naturalHeight)this.closest('.project-card').classList.add('horizontal')"></div>`
+        ?`<div class="vid-thumb"><img src="${p.coverImage}" alt="${p.title}" loading="${loading}" fetchpriority="${fetchPri}" decoding="async" onload="this.classList.add('loaded');if(this.naturalWidth>this.naturalHeight)this.closest('.project-card').classList.add('horizontal')"></div>`
         :`<div class="vid-thumb" style="position:absolute;inset:0;background:linear-gradient(135deg,#1a1a1a,#2a2a2a);display:flex;align-items:center;justify-content:center;"><i class="fa-brands fa-instagram" style="font-size:28px;color:#333;"></i></div>`;
       return`<div class="project-card" onclick="openVideoLightbox(${ri})">
         ${thumb}
@@ -705,14 +720,27 @@ function renderProjects(){
     // image card — uniform aspect ratio (4:3 Behance-style)
     const imgs=p.images||[];
     const thumbSrc=p.coverImage||imgs[0]||'';
-    const th=thumbSrc?`<img src="${thumbSrc}" alt="${p.title}" loading="${loading}" fetchpriority="${fetchPri}" decoding="async">`:`<div class="proj-ph"><i class="fa-solid fa-image"></i></div>`;
+    const th=thumbSrc?`<img src="${thumbSrc}" alt="${p.title}" loading="${loading}" fetchpriority="${fetchPri}" decoding="async" onload="this.classList.add('loaded')">`:`<div class="proj-ph"><i class="fa-solid fa-image"></i></div>`;
     return`<div class="project-card" onclick="openProject(${ri})">${th}
       <div class="project-overlay"><div class="p-title">${p.title}</div><div class="p-cat">${p.category}</div></div>
     </div>`;
   }).join('');
+  }); // end requestAnimationFrame
 }
 
-window.addEventListener("resize",()=>{if(document.getElementById("projectsGrid"))renderProjects();});
+// Debounced resize — only updates grid columns, no full DOM rebuild
+let _resizeTimer;
+window.addEventListener("resize",()=>{
+  clearTimeout(_resizeTimer);
+  _resizeTimer=setTimeout(()=>{
+    const grid=document.getElementById("projectsGrid");
+    if(!grid)return;
+    const cols=getColsSetting(currentFilter);
+    if(cols===_lastCols[currentFilter])return; // no change, skip
+    _lastCols[currentFilter]=cols;
+    grid.style.gridTemplateColumns="repeat("+cols+",1fr)";
+  },150);
+});
 
 // ── INSTAGRAM REELS LIGHTBOX ──
 let reelList=[], reelIdx=0, reelTouchStartY=0, reelTouchStartX=0, reelMuted=true;
