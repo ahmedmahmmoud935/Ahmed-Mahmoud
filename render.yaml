@@ -13,7 +13,9 @@ services:
         value: admin123
       - key: FLASK_ENV
         value: production
+      - key: RENDER
+        value: true
     disk:
       name: uploads
-      mountPath: /opt/render/project/src/public/uploads
-      sizeGB: 1
+      mountPath: /var/data
+      sizeGB: 5
