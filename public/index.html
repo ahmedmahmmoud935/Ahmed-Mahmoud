@@ -397,7 +397,13 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:28px 60p
 /* ── Arabic font override ── */
 [lang="ar"] .hero-sub,[lang="ar"] .nav-links a{font-family:'Cairo',sans-serif;}
 @media(max-width:768px){.expertise-grid{grid-template-columns:1fr;}}
-/* content-visibility: skip painting off-screen sections */
+/* Skeleton loading for project cards */
+.proj-skeleton{background:linear-gradient(90deg,#1a1a1a 25%,#222 50%,#1a1a1a 75%);background-size:200% 100%;animation:skelAnim 1.4s infinite;}
+@keyframes skelAnim{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+/* Prevent image flicker: images start invisible, fade in on load */
+.project-card img{opacity:0;transition:opacity .3s;}
+.project-card img.loaded{opacity:1;}
+/* content-visibility for off-screen sections */
 #education,#skills,#tools,#experience{content-visibility:auto;contain-intrinsic-size:0 400px;}
 </style>
 </head>
@@ -440,15 +446,8 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:28px 60p
 </div>
 <div class="toast" id="toast"></div>
 <script>
-
-// Returns a thumbnail variant URL for grid display (faster loading on mobile)
-// Server creates a 600px WebP thumbnail; falls through to original for external URLs
-function thumbUrl(src){
-  if(!src || typeof src !== 'string') return src;
-  if(!src.startsWith('/uploads/')) return src; // external URL - leave alone
-  return src + (src.includes('?') ? '&' : '?') + 'v=thumb';
-}
 let LANG=localStorage.getItem('lang')||'en', S={}, PROJECTS=[], currentFilter='image', currentCategory='all', currentGallery=[], lbIdx=0;
+let _lastCols={image:0,video:0};
 const ar=()=>LANG==='ar';
 const T={en:{back:'Back',gallery:'Gallery',all:'All',designs:'Designs',reels:'Reels',send:'Send Message',name:'Name',email:'Email',subject:'Subject',msg:'Message',noProjects:'No projects yet',rights:'All rights reserved.'},ar:{back:'رجوع',gallery:'المعرض',all:'الكل',designs:'تصاميم',reels:'ريلز',send:'إرسال الرسالة',name:'الاسم',email:'البريد الإلكتروني',subject:'الموضوع',msg:'رسالتك',noProjects:'لا توجد مشاريع بعد',rights:'جميع الحقوق محفوظة.'}};
 const t=k=>(T[LANG]||T.en)[k]||k;
@@ -503,7 +502,7 @@ function buildPage(){
   document.getElementById('mainPage').innerHTML=secs.map(s=>buildSec(s,ct,a)).join('')+buildFooter(a);
   document.getElementById('pgFooter').innerHTML=footerInner(a);
   document.getElementById('pgBackLabel').textContent=a?'رجوع':'Back';
-  _allCardsBuilt=false;applyLang();renderCategoryFilter();renderProjects();
+  applyLang();renderCategoryFilter();renderProjects();
 }
 
 function buildSec(s,ct,a){
@@ -670,74 +669,78 @@ function getColsSetting(type){
   }
 }
 
-// Build ALL cards ONCE; filter just shows/hides them — no re-download.
-let _allCardsBuilt = false;
-function buildAllCards(){
+function renderProjects(){
   const grid=document.getElementById('projectsGrid');if(!grid)return;
-  const html = PROJECTS.map((p,idx)=>{
-    const isVideo = p.mediaType==='video';
-    const ri = idx;
-    const loading = idx < 8 ? 'eager' : 'lazy';
-    const fetchPri = idx < 2 ? 'high' : 'auto';
-    const cat = (p.category||'').replace(/"/g,'&quot;');
-    if(isVideo){
+  let list=PROJECTS.filter(p=>currentFilter==='video'?p.mediaType==='video':p.mediaType!=='video');
+  // Apply category filter
+  if(currentCategory && currentCategory!=='all'){
+    list=list.filter(p=>p.category===currentCategory);
+  }
+  grid.className='projects-grid mode-'+currentFilter;
+  grid.style.maxWidth='';
+
+  if(!list.length){
+    grid.style.gridTemplateColumns='';
+    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:70px 20px;color:#444;"><i class="fa-solid fa-images" style="font-size:44px;margin-bottom:14px;display:block;"></i><p>${t('noProjects')}</p></div>`;
+    return;
+  }
+
+  const cols=getColsSetting(currentFilter);
+  _lastCols[currentFilter]=cols;
+  grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
+  grid.style.maxWidth=currentFilter==='image'?'1300px':'1200px';
+
+  // Show skeleton cards while images load (prevents blank flash)
+  if(!grid.children.length || grid.dataset.filter !== currentFilter){
+    const skeletonCols = getColsSetting(currentFilter);
+    const skeletonCount = Math.min(list.length, skeletonCols * 2);
+    const skAR = currentFilter==='video' ? 'aspect-ratio:9/16' : 'aspect-ratio:4/3';
+    grid.innerHTML = Array(skeletonCount).fill(0).map(()=>`<div class="project-card proj-skeleton" style="${skAR};border-radius:8px;"></div>`).join('');
+  }
+  grid.dataset.filter = currentFilter;
+  // Use requestAnimationFrame to avoid blocking the main thread
+  requestAnimationFrame(()=>{
+  grid.innerHTML=list.map((p,idx)=>{
+    const ri=PROJECTS.indexOf(p);
+    // Eager-load first 4 cards (above the fold), lazy-load the rest
+    const loading = idx < 4 ? 'eager' : 'lazy';
+    const fetchPri = idx === 0 ? 'high' : 'auto';
+    if(currentFilter==='video'){
+      // video card — no cover shown, just gradient bg + play icon
       const thumb=p.coverImage
-        ?`<div class="vid-thumb"><img src="${thumbUrl(p.coverImage)}" alt="${p.title}" loading="${loading}" fetchpriority="${fetchPri}" decoding="async" onload="this.classList.add('loaded');if(this.naturalWidth>this.naturalHeight)this.closest('.project-card').classList.add('horizontal')"></div>`
+        ?`<div class="vid-thumb"><img src="${p.coverImage}" alt="${p.title}" loading="${loading}" fetchpriority="${fetchPri}" decoding="async" onload="this.classList.add('loaded');if(this.naturalWidth>this.naturalHeight)this.closest('.project-card').classList.add('horizontal')"></div>`
         :`<div class="vid-thumb" style="position:absolute;inset:0;background:linear-gradient(135deg,#1a1a1a,#2a2a2a);display:flex;align-items:center;justify-content:center;"><i class="fa-brands fa-instagram" style="font-size:28px;color:#333;"></i></div>`;
-      return`<div class="project-card pc-video" data-cat="${cat}" onclick="openVideoLightbox(${ri})">
+      return`<div class="project-card" onclick="openVideoLightbox(${ri})">
         ${thumb}
         <div class="vid-play-btn"><div class="vid-play-circle"><i class="fa-solid fa-play"></i></div></div>
         <i class="fa-solid fa-film vid-reel-badge"></i>
         <div class="project-overlay"><div class="p-title">${p.title}</div><div class="p-cat">${p.category}</div></div>
       </div>`;
     }
+    // image card — uniform aspect ratio (4:3 Behance-style)
     const imgs=p.images||[];
     const thumbSrc=p.coverImage||imgs[0]||'';
-    const th=thumbSrc?`<img src="${thumbUrl(thumbSrc)}" alt="${p.title}" loading="${loading}" fetchpriority="${fetchPri}" decoding="async" onload="this.classList.add('loaded')">`:`<div class="proj-ph"><i class="fa-solid fa-image"></i></div>`;
-    return`<div class="project-card pc-image" data-cat="${cat}" onclick="openProject(${ri})">${th}
+    const th=thumbSrc?`<img src="${thumbSrc}" alt="${p.title}" loading="${loading}" fetchpriority="${fetchPri}" decoding="async" onload="this.classList.add('loaded')">`:`<div class="proj-ph"><i class="fa-solid fa-image"></i></div>`;
+    return`<div class="project-card" onclick="openProject(${ri})">${th}
       <div class="project-overlay"><div class="p-title">${p.title}</div><div class="p-cat">${p.category}</div></div>
     </div>`;
   }).join('');
-  grid.innerHTML = html;
-  _allCardsBuilt = true;
+  }); // end requestAnimationFrame
 }
 
-function renderProjects(){
-  const grid=document.getElementById('projectsGrid');if(!grid)return;
-  if(!_allCardsBuilt){ buildAllCards(); }
-  grid.className='projects-grid mode-'+currentFilter;
-  const cols=getColsSetting(currentFilter);
-  _lastCols[currentFilter]=cols;
-  grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
-  grid.style.maxWidth=currentFilter==='image'?'1300px':'1200px';
-  const wantVideo = currentFilter==='video';
-  let visibleCount = 0;
-  const cards = grid.querySelectorAll('.project-card');
-  cards.forEach(card=>{
-    const isVid = card.classList.contains('pc-video');
-    const cardCat = card.dataset.cat || '';
-    const typeMatch = wantVideo ? isVid : !isVid;
-    const catMatch = (!currentCategory || currentCategory==='all' || cardCat===currentCategory);
-    const show = typeMatch && catMatch;
-    card.style.display = show ? '' : 'none';
-    if(show) visibleCount++;
-  });
-  let empty = grid.querySelector('.proj-empty');
-  if(!visibleCount){
-    if(!empty){
-      empty=document.createElement('div');
-      empty.className='proj-empty';
-      empty.style.cssText='grid-column:1/-1;text-align:center;padding:70px 20px;color:#444;';
-      empty.innerHTML=`<i class="fa-solid fa-images" style="font-size:44px;margin-bottom:14px;display:block;"></i><p>${t('noProjects')}</p>`;
-      grid.appendChild(empty);
-    }
-    empty.style.display='';
-  } else if(empty){
-    empty.style.display='none';
-  }
-}
-
-window.addEventListener("resize",()=>{if(document.getElementById("projectsGrid"))renderProjects();});
+// Debounced resize — only updates grid columns, no full DOM rebuild
+let _resizeTimer;
+window.addEventListener("resize",()=>{
+  clearTimeout(_resizeTimer);
+  _resizeTimer=setTimeout(()=>{
+    const grid=document.getElementById("projectsGrid");
+    if(!grid)return;
+    const cols=getColsSetting(currentFilter);
+    if(cols===_lastCols[currentFilter])return; // no change, skip
+    _lastCols[currentFilter]=cols;
+    grid.style.gridTemplateColumns="repeat("+cols+",1fr)";
+  },150);
+});
 
 // ── INSTAGRAM REELS LIGHTBOX ──
 let reelList=[], reelIdx=0, reelTouchStartY=0, reelTouchStartX=0, reelMuted=true;

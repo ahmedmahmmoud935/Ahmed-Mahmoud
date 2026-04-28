@@ -27,19 +27,6 @@ app.config.update(
 
 CORS(app, supports_credentials=True)
 
-# gzip compression for HTML/CSS/JS/JSON (huge speed boost on slow networks)
-try:
-    from flask_compress import Compress
-    app.config['COMPRESS_MIMETYPES'] = ['text/html', 'text/css', 'text/javascript',
-                                         'application/javascript', 'application/json',
-                                         'image/svg+xml']
-    app.config['COMPRESS_LEVEL'] = 6
-    app.config['COMPRESS_MIN_SIZE'] = 500
-    Compress(app)
-    print("[OK] gzip compression enabled")
-except ImportError:
-    print("[WARN] flask-compress not installed - responses wont be gzipped")
-
 DB_PATH    = '/var/data/portfolio.db'
 UPLOAD_DIR = '/var/data/uploads'
 BACKUP_DIR = '/var/data/backups'
@@ -357,61 +344,35 @@ except ImportError:
     HAS_PIL = False
     print("⚠️ Pillow not installed — images won't be optimized")
 
-def optimize_image(filepath, max_dim=1920, quality=85):
-    """Optimize image + create WebP version + create 600px thumbnail.
-    Generates 3 files for each upload:
-      - filename.ext        -> optimized original (max 1920px, q=85)
-      - filename.webp       -> WebP version (~60% smaller, same quality)
-      - filename.thumb.webp -> 600px thumbnail for grid display (~95% smaller)
-    Returns True if successful."""
+def optimize_image(filepath, max_dim=1920, quality=82):
+    """Resize and recompress an image in-place to reduce file size.
+    Returns True if optimized, False if skipped (e.g., GIF or error)."""
     if not HAS_PIL: return False
     try:
         ext = filepath.rsplit('.', 1)[-1].lower()
-        if ext in ('gif', 'svg'): return False
+        if ext in ('gif', 'svg'): return False  # don't touch animated/vector
         img = Image.open(filepath)
+        # Auto-rotate based on EXIF (phones sometimes save rotated)
         img = ImageOps.exif_transpose(img)
-        # Convert palette/RGBA to suitable mode
-        if img.mode in ('RGBA', 'P', 'LA'):
-            if ext in ('jpg', 'jpeg'):
-                bg = Image.new('RGB', img.size, (255, 255, 255))
-                if img.mode == 'P': img = img.convert('RGBA')
-                bg.paste(img, mask=img.split()[-1] if 'A' in img.mode else None)
-                img = bg
-            elif ext != 'png':
-                img = img.convert('RGB')
-        # 1. Optimize original in place
-        original = img.copy()
-        if original.width > max_dim or original.height > max_dim:
-            original.thumbnail((max_dim, max_dim), Image.LANCZOS)
+        # Convert RGBA to RGB for jpg
+        if ext in ('jpg', 'jpeg') and img.mode in ('RGBA', 'P'):
+            bg = Image.new('RGB', img.size, (255, 255, 255))
+            bg.paste(img, mask=img.split()[-1] if img.mode == 'RGBA' else None)
+            img = bg
+        # Resize if larger than max_dim on either side
+        if img.width > max_dim or img.height > max_dim:
+            img.thumbnail((max_dim, max_dim), Image.LANCZOS)
+        # Save with optimized settings
         save_kwargs = {'optimize': True}
         if ext in ('jpg', 'jpeg'):
-            save_kwargs.update(quality=quality, progressive=True)
+            save_kwargs['quality'] = quality
+            save_kwargs['progressive'] = True
         elif ext == 'webp':
-            save_kwargs.update(quality=quality, method=6)
+            save_kwargs['quality'] = quality
+            save_kwargs['method'] = 6
         elif ext == 'png':
-            save_kwargs.update(compress_level=7)
-        original.save(filepath, **save_kwargs)
-
-        # 2. Create WebP variant (skip if already webp)
-        if ext != 'webp':
-            webp_path = filepath.rsplit('.', 1)[0] + '.webp'
-            webp_img = img.copy()
-            if webp_img.width > max_dim or webp_img.height > max_dim:
-                webp_img.thumbnail((max_dim, max_dim), Image.LANCZOS)
-            if webp_img.mode == 'RGBA':
-                webp_img.save(webp_path, 'WEBP', quality=quality, method=6)
-            else:
-                if webp_img.mode != 'RGB': webp_img = webp_img.convert('RGB')
-                webp_img.save(webp_path, 'WEBP', quality=quality, method=6)
-
-        # 3. Create thumbnail (600px wide WebP) for grid display
-        thumb_path = filepath.rsplit('.', 1)[0] + '.thumb.webp'
-        thumb = img.copy()
-        thumb.thumbnail((600, 600), Image.LANCZOS)
-        if thumb.mode not in ('RGB', 'RGBA'):
-            thumb = thumb.convert('RGB')
-        thumb.save(thumb_path, 'WEBP', quality=78, method=6)
-
+            save_kwargs['compress_level'] = 7
+        img.save(filepath, **save_kwargs)
         return True
     except Exception as e:
         print(f"optimize_image error for {filepath}: {e}")
@@ -448,12 +409,7 @@ def upload_file():
 def delete_file(url):
     if url and url.startswith('/uploads/'):
         p = os.path.join(UPLOAD_DIR, os.path.basename(url))
-        # Delete original + webp variant + thumbnail variant
-        base = p.rsplit('.', 1)[0]
-        for variant in [p, base + '.webp', base + '.thumb.webp']:
-            try:
-                if os.path.exists(variant): os.remove(variant)
-            except: pass
+        if os.path.exists(p): os.remove(p)
 
 # ─────────────────────────── PROJECTS ────────────────────────────────────────
 def _migrate_modules_base64(mods, pid, db):
@@ -917,32 +873,9 @@ def change_credentials():
 # ─────────────────────────── STATIC ──────────────────────────────────────────
 @app.route('/uploads/<path:filename>')
 def uploaded_file(filename):
-    """Smart variant selection:
-       - ?v=thumb -> serve 600px thumbnail (for grid display, ~95% smaller)
-       - Accept: image/webp -> auto-serve WebP variant (~60% smaller)
-       - else -> serve original
-    """
-    variant = request.args.get('v', '').lower()
-    base = filename.rsplit('.', 1)[0]
-    ext = filename.rsplit('.', 1)[-1].lower() if '.' in filename else ''
-
-    target = filename
-    # Explicit thumbnail request
-    if variant == 'thumb':
-        thumb_name = base + '.thumb.webp'
-        if os.path.exists(os.path.join(UPLOAD_DIR, thumb_name)):
-            target = thumb_name
-    # Auto WebP if browser supports it AND it's not a video/animated format
-    elif ext not in ('mp4', 'mov', 'webm', 'avi', 'webp', 'gif'):
-        accept = request.headers.get('Accept', '')
-        if 'image/webp' in accept:
-            webp_name = base + '.webp'
-            if os.path.exists(os.path.join(UPLOAD_DIR, webp_name)):
-                target = webp_name
-
-    response = send_from_directory(UPLOAD_DIR, target)
+    response = send_from_directory(UPLOAD_DIR, filename)
+    # Aggressive caching for uploads (filename is unique uuid so safe to cache forever)
     response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
-    response.headers['Vary'] = 'Accept'
     return response
 
 @app.route('/admin')
