@@ -213,7 +213,8 @@ def init_db():
                 db.commit()
             except: pass
         defaults = [
-            ('whatsapp',''),('behance',''),('instagram',''),('linkedin',''),('facebook',''),
+            ('whatsapp',''),('behance',''),('instagram',''),('linkedin',''),('facebook',''),('vimeo',''),
+            ('social_visible', json.dumps(['whatsapp','behance','instagram','linkedin','vimeo'])),
             ('photo_url',''),('hero_cover_url',''),
             ('video_cols','4'),('image_cols','4'),
             ('video_cols_mobile','2'),('video_cols_tablet','3'),('video_cols_desktop','4'),

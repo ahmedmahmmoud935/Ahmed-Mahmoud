@@ -21,8 +21,15 @@
 :root{--accent:#F97316;--accent2:#EA6C0A;--bg:#0A0A0A;--bg2:#111111;--bg3:#161616;--text:#FFFFFF;--sub:#999999;--border:#1e1e1e;}
 *{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
 body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;transition:background .4s,color .4s;}
-.lang-btn{position:fixed;bottom:24px;right:24px;z-index:990;background:var(--accent);color:#fff;border:none;width:46px;height:46px;border-radius:50%;font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.4);transition:transform .3s,background .3s;display:flex;align-items:center;justify-content:center;}
-.lang-btn:hover{transform:scale(1.1);background:var(--accent2);}
+/* Big floating WhatsApp button (replaces lang button position) */
+.wa-float{position:fixed;bottom:24px;right:24px;z-index:990;background:#25D366;color:#fff;border:none;width:62px;height:62px;border-radius:50%;font-size:30px;cursor:pointer;box-shadow:0 6px 24px rgba(37,211,102,.5);transition:transform .25s,box-shadow .25s;display:flex;align-items:center;justify-content:center;text-decoration:none;}
+.wa-float:hover{transform:scale(1.08);box-shadow:0 8px 30px rgba(37,211,102,.7);}
+.wa-float i{animation:waPulse 2s ease-in-out infinite;}
+@keyframes waPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
+
+/* Compact lang button in nav */
+.nav-lang-btn{background:transparent;color:var(--text);border:1px solid var(--border);padding:6px 12px;border-radius:18px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;margin-right:14px;}
+.nav-lang-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff;}
 nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:center;justify-content:space-between;padding:0 60px;height:70px;background:rgba(10,10,10,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:box-shadow .3s;}
 .nav-logo{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:700;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px;}
 .nav-logo i{color:var(--accent);}
@@ -97,8 +104,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
 .projects-grid.mode-video .project-card{aspect-ratio:9/16;}
 /* Horizontal video card (when cover image is wider than tall) */
 .projects-grid.mode-video .project-card.horizontal{aspect-ratio:4/5;}
-.project-card{position:relative;overflow:hidden;cursor:pointer;background:#111;will-change:transform;transform:translate3d(0,0,0);-webkit-transform:translate3d(0,0,0);backface-visibility:hidden;-webkit-backface-visibility:hidden;-webkit-perspective:1000;perspective:1000;}
-.projects-grid.mode-image .project-card img{width:100%;height:100%;object-fit:cover;}
+.project-card{position:relative;overflow:hidden;cursor:pointer;background:#111;will-change:transform;transform:translate3d(0,0,0);-webkit-transform:translate3d(0,0,0);backface-visibility:hidden;-webkit-backface-visibility:hidden;-webkit-perspective:1000;perspective:1000;contain:layout paint;}
+.projects-grid.mode-image .project-card img{width:100%;height:100%;object-fit:cover;transform:translate3d(0,0,0);-webkit-transform:translate3d(0,0,0);}
 
 /* Reel nav buttons */
 .reel-nav-btn{
@@ -283,7 +290,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
   .lb-close{top:12px;right:14px;font-size:26px;}
 
   /* LANG BTN */
-  .lang-btn{bottom:16px;right:16px;width:40px;height:40px;font-size:12px;}
+  .wa-float{bottom:18px;right:18px;width:54px;height:54px;font-size:26px;}
+  .nav-lang-btn{padding:5px 10px;font-size:11px;margin-right:10px;}
 }
 
 /* ══════════════════════════════════════
@@ -388,10 +396,13 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:28px 60p
 </style>
 </head>
 <body>
-<button class="lang-btn" id="langBtn" onclick="toggleLang()">EN</button>
+<a id="waFloat" class="wa-float" target="_blank" rel="noopener" style="display:none;" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
 <nav id="mainNav">
   <a href="#hero" class="nav-logo"><i class="fa-solid fa-gem"></i> <span id="navName">Portfolio</span></a>
-  <ul class="nav-links" id="navLinks"></ul>
+  <div style="display:flex;align-items:center;">
+    <ul class="nav-links" id="navLinks"></ul>
+    <button class="nav-lang-btn" id="langBtn" onclick="toggleLang()">EN</button>
+  </div>
 </nav>
 <div id="mainPage"></div>
 
@@ -449,7 +460,18 @@ function applyLang(){
   const a=ar();
   document.getElementById('htmlRoot').lang=a?'ar':'en';
   document.getElementById('htmlRoot').dir=a?'rtl':'ltr';
-  document.getElementById('langBtn').textContent=a?'EN':'AR';
+  const lb=document.getElementById('langBtn');if(lb)lb.textContent=a?'EN':'AR';
+  // WhatsApp floating button — only show if WA URL is set + included in social_visible
+  const waBtn=document.getElementById('waFloat');
+  if(waBtn){
+    const visible = Array.isArray(S.social_visible) ? S.social_visible : ['whatsapp','behance','instagram','linkedin','vimeo'];
+    if(S.whatsapp && visible.includes('whatsapp')){
+      waBtn.href = S.whatsapp;
+      waBtn.style.display = 'flex';
+    } else {
+      waBtn.style.display = 'none';
+    }
+  }
 }
 function toggleLang(){LANG=ar()?'en':'ar';localStorage.setItem('lang',LANG);applyLang();buildPage();}
 
@@ -569,8 +591,13 @@ function buildContact(c,a){
 }
 function footerInner(a){
   const ch=(S.content||{}).hero||{};const nm=a?(ch.name_ar||''):(ch.name_en||'Portfolio');
-  const icons={whatsapp:'fa-whatsapp',behance:'fa-behance',instagram:'fa-instagram',linkedin:'fa-linkedin-in',facebook:'fa-facebook-f'};
-  const sl=Object.keys(icons).map(k=>`<a href="${S[k]||'#'}" target="_blank"><i class="fa-brands ${icons[k]}"></i></a>`).join('');
+  const icons={whatsapp:'fa-whatsapp',behance:'fa-behance',instagram:'fa-instagram',linkedin:'fa-linkedin-in',vimeo:'fa-vimeo-v',facebook:'fa-facebook-f'};
+  // Only show icons that are: (a) in the visible list, AND (b) have a URL set
+  const visible = Array.isArray(S.social_visible) ? S.social_visible : ['whatsapp','behance','instagram','linkedin','vimeo'];
+  const sl = visible
+    .filter(k => icons[k] && S[k])
+    .map(k=>`<a href="${S[k]}" target="_blank" rel="noopener"><i class="fa-brands ${icons[k]}"></i></a>`)
+    .join('');
   return`<div class="footer-logo"><i class="fa-solid fa-gem"></i> ${nm}.</div><div class="social-links">${sl}</div><div class="footer-copy">© ${new Date().getFullYear()} ${nm}. ${t('rights')}</div>`;
 }
 function buildFooter(a){return`<footer>${footerInner(a)}</footer>`;}
