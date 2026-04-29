@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0A0A0A">
+<link rel="icon" type="image/x-icon" id="dynFavicon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><text y='20' font-size='20'>💎</text></svg>">
 <title id="pageTitle">Portfolio</title>
 
 <!-- Preconnect to external origins (start TCP/TLS handshake early) -->
@@ -36,6 +37,7 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
 nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:center;justify-content:space-between;padding:0 60px;height:70px;background:rgba(10,10,10,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:box-shadow .3s;}
 .nav-logo{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:700;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px;}
 .nav-logo i{color:var(--accent);}
+.nav-logo img{height:32px;width:auto;max-width:160px;object-fit:contain;display:block;}
 .nav-links{display:flex;gap:30px;list-style:none;}
 .nav-links a{color:var(--sub);text-decoration:none;font-size:14px;font-weight:600;font-family:'Montserrat',sans-serif;transition:color .3s;letter-spacing:.5px;}
 .nav-links a:hover{color:var(--text);}
@@ -490,7 +492,21 @@ function buildPage(){
   ).join('');
   const ch=ct.hero||{};
   const nm=a?(ch.name_ar||''):(ch.name_en||'Portfolio');
-  document.getElementById('navName').textContent=nm;document.title=nm;
+  document.title=nm;
+  // Brand logo: use uploaded image if set, otherwise icon + name text
+  const navLogo = document.querySelector('.nav-logo');
+  if(navLogo){
+    if(S.brand_logo_url){
+      navLogo.innerHTML = `<img src="${S.brand_logo_url}" alt="${nm}">`;
+    } else {
+      navLogo.innerHTML = `<i class="fa-solid fa-gem"></i> <span id="navName">${nm}</span>`;
+    }
+  }
+  // Favicon: update browser tab icon if set
+  if(S.favicon_url){
+    const fav = document.getElementById('dynFavicon');
+    if(fav) fav.href = S.favicon_url;
+  }
   document.getElementById('mainPage').innerHTML=secs.map(s=>buildSec(s,ct,a)).join('')+buildFooter(a);
   document.getElementById('pgFooter').innerHTML=footerInner(a);
   document.getElementById('pgBackLabel').textContent=a?'رجوع':'Back';

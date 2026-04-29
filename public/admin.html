@@ -857,7 +857,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 <script>
 // ══ STATE ══
 let S={}, projects=[], deleteId=null;
-let photoData=null, heroCoverData=null;
+let photoData=null, heroCoverData=null, brandLogoData=null, faviconData=null;
 let toolImgUploads={}, expSvcImgUploads={};
 
 // ══ AUTH ══
@@ -1320,6 +1320,16 @@ function buildContentTabs(){
     const pp=document.getElementById('photoPreview');
     if(pp) pp.innerHTML=`<img src="${S.photo_url}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
   }
+  // Restore brand logo preview
+  if(S.brand_logo_url){
+    const bp=document.getElementById('brandLogoPreview');
+    if(bp) bp.innerHTML=`<img src="${S.brand_logo_url}" style="max-width:100%;max-height:100%;object-fit:contain;">`;
+  }
+  // Restore favicon preview
+  if(S.favicon_url){
+    const fp=document.getElementById('faviconPreview');
+    if(fp) fp.innerHTML=`<img src="${S.favicon_url}" style="width:100%;height:100%;object-fit:cover;">`;
+  }
   // Restore slider/select values
   const sizeSel=document.getElementById('h_cover_size');
   if(sizeSel && S.hero_cover_size){
@@ -1396,6 +1406,38 @@ function buildCSec(id){
         </div>
       </div>
       <p style="color:#666;font-size:11px;margin-top:8px;">💡 المعاينة تظهر التغييرات لحظياً. اضغط حفظ لتطبيقها على الموقع</p>
+
+      <!-- Brand Logo (navbar) -->
+      <div class="fg" style="margin-top:24px;border-top:1px solid #222;padding-top:18px;">
+        <label class="fl">شعار الموقع (يظهر في القائمة العلوية)</label>
+        <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;">
+          <div id="brandLogoPreview" style="width:160px;height:60px;border-radius:8px;background:#0a0a0a;border:1px solid #222;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#444;flex-shrink:0;"><i class="fa-solid fa-image" style="font-size:22px;"></i></div>
+          <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:180px;">
+            <label class="ua" for="brandLogoInput" style="cursor:pointer;text-align:center;">
+              <div class="ut" style="padding:12px;"><i class="fa-solid fa-upload" style="margin-left:6px;"></i> رفع شعار</div>
+            </label>
+            <input type="file" id="brandLogoInput" accept="image/*" onchange="handleBrandLogo(this)" style="display:none;">
+            <button type="button" onclick="removeBrandLogo()" style="background:#3a1010;border:1px solid #5a1414;color:#ff6b6b;cursor:pointer;padding:8px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;"><i class="fa-solid fa-trash" style="margin-left:6px;"></i> حذف</button>
+          </div>
+        </div>
+        <p style="color:#666;font-size:11px;margin-top:6px;">💡 الأبعاد المثالية: عرض 160-200 بكسل، خلفية شفافة (PNG)</p>
+      </div>
+
+      <!-- Favicon (browser tab icon) -->
+      <div class="fg" style="margin-top:18px;">
+        <label class="fl">أيقونة التاب (تظهر بجانب اسم الموقع في المتصفح)</label>
+        <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;">
+          <div id="faviconPreview" style="width:60px;height:60px;border-radius:8px;background:#0a0a0a;border:1px solid #222;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#444;flex-shrink:0;"><i class="fa-solid fa-star" style="font-size:22px;"></i></div>
+          <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:180px;">
+            <label class="ua" for="faviconInput" style="cursor:pointer;text-align:center;">
+              <div class="ut" style="padding:12px;"><i class="fa-solid fa-upload" style="margin-left:6px;"></i> رفع أيقونة</div>
+            </label>
+            <input type="file" id="faviconInput" accept="image/png,image/jpeg,image/webp,image/x-icon" onchange="handleFavicon(this)" style="display:none;">
+            <button type="button" onclick="removeFavicon()" style="background:#3a1010;border:1px solid #5a1414;color:#ff6b6b;cursor:pointer;padding:8px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;"><i class="fa-solid fa-trash" style="margin-left:6px;"></i> حذف</button>
+          </div>
+        </div>
+        <p style="color:#666;font-size:11px;margin-top:6px;">💡 الأبعاد المثالية: 32×32 أو 64×64 بكسل، صورة مربعة</p>
+      </div>
       </div>`;
     case'about':return`<div class="card"><div class="card-title">عن النفس (About)</div>
       <div class="fg" style="margin-bottom:18px;"><label class="fl">الصورة الشخصية</label>
@@ -1610,6 +1652,8 @@ async function saveContent(){
   // Hero cover image + style controls
   if(heroCoverData!==null)payload.hero_cover_upload=heroCoverData;
   if(photoData!==null)payload.photo_upload=photoData;
+  if(brandLogoData!==null)payload.brand_logo_upload=brandLogoData;
+  if(faviconData!==null)payload.favicon_upload=faviconData;
   const sizeSel=document.getElementById('h_cover_size');
   const ov=document.getElementById('h_overlay');
   const px=document.getElementById('h_posx');
@@ -1634,7 +1678,11 @@ async function saveContent(){
       if(heroCoverData==='') S.hero_cover_url='';
       if(photoData && photoData.startsWith('/uploads/')) S.photo_url=photoData;
       if(photoData==='') S.photo_url='';
-      toolImgUploads={};expSvcImgUploads={};heroCoverData=null;photoData=null;
+      if(brandLogoData && brandLogoData.startsWith('/uploads/')) S.brand_logo_url=brandLogoData;
+      if(brandLogoData==='') S.brand_logo_url='';
+      if(faviconData && faviconData.startsWith('/uploads/')) S.favicon_url=faviconData;
+      if(faviconData==='') S.favicon_url='';
+      toolImgUploads={};expSvcImgUploads={};heroCoverData=null;photoData=null;brandLogoData=null;faviconData=null;
       toast('✓ تم حفظ المحتوى');
     }
     else toast('فشل الحفظ');
@@ -1655,6 +1703,38 @@ function removePhoto(){
   photoData=''; // explicit removal
   const prev=document.getElementById('photoPreview');
   if(prev) prev.innerHTML='<i class="fa-solid fa-user" style="font-size:32px;"></i>';
+}
+
+// Brand logo (navbar)
+async function handleBrandLogo(inp){
+  const f=inp.files[0];if(!f)return;
+  toast('⏳ جاري رفع الشعار...');
+  brandLogoData = await uploadFile(f,'image');
+  const prev=document.getElementById('brandLogoPreview');
+  if(prev) prev.innerHTML=`<img src="${brandLogoData}" style="max-width:100%;max-height:100%;object-fit:contain;">`;
+  toast('✓ تم رفع الشعار');
+}
+function removeBrandLogo(){
+  if(!confirm('حذف الشعار؟'))return;
+  brandLogoData='';
+  const prev=document.getElementById('brandLogoPreview');
+  if(prev) prev.innerHTML='<i class="fa-solid fa-image" style="font-size:22px;"></i>';
+}
+
+// Favicon (browser tab)
+async function handleFavicon(inp){
+  const f=inp.files[0];if(!f)return;
+  toast('⏳ جاري رفع الأيقونة...');
+  faviconData = await uploadFile(f,'image');
+  const prev=document.getElementById('faviconPreview');
+  if(prev) prev.innerHTML=`<img src="${faviconData}" style="width:100%;height:100%;object-fit:cover;">`;
+  toast('✓ تم رفع الأيقونة');
+}
+function removeFavicon(){
+  if(!confirm('حذف الأيقونة؟'))return;
+  faviconData='';
+  const prev=document.getElementById('faviconPreview');
+  if(prev) prev.innerHTML='<i class="fa-solid fa-star" style="font-size:22px;"></i>';
 }
 async function handleHeroCover(inp){
   const f=inp.files[0];if(!f)return;

@@ -224,6 +224,8 @@ def init_db():
             ('hero_cover_pos_x','50'),       # 0-100
             ('hero_cover_pos_y','50'),       # 0-100
             ('hero_cover_overlay','55'),     # 0-100 darkness
+            ('brand_logo_url',''),           # site logo (in navbar)
+            ('favicon_url',''),              # browser tab icon
             ('image_categories', json.dumps([
                 'Social Media','Brand Identity','Logo Design','Print Design','Packaging','Posters','UI/UX'
             ])),
@@ -684,7 +686,12 @@ def update_settings():
     db = get_db()
 
     # handle image uploads
-    for upload_key, store_key in [('photo_upload','photo_url'), ('hero_cover_upload','hero_cover_url')]:
+    for upload_key, store_key in [
+        ('photo_upload','photo_url'),
+        ('hero_cover_upload','hero_cover_url'),
+        ('brand_logo_upload','brand_logo_url'),
+        ('favicon_upload','favicon_url'),
+    ]:
         img = d.pop(upload_key, None)
         if img and isinstance(img, str) and img.startswith('data:'):
             old = db.execute(f"SELECT value FROM settings WHERE key='{store_key}'").fetchone()
