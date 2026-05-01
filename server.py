@@ -967,6 +967,8 @@ def contact_send():
             headers={
                 'Authorization': f'Bearer {api_key}',
                 'Content-Type': 'application/json',
+                'User-Agent': 'Mozilla/5.0 (compatible; PortfolioMailer/1.0)',
+                'Accept': 'application/json',
             },
             method='POST'
         )
