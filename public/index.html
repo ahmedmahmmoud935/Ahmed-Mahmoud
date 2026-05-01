@@ -4,7 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0A0A0A">
-<link rel="icon" type="image/x-icon" id="dynFavicon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><text y='20' font-size='20'>💎</text></svg>">
+<!-- Multiple favicon links for cross-browser support including Safari -->
+<link rel="icon" type="image/png" id="dynFavicon" href="/favicon.png">
+<link rel="shortcut icon" id="dynFaviconShortcut" href="/favicon.png">
+<link rel="apple-touch-icon" id="dynFaviconApple" href="/favicon.png">
 <title id="pageTitle">Portfolio</title>
 
 <!-- Preconnect to external origins (start TCP/TLS handshake early) -->
@@ -502,10 +505,12 @@ function buildPage(){
       navLogo.innerHTML = `<i class="fa-solid fa-gem"></i> <span id="navName">${nm}</span>`;
     }
   }
-  // Favicon: update browser tab icon if set
+  // Favicon: update browser tab icon if set (multiple links for Safari)
   if(S.favicon_url){
-    const fav = document.getElementById('dynFavicon');
-    if(fav) fav.href = S.favicon_url;
+    ['dynFavicon','dynFaviconShortcut','dynFaviconApple'].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.href = S.favicon_url;
+    });
   }
   document.getElementById('mainPage').innerHTML=secs.map(s=>buildSec(s,ct,a)).join('')+buildFooter(a);
   document.getElementById('pgFooter').innerHTML=footerInner(a);
@@ -552,13 +557,18 @@ function buildHero(c,a){
   const b1=a?(c.btn1_ar||''):(c.btn1_en||'');const b2=a?(c.btn2_ar||''):(c.btn2_en||'');
   const ps=name.split(' ');const f=ps[0]||name;const l=ps.slice(1).join(' ');
   const cover=S.hero_cover_url;
+  // Hero height (configurable, default 85vh)
+  const heroH = parseInt(S.hero_height||'85');
   // Size: 'cover', 'contain', or a percentage number stored as 'XXX%'
   const sizeRaw = S.hero_cover_size || 'cover';
   const bgSize = (sizeRaw==='cover'||sizeRaw==='contain') ? sizeRaw : (sizeRaw.endsWith('%')?sizeRaw:sizeRaw+'%');
   const px = parseInt(S.hero_cover_pos_x||'50');
   const py = parseInt(S.hero_cover_pos_y||'50');
   const overlay = parseInt(S.hero_cover_overlay||'55')/100;
-  const heroBg=cover?`style="background-image:url('${cover}');background-size:${bgSize};background-position:${px}% ${py}%;background-repeat:no-repeat;"`:'' ;
+  const baseStyle = `min-height:${heroH}vh;`;
+  const heroBg = cover
+    ? `style="${baseStyle}background-image:url('${cover}');background-size:${bgSize};background-position:${px}% ${py}%;background-repeat:no-repeat;"`
+    : `style="${baseStyle}"`;
   const overlayHtml=cover?`<div style="position:absolute;inset:0;background:rgba(0,0,0,${overlay});pointer-events:none;"></div>`:'';
   return`<section id="hero" ${heroBg}>${overlayHtml}
     <div class="hero-name" style="position:relative;z-index:1;"><span class="first">${f}</span> <span class="last">${l}</span></div>
@@ -619,7 +629,11 @@ function footerInner(a){
     .filter(k => icons[k] && S[k])
     .map(k=>`<a href="${S[k]}" target="_blank" rel="noopener"><i class="fa-brands ${icons[k]}"></i></a>`)
     .join('');
-  return`<div class="footer-logo"><i class="fa-solid fa-gem"></i> ${nm}.</div><div class="social-links">${sl}</div><div class="footer-copy">© ${new Date().getFullYear()} ${nm}. ${t('rights')}</div>`;
+  // Footer logo: use uploaded image if set, otherwise icon + name
+  const logoHtml = S.brand_logo_url
+    ? `<img src="${S.brand_logo_url}" alt="${nm}" style="height:32px;width:auto;max-width:160px;object-fit:contain;">`
+    : `<i class="fa-solid fa-gem"></i> ${nm}.`;
+  return`<div class="footer-logo">${logoHtml}</div><div class="social-links">${sl}</div><div class="footer-copy">© ${new Date().getFullYear()} ${nm}. ${t('rights')}</div>`;
 }
 function buildFooter(a){return`<footer>${footerInner(a)}</footer>`;}
 

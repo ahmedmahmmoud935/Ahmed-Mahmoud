@@ -1347,6 +1347,9 @@ function buildContentTabs(){
   const py=document.getElementById('h_posy');
   const pyv=document.getElementById('h_posy_val');
   if(py){const val=S.hero_cover_pos_y||'50'; py.value=val; if(pyv)pyv.textContent=val;}
+  const hh=document.getElementById('h_height');
+  const hhv=document.getElementById('h_height_val');
+  if(hh){const val=S.hero_height||'85'; hh.value=val; if(hhv)hhv.textContent=val;}
   // Apply to preview
   if(S.hero_cover_url) updateHeroPreview();
 }
@@ -1403,6 +1406,13 @@ function buildCSec(id){
           <label class="fl">الموضع العمودي: <span id="h_posy_val">50</span>%</label>
           <input type="range" min="0" max="100" step="5" id="h_posy" oninput="document.getElementById('h_posy_val').textContent=this.value;updateHeroPreview()" style="width:100%;">
           <div style="display:flex;justify-content:space-between;font-size:10px;color:#666;margin-top:2px;"><span>أعلى</span><span>وسط</span><span>أسفل</span></div>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fg">
+          <label class="fl">ارتفاع القسم العلوي: <span id="h_height_val">85</span>vh</label>
+          <input type="range" min="50" max="100" step="5" id="h_height" oninput="document.getElementById('h_height_val').textContent=this.value" style="width:100%;">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:#666;margin-top:2px;"><span>قصير 50%</span><span>متوسط 75%</span><span>شاشة كاملة</span></div>
         </div>
       </div>
       <p style="color:#666;font-size:11px;margin-top:8px;">💡 المعاينة تظهر التغييرات لحظياً. اضغط حفظ لتطبيقها على الموقع</p>
@@ -1658,10 +1668,12 @@ async function saveContent(){
   const ov=document.getElementById('h_overlay');
   const px=document.getElementById('h_posx');
   const py=document.getElementById('h_posy');
+  const hh=document.getElementById('h_height');
   if(sizeSel) payload.hero_cover_size=sizeSel.value;
   if(ov) payload.hero_cover_overlay=ov.value;
   if(px) payload.hero_cover_pos_x=px.value;
   if(py) payload.hero_cover_pos_y=py.value;
+  if(hh) payload.hero_height=hh.value;
 
   Object.entries(toolImgUploads).forEach(([i,data])=>{payload[`tool_img_upload_${i}`]=data;});
   Object.entries(expSvcImgUploads).forEach(([i,data])=>{if(data)payload[`expsvc_img_upload_${i}`]=data;});
@@ -1674,6 +1686,7 @@ async function saveContent(){
       if(ov)S.hero_cover_overlay=ov.value;
       if(px)S.hero_cover_pos_x=px.value;
       if(py)S.hero_cover_pos_y=py.value;
+      if(hh)S.hero_height=hh.value;
       if(heroCoverData && heroCoverData.startsWith('/uploads/')) S.hero_cover_url=heroCoverData;
       if(heroCoverData==='') S.hero_cover_url='';
       if(photoData && photoData.startsWith('/uploads/')) S.photo_url=photoData;

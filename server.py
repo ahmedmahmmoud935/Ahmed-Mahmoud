@@ -224,6 +224,7 @@ def init_db():
             ('hero_cover_pos_x','50'),       # 0-100
             ('hero_cover_pos_y','50'),       # 0-100
             ('hero_cover_overlay','55'),     # 0-100 darkness
+            ('hero_height','85'),            # vh percentage (50-100)
             ('brand_logo_url',''),           # site logo (in navbar)
             ('favicon_url',''),              # browser tab icon
             ('image_categories', json.dumps([
