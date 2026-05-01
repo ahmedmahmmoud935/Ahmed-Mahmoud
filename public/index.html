@@ -618,7 +618,7 @@ function buildProjects(c,a){
   </section>`;
 }
 function buildContact(c,a){
-  return`<section id="contact" class="sw"><div class="sh"><h2>${a?(c.title_ar||'تواصل معي'):(c.title_en||"Let's Work Together")}</h2><div class="sl"></div></div><p class="contact-sub">${a?(c.subtitle_ar||''):(c.subtitle_en||'')}</p><div class="contact-form"><div class="form-row"><div class="form-group"><input type="text" placeholder="${t('name')}"></div><div class="form-group"><input type="email" placeholder="${t('email')}"></div></div><div class="form-row"><div class="form-group full"><input type="text" placeholder="${t('subject')}"></div></div><div class="form-row"><div class="form-group full"><textarea placeholder="${t('msg')}"></textarea></div></div><button class="btn-submit" onclick="sendMsg()">${t('send')}</button></div></section>`;
+  return`<section id="contact" class="sw"><div class="sh"><h2>${a?(c.title_ar||'تواصل معي'):(c.title_en||"Let's Work Together")}</h2><div class="sl"></div></div><p class="contact-sub">${a?(c.subtitle_ar||''):(c.subtitle_en||'')}</p><div class="contact-form"><div class="form-row"><div class="form-group"><input type="text" id="cf_name" placeholder="${t('name')}"></div><div class="form-group"><input type="email" id="cf_email" placeholder="${t('email')}"></div></div><div class="form-row"><div class="form-group full"><input type="text" id="cf_subject" placeholder="${t('subject')}"></div></div><div class="form-row"><div class="form-group full"><textarea id="cf_message" placeholder="${t('msg')}"></textarea></div></div><button class="btn-submit" id="cf_btn" onclick="sendMsg()">${t('send')}</button></div></section>`;
 }
 function footerInner(a){
   const ch=(S.content||{}).hero||{};const nm=a?(ch.name_ar||''):(ch.name_en||'Portfolio');
@@ -1321,7 +1321,55 @@ document.addEventListener('keydown',e=>{
   if(e.key==='ArrowRight')lbNav(-1);
 });
 window.addEventListener('scroll',()=>{document.getElementById('mainNav').style.boxShadow=window.scrollY>50?'0 4px 30px rgba(0,0,0,.5)':'none';});
-function sendMsg(){showToast(ar()?'تم إرسال رسالتك بنجاح! ✓':'Message sent successfully! ✓');}
+async function sendMsg(){
+  const a = ar();
+  const name    = (document.getElementById('cf_name')||{}).value || '';
+  const email   = (document.getElementById('cf_email')||{}).value || '';
+  const subject = (document.getElementById('cf_subject')||{}).value || '';
+  const message = (document.getElementById('cf_message')||{}).value || '';
+  const btn     = document.getElementById('cf_btn');
+
+  // Client-side validation
+  if(!name.trim() || !email.trim() || !message.trim()){
+    showToast(a ? 'من فضلك املأ الاسم والإيميل والرسالة' : 'Please fill in name, email, and message');
+    return;
+  }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())){
+    showToast(a ? 'البريد الإلكتروني غير صحيح' : 'Invalid email address');
+    return;
+  }
+
+  // Disable button + show loading state
+  if(btn){ btn.disabled = true; btn.textContent = a ? 'جاري الإرسال...' : 'Sending...'; }
+
+  try {
+    const r = await fetch('/api/contact', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        name: name.trim(),
+        email: email.trim(),
+        subject: subject.trim(),
+        message: message.trim()
+      })
+    });
+    const data = await r.json().catch(() => ({}));
+    if(r.ok && data.ok){
+      showToast(a ? 'تم إرسال رسالتك بنجاح! ✓' : 'Message sent successfully! ✓');
+      // Clear form
+      ['cf_name','cf_email','cf_subject','cf_message'].forEach(id=>{
+        const el = document.getElementById(id); if(el) el.value = '';
+      });
+    } else {
+      const errMsg = data.error || (a ? 'فشل الإرسال، حاول مرة أخرى' : 'Failed to send. Try again.');
+      showToast('❌ ' + errMsg);
+    }
+  } catch(err){
+    showToast(a ? '❌ خطأ في الاتصال' : '❌ Connection error');
+  } finally {
+    if(btn){ btn.disabled = false; btn.textContent = t('send'); }
+  }
+}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
 </script>
 </body>

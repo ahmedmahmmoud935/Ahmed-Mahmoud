@@ -891,6 +891,99 @@ def uploaded_file(filename):
 def admin_page():
     return send_from_directory(app.static_folder, 'admin.html')
 
+# ─────────────────────────── CONTACT FORM ──────────────────────────────────
+# Simple in-memory rate limiter (per IP) — prevents spam
+_contact_rate = {}  # ip -> [timestamps]
+
+@app.route('/api/contact', methods=['POST'])
+def contact_send():
+    """Send contact form message via Resend email API."""
+    # Rate limit: max 3 messages per IP per hour
+    ip = request.headers.get('X-Forwarded-For', request.remote_addr or 'unknown').split(',')[0].strip()
+    now = time.time()
+    _contact_rate.setdefault(ip, [])
+    # Clean old entries (older than 1 hour)
+    _contact_rate[ip] = [t for t in _contact_rate[ip] if now - t < 3600]
+    if len(_contact_rate[ip]) >= 3:
+        return jsonify({'error': 'تم تجاوز الحد المسموح. حاول بعد ساعة.'}), 429
+
+    data = request.get_json() or {}
+    name    = (data.get('name') or '').strip()[:100]
+    email   = (data.get('email') or '').strip()[:200]
+    subject = (data.get('subject') or '').strip()[:200]
+    message = (data.get('message') or '').strip()[:5000]
+
+    # Basic validation
+    if not name or not email or not message:
+        return jsonify({'error': 'الاسم والإيميل والرسالة مطلوبة'}), 400
+    if '@' not in email or '.' not in email.split('@')[-1]:
+        return jsonify({'error': 'البريد الإلكتروني غير صحيح'}), 400
+
+    # Get config from environment
+    api_key = os.environ.get('RESEND_API_KEY', '')
+    to_email = os.environ.get('CONTACT_EMAIL', '')
+
+    if not api_key or not to_email:
+        print(f"⚠️ Contact form: missing RESEND_API_KEY or CONTACT_EMAIL env vars")
+        return jsonify({'error': 'خدمة الإيميل غير مهيأة'}), 500
+
+    # Sanitize for HTML email
+    def esc(s):
+        return html_mod.escape(s).replace('\n', '<br>')
+
+    subject_line = subject if subject else f'رسالة جديدة من {name}'
+    html_body = f"""
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;background:#f5f5f5;">
+      <div style="background:#fff;padding:24px;border-radius:8px;border-top:4px solid #ff6b35;">
+        <h2 style="color:#ff6b35;margin-top:0;">📬 رسالة جديدة من موقعك</h2>
+        <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+          <tr><td style="padding:8px;background:#fafafa;font-weight:bold;width:120px;">الاسم:</td><td style="padding:8px;">{esc(name)}</td></tr>
+          <tr><td style="padding:8px;background:#fafafa;font-weight:bold;">الإيميل:</td><td style="padding:8px;"><a href="mailto:{esc(email)}">{esc(email)}</a></td></tr>
+          {f'<tr><td style="padding:8px;background:#fafafa;font-weight:bold;">الموضوع:</td><td style="padding:8px;">{esc(subject)}</td></tr>' if subject else ''}
+        </table>
+        <div style="margin-top:20px;padding:16px;background:#fafafa;border-right:3px solid #ff6b35;">
+          <strong style="color:#666;">الرسالة:</strong><br><br>
+          {esc(message)}
+        </div>
+        <p style="margin-top:24px;font-size:12px;color:#999;text-align:center;">
+          أُرسلت من نموذج التواصل في موقعك الشخصي
+        </p>
+      </div>
+    </div>
+    """
+
+    payload = {
+        'from': 'Portfolio Contact <onboarding@resend.dev>',
+        'to': [to_email],
+        'reply_to': email,
+        'subject': subject_line,
+        'html': html_body,
+    }
+
+    try:
+        req = urllib.request.Request(
+            'https://api.resend.com/emails',
+            data=json.dumps(payload).encode('utf-8'),
+            headers={
+                'Authorization': f'Bearer {api_key}',
+                'Content-Type': 'application/json',
+            },
+            method='POST'
+        )
+        with urllib.request.urlopen(req, timeout=10) as r:
+            result = json.loads(r.read().decode('utf-8'))
+            if result.get('id'):
+                _contact_rate[ip].append(now)
+                return jsonify({'ok': True})
+            return jsonify({'error': 'فشل الإرسال'}), 500
+    except urllib.error.HTTPError as e:
+        body = e.read().decode('utf-8', errors='ignore')
+        print(f"Resend error {e.code}: {body}")
+        return jsonify({'error': 'فشل إرسال الإيميل'}), 500
+    except Exception as e:
+        print(f"Contact form error: {e}")
+        return jsonify({'error': 'حدث خطأ غير متوقع'}), 500
+
 @app.route('/', defaults={'path':''})
 @app.route('/<path:path>')
 def serve(path):
