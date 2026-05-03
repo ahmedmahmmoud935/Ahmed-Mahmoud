@@ -370,8 +370,24 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
     <div class="ni" onclick="setTab('navbar',this)"><i class="fa-solid fa-bars"></i> الشريط العلوي</div>
     <div class="ni" onclick="setTab('content',this)"><i class="fa-solid fa-pen-to-square"></i> المحتوى</div>
     <div class="ni" onclick="setTab('social',this)"><i class="fa-solid fa-share-nodes"></i> التواصل</div>
+    <!-- يظهر فقط للمالك -->
+    <div class="ni owner-only" id="usersNavItem" onclick="setTab('users',this)" style="display:none"><i class="fa-solid fa-users"></i> إدارة العملاء</div>
   </nav>
-  <div class="sb-footer"><a href="/" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> عرض الموقع</a></div>
+  <div class="sb-footer">
+    <!-- معلومات المستخدم الحالي -->
+    <div style="margin-bottom:12px;padding:10px;background:#161616;border-radius:8px;">
+      <div style="font-size:12px;color:#888;margin-bottom:4px;">مسجل كـ</div>
+      <div id="sbUsername" style="font-size:13px;font-weight:700;color:#fff;margin-bottom:8px;">—</div>
+      <!-- عداد المساحة -->
+      <div style="font-size:11px;color:#888;margin-bottom:4px;" id="storageLabel">المساحة المستخدمة</div>
+      <div style="background:#222;border-radius:4px;height:6px;overflow:hidden;">
+        <div id="storageBar" style="height:100%;background:var(--o);border-radius:4px;width:0%;transition:width .5s;"></div>
+      </div>
+      <div id="storageText" style="font-size:11px;color:#888;margin-top:4px;">—</div>
+    </div>
+    <a href="/" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> عرض الموقع</a>
+    <a href="#" onclick="doLogout()" style="margin-top:8px;color:#ef4444 !important;"><i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج</a>
+  </div>
 </div>
 
 <!-- MAIN -->
@@ -580,6 +596,44 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
       <i class="fa-solid fa-key"></i> تغيير بيانات الدخول
     </button>
 </div><!-- /card -->
+
+<!-- USERS TAB (owner only) -->
+<div id="tab-users" style="display:none;">
+  <div class="ph">
+    <div><div class="pt">إدارة العملاء</div><div class="ps">أضف وأدر حسابات العملاء</div></div>
+    <button class="btn-add" onclick="showAddUserModal()"><i class="fa-solid fa-user-plus"></i> عميل جديد</button>
+  </div>
+  <div class="tw" id="usersTable">
+    <div class="thead" style="grid-template-columns:1fr 140px 140px 100px">
+      <span>المستخدم</span><span>المساحة المستخدمة</span><span>حد المساحة</span><span>إجراءات</span>
+    </div>
+    <div id="usersList"><div class="empty"><i class="fa-solid fa-users"></i><br>جاري التحميل...</div></div>
+  </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="mo" id="addUserModal" style="display:none;">
+  <div class="modal" style="max-width:420px;">
+    <div class="mh"><span>إضافة عميل جديد</span><button class="mcl" onclick="closeAddUserModal()">✕</button></div>
+    <div class="mb">
+      <div class="fg"><label class="fl">اسم المستخدم</label><input class="fi" id="newUserName" placeholder="username"></div>
+      <div class="fg"><label class="fl">كلمة المرور</label><input class="fi" id="newUserPass" type="password" placeholder="6 أحرف على الأقل"></div>
+      <div class="fg"><label class="fl">حد المساحة (MB)</label>
+        <select class="fse" id="newUserStorage">
+          <option value="500">500 MB</option>
+          <option value="1024">1 GB</option>
+          <option value="2048" selected>2 GB</option>
+          <option value="5120">5 GB</option>
+        </select>
+      </div>
+      <div id="addUserErr" style="color:var(--red);font-size:13px;display:none;margin-bottom:8px;"></div>
+    </div>
+    <div style="padding:0 24px 24px;display:flex;gap:10px;">
+      <button class="btn-add" style="flex:1" onclick="doAddUser()"><i class="fa-solid fa-user-plus"></i> إضافة</button>
+      <button onclick="closeAddUserModal()" style="background:#222;border:none;color:#fff;padding:11px 18px;border-radius:8px;cursor:pointer;font-family:'Cairo',sans-serif;">إلغاء</button>
+    </div>
+  </div>
+</div>
 
 </div><!-- /adminMain -->
 
@@ -864,11 +918,24 @@ let toolImgUploads={}, expSvcImgUploads={};
 async function doLogin(){
   const btn=document.getElementById('lBtn');btn.innerHTML='<div class="spin"></div>';btn.disabled=true;
   try{
-    const r=await fetch('/api/auth/login',{method:'POST',credentials:'include',
+    const res=await fetch('/api/auth/login',{method:'POST',credentials:'include',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({username:document.getElementById('lu').value,password:document.getElementById('lp').value})});
-    if(r.ok){document.getElementById('loginScreen').style.display='none';initApp();}
-    else document.getElementById('lerr').style.display='block';
+    const d=await res.json();
+    if(res.ok){
+      document.getElementById('loginScreen').style.display='none';
+      window._isOwner  = d.is_owner;
+      window._username = d.username;
+      const sbU=document.getElementById('sbUsername');
+      if(sbU) sbU.textContent=d.username||'—';
+      if(d.is_owner) document.querySelectorAll('.owner-only').forEach(el=>el.style.display='flex');
+      initApp();
+      loadStorageInfo();
+    } else {
+      const errEl=document.getElementById('lerr');
+      errEl.textContent=d.error||'بيانات غير صحيحة';
+      errEl.style.display='block';
+    }
   }catch{toast('خطأ في الاتصال');}
   btn.innerHTML='<span>دخول</span>';btn.disabled=false;
 }
@@ -886,13 +953,13 @@ async function initApp(){
 // ══ TABS ══
 function setTab(tab,el){
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));el.classList.add('active');
-  ['projects','reorder','categories','colors','sections','navbar','content','social'].forEach(t=>{
+  ['projects','reorder','categories','colors','sections','navbar','content','social','users'].forEach(t=>{
     const d=document.getElementById('tab-'+t);if(d)d.style.display=t===tab?'block':'none';
   });
   if(tab==='navbar')renderNavbarList();
   if(tab==='reorder'){reorderData=[];renderReorderList();}
   if(tab==='categories')renderCategoriesUI();
-  // Auto-close sidebar on mobile
+  if(tab==='users')loadUsers();
   if(window.innerWidth<=900)toggleSidebar(false);
 }
 
@@ -2144,9 +2211,170 @@ document.getElementById('behanceModal').addEventListener('click',function(e){if(
 (async()=>{
   try{
     const r=await fetch('/api/auth/check',{credentials:'include'}).then(r=>r.json());
-    if(r.logged_in){document.getElementById('loginScreen').style.display='none';initApp();}
+    if(r.logged_in){
+      document.getElementById('loginScreen').style.display='none';
+      window._isOwner   = r.is_owner;
+      window._username  = r.username;
+      window._userId    = r.user_id;
+      // Show username in sidebar
+      const sbU = document.getElementById('sbUsername');
+      if(sbU) sbU.textContent = r.username || '—';
+      // Show owner-only items
+      if(r.is_owner){
+        document.querySelectorAll('.owner-only').forEach(el=>el.style.display='flex');
+      }
+      initApp();
+      loadStorageInfo();
+    }
   }catch{}
 })();
+// ══ LOGOUT ══
+async function doLogout(){
+  await fetch('/api/auth/logout',{method:'POST',credentials:'include'});
+  location.reload();
+}
+
+// ══ STORAGE INFO ══
+async function loadStorageInfo(){
+  try{
+    const r = await fetch('/api/me/storage',{credentials:'include'}).then(r=>r.json());
+    const bar  = document.getElementById('storageBar');
+    const text = document.getElementById('storageText');
+    if(bar)  bar.style.width  = Math.min(r.storage_pct,100)+'%';
+    if(bar && r.storage_pct > 80) bar.style.background='#ef4444';
+    if(text) text.textContent = `${r.storage_used_mb} MB / ${r.storage_limit_mb} MB`;
+  }catch{}
+}
+
+// ══ USERS MANAGEMENT (owner only) ══
+async function loadUsers(){
+  const list = document.getElementById('usersList');
+  if(!list) return;
+  list.innerHTML='<div class="empty"><i class="fa-solid fa-spinner fa-spin"></i></div>';
+  try{
+    const users = await fetch('/api/users',{credentials:'include'}).then(r=>r.json());
+    if(!users.length){
+      list.innerHTML='<div class="empty"><i class="fa-solid fa-users"></i><br>لا يوجد عملاء بعد</div>';
+      return;
+    }
+    list.innerHTML = users.map(u=>{
+      const pct = u.storage_limit_mb ? Math.round(u.storage_used_mb/u.storage_limit_mb*100) : 0;
+      const barColor = pct>80?'#ef4444':'var(--o)';
+      const publicUrl = `/u/${u.username}`;
+      return `<div class="trow" style="grid-template-columns:1fr 140px 140px 130px">
+        <div>
+          <div class="rtitle">${u.username} ${u.is_owner?'<span style="background:rgba(249,115,22,.15);color:var(--o);padding:2px 8px;border-radius:4px;font-size:11px;">مالك</span>':''}</div>
+          <div class="rmeta">
+            <a href="${publicUrl}" target="_blank" style="color:var(--o);text-decoration:none;font-size:12px;">
+              <i class="fa-solid fa-link"></i> ${publicUrl}
+            </a>
+          </div>
+        </div>
+        <div>
+          <div style="background:#222;border-radius:4px;height:5px;margin-bottom:4px;">
+            <div style="height:100%;background:${barColor};border-radius:4px;width:${pct}%;"></div>
+          </div>
+          <div style="font-size:12px;color:#888;">${(+u.storage_used_mb).toFixed(1)} MB</div>
+        </div>
+        <div style="font-size:13px;color:#ccc;">${u.storage_limit_mb} MB</div>
+        <div class="ra">
+          ${!u.is_owner?`
+            <button class="be" title="إعداد الدومين" onclick="manageDomain(${u.id},'${u.username}')"><i class="fa-solid fa-globe"></i></button>
+            <button class="be" title="تغيير كلمة المرور" onclick="changeUserPass(${u.id},'${u.username}')"><i class="fa-solid fa-key"></i></button>
+            <button class="bd" title="حذف العميل" onclick="deleteUser(${u.id},'${u.username}')"><i class="fa-solid fa-trash"></i></button>
+          `:''}
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){
+    list.innerHTML='<div class="empty">حدث خطأ في التحميل</div>';
+  }
+}
+
+function showAddUserModal(){
+  document.getElementById('newUserName').value='';
+  document.getElementById('newUserPass').value='';
+  document.getElementById('addUserErr').style.display='none';
+  document.getElementById('addUserModal').style.display='flex';
+}
+function closeAddUserModal(){
+  document.getElementById('addUserModal').style.display='none';
+}
+
+async function doAddUser(){
+  const username = document.getElementById('newUserName').value.trim();
+  const password = document.getElementById('newUserPass').value.trim();
+  const storage  = document.getElementById('newUserStorage').value;
+  const errEl    = document.getElementById('addUserErr');
+  errEl.style.display='none';
+
+  if(!username||!password){errEl.textContent='أدخل اسم المستخدم وكلمة المرور';errEl.style.display='block';return;}
+  if(password.length<6){errEl.textContent='كلمة المرور يجب أن تكون 6 أحرف على الأقل';errEl.style.display='block';return;}
+
+  const r = await fetch('/api/users',{
+    method:'POST',credentials:'include',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({username,password,storage_limit_mb:+storage})
+  }).then(r=>r.json());
+
+  if(r.error){errEl.textContent=r.error;errEl.style.display='block';return;}
+  closeAddUserModal();
+  loadUsers();
+  showToast('تم إضافة العميل بنجاح ✅');
+}
+
+async function deleteUser(uid, username){
+  if(!confirm(`حذف العميل "${username}"؟ سيتم حذف كل مشاريعه وبياناته نهائياً.`)) return;
+  const r = await fetch(`/api/users/${uid}`,{method:'DELETE',credentials:'include'}).then(r=>r.json());
+  if(r.error){showToast(r.error,'error');return;}
+  loadUsers();
+  showToast('تم حذف العميل ✅');
+}
+
+async function changeUserPass(uid, username){
+  const newPass = prompt(`كلمة مرور جديدة للعميل "${username}":`)?.trim();
+  if(!newPass) return;
+  if(newPass.length<6){showToast('كلمة المرور يجب أن تكون 6 أحرف على الأقل','error');return;}
+  const r = await fetch(`/api/users/${uid}/password`,{
+    method:'PUT',credentials:'include',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({password:newPass})
+  }).then(r=>r.json());
+  if(r.error){showToast(r.error,'error');return;}
+  showToast('تم تغيير كلمة المرور ✅');
+}
+
+// ══ DOMAIN MANAGEMENT ══
+async function manageDomain(uid, username){
+  const current = await fetch(`/api/users/${uid}/domain`,{credentials:'include'}).then(r=>r.json()).catch(()=>({}));
+  const domain = prompt(
+    `دومين العميل "${username}":\n\n` +
+    `اكتب الدومين بدون https:// (مثال: ahmed.com)\n` +
+    `اتركه فاضي لو مش عايز دومين خاص\n\n` +
+    `الرابط الحالي بدون دومين: /u/${username}`,
+    current.domain || ''
+  );
+  if(domain === null) return; // user cancelled
+  const r = await fetch(`/api/users/${uid}/domain`,{
+    method:'PUT', credentials:'include',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({domain: domain.trim()})
+  }).then(r=>r.json());
+  if(r.error){showToast(r.error,'error');return;}
+  showToast(domain ? `تم ربط الدومين: ${domain} ✅` : 'تم إزالة الدومين ✅');
+  loadUsers();
+}
+
+
+if(typeof showToast==='undefined'){
+  function showToast(msg,type='success'){
+    const t=document.createElement('div');
+    t.style.cssText=`position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:${type==='error'?'#ef4444':'#22c55e'};color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;z-index:9999;font-family:'Cairo',sans-serif;`;
+    t.textContent=msg;document.body.appendChild(t);
+    setTimeout(()=>t.remove(),3000);
+  }
+}
+
 </script>
 </body>
 </html>

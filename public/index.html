@@ -449,8 +449,31 @@ const ar=()=>LANG==='ar';
 const T={en:{back:'Back',gallery:'Gallery',all:'All',designs:'Designs',reels:'Reels',send:'Send Message',name:'Name',email:'Email',subject:'Subject',msg:'Message',noProjects:'No projects yet',rights:'All rights reserved.'},ar:{back:'رجوع',gallery:'المعرض',all:'الكل',designs:'تصاميم',reels:'ريلز',send:'إرسال الرسالة',name:'الاسم',email:'البريد الإلكتروني',subject:'الموضوع',msg:'رسالتك',noProjects:'لا توجد مشاريع بعد',rights:'جميع الحقوق محفوظة.'}};
 const t=k=>(T[LANG]||T.en)[k]||k;
 
+async function resolveUserId(){
+  // 1. Check if path is /u/<username>
+  const pathMatch = window.location.pathname.match(/^\/u\/([^\/]+)/);
+  if(pathMatch){
+    const username = pathMatch[1];
+    const r = await fetch(`/api/resolve-user?username=${encodeURIComponent(username)}`).then(r=>r.json()).catch(()=>({}));
+    return r.user_id || null;
+  }
+  // 2. Check if on a custom domain (not the main server domain)
+  // We ask the server to resolve based on hostname
+  const host = window.location.hostname;
+  const r = await fetch(`/api/resolve-user?host=${encodeURIComponent(host)}`).then(r=>r.json()).catch(()=>({}));
+  return r.user_id || null;
+}
+
 async function boot(){
-  try{const[s,p]=await Promise.all([fetch('/api/settings').then(r=>r.json()),fetch('/api/projects').then(r=>r.json())]);S=s;PROJECTS=p;}catch(e){S={};PROJECTS=[];}
+  const userId = await resolveUserId();
+  const qs = userId ? `?user_id=${userId}` : '';
+  try{
+    const[s,p]=await Promise.all([
+      fetch(`/api/settings${qs}`).then(r=>r.json()),
+      fetch(`/api/projects${qs}`).then(r=>r.json())
+    ]);
+    S=s;PROJECTS=p;
+  }catch(e){S={};PROJECTS=[];}
   applyColors();applyLang();buildPage();
 }
 boot();
