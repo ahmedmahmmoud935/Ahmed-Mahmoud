@@ -192,14 +192,31 @@ def init_db():
             );
         ''')
 
-        # ── Ensure owner account exists ──
+        # ── Ensure owner account exists and is correctly marked ──
         owner = db.execute("SELECT id FROM users WHERE is_owner=1").fetchone()
+
         if not owner:
-            db.execute(
-                "INSERT OR IGNORE INTO users(username,password,storage_limit_mb,is_owner) VALUES(?,?,?,1)",
-                (OWNER_USER, OWNER_PASS, 10240)   # owner gets 10 GB
-            )
-            db.commit()
+            # Check if OWNER_USER exists from old DB (migration case)
+            existing = db.execute("SELECT id FROM users WHERE username=?", (OWNER_USER,)).fetchone()
+            if existing:
+                # Promote existing user to owner
+                db.execute("UPDATE users SET is_owner=1, storage_limit_mb=10240 WHERE id=?", (existing['id'],))
+                db.commit()
+            else:
+                # Create fresh owner account
+                db.execute(
+                    "INSERT INTO users(username,password,storage_limit_mb,is_owner) VALUES(?,?,?,1)",
+                    (OWNER_USER, OWNER_PASS, 10240)
+                )
+                db.commit()
+
+        # Always sync owner credentials from env vars (so changing env = changing login)
+        db.execute(
+            "UPDATE users SET username=?, password=?, is_owner=1 WHERE is_owner=1",
+            (OWNER_USER, OWNER_PASS)
+        )
+        db.commit()
+
         owner = db.execute("SELECT id FROM users WHERE is_owner=1").fetchone()
         owner_id = owner['id'] if owner else 1
 
