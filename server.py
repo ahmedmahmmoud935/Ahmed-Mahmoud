@@ -279,7 +279,7 @@ def init_db():
             CREATE TABLE IF NOT EXISTS domains (
                 user_id    INTEGER UNIQUE NOT NULL,
                 domain     TEXT UNIQUE NOT NULL,
-                created_at TEXT DEFAULT (datetime(''now''))
+                created_at TEXT DEFAULT (datetime('now'))
             );
         ''')
         db.commit()
