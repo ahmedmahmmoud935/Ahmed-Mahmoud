@@ -2250,11 +2250,17 @@ async function loadStorageInfo(){
 async function loadUsers(){
   const list = document.getElementById('usersList');
   if(!list) return;
-  list.innerHTML='<div class="empty"><i class="fa-solid fa-spinner fa-spin"></i></div>';
+  list.innerHTML='<div class="empty"><i class="fa-solid fa-spinner fa-spin"></i><br>جاري التحميل...</div>';
   try{
-    const users = await fetch('/api/users',{credentials:'include'}).then(r=>r.json());
-    if(!users.length){
-      list.innerHTML='<div class="empty"><i class="fa-solid fa-users"></i><br>لا يوجد عملاء بعد</div>';
+    const res = await fetch('/api/users',{credentials:'include'});
+    if(!res.ok){
+      const err = await res.json().catch(()=>({}));
+      list.innerHTML=`<div class="empty" style="color:var(--red)"><i class="fa-solid fa-triangle-exclamation"></i><br>${err.error||'خطأ: '+res.status}</div>`;
+      return;
+    }
+    const users = await res.json();
+    if(!Array.isArray(users)||!users.length){
+      list.innerHTML='<div class="empty"><i class="fa-solid fa-users"></i><br>لا يوجد عملاء بعد — اضغط "عميل جديد"</div>';
       return;
     }
     list.innerHTML = users.map(u=>{
