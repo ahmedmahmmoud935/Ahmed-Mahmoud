@@ -122,6 +122,17 @@ def default_settings(user_id, db):
         ('colors', DEFAULT_COLORS),
         ('sections', DEFAULT_SECTIONS),
         ('content', DEFAULT_CONTENT),
+        # Design system defaults
+        ('style_hero', 'centered'),
+        ('style_about', 'classic'),
+        ('style_font', 'default'),
+        ('style_direction', 'auto'),
+        ('style_bg_preset', 'dark'),
+        ('style_bg_type', 'solid'),
+        ('style_bg_color1', '#0a0a0a'),
+        ('style_bg_color2', '#1a1a1a'),
+        ('style_cursor', 'default'),
+        ('style_anim', 'fade-up'),
     ]:
         db.execute('INSERT OR IGNORE INTO settings(user_id,key,value) VALUES(?,?,?)', (user_id,k,v))
     db.commit()
