@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Owner Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--o:#F97316;--bg:#0a0a0a;--bg2:#111;--bg3:#161616;--brd:#1f1f1f;--g1:#ccc;--g2:#888;--red:#ef4444;--green:#22c55e}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:#fff;min-height:100vh}
+
+/* LOGIN */
+#loginScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg)}
+.login-box{background:var(--bg2);border:1px solid var(--brd);border-radius:16px;padding:48px 40px;width:100%;max-width:400px;text-align:center}
+.login-box h1{font-size:28px;font-weight:800;margin-bottom:8px}
+.login-box p{color:var(--g2);font-size:14px;margin-bottom:32px}
+.login-box input{width:100%;background:#0a0a0a;border:1px solid var(--brd);color:#fff;padding:14px 16px;border-radius:10px;font-family:'Cairo',sans-serif;font-size:15px;margin-bottom:14px;outline:none;transition:.2s}
+.login-box input:focus{border-color:var(--o)}
+.login-box button{width:100%;background:var(--o);color:#fff;border:none;padding:14px;border-radius:10px;font-family:'Cairo',sans-serif;font-size:16px;font-weight:700;cursor:pointer}
+.err{color:var(--red);font-size:13px;margin-bottom:12px;display:none}
+
+/* PANEL */
+#panel{display:none;min-height:100vh}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--brd);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between}
+.topbar h1{font-size:18px;font-weight:800;color:var(--o)}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.btn-logout{background:transparent;border:1px solid var(--brd);color:var(--g2);padding:7px 16px;border-radius:8px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:13px;display:flex;align-items:center;gap:6px}
+.btn-logout:hover{border-color:var(--red);color:var(--red)}
+
+.content{padding:32px;max-width:1100px;margin:0 auto}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}
+.stat{background:var(--bg2);border:1px solid var(--brd);border-radius:12px;padding:24px;text-align:center}
+.stat-num{font-size:36px;font-weight:800;color:var(--o)}
+.stat-label{color:var(--g2);font-size:13px;margin-top:4px}
+
+/* SECTION */
+.section{background:var(--bg2);border:1px solid var(--brd);border-radius:12px;overflow:hidden;margin-bottom:24px}
+.section-header{padding:20px 24px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between}
+.section-title{font-size:16px;font-weight:700}
+.btn-add{background:var(--o);color:#fff;border:none;padding:9px 18px;border-radius:8px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px}
+
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th,td{padding:14px 20px;text-align:right;font-size:13px;border-bottom:1px solid var(--brd)}
+th{background:var(--bg3);color:var(--g2);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.badge{display:inline-block;background:rgba(249,115,22,.15);color:var(--o);padding:2px 10px;border-radius:4px;font-size:11px;font-weight:700}
+.url-link{color:var(--o);text-decoration:none;font-size:12px}
+.url-link:hover{text-decoration:underline}
+.storage-bar{background:#222;border-radius:4px;height:5px;width:120px;margin-bottom:3px}
+.storage-fill{height:100%;border-radius:4px;background:var(--o)}
+.actions{display:flex;gap:6px;justify-content:flex-end}
+.btn-icon{background:var(--bg3);border:1px solid var(--brd);color:var(--g2);width:32px;height:32px;border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:.2s}
+.btn-icon:hover{border-color:var(--o);color:var(--o)}
+.btn-icon.danger:hover{border-color:var(--red);color:var(--red)}
+.empty-row td{text-align:center;padding:48px;color:var(--g2)}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:100;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--brd);border-radius:16px;width:100%;max-width:440px}
+.modal-header{padding:20px 24px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between}
+.modal-header span{font-size:16px;font-weight:700}
+.modal-close{background:transparent;border:none;color:var(--g2);font-size:18px;cursor:pointer}
+.modal-body{padding:24px}
+.fg{margin-bottom:16px}
+.fl{display:block;font-size:13px;color:var(--g2);margin-bottom:6px;font-weight:600}
+.fi,.fse{width:100%;background:var(--bg);border:1px solid var(--brd);color:#fff;padding:12px 14px;border-radius:9px;font-family:'Cairo',sans-serif;font-size:14px;outline:none;transition:.2s}
+.fi:focus,.fse:focus{border-color:var(--o)}
+.fse option{background:var(--bg2)}
+.modal-err{color:var(--red);font-size:13px;margin-bottom:12px;display:none}
+.modal-footer{padding:0 24px 24px;display:flex;gap:10px}
+.btn-cancel{background:var(--bg3);border:1px solid var(--brd);color:#fff;padding:11px 18px;border-radius:8px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:14px}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;z-index:999;pointer-events:none;opacity:0;transition:opacity .3s}
+.toast.show{opacity:1}
+.toast.success{background:var(--green);color:#fff}
+.toast.error{background:var(--red);color:#fff}
+
+@media(max-width:600px){
+  .stats{grid-template-columns:1fr}
+  .content{padding:16px}
+  th:nth-child(3),td:nth-child(3){display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div style="font-size:48px;margin-bottom:16px">🔐</div>
+    <h1>Owner Panel</h1>
+    <p>لوحة إدارة العملاء — للمالك فقط</p>
+    <div class="err" id="loginErr"></div>
+    <input type="password" id="secretInput" placeholder="كلمة المرور السرية" autocomplete="off">
+    <button onclick="doLogin()">دخول</button>
+  </div>
+</div>
+
+<!-- PANEL -->
+<div id="panel">
+  <div class="topbar">
+    <h1><i class="fa-solid fa-shield-halved"></i> Owner Panel</h1>
+    <div class="topbar-right">
+      <a href="/admin" target="_blank" style="color:var(--g2);font-size:13px;text-decoration:none"><i class="fa-solid fa-arrow-up-right-from-square"></i> لوحة العميل</a>
+      <button class="btn-logout" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- STATS -->
+    <div class="stats">
+      <div class="stat"><div class="stat-num" id="statUsers">—</div><div class="stat-label">إجمالي العملاء</div></div>
+      <div class="stat"><div class="stat-num" id="statProjects">—</div><div class="stat-label">إجمالي المشاريع</div></div>
+      <div class="stat"><div class="stat-num" id="statStorage">—</div><div class="stat-label">المساحة المستخدمة (MB)</div></div>
+    </div>
+
+    <!-- USERS TABLE -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title"><i class="fa-solid fa-users" style="color:var(--o);margin-left:8px"></i>العملاء</span>
+        <button class="btn-add" onclick="openAddModal()"><i class="fa-solid fa-user-plus"></i> عميل جديد</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>المستخدم</th>
+              <th>الرابط العام</th>
+              <th>المساحة</th>
+              <th>الدومين</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="usersBody">
+            <tr class="empty-row"><td colspan="5"><i class="fa-solid fa-spinner fa-spin"></i> جاري التحميل...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD USER MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-header"><span>إضافة عميل جديد</span><button class="modal-close" onclick="closeAddModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="fg"><label class="fl">اسم المستخدم</label><input class="fi" id="newUsername" placeholder="ahmed"></div>
+      <div class="fg"><label class="fl">كلمة المرور</label><input class="fi" id="newPassword" type="password" placeholder="6 أحرف على الأقل"></div>
+      <div class="fg">
+        <label class="fl">حد المساحة</label>
+        <select class="fse" id="newStorage">
+          <option value="200">200 MB</option>
+          <option value="500" selected>500 MB</option>
+          <option value="1024">1 GB</option>
+          <option value="2048">2 GB</option>
+        </select>
+      </div>
+      <div class="modal-err" id="addErr"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-add" style="flex:1" onclick="doAddUser()"><i class="fa-solid fa-user-plus"></i> إضافة</button>
+      <button class="btn-cancel" onclick="closeAddModal()">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── LOGIN ──
+document.getElementById('secretInput').addEventListener('keydown', e => { if(e.key==='Enter') doLogin() });
+
+async function doLogin(){
+  const secret = document.getElementById('secretInput').value.trim();
+  const errEl  = document.getElementById('loginErr');
+  errEl.style.display = 'none';
+  const r = await fetch('/api/owner/login', {method:'POST', credentials:'include', headers:{'Content-Type':'application/json'}, body:JSON.stringify({secret})}).then(r=>r.json());
+  if(r.ok){ document.getElementById('loginScreen').style.display='none'; document.getElementById('panel').style.display='block'; init(); }
+  else { errEl.textContent = r.error || 'كلمة المرور غير صحيحة'; errEl.style.display='block'; }
+}
+
+async function doLogout(){
+  await fetch('/api/owner/logout', {method:'POST', credentials:'include'});
+  location.reload();
+}
+
+// ── INIT ──
+async function init(){
+  await Promise.all([loadStats(), loadUsers()]);
+}
+
+// ── STATS ──
+async function loadStats(){
+  try{
+    const s = await fetch('/api/owner/stats', {credentials:'include'}).then(r=>r.json());
+    document.getElementById('statUsers').textContent    = s.total_users;
+    document.getElementById('statProjects').textContent = s.total_projects;
+    document.getElementById('statStorage').textContent  = s.total_storage_mb;
+  }catch(e){ console.error('stats error:', e) }
+}
+
+// ── USERS ──
+async function loadUsers(){
+  const tbody = document.getElementById('usersBody');
+  try{
+    const users = await fetch('/api/owner/users', {credentials:'include'}).then(r=>r.json());
+    if(!users.length){
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="5"><i class="fa-solid fa-users"></i><br>لا يوجد عملاء بعد</td></tr>';
+      return;
+    }
+    tbody.innerHTML = users.map(u => {
+      const pct   = u.storage_limit_mb ? Math.round(u.storage_used_mb / u.storage_limit_mb * 100) : 0;
+      const color = pct > 80 ? '#ef4444' : '#F97316';
+      const pubUrl = `/u/${u.username}`;
+      return `<tr>
+        <td>
+          <div style="font-weight:700">${u.username} ${u.is_owner ? '<span class="badge">مالك</span>' : ''}</div>
+          <div style="font-size:12px;color:var(--g2);margin-top:2px">${u.created_at?.slice(0,10) || '—'}</div>
+        </td>
+        <td>
+          <a href="${pubUrl}" target="_blank" class="url-link"><i class="fa-solid fa-link"></i> ${pubUrl}</a>
+        </td>
+        <td>
+          <div class="storage-bar"><div class="storage-fill" style="width:${pct}%;background:${color}"></div></div>
+          <div style="font-size:11px;color:var(--g2)">${(+u.storage_used_mb).toFixed(1)} / ${u.storage_limit_mb} MB</div>
+        </td>
+        <td id="domain-cell-${u.id}"><span style="color:var(--g2);font-size:12px">جاري التحميل...</span></td>
+        <td>
+          <div class="actions">
+            ${!u.is_owner ? `
+              <button class="btn-icon" title="إعداد الدومين" onclick="manageDomain(${u.id},'${u.username}')"><i class="fa-solid fa-globe"></i></button>
+              <button class="btn-icon" title="تغيير كلمة المرور" onclick="changePass(${u.id},'${u.username}')"><i class="fa-solid fa-key"></i></button>
+              <button class="btn-icon danger" title="حذف العميل" onclick="deleteUser(${u.id},'${u.username}')"><i class="fa-solid fa-trash"></i></button>
+            ` : ''}
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+    // Load domains async
+    users.filter(u => !u.is_owner).forEach(u => loadDomainCell(u.id));
+  }catch(e){
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="5" style="color:var(--red)">خطأ في التحميل: ${e.message}</td></tr>`;
+  }
+}
+
+async function loadDomainCell(uid){
+  const cell = document.getElementById(`domain-cell-${uid}`);
+  if(!cell) return;
+  try{
+    const r = await fetch(`/api/owner/users/${uid}/domain`, {credentials:'include'}).then(r=>r.json());
+    if(r.domain)
+      cell.innerHTML = `<span style="color:var(--o);font-size:12px"><i class="fa-solid fa-check-circle"></i> ${r.domain}</span>`;
+    else
+      cell.innerHTML = `<span style="color:var(--g2);font-size:12px">—</span>`;
+  }catch{ cell.innerHTML = '—' }
+}
+
+// ── ADD USER ──
+function openAddModal(){
+  document.getElementById('newUsername').value = '';
+  document.getElementById('newPassword').value = '';
+  document.getElementById('addErr').style.display = 'none';
+  document.getElementById('addModal').classList.add('open');
+}
+function closeAddModal(){ document.getElementById('addModal').classList.remove('open') }
+
+async function doAddUser(){
+  const username = document.getElementById('newUsername').value.trim();
+  const password = document.getElementById('newPassword').value.trim();
+  const storage  = document.getElementById('newStorage').value;
+  const errEl    = document.getElementById('addErr');
+  errEl.style.display = 'none';
+  if(!username || !password){ errEl.textContent='أدخل اسم المستخدم وكلمة المرور'; errEl.style.display='block'; return; }
+  if(password.length < 6){ errEl.textContent='كلمة المرور 6 أحرف على الأقل'; errEl.style.display='block'; return; }
+  const r = await fetch('/api/owner/users', {method:'POST', credentials:'include', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username, password, storage_limit_mb:+storage})}).then(r=>r.json());
+  if(r.error){ errEl.textContent=r.error; errEl.style.display='block'; return; }
+  closeAddModal(); await Promise.all([loadUsers(), loadStats()]);
+  toast(`تم إضافة العميل "${username}" ✅`);
+}
+
+// ── DELETE USER ──
+async function deleteUser(uid, username){
+  if(!confirm(`حذف العميل "${username}"؟\nسيتم حذف كل مشاريعه وبياناته نهائياً.`)) return;
+  const r = await fetch(`/api/owner/users/${uid}`, {method:'DELETE', credentials:'include'}).then(r=>r.json());
+  if(r.error){ toast(r.error,'error'); return; }
+  await Promise.all([loadUsers(), loadStats()]);
+  toast('تم حذف العميل ✅');
+}
+
+// ── CHANGE PASSWORD ──
+async function changePass(uid, username){
+  const newPass = prompt(`كلمة مرور جديدة للعميل "${username}":`)?.trim();
+  if(!newPass) return;
+  if(newPass.length < 6){ toast('كلمة المرور 6 أحرف على الأقل','error'); return; }
+  const r = await fetch(`/api/owner/users/${uid}/password`, {method:'PUT', credentials:'include', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:newPass})}).then(r=>r.json());
+  if(r.error){ toast(r.error,'error'); return; }
+  toast('تم تغيير كلمة المرور ✅');
+}
+
+// ── DOMAIN MANAGEMENT ──
+async function manageDomain(uid, username){
+  const current = await fetch(`/api/owner/users/${uid}/domain`, {credentials:'include'}).then(r=>r.json()).catch(()=>({}));
+  const domain = prompt(
+    `دومين العميل "${username}"\n\nاكتب الدومين بدون https:// (مثال: ahmed.com)\nاتركه فاضياً لإزالة الدومين\n\nالرابط الحالي بدون دومين: /u/${username}`,
+    current.domain || ''
+  );
+  if(domain === null) return;
+  const r = await fetch(`/api/owner/users/${uid}/domain`, {method:'PUT', credentials:'include', headers:{'Content-Type':'application/json'}, body:JSON.stringify({domain:domain.trim()})}).then(r=>r.json());
+  if(r.error){ toast(r.error,'error'); return; }
+  loadDomainCell(uid);
+  toast(domain.trim() ? `تم ربط الدومين ✅` : 'تم إزالة الدومين ✅');
+}
+
+// ── TOAST ──
+let toastTimer;
+function toast(msg, type='success'){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${type} show`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ── AUTO CHECK LOGIN ──
+(async()=>{
+  const r = await fetch('/api/owner/check', {credentials:'include'}).then(r=>r.json()).catch(()=>({}));
+  if(r.ok){ document.getElementById('loginScreen').style.display='none'; document.getElementById('panel').style.display='block'; init(); }
+})();
+</script>
+</body>
+</html>
