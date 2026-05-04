@@ -419,6 +419,24 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:28px 60p
 .hero-line{width:60px;height:2px;background:var(--accent);margin:0 auto 24px;}
 .hero-minimal .hero-sub{margin-bottom:32px;}
 
+/* Massive editorial hero */
+.hero-massive{display:flex;flex-direction:column;justify-content:center;min-height:90vh;padding:0 5%;position:relative;}
+.hero-massive-content{position:relative;z-index:1;max-width:1400px;width:100%;margin:0 auto;}
+.hero-massive .hero-name{font-size:clamp(64px,14vw,200px);font-weight:900;line-height:.88;letter-spacing:-4px;text-transform:uppercase;margin-bottom:0;}
+.hero-massive .hero-name .first,.hero-massive .hero-name .last{display:block;}
+.hero-massive .hero-name .last{color:var(--accent);text-align:end;}
+.hero-massive .hero-meta{display:flex;align-items:center;gap:24px;margin-top:30px;flex-wrap:wrap;}
+.hero-massive .hero-sub{margin:0;font-size:14px;}
+.hero-massive .hero-btns{margin:0;}
+[lang="ar"] .hero-massive .hero-name{letter-spacing:-2px;}
+
+/* Full-cover hero (image fills, text bottom) */
+.hero-cover-full{position:relative;display:flex;align-items:flex-end;min-height:95vh;padding:60px 5% 80px;}
+.hero-cover-full .hero-cf-content{position:relative;z-index:2;width:100%;max-width:1200px;margin:0 auto;}
+.hero-cover-full .hero-name{font-size:clamp(48px,8vw,96px);font-weight:900;line-height:1;letter-spacing:-2px;margin-bottom:14px;text-shadow:0 2px 30px rgba(0,0,0,.5);}
+.hero-cover-full .hero-sub{font-size:13px;letter-spacing:8px;margin-bottom:30px;text-shadow:0 1px 10px rgba(0,0,0,.6);}
+.hero-cover-full::after{content:'';position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.7) 0%, rgba(0,0,0,.2) 60%, transparent 100%);z-index:1;pointer-events:none;}
+
 /* ── ABOUT LAYOUTS ── */
 .about-simple{text-align:center;max-width:760px;margin:0 auto;}
 .about-simple .about-text{font-size:18px;line-height:1.9;margin:24px 0;}
@@ -757,6 +775,30 @@ function buildHero(c,a){
     ? `style="${baseStyle}background-image:url('${cover}');background-size:${bgSize};background-position:${px}% ${py}%;background-repeat:no-repeat;"`
     : `style="${baseStyle}"`;
   const overlayHtml=cover?`<div style="position:absolute;inset:0;background:rgba(0,0,0,${overlay});pointer-events:none;"></div>`:'';
+
+  // MASSIVE editorial layout
+  if(layout === 'massive'){
+    const sub = title ? `<div class="hero-sub">${title}</div>` : '';
+    return `<section id="hero" class="hero-massive" ${heroBg}>${overlayHtml}
+      <div class="hero-massive-content">
+        <div class="hero-name"><span class="first">${f}</span><span class="last">${l||'\u00A0'}</span></div>
+        <div class="hero-meta">${sub}
+          <div class="hero-btns"><a href="#projects" class="btn-primary">${b1}</a><a href="#contact" class="btn-outline">${b2}</a></div>
+        </div>
+      </div>
+    </section>`;
+  }
+
+  // FULL COVER (image fills entire hero)
+  if(layout === 'cover-full'){
+    return `<section id="hero" class="hero-cover-full" ${heroBg}>
+      <div class="hero-cf-content">
+        <div class="hero-name"><span class="first">${f}</span> <span class="last">${l}</span></div>
+        <div class="hero-sub">${title}</div>
+        <div class="hero-btns"><a href="#projects" class="btn-primary">${b1}</a><a href="#contact" class="btn-outline">${b2}</a></div>
+      </div>
+    </section>`;
+  }
 
   // SPLIT layout
   if(layout === 'split'){

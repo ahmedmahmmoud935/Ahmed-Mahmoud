@@ -370,6 +370,16 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 .phn-sm{font-size:11px;font-weight:700;color:#fff;}
 .phl-sm{width:24px;height:1.5px;background:var(--o);}
 .phs-sm{font-size:8px;color:#888;letter-spacing:1px;}
+/* Massive preview */
+.prev-hero-massive{flex-direction:column;justify-content:center;align-items:flex-start;padding:8px 12px;gap:0;}
+.phn-huge{font-size:16px;font-weight:900;line-height:.9;letter-spacing:-1px;color:#fff;}
+.phn-huge.accent{color:var(--o);align-self:flex-end;}
+/* Cover-full preview */
+.prev-hero-coverfull{position:relative;padding:0;overflow:hidden;}
+.phcf-bg{position:absolute;inset:0;background:linear-gradient(135deg,#444,#222);}
+.phcf-text{position:absolute;bottom:6px;right:8px;left:8px;z-index:1;}
+.phn-md{font-size:13px;font-weight:800;color:#fff;}
+.prev-hero-coverfull::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7),transparent 60%);}
 .prev-about-classic{flex-direction:row !important;justify-content:flex-start !important;gap:8px;align-items:center;}
 .prev-about-classic .paph{width:36px;height:36px;border-radius:50%;background:#333;flex-shrink:0;}
 .prev-about-visual{flex-direction:row !important;justify-content:flex-start !important;gap:8px;align-items:stretch;padding:6px;}
@@ -423,7 +433,6 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
     <div class="ni active" onclick="setTab('projects',this)"><i class="fa-solid fa-images"></i> المشاريع</div>
     <div class="ni" onclick="setTab('reorder',this)"><i class="fa-solid fa-sort"></i> ترتيب المشاريع</div>
     <div class="ni" onclick="setTab('categories',this)"><i class="fa-solid fa-tags"></i> التصنيفات</div>
-    <div class="ni" onclick="setTab('colors',this)"><i class="fa-solid fa-palette"></i> الألوان</div>
     <div class="ni" onclick="setTab('design',this)"><i class="fa-solid fa-wand-magic-sparkles"></i> التصميم</div>
     <div class="ni" onclick="setTab('sections',this)"><i class="fa-solid fa-layer-group"></i> ترتيب الأقسام</div>
     <div class="ni" onclick="setTab('navbar',this)"><i class="fa-solid fa-bars"></i> الشريط العلوي</div>
@@ -518,35 +527,6 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
   <p style="text-align:center;color:#777;font-size:12px;margin-top:16px;">💡 لو حذفت تصنيف مستخدم في مشاريع، المشاريع هتفضل بالاسم القديم — لازم تعدلها يدوياً</p>
 </div>
 
-<!-- COLORS TAB -->
-<div id="tab-colors" style="display:none;">
-  <div class="ph"><div><div class="pt">الألوان</div><div class="ps">تخصيص ألوان الموقع</div></div>
-    <button class="btn-add" onclick="saveColors()"><i class="fa-solid fa-floppy-disk"></i> حفظ</button>
-  </div>
-  <div class="card">
-    <div class="card-title">قوالب جاهزة</div>
-    <div class="preset-row">
-      <button class="preset" onclick="applyPreset('orange')">🔶 برتقالي</button>
-      <button class="preset" onclick="applyPreset('blue')">🔵 أزرق</button>
-      <button class="preset" onclick="applyPreset('green')">🟢 أخضر</button>
-      <button class="preset" onclick="applyPreset('purple')">🟣 بنفسجي</button>
-      <button class="preset" onclick="applyPreset('red')">🔴 أحمر</button>
-      <button class="preset" onclick="applyPreset('gold')">🟡 ذهبي</button>
-      <button class="preset" onclick="applyPreset('light')">⬜ فاتح</button>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-title">ألوان مخصصة</div>
-    <div class="color-grid">
-      <div class="color-item"><span class="color-label">اللون الرئيسي</span><input type="color" class="color-preview" id="cAccent" value="#F97316" oninput="syncHex('cAccent','hAccent')"><input type="text" class="color-hex" id="hAccent" value="#F97316" oninput="syncColor('hAccent','cAccent')" maxlength="7"></div>
-      <div class="color-item"><span class="color-label">الخلفية الرئيسية</span><input type="color" class="color-preview" id="cBg" value="#0A0A0A" oninput="syncHex('cBg','hBg')"><input type="text" class="color-hex" id="hBg" value="#0A0A0A" oninput="syncColor('hBg','cBg')" maxlength="7"></div>
-      <div class="color-item"><span class="color-label">الخلفية الثانوية</span><input type="color" class="color-preview" id="cBg2" value="#111111" oninput="syncHex('cBg2','hBg2')"><input type="text" class="color-hex" id="hBg2" value="#111111" oninput="syncColor('hBg2','cBg2')" maxlength="7"></div>
-      <div class="color-item"><span class="color-label">لون النص</span><input type="color" class="color-preview" id="cText" value="#FFFFFF" oninput="syncHex('cText','hText')"><input type="text" class="color-hex" id="hText" value="#FFFFFF" oninput="syncColor('hText','cText')" maxlength="7"></div>
-      <div class="color-item"><span class="color-label">النص الفرعي</span><input type="color" class="color-preview" id="cSub" value="#999999" oninput="syncHex('cSub','hSub')"><input type="text" class="color-hex" id="hSub" value="#999999" oninput="syncColor('hSub','cSub')" maxlength="7"></div>
-    </div>
-  </div>
-</div>
-
 <!-- DESIGN TAB ═══════════════════════════════════════════════ -->
 <div id="tab-design" style="display:none;">
   <div class="ph">
@@ -585,6 +565,22 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
             </div>
             <div class="dsn-name">منقسم</div>
           </div></label>
+        <label class="dsn-opt"><input type="radio" name="style_hero" value="massive">
+          <div class="dsn-card">
+            <div class="dsn-prev prev-hero-massive">
+              <div class="phn-huge">YOUR</div>
+              <div class="phn-huge accent">NAME</div>
+            </div>
+            <div class="dsn-name">ضخم (Editorial)</div>
+          </div></label>
+        <label class="dsn-opt"><input type="radio" name="style_hero" value="cover-full">
+          <div class="dsn-card">
+            <div class="dsn-prev prev-hero-coverfull">
+              <div class="phcf-bg"></div>
+              <div class="phcf-text"><div class="phn-md">Name</div><div class="phs">Title</div></div>
+            </div>
+            <div class="dsn-name">صورة كاملة</div>
+          </div></label>
         <label class="dsn-opt"><input type="radio" name="style_hero" value="minimal">
           <div class="dsn-card">
             <div class="dsn-prev prev-hero-minimal">
@@ -594,6 +590,48 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
             </div>
             <div class="dsn-name">بسيط</div>
           </div></label>
+      </div>
+
+      <!-- Hero Image Controls -->
+      <div style="margin-top:24px;border-top:1px solid #222;padding-top:18px;">
+        <div style="font-size:14px;font-weight:700;margin-bottom:12px;color:#fff;"><i class="fa-solid fa-image" style="color:var(--o);margin-left:6px"></i> صورة الخلفية</div>
+        <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;">
+          <div id="heroCoverPreview" style="width:240px;height:135px;border-radius:10px;background:#0a0a0a;border:1px solid #222;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#444;flex-shrink:0;position:relative;"><i class="fa-solid fa-image" style="font-size:28px;"></i></div>
+          <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:200px;">
+            <label class="ua" for="heroCoverInput" style="cursor:pointer;text-align:center;"><div class="ut" style="padding:14px;"><i class="fa-solid fa-upload" style="margin-left:6px;"></i> رفع صورة جديدة</div></label>
+            <input type="file" id="heroCoverInput" accept="image/*" onchange="handleHeroCover(this)" style="display:none;">
+            <button type="button" onclick="removeHeroCover()" style="background:#3a1010;border:1px solid #5a1414;color:#ff6b6b;cursor:pointer;padding:10px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;"><i class="fa-solid fa-trash" style="margin-left:6px;"></i> حذف الصورة</button>
+          </div>
+        </div>
+        <div class="frow" style="margin-top:14px;">
+          <div class="fg"><label class="fl">طريقة العرض</label>
+            <select class="fse" id="h_cover_size" onchange="updateHeroPreview()">
+              <option value="cover">ملء الشاشة (Cover)</option>
+              <option value="contain">احتواء كامل (Contain)</option>
+              <option value="100%">حجم طبيعي 100%</option>
+              <option value="120%">تكبير 120%</option>
+              <option value="80%">تصغير 80%</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">شدة الطبقة السوداء: <span id="h_overlay_val">55</span>%</label>
+            <input type="range" min="0" max="90" step="5" id="h_overlay" oninput="document.getElementById('h_overlay_val').textContent=this.value;updateHeroPreview()" style="width:100%;">
+          </div>
+        </div>
+        <div class="frow">
+          <div class="fg"><label class="fl">الموضع الأفقي: <span id="h_posx_val">50</span>%</label>
+            <input type="range" min="0" max="100" step="5" id="h_posx" oninput="document.getElementById('h_posx_val').textContent=this.value;updateHeroPreview()" style="width:100%;">
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:#666;margin-top:2px;"><span>يسار</span><span>وسط</span><span>يمين</span></div>
+          </div>
+          <div class="fg"><label class="fl">الموضع العمودي: <span id="h_posy_val">50</span>%</label>
+            <input type="range" min="0" max="100" step="5" id="h_posy" oninput="document.getElementById('h_posy_val').textContent=this.value;updateHeroPreview()" style="width:100%;">
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:#666;margin-top:2px;"><span>أعلى</span><span>وسط</span><span>أسفل</span></div>
+          </div>
+        </div>
+        <div class="fg" style="margin-top:8px;">
+          <label class="fl">ارتفاع القسم: <span id="h_height_val">85</span>vh</label>
+          <input type="range" min="50" max="100" step="5" id="h_height" oninput="document.getElementById('h_height_val').textContent=this.value" style="width:100%;">
+        </div>
       </div>
     </div>
 
@@ -624,6 +662,19 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
             </div>
             <div class="dsn-name">بسيط (نص فقط)</div>
           </div></label>
+      </div>
+
+      <!-- About Photo -->
+      <div style="margin-top:24px;border-top:1px solid #222;padding-top:18px;">
+        <div style="font-size:14px;font-weight:700;margin-bottom:12px;color:#fff;"><i class="fa-solid fa-camera" style="color:var(--o);margin-left:6px"></i> الصورة الشخصية</div>
+        <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;">
+          <div id="photoPreview" style="width:130px;height:130px;border-radius:50%;background:#0a0a0a;border:1px solid #222;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#444;flex-shrink:0;"><i class="fa-solid fa-user" style="font-size:32px;"></i></div>
+          <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:180px;">
+            <label class="ua" for="photoUpload" style="cursor:pointer;text-align:center;"><div class="ut" style="padding:14px;"><i class="fa-solid fa-upload" style="margin-left:6px;"></i> رفع صورة شخصية</div></label>
+            <input type="file" id="photoUpload" accept="image/*" onchange="handlePhotoUpload(this)" style="display:none;">
+            <button type="button" onclick="removePhoto()" style="background:#3a1010;border:1px solid #5a1414;color:#ff6b6b;cursor:pointer;padding:10px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;"><i class="fa-solid fa-trash" style="margin-left:6px;"></i> حذف الصورة</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -700,6 +751,17 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
       <div class="color-grid">
         <div class="color-item"><span class="color-label">اللون الأساسي</span><input type="color" class="color-preview" id="bgColor1" value="#0a0a0a" oninput="syncHex('bgColor1','bgHex1')"><input type="text" class="color-hex" id="bgHex1" value="#0a0a0a" oninput="syncColor('bgHex1','bgColor1')" maxlength="7"></div>
         <div class="color-item"><span class="color-label">اللون الثاني (للتدرّج)</span><input type="color" class="color-preview" id="bgColor2" value="#1a1a1a" oninput="syncHex('bgColor2','bgHex2')"><input type="text" class="color-hex" id="bgHex2" value="#1a1a1a" oninput="syncColor('bgHex2','bgColor2')" maxlength="7"></div>
+      </div>
+    </div>
+
+    <!-- THEME COLORS -->
+    <div class="card">
+      <div class="card-title"><i class="fa-solid fa-palette" style="color:var(--o);margin-left:6px"></i> ألوان التيمة</div>
+      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;">اللون المميز يتحكم في الأزرار، الروابط، والعناصر البصرية</p>
+      <div class="color-grid">
+        <div class="color-item"><span class="color-label">⭐ اللون المميّز (Accent)</span><input type="color" class="color-preview" id="cAccent" value="#F97316" oninput="syncHex('cAccent','hAccent')"><input type="text" class="color-hex" id="hAccent" value="#F97316" oninput="syncColor('hAccent','cAccent')" maxlength="7"></div>
+        <div class="color-item"><span class="color-label">لون النص الأساسي</span><input type="color" class="color-preview" id="cText" value="#FFFFFF" oninput="syncHex('cText','hText')"><input type="text" class="color-hex" id="hText" value="#FFFFFF" oninput="syncColor('hText','cText')" maxlength="7"></div>
+        <div class="color-item"><span class="color-label">لون النص الفرعي</span><input type="color" class="color-preview" id="cSub" value="#999999" oninput="syncHex('cSub','hSub')"><input type="text" class="color-hex" id="hSub" value="#999999" oninput="syncColor('hSub','cSub')" maxlength="7"></div>
       </div>
     </div>
   </div>
@@ -1240,17 +1302,48 @@ function loadDesign(){
   setRadio('style_bg_type',   S.style_bg_type,   'solid');
   setRadio('style_cursor',    S.style_cursor,    'default');
   setRadio('style_anim',      S.style_anim,      'fade-up');
+
   // Custom bg colors
   const c1=document.getElementById('bgColor1'), h1=document.getElementById('bgHex1');
   const c2=document.getElementById('bgColor2'), h2=document.getElementById('bgHex2');
   if(c1){ c1.value = S.style_bg_color1 || '#0a0a0a'; h1.value = c1.value; }
   if(c2){ c2.value = S.style_bg_color2 || '#1a1a1a'; h2.value = c2.value; }
-  // Show custom card if needed
+
+  // Theme colors (accent + text + sub)
+  const colors = S.colors || {};
+  const setColor = (id, hexId, val) => {
+    const c = document.getElementById(id), h = document.getElementById(hexId);
+    if(c && val){ c.value = val; if(h) h.value = val; }
+  };
+  setColor('cAccent', 'hAccent', colors.accent || '#F97316');
+  setColor('cText',   'hText',   colors.text   || '#FFFFFF');
+  setColor('cSub',    'hSub',    colors.subtext|| '#999999');
+
+  // Hero cover image
+  if(S.hero_cover_url) updateHeroPreviewImg(S.hero_cover_url);
+  const sizeSel=document.getElementById('h_cover_size');
+  if(sizeSel && S.hero_cover_size){
+    let found=false;
+    for(const o of sizeSel.options){if(o.value===S.hero_cover_size){found=true;break;}}
+    sizeSel.value = found ? S.hero_cover_size : 'cover';
+  }
+  const ov=document.getElementById('h_overlay'), ovv=document.getElementById('h_overlay_val');
+  if(ov){const v=S.hero_cover_overlay||'55'; ov.value=v; if(ovv)ovv.textContent=v;}
+  const px=document.getElementById('h_posx'), pxv=document.getElementById('h_posx_val');
+  if(px){const v=S.hero_cover_pos_x||'50'; px.value=v; if(pxv)pxv.textContent=v;}
+  const py=document.getElementById('h_posy'), pyv=document.getElementById('h_posy_val');
+  if(py){const v=S.hero_cover_pos_y||'50'; py.value=v; if(pyv)pyv.textContent=v;}
+  const hh=document.getElementById('h_height'), hhv=document.getElementById('h_height_val');
+  if(hh){const v=S.hero_height||'85'; hh.value=v; if(hhv)hhv.textContent=v;}
+
+  // About photo preview
+  const photoPrev=document.getElementById('photoPreview');
+  if(photoPrev && S.photo_url){
+    photoPrev.innerHTML = `<img src="${S.photo_url}" style="width:100%;height:100%;object-fit:cover;">`;
+  }
+
   toggleCustomBg();
-  // Listen on bg_preset changes to toggle custom
-  document.querySelectorAll('input[name="style_bg_preset"]').forEach(r=>{
-    r.onchange = toggleCustomBg;
-  });
+  document.querySelectorAll('input[name="style_bg_preset"]').forEach(r=>{ r.onchange = toggleCustomBg; });
 }
 
 function toggleCustomBg(){
@@ -1261,22 +1354,55 @@ function toggleCustomBg(){
 
 async function saveDesign(){
   const get = name => (document.querySelector(`input[name="${name}"]:checked`)||{}).value || '';
+  const elVal = id => { const el=document.getElementById(id); return el ? el.value : null; };
+
   const payload = {
+    // Layouts
     style_hero:      get('style_hero')      || 'centered',
     style_about:     get('style_about')     || 'classic',
+    // Typography
     style_font:      get('style_font')      || 'default',
     style_direction: get('style_direction') || 'auto',
+    // Background
     style_bg_preset: get('style_bg_preset') || 'dark',
     style_bg_type:   get('style_bg_type')   || 'solid',
-    style_bg_color1: (document.getElementById('bgColor1')||{}).value || '#0a0a0a',
-    style_bg_color2: (document.getElementById('bgColor2')||{}).value || '#1a1a1a',
+    style_bg_color1: elVal('bgColor1') || '#0a0a0a',
+    style_bg_color2: elVal('bgColor2') || '#1a1a1a',
+    // Cursor + Animations
     style_cursor:    get('style_cursor')    || 'default',
     style_anim:      get('style_anim')      || 'fade-up',
+    // Theme Colors (consolidated into 'colors' object)
+    colors: {
+      accent:  elVal('cAccent') || '#F97316',
+      bg:      (S.colors && S.colors.bg)  || '#0A0A0A',
+      bg2:     (S.colors && S.colors.bg2) || '#111111',
+      text:    elVal('cText') || '#FFFFFF',
+      subtext: elVal('cSub')  || '#999999',
+    },
+    // Hero cover image controls
+    hero_cover_size:    elVal('h_cover_size') || 'cover',
+    hero_cover_overlay: elVal('h_overlay')    || '55',
+    hero_cover_pos_x:   elVal('h_posx')       || '50',
+    hero_cover_pos_y:   elVal('h_posy')       || '50',
+    hero_height:        elVal('h_height')     || '85',
   };
+
+  // Hero cover image upload (if changed)
+  if(typeof heroCoverData !== 'undefined' && heroCoverData !== null){
+    payload.hero_cover_upload = heroCoverData;
+  }
+  // About photo upload (if changed)
+  if(typeof photoData !== 'undefined' && photoData !== null){
+    payload.photo_upload = photoData;
+  }
+
   try{
     const r = await fetch('/api/settings', { method:'PUT', credentials:'include', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
     if(r.ok){
       Object.assign(S, payload);
+      // Reset image data globals
+      if(typeof heroCoverData !== 'undefined') heroCoverData = null;
+      if(typeof photoData     !== 'undefined') photoData = null;
       showToast('تم حفظ التصميم ✅');
     } else {
       const e = await r.json();
@@ -1755,56 +1881,7 @@ function buildCSec(id){
       <div class="frow"><div class="fg"><label class="fl">التخصص (عربي)</label><input class="fi" id="h_title_ar" value="${e(c.title_ar||'')}"></div><div class="fg"><label class="fl">Title (EN)</label><input class="fi" id="h_title_en" value="${e(c.title_en||'')}"></div></div>
       <div class="frow"><div class="fg"><label class="fl">زر 1 (عربي)</label><input class="fi" id="h_btn1_ar" value="${e(c.btn1_ar||'أعمالي')}"></div><div class="fg"><label class="fl">Btn 1 (EN)</label><input class="fi" id="h_btn1_en" value="${e(c.btn1_en||'View Work')}"></div></div>
       <div class="frow"><div class="fg"><label class="fl">زر 2 (عربي)</label><input class="fi" id="h_btn2_ar" value="${e(c.btn2_ar||'تواصل معي')}"></div><div class="fg"><label class="fl">Btn 2 (EN)</label><input class="fi" id="h_btn2_en" value="${e(c.btn2_en||'Get In Touch')}"></div></div>
-      <div class="fg" style="margin-top:14px;"><label class="fl">صورة الخلفية</label>
-        <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;">
-          <div id="heroCoverPreview" style="width:240px;height:135px;border-radius:10px;background:#0a0a0a;border:1px solid #222;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#444;flex-shrink:0;position:relative;"><i class="fa-solid fa-image" style="font-size:28px;"></i></div>
-          <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:200px;">
-            <label class="ua" for="heroCoverInput" style="cursor:pointer;text-align:center;">
-              <div class="ut" style="padding:14px;"><i class="fa-solid fa-upload" style="margin-left:6px;"></i> رفع صورة جديدة</div>
-            </label>
-            <input type="file" id="heroCoverInput" accept="image/*" onchange="handleHeroCover(this)" style="display:none;">
-            <button type="button" onclick="removeHeroCover()" style="background:#3a1010;border:1px solid #5a1414;color:#ff6b6b;cursor:pointer;padding:10px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;"><i class="fa-solid fa-trash" style="margin-left:6px;"></i> حذف الصورة</button>
-          </div>
-        </div>
-      </div>
-      <div class="frow" style="margin-top:10px;">
-        <div class="fg">
-          <label class="fl">طريقة العرض</label>
-          <select class="fse" id="h_cover_size" onchange="updateHeroPreview()">
-            <option value="cover">ملء الشاشة (Cover)</option>
-            <option value="contain">احتواء كامل (Contain)</option>
-            <option value="100%">حجم طبيعي 100%</option>
-            <option value="120%">تكبير 120%</option>
-            <option value="150%">تكبير 150%</option>
-            <option value="80%">تصغير 80%</option>
-            <option value="60%">تصغير 60%</option>
-          </select>
-        </div>
-        <div class="fg">
-          <label class="fl">شدة الطبقة السوداء: <span id="h_overlay_val">55</span>%</label>
-          <input type="range" min="0" max="90" step="5" id="h_overlay" oninput="document.getElementById('h_overlay_val').textContent=this.value;updateHeroPreview()" style="width:100%;">
-        </div>
-      </div>
-      <div class="frow">
-        <div class="fg">
-          <label class="fl">الموضع الأفقي: <span id="h_posx_val">50</span>%</label>
-          <input type="range" min="0" max="100" step="5" id="h_posx" oninput="document.getElementById('h_posx_val').textContent=this.value;updateHeroPreview()" style="width:100%;">
-          <div style="display:flex;justify-content:space-between;font-size:10px;color:#666;margin-top:2px;"><span>يسار</span><span>وسط</span><span>يمين</span></div>
-        </div>
-        <div class="fg">
-          <label class="fl">الموضع العمودي: <span id="h_posy_val">50</span>%</label>
-          <input type="range" min="0" max="100" step="5" id="h_posy" oninput="document.getElementById('h_posy_val').textContent=this.value;updateHeroPreview()" style="width:100%;">
-          <div style="display:flex;justify-content:space-between;font-size:10px;color:#666;margin-top:2px;"><span>أعلى</span><span>وسط</span><span>أسفل</span></div>
-        </div>
-      </div>
-      <div class="frow">
-        <div class="fg">
-          <label class="fl">ارتفاع القسم العلوي: <span id="h_height_val">85</span>vh</label>
-          <input type="range" min="50" max="100" step="5" id="h_height" oninput="document.getElementById('h_height_val').textContent=this.value" style="width:100%;">
-          <div style="display:flex;justify-content:space-between;font-size:10px;color:#666;margin-top:2px;"><span>قصير 50%</span><span>متوسط 75%</span><span>شاشة كاملة</span></div>
-        </div>
-      </div>
-      <p style="color:#666;font-size:11px;margin-top:8px;">💡 المعاينة تظهر التغييرات لحظياً. اضغط حفظ لتطبيقها على الموقع</p>
+      <p style="color:var(--o);font-size:12px;margin-top:14px;background:rgba(249,115,22,.08);padding:10px;border-radius:8px;border:1px solid rgba(249,115,22,.2);"><i class="fa-solid fa-info-circle" style="margin-left:6px;"></i> صورة الخلفية + التخطيط الآن في تبويب <b>التصميم</b></p>
 
       <!-- Brand Logo (navbar) -->
       <div class="fg" style="margin-top:24px;border-top:1px solid #222;padding-top:18px;">
@@ -1839,18 +1916,7 @@ function buildCSec(id){
       </div>
       </div>`;
     case'about':return`<div class="card"><div class="card-title">عن النفس (About)</div>
-      <div class="fg" style="margin-bottom:18px;"><label class="fl">الصورة الشخصية</label>
-        <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;">
-          <div id="photoPreview" style="width:130px;height:130px;border-radius:50%;background:#0a0a0a;border:1px solid #222;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#444;flex-shrink:0;"><i class="fa-solid fa-user" style="font-size:32px;"></i></div>
-          <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:180px;">
-            <label class="ua" for="photoInput" style="cursor:pointer;text-align:center;">
-              <div class="ut" style="padding:14px;"><i class="fa-solid fa-upload" style="margin-left:6px;"></i> رفع صورة جديدة</div>
-            </label>
-            <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoUpload(this)" style="display:none;">
-            <button type="button" onclick="removePhoto()" style="background:#3a1010;border:1px solid #5a1414;color:#ff6b6b;cursor:pointer;padding:10px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;"><i class="fa-solid fa-trash" style="margin-left:6px;"></i> حذف الصورة</button>
-          </div>
-        </div>
-      </div>
+      <p style="color:var(--o);font-size:12px;margin-bottom:14px;background:rgba(249,115,22,.08);padding:10px;border-radius:8px;border:1px solid rgba(249,115,22,.2);"><i class="fa-solid fa-info-circle" style="margin-left:6px;"></i> الصورة الشخصية + التخطيط الآن في تبويب <b>التصميم</b></p>
       <div class="fg"><label class="fl">النص (عربي)</label><textarea class="fta" id="ab_text_ar">${e(c.text_ar||'')}</textarea></div>
       <div class="fg"><label class="fl">Text (EN)</label><textarea class="fta" id="ab_text_en">${e(c.text_en||'')}</textarea></div>
       <div class="fg"><label class="fl">الوسوم (عربي) — فاصل بفاصلة</label><input class="fi" id="ab_tags_ar" value="${e(c.tags_ar||'')}"></div>
