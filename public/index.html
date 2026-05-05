@@ -438,64 +438,270 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:28px 60p
 .hero-cover-full::after{content:'';position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.7) 0%, rgba(0,0,0,.2) 60%, transparent 100%);z-index:1;pointer-events:none;}
 
 /* ═══════════════ THEME SYSTEM ═══════════════ */
-/* Each theme overrides typography, spacing, and component styles */
+/* Each theme overrides 8+ elements: typography, hero, expertise, projects, education, contact, nav, footer */
 
-/* ── 1. EDITORIAL — Magazine luxury ── */
+/* ───────────────────────────────────────────
+   ① EDITORIAL — Magazine luxury
+   ─────────────────────────────────────────── */
 body[data-theme="editorial"]{letter-spacing:0;}
 body[data-theme="editorial"] .hero-name{font-family:'Playfair Display',serif !important;font-weight:900;font-style:italic;letter-spacing:-3px;}
-body[data-theme="editorial"] .section-title,body[data-theme="editorial"] .sh h2{font-family:'Playfair Display',serif !important;font-style:italic;font-weight:800;letter-spacing:-1px;}
+body[data-theme="editorial"] .section-title,body[data-theme="editorial"] .sh h2{font-family:'Playfair Display',serif !important;font-style:italic;font-weight:800;letter-spacing:-1px;font-size:48px !important;}
 body[data-theme="editorial"] .nav-logo{font-family:'Playfair Display',serif !important;font-style:italic;font-weight:800;}
-body[data-theme="editorial"] .skill-chip{border-radius:0;border-bottom:2px solid var(--accent);background:transparent;padding:8px 0 6px;}
 body[data-theme="editorial"] section{padding:90px 5%;}
-body[data-theme="editorial"] .sh{margin-bottom:50px;border-top:1px solid var(--accent);padding-top:30px;}
-body[data-theme="editorial"] .pj-card{border-radius:0;}
-body[data-theme="editorial"] .pj-card .pj-img{border-radius:0;}
-body[data-theme="editorial"] .pj-card .pj-title{font-family:'Playfair Display',serif;font-style:italic;font-size:22px;}
 
-/* ── 2. MINIMAL PRO — Clean and modern ── */
+/* Editorial — Section Headers (with line above) */
+body[data-theme="editorial"] .sh{margin-bottom:60px;border-top:2px solid var(--accent);padding-top:24px;text-align:start;}
+body[data-theme="editorial"] .sh h2{display:inline-block;}
+body[data-theme="editorial"] .sl{display:none;}
+
+/* Editorial — Buttons (rectangular, serif) */
+body[data-theme="editorial"] .btn-primary,body[data-theme="editorial"] .btn-outline{border-radius:0 !important;font-family:'Playfair Display',serif !important;font-style:italic;font-size:16px;letter-spacing:0;padding:14px 32px;}
+body[data-theme="editorial"] .btn-submit{border-radius:0 !important;font-family:'Playfair Display',serif !important;font-style:italic;font-size:17px;}
+
+/* Editorial — Skills (typography statement) */
+body[data-theme="editorial"] .skill-chip{border-radius:0;border-bottom:2px solid var(--accent);background:transparent;padding:8px 0 6px;}
+
+/* Editorial — Expertise (numbered list, magazine style) */
+body[data-theme="editorial"] .expertise-grid{grid-template-columns:1fr;gap:0;max-width:900px;}
+body[data-theme="editorial"] .exp-card-service{background:transparent;border:none;border-top:1px solid var(--border);border-radius:0;padding:36px 0;display:grid;grid-template-columns:80px 1fr;gap:30px;counter-increment:exp-counter;}
+body[data-theme="editorial"] .exp-card-service:last-child{border-bottom:1px solid var(--border);}
+body[data-theme="editorial"] .exp-card-service::before{content:counter(exp-counter,decimal-leading-zero);position:static;font-family:'Playfair Display',serif;font-style:italic;font-size:38px;color:var(--accent);font-weight:300;}
+body[data-theme="editorial"] .exp-card-service:hover{box-shadow:none;transform:none;}
+body[data-theme="editorial"] .exp-card-service:hover::before{border:none;}
+body[data-theme="editorial"] .exp-svc-header{flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:14px;}
+body[data-theme="editorial"] .exp-svc-icon{display:none;}
+body[data-theme="editorial"] .exp-svc-title{font-family:'Playfair Display',serif !important;font-style:italic;font-size:24px;font-weight:700;color:var(--text);}
+body[data-theme="editorial"] .expertise-grid{counter-reset:exp-counter;}
+
+/* Editorial — Projects cards (sharp, magazine) */
+body[data-theme="editorial"] .pj-card{border-radius:0;background:transparent;}
+body[data-theme="editorial"] .pj-card .pj-img{border-radius:0;}
+body[data-theme="editorial"] .pj-card .pj-info{padding:14px 0 0;}
+body[data-theme="editorial"] .pj-card .pj-title{font-family:'Playfair Display',serif !important;font-style:italic;font-size:24px;font-weight:700;letter-spacing:-0.5px;}
+body[data-theme="editorial"] .pj-card .pj-cat{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);}
+
+/* Editorial — Education (timeline-like) */
+body[data-theme="editorial"] .edu-card{background:transparent;border:none;border-bottom:1px solid var(--border);border-radius:0;padding:24px 0;}
+body[data-theme="editorial"] .edu-card:hover{border-color:var(--border);border-bottom-color:var(--accent);}
+body[data-theme="editorial"] .edu-icon{display:none;}
+body[data-theme="editorial"] .edu-degree{font-family:'Playfair Display',serif !important;font-style:italic;font-size:22px;}
+
+/* Editorial — Contact form (no borders, underline only) */
+body[data-theme="editorial"] .form-group input,body[data-theme="editorial"] .form-group textarea{background:transparent;border:none;border-bottom:1px solid var(--border);border-radius:0;padding:14px 4px;}
+body[data-theme="editorial"] .form-group input:focus,body[data-theme="editorial"] .form-group textarea:focus{border-bottom-color:var(--accent);}
+
+/* Editorial — Nav (serif italic) */
+body[data-theme="editorial"] .nav-links a{font-family:'Playfair Display',serif !important;font-style:italic;font-size:16px;letter-spacing:0;}
+
+/* Editorial — Footer */
+body[data-theme="editorial"] footer{border-top:2px solid var(--accent);}
+body[data-theme="editorial"] .footer-logo{font-family:'Playfair Display',serif !important;font-style:italic;}
+
+/* ───────────────────────────────────────────
+   ② MINIMAL PRO — Clean and modern
+   ─────────────────────────────────────────── */
 body[data-theme="minimal"] *{letter-spacing:-0.02em;}
 body[data-theme="minimal"] .hero-name{font-family:'Inter',sans-serif !important;font-weight:800;letter-spacing:-3px;}
-body[data-theme="minimal"] .section-title,body[data-theme="minimal"] .sh h2{font-family:'Inter',sans-serif !important;font-weight:700;letter-spacing:-1px;}
-body[data-theme="minimal"] .skill-chip{border-radius:6px;border:1px solid var(--border);background:transparent;font-weight:500;}
-body[data-theme="minimal"] .tool-card,body[data-theme="minimal"] .pj-card{border-radius:8px;}
-body[data-theme="minimal"] .btn-primary,body[data-theme="minimal"] .btn-outline{border-radius:6px;font-weight:500;letter-spacing:0;}
+body[data-theme="minimal"] .section-title,body[data-theme="minimal"] .sh h2{font-family:'Inter',sans-serif !important;font-weight:700;letter-spacing:-1px;font-size:36px !important;}
 body[data-theme="minimal"] section{padding:80px 5%;}
 body[data-theme="minimal"] .sl{display:none;}
 body[data-theme="minimal"] .sh{margin-bottom:36px;}
 
-/* ── 3. CREATIVE BOLD — Big and confident ── */
-body[data-theme="creative"] .hero-name{font-family:'Bebas Neue',sans-serif !important;font-weight:400;letter-spacing:1px;line-height:.92;}
-body[data-theme="creative"] .section-title,body[data-theme="creative"] .sh h2{font-family:'Bebas Neue',sans-serif !important;letter-spacing:2px;font-size:42px !important;}
-body[data-theme="creative"] .nav-logo{font-family:'Bebas Neue',sans-serif !important;letter-spacing:2px;font-size:20px;}
-body[data-theme="creative"] .filter-tab{border-radius:0;text-transform:uppercase;letter-spacing:2px;font-family:'Bebas Neue',sans-serif;font-size:14px;padding:10px 20px;}
-body[data-theme="creative"] .skill-chip{background:var(--accent);color:#fff;border:none;font-weight:700;border-radius:0;padding:8px 16px;text-transform:uppercase;font-size:11px;letter-spacing:1.5px;}
-body[data-theme="creative"] .tag{background:var(--accent);color:#fff;border-radius:0;text-transform:uppercase;font-size:11px;letter-spacing:1.5px;}
-body[data-theme="creative"] .btn-primary{border-radius:0;text-transform:uppercase;letter-spacing:3px;}
-body[data-theme="creative"] .btn-outline{border-radius:0;text-transform:uppercase;letter-spacing:3px;}
-body[data-theme="creative"] .pj-card{border-radius:0;}
-body[data-theme="creative"] .pj-card .pj-img{border-radius:0;}
+/* Minimal — Buttons (rounded, weight 500) */
+body[data-theme="minimal"] .btn-primary,body[data-theme="minimal"] .btn-outline{border-radius:6px !important;font-weight:500;letter-spacing:0;padding:11px 24px;font-size:14px;}
+body[data-theme="minimal"] .btn-submit{border-radius:6px !important;font-weight:500;}
 
-/* ── 4. CINEMA DARK — Cinematic photography ── */
+/* Minimal — Skills */
+body[data-theme="minimal"] .skill-chip{border-radius:6px;border:1px solid var(--border);background:transparent;font-weight:500;padding:7px 14px;font-size:13px;}
+
+/* Minimal — Expertise (clean cards) */
+body[data-theme="minimal"] .exp-card-service{background:transparent;border:1px solid var(--border);border-radius:10px;padding:28px;}
+body[data-theme="minimal"] .exp-card-service:hover{border-color:var(--text);transform:none;box-shadow:none;}
+body[data-theme="minimal"] .exp-card-service::before{display:none;}
+body[data-theme="minimal"] .exp-svc-icon{background:transparent;border:1.5px solid var(--text);color:var(--text);width:44px;height:44px;font-size:16px;}
+body[data-theme="minimal"] .exp-svc-title{color:var(--text);font-weight:700;font-size:16px;font-family:'Inter',sans-serif !important;}
+
+/* Minimal — Projects (rounded, clean) */
+body[data-theme="minimal"] .pj-card{border-radius:10px;background:transparent;}
+body[data-theme="minimal"] .pj-card .pj-img{border-radius:10px;}
+body[data-theme="minimal"] .pj-card .pj-title{font-family:'Inter',sans-serif !important;font-weight:600;}
+
+/* Minimal — Education */
+body[data-theme="minimal"] .edu-card{background:transparent;border:1px solid var(--border);border-radius:10px;padding:20px 24px;}
+body[data-theme="minimal"] .edu-icon{background:transparent;border:1.5px solid var(--text);color:var(--text);}
+body[data-theme="minimal"] .edu-degree{font-family:'Inter',sans-serif !important;font-weight:600;}
+
+/* Minimal — Form (clean, rounded) */
+body[data-theme="minimal"] .form-group input,body[data-theme="minimal"] .form-group textarea{background:transparent;border:1px solid var(--border);border-radius:8px;font-family:'Inter',sans-serif !important;}
+body[data-theme="minimal"] .form-group input:focus,body[data-theme="minimal"] .form-group textarea:focus{border-color:var(--text);}
+
+/* Minimal — Nav (light tracking) */
+body[data-theme="minimal"] .nav-bar{border-bottom:1px solid var(--border);}
+body[data-theme="minimal"] .nav-links a{font-family:'Inter',sans-serif !important;font-weight:500;letter-spacing:0;}
+
+/* Minimal — Tools */
+body[data-theme="minimal"] .tool-card{border-radius:10px;background:transparent;border:1px solid var(--border);}
+body[data-theme="minimal"] .tool-card:hover{border-color:var(--text);}
+
+/* ───────────────────────────────────────────
+   ③ CREATIVE BOLD — Big and confident
+   ─────────────────────────────────────────── */
+body[data-theme="creative"] .hero-name{font-family:'Bebas Neue',sans-serif !important;font-weight:400;letter-spacing:1px;line-height:.92;}
+body[data-theme="creative"] .section-title,body[data-theme="creative"] .sh h2{font-family:'Bebas Neue',sans-serif !important;letter-spacing:3px;font-size:52px !important;text-transform:uppercase;}
+body[data-theme="creative"] .nav-logo{font-family:'Bebas Neue',sans-serif !important;letter-spacing:2px;font-size:22px;}
+body[data-theme="creative"] section{padding:100px 5%;}
+
+/* Creative — Section header (with thick accent bar) */
+body[data-theme="creative"] .sh{margin-bottom:50px;text-align:start;border-inline-start:6px solid var(--accent);padding-inline-start:20px;}
+body[data-theme="creative"] .sl{display:none;}
+
+/* Creative — Buttons (sharp, uppercase) */
+body[data-theme="creative"] .btn-primary,body[data-theme="creative"] .btn-outline{border-radius:0 !important;text-transform:uppercase;letter-spacing:3px;padding:14px 32px;font-weight:800;font-size:13px;}
+body[data-theme="creative"] .btn-submit{border-radius:0 !important;text-transform:uppercase;letter-spacing:3px;font-family:'Bebas Neue',sans-serif !important;font-size:18px;letter-spacing:4px;padding:16px;}
+
+/* Creative — Skills (filled solid blocks) */
+body[data-theme="creative"] .skill-chip{background:var(--accent);color:#fff;border:none;font-weight:700;border-radius:0;padding:8px 16px;text-transform:uppercase;font-size:11px;letter-spacing:1.5px;}
+body[data-theme="creative"] .tag{background:var(--accent);color:#fff;border-radius:0;text-transform:uppercase;font-size:11px;letter-spacing:1.5px;font-weight:700;}
+
+/* Creative — Expertise (bold colored blocks) */
+body[data-theme="creative"] .exp-card-service{background:var(--bg3);border:none;border-radius:0;padding:40px 30px;border-top:5px solid var(--accent);}
+body[data-theme="creative"] .exp-card-service:hover{transform:translateY(-5px);background:var(--accent);color:#fff;}
+body[data-theme="creative"] .exp-card-service:hover .exp-svc-title{color:#fff;}
+body[data-theme="creative"] .exp-card-service:hover .exp-svc-points li{color:rgba(255,255,255,.9);}
+body[data-theme="creative"] .exp-card-service::before{display:none;}
+body[data-theme="creative"] .exp-svc-icon{background:transparent;border:none;color:var(--accent);font-size:32px;width:auto;height:auto;}
+body[data-theme="creative"] .exp-card-service:hover .exp-svc-icon{color:#fff;}
+body[data-theme="creative"] .exp-svc-title{font-family:'Bebas Neue',sans-serif !important;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:var(--text);}
+
+/* Creative — Projects (sharp edges) */
+body[data-theme="creative"] .pj-card{border-radius:0;background:transparent;}
+body[data-theme="creative"] .pj-card .pj-img{border-radius:0;}
+body[data-theme="creative"] .pj-card .pj-title{font-family:'Bebas Neue',sans-serif !important;font-size:22px;letter-spacing:2px;text-transform:uppercase;}
+body[data-theme="creative"] .pj-card .pj-cat{font-family:'Bebas Neue',sans-serif !important;letter-spacing:2px;}
+
+/* Creative — Education */
+body[data-theme="creative"] .edu-card{background:var(--bg3);border:none;border-radius:0;border-top:4px solid var(--accent);padding:24px;}
+body[data-theme="creative"] .edu-icon{background:var(--accent);color:#fff;border:none;}
+body[data-theme="creative"] .edu-degree{font-family:'Bebas Neue',sans-serif !important;font-size:22px;letter-spacing:1.5px;text-transform:uppercase;}
+
+/* Creative — Form (sharp, dramatic) */
+body[data-theme="creative"] .form-group input,body[data-theme="creative"] .form-group textarea{background:var(--bg3);border:2px solid transparent;border-radius:0;padding:14px 16px;}
+body[data-theme="creative"] .form-group input:focus,body[data-theme="creative"] .form-group textarea:focus{border-color:var(--accent);}
+
+/* Creative — Filter tabs */
+body[data-theme="creative"] .filter-tab{border-radius:0;text-transform:uppercase;letter-spacing:2px;font-family:'Bebas Neue',sans-serif !important;font-size:14px;padding:10px 20px;}
+
+/* Creative — Nav */
+body[data-theme="creative"] .nav-links a{font-family:'Bebas Neue',sans-serif !important;letter-spacing:2px;text-transform:uppercase;font-size:14px;}
+
+/* Creative — Footer */
+body[data-theme="creative"] footer{border-top:6px solid var(--accent);}
+body[data-theme="creative"] .footer-logo{font-family:'Bebas Neue',sans-serif !important;letter-spacing:2px;text-transform:uppercase;}
+
+/* Creative — Tools */
+body[data-theme="creative"] .tool-card{border-radius:0;border-top:3px solid var(--accent);}
+
+/* ───────────────────────────────────────────
+   ④ CINEMA DARK — Cinematic photography
+   ─────────────────────────────────────────── */
 body[data-theme="cinema"]{background:#000 !important;}
 body[data-theme="cinema"] .hero-name{font-family:'Cormorant Garamond',serif !important;font-weight:300;font-style:italic;letter-spacing:-1px;}
 body[data-theme="cinema"] .section-title,body[data-theme="cinema"] .sh h2{font-family:'Cormorant Garamond',serif !important;font-weight:300;font-style:italic;font-size:54px !important;letter-spacing:-1px;}
 body[data-theme="cinema"] .nav-logo{font-family:'Cormorant Garamond',serif !important;font-style:italic;}
-body[data-theme="cinema"] .filter-tab{background:transparent;border:none;border-bottom:1px solid transparent;border-radius:0;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;}
-body[data-theme="cinema"] .filter-tab.active{border-bottom-color:var(--accent);background:transparent;color:var(--accent);}
-body[data-theme="cinema"] .skill-chip{background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:30px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;}
-body[data-theme="cinema"] .pj-card .pj-img{border-radius:0;}
-body[data-theme="cinema"] .pj-card .pj-title{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;font-weight:400;}
 body[data-theme="cinema"] section{padding:100px 5%;}
-body[data-theme="cinema"] .btn-primary,body[data-theme="cinema"] .btn-outline{border-radius:0;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;letter-spacing:2px;text-transform:uppercase;}
 
-/* ── 5. CORPORATE — Professional ── */
+/* Cinema — Section header (centered with line) */
+body[data-theme="cinema"] .sh{text-align:center;margin-bottom:50px;}
+body[data-theme="cinema"] .sl{width:60px;height:1px;background:var(--accent);margin:14px auto 0;}
+
+/* Cinema — Buttons (italic serif) */
+body[data-theme="cinema"] .btn-primary,body[data-theme="cinema"] .btn-outline{border-radius:0 !important;font-family:'Cormorant Garamond',serif !important;font-style:italic;font-size:16px;letter-spacing:2px;text-transform:uppercase;padding:14px 32px;}
+body[data-theme="cinema"] .btn-submit{border-radius:0 !important;font-family:'Cormorant Garamond',serif !important;font-style:italic;letter-spacing:2px;text-transform:uppercase;font-size:16px;}
+
+/* Cinema — Filter tabs (no border, underline only) */
+body[data-theme="cinema"] .filter-tab{background:transparent;border:none;border-bottom:1px solid transparent;border-radius:0;font-family:'Cormorant Garamond',serif !important;font-style:italic;font-size:18px;}
+body[data-theme="cinema"] .filter-tab.active{border-bottom-color:var(--accent);background:transparent;color:var(--accent);}
+
+/* Cinema — Skills */
+body[data-theme="cinema"] .skill-chip{background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:30px;font-family:'Cormorant Garamond',serif !important;font-style:italic;font-size:15px;padding:6px 18px;}
+
+/* Cinema — Expertise (minimal, elegant) */
+body[data-theme="cinema"] .exp-card-service{background:transparent;border:1px solid rgba(255,255,255,.08);border-radius:0;padding:36px 28px;}
+body[data-theme="cinema"] .exp-card-service:hover{border-color:var(--accent);transform:none;background:rgba(201,169,97,.03);}
+body[data-theme="cinema"] .exp-card-service::before{display:none;}
+body[data-theme="cinema"] .exp-svc-icon{background:transparent;border:none;color:var(--accent);font-size:28px;width:auto;height:auto;}
+body[data-theme="cinema"] .exp-svc-title{font-family:'Cormorant Garamond',serif !important;font-style:italic;font-size:26px;font-weight:300;color:var(--text);}
+
+/* Cinema — Projects (cinematic feel) */
+body[data-theme="cinema"] .pj-card{border-radius:0;background:transparent;}
+body[data-theme="cinema"] .pj-card .pj-img{border-radius:0;}
+body[data-theme="cinema"] .pj-card .pj-title{font-family:'Cormorant Garamond',serif !important;font-style:italic;font-size:24px;font-weight:300;}
+body[data-theme="cinema"] .pj-card .pj-cat{font-size:11px;letter-spacing:3px;text-transform:uppercase;}
+
+/* Cinema — Education */
+body[data-theme="cinema"] .edu-card{background:transparent;border:1px solid rgba(255,255,255,.08);border-radius:0;padding:24px 30px;}
+body[data-theme="cinema"] .edu-card:hover{border-color:var(--accent);}
+body[data-theme="cinema"] .edu-icon{background:transparent;color:var(--accent);border:1px solid var(--accent);}
+body[data-theme="cinema"] .edu-degree{font-family:'Cormorant Garamond',serif !important;font-style:italic;font-size:22px;font-weight:400;}
+
+/* Cinema — Form (elegant, minimal borders) */
+body[data-theme="cinema"] .form-group input,body[data-theme="cinema"] .form-group textarea{background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,.15);border-radius:0;padding:14px 4px;font-family:'Cormorant Garamond',serif !important;font-size:16px;}
+body[data-theme="cinema"] .form-group input::placeholder,body[data-theme="cinema"] .form-group textarea::placeholder{font-style:italic;color:rgba(255,255,255,.4);}
+body[data-theme="cinema"] .form-group input:focus,body[data-theme="cinema"] .form-group textarea:focus{border-bottom-color:var(--accent);}
+
+/* Cinema — Nav */
+body[data-theme="cinema"] .nav-links a{font-family:'Cormorant Garamond',serif !important;font-style:italic;font-size:16px;letter-spacing:0;}
+body[data-theme="cinema"] .nav-bar{background:rgba(0,0,0,.85);}
+
+/* Cinema — Footer */
+body[data-theme="cinema"] footer{background:#000;border-top:1px solid rgba(255,255,255,.08);}
+body[data-theme="cinema"] .footer-logo{font-family:'Cormorant Garamond',serif !important;font-style:italic;}
+
+/* Cinema — Tools */
+body[data-theme="cinema"] .tool-card{background:transparent;border:1px solid rgba(255,255,255,.08);border-radius:0;}
+
+/* ───────────────────────────────────────────
+   ⑤ CORPORATE — Professional
+   ─────────────────────────────────────────── */
 body[data-theme="corporate"] .hero-name{font-family:'Cairo',sans-serif !important;font-weight:700;letter-spacing:-1px;}
-body[data-theme="corporate"] .section-title,body[data-theme="corporate"] .sh h2{font-family:'Cairo',sans-serif !important;font-weight:700;font-size:30px !important;}
-body[data-theme="corporate"] .skill-chip{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:4px;font-weight:600;}
+body[data-theme="corporate"] .section-title,body[data-theme="corporate"] .sh h2{font-family:'Cairo',sans-serif !important;font-weight:700;font-size:34px !important;}
+body[data-theme="corporate"] section{padding:75px 5%;}
+
+/* Corporate — Section header (centered, simple) */
+body[data-theme="corporate"] .sh{text-align:center;margin-bottom:40px;}
+body[data-theme="corporate"] .sl{width:48px;height:3px;background:var(--accent);border-radius:2px;margin:14px auto 0;}
+
+/* Corporate — Buttons (rounded, weight 600) */
+body[data-theme="corporate"] .btn-primary,body[data-theme="corporate"] .btn-outline{border-radius:6px !important;font-weight:600;}
+body[data-theme="corporate"] .btn-submit{border-radius:6px !important;font-weight:700;}
+
+/* Corporate — Skills */
+body[data-theme="corporate"] .skill-chip{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:6px;font-weight:600;}
+
+/* Corporate — Expertise (rounded cards with shadow) */
+body[data-theme="corporate"] .exp-card-service{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:30px;box-shadow:0 1px 3px rgba(0,0,0,.1);}
+body[data-theme="corporate"] .exp-card-service:hover{border-color:var(--accent);box-shadow:0 8px 24px rgba(59,130,246,.15);}
+body[data-theme="corporate"] .exp-svc-icon{background:rgba(59,130,246,.1);border:none;}
+body[data-theme="corporate"] .exp-svc-title{font-weight:700;color:var(--text);font-size:18px;}
+
+/* Corporate — Projects */
+body[data-theme="corporate"] .pj-card{border-radius:8px;background:var(--bg2);border:1px solid var(--border);overflow:hidden;}
+body[data-theme="corporate"] .pj-card:hover{border-color:var(--accent);}
+body[data-theme="corporate"] .pj-card .pj-img{border-radius:0;}
+body[data-theme="corporate"] .pj-card .pj-title{font-weight:700;}
+
+/* Corporate — Education */
+body[data-theme="corporate"] .edu-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;}
+
+/* Corporate — Form */
+body[data-theme="corporate"] .form-group input,body[data-theme="corporate"] .form-group textarea{background:var(--bg2);border:1px solid var(--border);border-radius:6px;}
+body[data-theme="corporate"] .form-group input:focus,body[data-theme="corporate"] .form-group textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.15);}
+
+/* Corporate — Nav */
+body[data-theme="corporate"] .nav-bar{border-bottom:1px solid var(--border);background:rgba(10,22,40,.92);}
+
+/* Corporate — Tools */
 body[data-theme="corporate"] .tool-card{border-radius:8px;background:var(--bg2);}
-body[data-theme="corporate"] .pj-card{border-radius:6px;}
-body[data-theme="corporate"] .btn-primary,body[data-theme="corporate"] .btn-outline{border-radius:4px;font-weight:600;}
-body[data-theme="corporate"] section{padding:70px 5%;}
 
 /* ═══════════════ ADDITIONAL LAYOUTS ═══════════════ */
 
