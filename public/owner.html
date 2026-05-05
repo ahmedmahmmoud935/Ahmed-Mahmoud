@@ -37,6 +37,8 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:#fff;min-height:1
 .stat{background:var(--bg2);border:1px solid var(--brd);border-radius:12px;padding:24px;text-align:center}
 .stat-num{font-size:36px;font-weight:800;color:var(--o)}
 .stat-label{color:var(--g2);font-size:13px;margin-top:4px}
+.storage-mini-bar{margin-top:10px;background:#0a0a0a;border-radius:3px;height:5px;overflow:hidden;}
+.storage-mini-fill{height:100%;background:var(--o);border-radius:3px;transition:width .6s ease;width:0%;}
 
 /* SECTION */
 .section{background:var(--bg2);border:1px solid var(--brd);border-radius:12px;overflow:hidden;margin-bottom:24px}
@@ -121,7 +123,17 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div class="stats">
       <div class="stat"><div class="stat-num" id="statUsers">—</div><div class="stat-label">إجمالي العملاء</div></div>
       <div class="stat"><div class="stat-num" id="statNew">—</div><div class="stat-label">عملاء جدد هذا الشهر</div></div>
-      <div class="stat"><div class="stat-num" id="statStorage">—</div><div class="stat-label">المساحة المستخدمة (MB)</div></div>
+      <div class="stat">
+        <div class="stat-num" id="statAvailable" style="font-size:24px">—</div>
+        <div class="stat-label" id="statAvailableLabel">المساحة المتاحة لإضافة عملاء</div>
+        <div class="storage-mini-bar"><div class="storage-mini-fill" id="storageMiniFill"></div></div>
+      </div>
+    </div>
+    <!-- Storage Details -->
+    <div id="storageInfo" style="background:var(--bg2);border:1px solid var(--brd);border-radius:10px;padding:12px 18px;margin-bottom:24px;display:flex;flex-wrap:wrap;gap:18px;font-size:13px;">
+      <div style="color:var(--g2);">📦 <span style="color:#fff;font-weight:600;" id="infoTotal">—</span> إجمالي الديسك</div>
+      <div style="color:var(--g2);">📋 <span style="color:#fff;font-weight:600;" id="infoAllocated">—</span> مخصص للعملاء</div>
+      <div style="color:var(--g2);">📥 <span style="color:#fff;font-weight:600;" id="infoUsed">—</span> مُستخدم فعلياً</div>
     </div>
 
     <!-- USERS TABLE -->
@@ -202,12 +214,26 @@ async function init(){
 }
 
 // ── STATS ──
+function fmtMB(mb){ return mb >= 1024 ? (mb/1024).toFixed(1)+' GB' : Math.round(mb*10)/10+' MB'; }
+
 async function loadStats(){
   try{
     const s = await fetch('/api/owner/stats', {credentials:'include'}).then(r=>r.json());
-    document.getElementById('statUsers').textContent   = s.total_users;
-    document.getElementById('statNew').textContent     = s.new_this_month;
-    document.getElementById('statStorage').textContent = s.total_storage_mb;
+    document.getElementById('statUsers').textContent = s.total_users;
+    document.getElementById('statNew').textContent   = s.new_this_month;
+    // Available card (most actionable metric)
+    document.getElementById('statAvailable').textContent = fmtMB(s.available_mb || 0);
+    document.getElementById('statAvailableLabel').textContent = `متاح من ${fmtMB(s.safe_total_mb || 0)}`;
+    // Mini bar shows allocation %
+    const fill = document.getElementById('storageMiniFill');
+    if(fill){
+      fill.style.width = Math.min(s.alloc_pct || 0, 100) + '%';
+      fill.style.background = s.alloc_pct > 90 ? '#ef4444' : (s.alloc_pct > 70 ? '#f59e0b' : 'var(--o)');
+    }
+    // Info row
+    document.getElementById('infoTotal').textContent     = fmtMB(s.disk_total_mb || 0);
+    document.getElementById('infoAllocated').textContent = fmtMB(s.allocated_mb || 0) + ` (${s.alloc_pct||0}%)`;
+    document.getElementById('infoUsed').textContent      = fmtMB(s.disk_used_mb || 0);
   }catch(e){ console.error('stats error:', e) }
 }
 

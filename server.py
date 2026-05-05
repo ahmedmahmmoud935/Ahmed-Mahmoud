@@ -302,6 +302,23 @@ def list_users():
     users = get_db().execute("SELECT id,username,storage_limit_mb,storage_used_mb,is_owner,created_at FROM users ORDER BY id").fetchall()
     return jsonify([dict(u) for u in users])
 
+def get_disk_total_mb():
+    """Get real disk capacity from Render disk mount, with safety buffer."""
+    try:
+        total, _used, _free = shutil.disk_usage('/var/data')
+        # 100 MB safety buffer for system files (DB, backups, etc.)
+        return max(0, round(total / (1024 * 1024)) - 100)
+    except Exception:
+        return 0
+
+def get_allocated_mb(db, exclude_user_id=None):
+    """Sum of storage_limit_mb for all non-owner users (optionally excluding one user)."""
+    if exclude_user_id is not None:
+        row = db.execute("SELECT COALESCE(SUM(storage_limit_mb),0) FROM users WHERE is_owner=0 AND id != ?", (exclude_user_id,)).fetchone()
+    else:
+        row = db.execute("SELECT COALESCE(SUM(storage_limit_mb),0) FROM users WHERE is_owner=0").fetchone()
+    return row[0] or 0
+
 @app.route('/api/owner/users', methods=['POST'])
 @owner_panel_required
 def create_user():
@@ -314,6 +331,15 @@ def create_user():
     db = get_db()
     if db.execute("SELECT id FROM users WHERE username=?", (username,)).fetchone():
         return jsonify({'error':'اسم المستخدم موجود بالفعل'}), 400
+    # ── Smart capacity check ──
+    disk_total = get_disk_total_mb()
+    allocated  = get_allocated_mb(db)
+    available  = disk_total - allocated
+    if disk_total > 0 and limit_mb > available:
+        def fmt(mb): return f"{round(mb/1024,1)} GB" if mb >= 1024 else f"{mb} MB"
+        return jsonify({
+            'error': f'⚠️ لا تكفي المساحة. الديسك {fmt(disk_total)} | المخصص للعملاء {fmt(allocated)} | المتاح فقط {fmt(max(0,available))}'
+        }), 400
     cur = db.execute("INSERT INTO users(username,password,storage_limit_mb,is_owner) VALUES(?,?,?,0)", (username,password,limit_mb))
     db.commit()
     new_id = cur.lastrowid
@@ -353,6 +379,20 @@ def change_user_password(uid_):
 def update_user_storage(uid_):
     limit = int((request.get_json() or {}).get('storage_limit_mb', 500))
     db = get_db()
+    user = db.execute("SELECT * FROM users WHERE id=?", (uid_,)).fetchone()
+    if not user: return jsonify({'error':'المستخدم غير موجود'}), 404
+    # Don't allow shrinking below currently used storage
+    if limit < user['storage_used_mb']:
+        return jsonify({'error': f'⚠️ لا يمكن تقليل المساحة أقل من المستخدم فعلاً ({round(user["storage_used_mb"],1)} MB)'}), 400
+    # ── Smart capacity check (excluding this user) ──
+    disk_total = get_disk_total_mb()
+    allocated_others = get_allocated_mb(db, exclude_user_id=uid_)
+    available = disk_total - allocated_others
+    if disk_total > 0 and limit > available:
+        def fmt(mb): return f"{round(mb/1024,1)} GB" if mb >= 1024 else f"{mb} MB"
+        return jsonify({
+            'error': f'⚠️ لا تكفي المساحة. الديسك {fmt(disk_total)} | المخصص لباقي العملاء {fmt(allocated_others)} | المتاح لهذا العميل {fmt(max(0,available))}'
+        }), 400
     db.execute("UPDATE users SET storage_limit_mb=? WHERE id=?", (limit, uid_))
     db.commit()
     return jsonify({'ok':True})
@@ -378,15 +418,31 @@ def set_user_domain(uid_):
 def owner_stats():
     db = get_db()
     total_users    = db.execute("SELECT COUNT(*) FROM users WHERE is_owner=0").fetchone()[0]
-    total_storage  = db.execute("SELECT SUM(storage_used_mb) FROM users").fetchone()[0] or 0
-    # New clients this month
     new_this_month = db.execute(
         "SELECT COUNT(*) FROM users WHERE is_owner=0 AND created_at >= datetime('now', 'start of month')"
     ).fetchone()[0]
+    # Real disk + allocation
+    try:
+        total, used, _free = shutil.disk_usage('/var/data')
+        disk_total_mb = round(total / (1024 * 1024))
+        disk_used_mb  = round(used  / (1024 * 1024), 1)
+        disk_pct = round(used / total * 100, 1) if total else 0
+    except Exception:
+        disk_total_mb = disk_used_mb = disk_pct = 0
+    safe_total = get_disk_total_mb()  # capacity minus 100MB buffer
+    allocated  = get_allocated_mb(db)
+    available  = max(0, safe_total - allocated)
+    alloc_pct  = round(allocated / safe_total * 100, 1) if safe_total else 0
     return jsonify({
         'total_users': total_users,
         'new_this_month': new_this_month,
-        'total_storage_mb': round(total_storage, 1),
+        'disk_used_mb': disk_used_mb,
+        'disk_total_mb': disk_total_mb,
+        'disk_pct': disk_pct,
+        'allocated_mb': allocated,
+        'available_mb': available,
+        'alloc_pct': alloc_pct,
+        'safe_total_mb': safe_total,
     })
 
 # ── MY STORAGE (client) ──
