@@ -406,30 +406,6 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 .bg-opt input:checked + .bg-card{border-color:var(--o);transform:scale(1.02);}
 .bg-card.bg-custom{background:#0e0e0e !important;align-items:center;justify-content:center;flex-direction:column;gap:6px;}
 .bg-name{font-size:12px;font-weight:700;}
-
-/* ══ THEME CARDS ══ */
-.theme-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
-.theme-opt{cursor:pointer;}
-.theme-opt input{display:none;}
-.theme-card{background:#0e0e0e;border:2px solid #222;border-radius:14px;overflow:hidden;transition:all .25s;}
-.theme-opt input:checked + .theme-card{border-color:var(--o);transform:translateY(-3px);box-shadow:0 12px 30px rgba(249,115,22,.15);}
-.theme-opt:hover .theme-card{border-color:#444;transform:translateY(-1px);}
-.theme-preview{position:relative;height:130px;background:#0a0a0a;display:flex;flex-direction:column;justify-content:flex-end;padding:14px;overflow:hidden;}
-.tp-bar{position:absolute;top:0;left:0;right:0;height:24px;background:rgba(255,255,255,.04);}
-.tp-bar::before{content:'';position:absolute;top:8px;inset-inline-start:12px;width:30px;height:8px;background:rgba(255,255,255,.2);border-radius:2px;}
-.tp-bar::after{content:'';position:absolute;top:8px;inset-inline-end:12px;width:60px;height:8px;background:rgba(255,255,255,.15);border-radius:2px;}
-.tp-content{position:relative;z-index:1;}
-.tp-title{font-size:18px;font-weight:800;color:#fff;margin-bottom:3px;}
-.tp-sub{font-size:11px;color:#888;letter-spacing:1px;text-transform:uppercase;}
-.theme-info{padding:14px 16px;}
-.theme-name{font-size:15px;font-weight:700;margin-bottom:4px;}
-.theme-desc{font-size:12px;color:#999;margin-bottom:10px;line-height:1.5;}
-.theme-tags{display:flex;gap:5px;flex-wrap:wrap;}
-.theme-tags span{background:rgba(255,255,255,.05);color:#aaa;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;}
-.theme-default .theme-preview{background:repeating-linear-gradient(45deg,#0a0a0a,#0a0a0a 10px,#0e0e0e 10px,#0e0e0e 20px);}
-.theme-editorial .theme-preview{background:linear-gradient(135deg,#0a0a0a,#1a1410);}
-.theme-creative .theme-preview{background:linear-gradient(135deg,#0a0a0a,#1f0a05);}
-.theme-cinema .theme-preview .tp-content::before{content:'';position:absolute;inset:-50px -20px 0 -20px;background:linear-gradient(to top,rgba(0,0,0,.8),transparent);z-index:-1;}
 </style>
 </head>
 <body>
@@ -560,135 +536,15 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 
   <!-- Sub-navigation -->
   <div class="design-subnav">
-    <button class="dsn-btn active" onclick="setDsn('themes',this)"><i class="fa-solid fa-shapes"></i> الثيمات</button>
-    <button class="dsn-btn" onclick="setDsn('layouts',this)"><i class="fa-solid fa-table-layout"></i> التخطيطات</button>
+    <button class="dsn-btn active" onclick="setDsn('layouts',this)"><i class="fa-solid fa-table-layout"></i> التخطيطات</button>
     <button class="dsn-btn" onclick="setDsn('typo',this)"><i class="fa-solid fa-font"></i> الخطوط</button>
     <button class="dsn-btn" onclick="setDsn('bg',this)"><i class="fa-solid fa-fill-drip"></i> الخلفية</button>
     <button class="dsn-btn" onclick="setDsn('cursor',this)"><i class="fa-solid fa-arrow-pointer"></i> المؤشر</button>
     <button class="dsn-btn" onclick="setDsn('anim',this)"><i class="fa-solid fa-wand-sparkles"></i> الحركات</button>
   </div>
 
-  <!-- ── THEMES (NEW) ── -->
-  <div id="dsn-themes" class="dsn-section">
-    <div class="card">
-      <div class="card-title"><i class="fa-solid fa-shapes" style="color:var(--o);margin-left:6px"></i> الثيمات الجاهزة</div>
-      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;">اختر ثيم احترافي كامل — يغير كل شيء دفعة واحدة. تقدر تخصص أي تفصيلة بعدها</p>
-
-      <div class="theme-grid">
-        <!-- Default -->
-        <label class="theme-opt"><input type="radio" name="style_theme" value="default">
-          <div class="theme-card theme-default">
-            <div class="theme-preview">
-              <div class="tp-bar"></div>
-              <div class="tp-content">
-                <div class="tp-title">Custom</div>
-                <div class="tp-sub">تخصيص يدوي</div>
-              </div>
-            </div>
-            <div class="theme-info">
-              <div class="theme-name">⚙️ مخصّص</div>
-              <div class="theme-desc">اختياراتك بنفسك</div>
-            </div>
-          </div></label>
-
-        <!-- 1. Editorial -->
-        <label class="theme-opt"><input type="radio" name="style_theme" value="editorial">
-          <div class="theme-card theme-editorial">
-            <div class="theme-preview">
-              <div class="tp-bar"></div>
-              <div class="tp-content">
-                <div class="tp-title" style="font-family:'Playfair Display',serif;font-style:italic;font-size:16px;">Editorial</div>
-                <div class="tp-sub">مجلة فاخرة</div>
-              </div>
-            </div>
-            <div class="theme-info">
-              <div class="theme-name">📰 Editorial</div>
-              <div class="theme-desc">مجلة فاخرة — للكتّاب والمخرجين</div>
-              <div class="theme-tags"><span>Playfair</span><span>ضخم</span><span>Timeline</span></div>
-            </div>
-          </div></label>
-
-        <!-- 2. Minimal Pro -->
-        <label class="theme-opt"><input type="radio" name="style_theme" value="minimal">
-          <div class="theme-card theme-minimal">
-            <div class="theme-preview" style="background:#fafaf5">
-              <div class="tp-bar" style="background:rgba(0,0,0,.06)"></div>
-              <div class="tp-content" style="color:#1a1a1a">
-                <div class="tp-title" style="font-family:'Inter',sans-serif;font-weight:800;color:#1a1a1a">Minimal</div>
-                <div class="tp-sub" style="color:#666">Clean & Modern</div>
-              </div>
-            </div>
-            <div class="theme-info">
-              <div class="theme-name">⚪ Minimal Pro</div>
-              <div class="theme-desc">نظيف وعصري — لمصممي UI/UX</div>
-              <div class="theme-tags"><span>Inter</span><span>فاتح</span><span>Grid</span></div>
-            </div>
-          </div></label>
-
-        <!-- 3. Creative Bold -->
-        <label class="theme-opt"><input type="radio" name="style_theme" value="creative">
-          <div class="theme-card theme-creative">
-            <div class="theme-preview">
-              <div class="tp-bar" style="background:rgba(255,69,0,.3)"></div>
-              <div class="tp-content">
-                <div class="tp-title" style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:#FF4500">CREATIVE</div>
-                <div class="tp-sub">BIG & BOLD</div>
-              </div>
-            </div>
-            <div class="theme-info">
-              <div class="theme-name">🎨 Creative Bold</div>
-              <div class="theme-desc">جريء وملوّن — للمصممين الجرافيك</div>
-              <div class="theme-tags"><span>Bebas</span><span>Masonry</span><span>برتقالي</span></div>
-            </div>
-          </div></label>
-
-        <!-- 4. Cinema Dark -->
-        <label class="theme-opt"><input type="radio" name="style_theme" value="cinema">
-          <div class="theme-card theme-cinema">
-            <div class="theme-preview" style="background:#000">
-              <div class="tp-bar" style="background:rgba(201,169,97,.2)"></div>
-              <div class="tp-content">
-                <div class="tp-title" style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:22px;color:#C9A961">Cinema</div>
-                <div class="tp-sub" style="color:#888">Cinematic Dark</div>
-              </div>
-            </div>
-            <div class="theme-info">
-              <div class="theme-name">🎬 Cinema Dark</div>
-              <div class="theme-desc">سينمائي مظلم — للمصورين والفيديو</div>
-              <div class="theme-tags"><span>Cormorant</span><span>صورة كاملة</span><span>ذهبي</span></div>
-            </div>
-          </div></label>
-
-        <!-- 5. Corporate -->
-        <label class="theme-opt"><input type="radio" name="style_theme" value="corporate">
-          <div class="theme-card theme-corporate">
-            <div class="theme-preview" style="background:linear-gradient(135deg,#0a1628,#0f1f3d)">
-              <div class="tp-bar" style="background:rgba(59,130,246,.3)"></div>
-              <div class="tp-content">
-                <div class="tp-title" style="color:#3B82F6;font-weight:700">Corporate</div>
-                <div class="tp-sub" style="color:#8a9cb8">Professional</div>
-              </div>
-            </div>
-            <div class="theme-info">
-              <div class="theme-name">💼 Corporate</div>
-              <div class="theme-desc">احترافي ومنظّم — للاستشاريين</div>
-              <div class="theme-tags"><span>Cairo</span><span>Split</span><span>أزرق</span></div>
-            </div>
-          </div></label>
-      </div>
-
-      <div style="margin-top:20px;background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.2);border-radius:10px;padding:14px;display:flex;gap:10px;align-items:flex-start;">
-        <i class="fa-solid fa-info-circle" style="color:var(--o);font-size:18px;margin-top:2px;"></i>
-        <div>
-          <div style="font-weight:700;font-size:13px;margin-bottom:4px;">كيف تعمل الثيمات؟</div>
-          <p style="color:#999;font-size:12px;margin:0;line-height:1.7;">الثيم بيغير كل شي دفعة واحدة (الخط، الخلفية، التخطيطات...). بعد ما تختار ثيم، تقدر تروح لأي تبويب (الخطوط، الخلفية، التخطيطات) وتعدّل أي تفصيلة. تعديلاتك بتغلب على الثيم.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- ── LAYOUTS ── -->
-  <div id="dsn-layouts" class="dsn-section" style="display:none;">
+  <div id="dsn-layouts" class="dsn-section">
     <div class="card">
       <div class="card-title"><i class="fa-solid fa-house" style="color:var(--o);margin-left:6px"></i> القسم الرئيسي (Hero)</div>
       <p style="color:var(--g2);font-size:13px;margin-bottom:18px;">اختر شكل أول قسم يشاهده الزائر</p>
@@ -1425,7 +1281,7 @@ function setTab(tab,el){
 function setDsn(sec, btn){
   document.querySelectorAll('.dsn-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  ['themes','layouts','typo','bg','cursor','anim'].forEach(s=>{
+  ['layouts','typo','bg','cursor','anim'].forEach(s=>{
     const el=document.getElementById('dsn-'+s);
     if(el) el.style.display = s===sec ? 'block' : 'none';
   });
@@ -1438,7 +1294,6 @@ function loadDesign(){
     const r = document.querySelector(`input[name="${name}"][value="${v}"]`);
     if(r) r.checked = true;
   };
-  setRadio('style_theme',     S.style_theme,     'default');
   setRadio('style_hero',      S.style_hero,      'centered');
   setRadio('style_about',     S.style_about,     'classic');
   setRadio('style_font',      S.style_font,      'default');
@@ -1447,25 +1302,6 @@ function loadDesign(){
   setRadio('style_bg_type',   S.style_bg_type,   'solid');
   setRadio('style_cursor',    S.style_cursor,    'default');
   setRadio('style_anim',      S.style_anim,      'fade-up');
-
-  // Theme change handler — when user picks a theme, mark customizations as not custom
-  document.querySelectorAll('input[name="style_theme"]').forEach(r=>{
-    r.onchange = () => {
-      // When a new theme is selected, clear all _custom flags so theme defaults apply
-      ['style_hero','style_about','style_font','style_bg_preset','style_anim','colors'].forEach(k=>{
-        S['_custom_'+k] = false;
-      });
-      showToast('💡 تم اختيار الثيم — احفظ لتطبيقه', 'success');
-    };
-  });
-
-  // Mark customizations: when user changes anything in other tabs, set _custom flag
-  ['style_hero','style_about','style_font','style_bg_preset','style_anim'].forEach(name=>{
-    document.querySelectorAll(`input[name="${name}"]`).forEach(r=>{
-      const orig = r.onchange;
-      r.addEventListener('change', () => { S['_custom_'+name] = true; });
-    });
-  });
 
   // Custom bg colors
   const c1=document.getElementById('bgColor1'), h1=document.getElementById('bgHex1');
@@ -1482,11 +1318,6 @@ function loadDesign(){
   setColor('cAccent', 'hAccent', colors.accent || '#F97316');
   setColor('cText',   'hText',   colors.text   || '#FFFFFF');
   setColor('cSub',    'hSub',    colors.subtext|| '#999999');
-  // Mark colors as customized when accent/text/sub change
-  ['cAccent','cText','cSub'].forEach(id=>{
-    const el = document.getElementById(id);
-    if(el) el.addEventListener('change', () => { S._custom_colors = true; });
-  });
 
   // Hero cover image
   if(S.hero_cover_url) updateHeroPreviewImg(S.hero_cover_url);
@@ -1526,8 +1357,6 @@ async function saveDesign(){
   const elVal = id => { const el=document.getElementById(id); return el ? el.value : null; };
 
   const payload = {
-    // Theme
-    style_theme: get('style_theme') || 'default',
     // Layouts
     style_hero:      get('style_hero')      || 'centered',
     style_about:     get('style_about')     || 'classic',
@@ -1542,13 +1371,6 @@ async function saveDesign(){
     // Cursor + Animations
     style_cursor:    get('style_cursor')    || 'default',
     style_anim:      get('style_anim')      || 'fade-up',
-    // Customization flags (1 if user explicitly customized, overrides theme)
-    _custom_style_hero:      S._custom_style_hero ? '1' : '0',
-    _custom_style_about:     S._custom_style_about ? '1' : '0',
-    _custom_style_font:      S._custom_style_font ? '1' : '0',
-    _custom_style_bg_preset: S._custom_style_bg_preset ? '1' : '0',
-    _custom_style_anim:      S._custom_style_anim ? '1' : '0',
-    _custom_colors:          S._custom_colors ? '1' : '0',
     // Theme Colors (consolidated into 'colors' object)
     colors: {
       accent:  elVal('cAccent') || '#F97316',

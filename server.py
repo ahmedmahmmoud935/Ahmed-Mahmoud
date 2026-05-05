@@ -123,7 +123,6 @@ def default_settings(user_id, db):
         ('sections', DEFAULT_SECTIONS),
         ('content', DEFAULT_CONTENT),
         # Design system defaults
-        ('style_theme', 'default'),
         ('style_hero', 'centered'),
         ('style_about', 'classic'),
         ('style_font', 'default'),
