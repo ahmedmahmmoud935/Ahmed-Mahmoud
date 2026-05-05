@@ -378,9 +378,16 @@ def set_user_domain(uid_):
 def owner_stats():
     db = get_db()
     total_users    = db.execute("SELECT COUNT(*) FROM users WHERE is_owner=0").fetchone()[0]
-    total_projects = db.execute("SELECT COUNT(*) FROM projects").fetchone()[0]
     total_storage  = db.execute("SELECT SUM(storage_used_mb) FROM users").fetchone()[0] or 0
-    return jsonify({'total_users': total_users, 'total_projects': total_projects, 'total_storage_mb': round(total_storage, 1)})
+    # New clients this month
+    new_this_month = db.execute(
+        "SELECT COUNT(*) FROM users WHERE is_owner=0 AND created_at >= datetime('now', 'start of month')"
+    ).fetchone()[0]
+    return jsonify({
+        'total_users': total_users,
+        'new_this_month': new_this_month,
+        'total_storage_mb': round(total_storage, 1),
+    })
 
 # ── MY STORAGE (client) ──
 @app.route('/api/me/storage')

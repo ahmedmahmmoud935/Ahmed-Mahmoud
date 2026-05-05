@@ -120,7 +120,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <!-- STATS -->
     <div class="stats">
       <div class="stat"><div class="stat-num" id="statUsers">—</div><div class="stat-label">إجمالي العملاء</div></div>
-      <div class="stat"><div class="stat-num" id="statProjects">—</div><div class="stat-label">إجمالي المشاريع</div></div>
+      <div class="stat"><div class="stat-num" id="statNew">—</div><div class="stat-label">عملاء جدد هذا الشهر</div></div>
       <div class="stat"><div class="stat-num" id="statStorage">—</div><div class="stat-label">المساحة المستخدمة (MB)</div></div>
     </div>
 
@@ -205,9 +205,9 @@ async function init(){
 async function loadStats(){
   try{
     const s = await fetch('/api/owner/stats', {credentials:'include'}).then(r=>r.json());
-    document.getElementById('statUsers').textContent    = s.total_users;
-    document.getElementById('statProjects').textContent = s.total_projects;
-    document.getElementById('statStorage').textContent  = s.total_storage_mb;
+    document.getElementById('statUsers').textContent   = s.total_users;
+    document.getElementById('statNew').textContent     = s.new_this_month;
+    document.getElementById('statStorage').textContent = s.total_storage_mb;
   }catch(e){ console.error('stats error:', e) }
 }
 
@@ -236,10 +236,11 @@ async function loadUsers(){
           <div class="storage-bar"><div class="storage-fill" style="width:${pct}%;background:${color}"></div></div>
           <div style="font-size:11px;color:var(--g2)">${(+u.storage_used_mb).toFixed(1)} / ${u.storage_limit_mb} MB</div>
         </td>
-        <td id="domain-cell-${u.id}"><span style="color:var(--g2);font-size:12px">جاري التحميل...</span></td>
+        <td id="domain-cell-${u.id}">${u.is_owner ? '<span style="color:var(--g2);font-size:12px">—</span>' : '<span style="color:var(--g2);font-size:12px">جاري التحميل...</span>'}</td>
         <td>
           <div class="actions">
             ${!u.is_owner ? `
+              <button class="btn-icon" title="تعديل المساحة" onclick="editStorage(${u.id},'${u.username}',${u.storage_limit_mb})"><i class="fa-solid fa-hard-drive"></i></button>
               <button class="btn-icon" title="إعداد الدومين" onclick="manageDomain(${u.id},'${u.username}')"><i class="fa-solid fa-globe"></i></button>
               <button class="btn-icon" title="تغيير كلمة المرور" onclick="changePass(${u.id},'${u.username}')"><i class="fa-solid fa-key"></i></button>
               <button class="btn-icon danger" title="حذف العميل" onclick="deleteUser(${u.id},'${u.username}')"><i class="fa-solid fa-trash"></i></button>
@@ -307,6 +308,22 @@ async function changePass(uid, username){
   const r = await fetch(`/api/owner/users/${uid}/password`, {method:'PUT', credentials:'include', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:newPass})}).then(r=>r.json());
   if(r.error){ toast(r.error,'error'); return; }
   toast('تم تغيير كلمة المرور ✅');
+}
+
+// ── EDIT STORAGE LIMIT ──
+async function editStorage(uid, username, currentLimit){
+  const input = prompt(
+    `حد المساحة للعميل "${username}"\n\nاكتب الحد بالـ MB:\n• 200 = 200 ميجابايت\n• 500 = 500 ميجابايت (افتراضي)\n• 1024 = 1 جيجا\n• 2048 = 2 جيجا\n• 5120 = 5 جيجا\n\nالحد الحالي: ${currentLimit} MB`,
+    String(currentLimit)
+  );
+  if(input === null) return;
+  const newLimit = parseInt(input.trim());
+  if(!newLimit || newLimit < 50){ toast('قيمة غير صحيحة (50 MB على الأقل)','error'); return; }
+  if(newLimit > 51200){ toast('قيمة كبيرة جداً (50 GB حد أقصى)','error'); return; }
+  const r = await fetch(`/api/owner/users/${uid}/storage`, {method:'PUT', credentials:'include', headers:{'Content-Type':'application/json'}, body:JSON.stringify({storage_limit_mb:newLimit})}).then(r=>r.json());
+  if(r.error){ toast(r.error,'error'); return; }
+  await loadUsers();
+  toast(`تم تعديل المساحة إلى ${newLimit} MB ✅`);
 }
 
 // ── DOMAIN MANAGEMENT ──
