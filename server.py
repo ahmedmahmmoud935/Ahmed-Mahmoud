@@ -312,11 +312,11 @@ def get_disk_total_mb():
         return 0
 
 def get_allocated_mb(db, exclude_user_id=None):
-    """Sum of storage_limit_mb for all non-owner users (optionally excluding one user)."""
+    """Sum of storage_limit_mb for ALL users (including owner)."""
     if exclude_user_id is not None:
-        row = db.execute("SELECT COALESCE(SUM(storage_limit_mb),0) FROM users WHERE is_owner=0 AND id != ?", (exclude_user_id,)).fetchone()
+        row = db.execute("SELECT COALESCE(SUM(storage_limit_mb),0) FROM users WHERE id != ?", (exclude_user_id,)).fetchone()
     else:
-        row = db.execute("SELECT COALESCE(SUM(storage_limit_mb),0) FROM users WHERE is_owner=0").fetchone()
+        row = db.execute("SELECT COALESCE(SUM(storage_limit_mb),0) FROM users").fetchone()
     return row[0] or 0
 
 @app.route('/api/owner/users', methods=['POST'])
