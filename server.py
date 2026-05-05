@@ -585,13 +585,17 @@ def proj_dict(row, db):
 
 @app.route('/api/projects')
 def get_projects():
-    user_id = session.get('user_id')
+    # If URL explicitly specifies user_id, use it (public viewing)
+    # Otherwise use session (admin viewing own projects)
+    uid_p = request.args.get('user_id')
+    if uid_p:
+        try: user_id = int(uid_p)
+        except: user_id = None
+    else:
+        user_id = session.get('user_id')
     if not user_id:
-        uid_p = request.args.get('user_id')
-        if uid_p: user_id = int(uid_p)
-        else:
-            owner = get_db().execute("SELECT id FROM users WHERE is_owner=1").fetchone()
-            user_id = owner['id'] if owner else 1
+        owner = get_db().execute("SELECT id FROM users WHERE is_owner=1").fetchone()
+        user_id = owner['id'] if owner else 1
     db = get_db()
     rows = db.execute('SELECT * FROM projects WHERE user_id=? ORDER BY sort_order DESC, id DESC', (user_id,)).fetchall()
     return jsonify([proj_dict(r, db) for r in rows])
@@ -748,13 +752,16 @@ def save_modules(pid):
 # ── SETTINGS ──
 @app.route('/api/settings')
 def get_settings():
-    user_id = session.get('user_id')
+    # URL user_id parameter takes priority over session (for public viewing)
+    uid_p = request.args.get('user_id')
+    if uid_p:
+        try: user_id = int(uid_p)
+        except: user_id = None
+    else:
+        user_id = session.get('user_id')
     if not user_id:
-        uid_p = request.args.get('user_id')
-        if uid_p: user_id = int(uid_p)
-        else:
-            owner = get_db().execute("SELECT id FROM users WHERE is_owner=1").fetchone()
-            user_id = owner['id'] if owner else 1
+        owner = get_db().execute("SELECT id FROM users WHERE is_owner=1").fetchone()
+        user_id = owner['id'] if owner else 1
     rows = get_db().execute('SELECT key,value FROM settings WHERE user_id=?', (user_id,)).fetchall()
     out = {}
     for r in rows:
