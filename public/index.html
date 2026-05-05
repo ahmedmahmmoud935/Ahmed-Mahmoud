@@ -437,6 +437,119 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:28px 60p
 .hero-cover-full .hero-sub{font-size:13px;letter-spacing:8px;margin-bottom:30px;text-shadow:0 1px 10px rgba(0,0,0,.6);}
 .hero-cover-full::after{content:'';position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.7) 0%, rgba(0,0,0,.2) 60%, transparent 100%);z-index:1;pointer-events:none;}
 
+/* ═══════════════ THEME SYSTEM ═══════════════ */
+/* Each theme overrides typography, spacing, and component styles */
+
+/* ── 1. EDITORIAL — Magazine luxury ── */
+body[data-theme="editorial"]{letter-spacing:0;}
+body[data-theme="editorial"] .hero-name{font-family:'Playfair Display',serif !important;font-weight:900;font-style:italic;letter-spacing:-3px;}
+body[data-theme="editorial"] .section-title,body[data-theme="editorial"] .sh h2{font-family:'Playfair Display',serif !important;font-style:italic;font-weight:800;letter-spacing:-1px;}
+body[data-theme="editorial"] .nav-logo{font-family:'Playfair Display',serif !important;font-style:italic;font-weight:800;}
+body[data-theme="editorial"] .skill-chip{border-radius:0;border-bottom:2px solid var(--accent);background:transparent;padding:8px 0 6px;}
+body[data-theme="editorial"] section{padding:90px 5%;}
+body[data-theme="editorial"] .sh{margin-bottom:50px;border-top:1px solid var(--accent);padding-top:30px;}
+body[data-theme="editorial"] .pj-card{border-radius:0;}
+body[data-theme="editorial"] .pj-card .pj-img{border-radius:0;}
+body[data-theme="editorial"] .pj-card .pj-title{font-family:'Playfair Display',serif;font-style:italic;font-size:22px;}
+
+/* ── 2. MINIMAL PRO — Clean and modern ── */
+body[data-theme="minimal"] *{letter-spacing:-0.02em;}
+body[data-theme="minimal"] .hero-name{font-family:'Inter',sans-serif !important;font-weight:800;letter-spacing:-3px;}
+body[data-theme="minimal"] .section-title,body[data-theme="minimal"] .sh h2{font-family:'Inter',sans-serif !important;font-weight:700;letter-spacing:-1px;}
+body[data-theme="minimal"] .skill-chip{border-radius:6px;border:1px solid var(--border);background:transparent;font-weight:500;}
+body[data-theme="minimal"] .tool-card,body[data-theme="minimal"] .pj-card{border-radius:8px;}
+body[data-theme="minimal"] .btn-primary,body[data-theme="minimal"] .btn-outline{border-radius:6px;font-weight:500;letter-spacing:0;}
+body[data-theme="minimal"] section{padding:80px 5%;}
+body[data-theme="minimal"] .sl{display:none;}
+body[data-theme="minimal"] .sh{margin-bottom:36px;}
+
+/* ── 3. CREATIVE BOLD — Big and confident ── */
+body[data-theme="creative"] .hero-name{font-family:'Bebas Neue',sans-serif !important;font-weight:400;letter-spacing:1px;line-height:.92;}
+body[data-theme="creative"] .section-title,body[data-theme="creative"] .sh h2{font-family:'Bebas Neue',sans-serif !important;letter-spacing:2px;font-size:42px !important;}
+body[data-theme="creative"] .nav-logo{font-family:'Bebas Neue',sans-serif !important;letter-spacing:2px;font-size:20px;}
+body[data-theme="creative"] .filter-tab{border-radius:0;text-transform:uppercase;letter-spacing:2px;font-family:'Bebas Neue',sans-serif;font-size:14px;padding:10px 20px;}
+body[data-theme="creative"] .skill-chip{background:var(--accent);color:#fff;border:none;font-weight:700;border-radius:0;padding:8px 16px;text-transform:uppercase;font-size:11px;letter-spacing:1.5px;}
+body[data-theme="creative"] .tag{background:var(--accent);color:#fff;border-radius:0;text-transform:uppercase;font-size:11px;letter-spacing:1.5px;}
+body[data-theme="creative"] .btn-primary{border-radius:0;text-transform:uppercase;letter-spacing:3px;}
+body[data-theme="creative"] .btn-outline{border-radius:0;text-transform:uppercase;letter-spacing:3px;}
+body[data-theme="creative"] .pj-card{border-radius:0;}
+body[data-theme="creative"] .pj-card .pj-img{border-radius:0;}
+
+/* ── 4. CINEMA DARK — Cinematic photography ── */
+body[data-theme="cinema"]{background:#000 !important;}
+body[data-theme="cinema"] .hero-name{font-family:'Cormorant Garamond',serif !important;font-weight:300;font-style:italic;letter-spacing:-1px;}
+body[data-theme="cinema"] .section-title,body[data-theme="cinema"] .sh h2{font-family:'Cormorant Garamond',serif !important;font-weight:300;font-style:italic;font-size:54px !important;letter-spacing:-1px;}
+body[data-theme="cinema"] .nav-logo{font-family:'Cormorant Garamond',serif !important;font-style:italic;}
+body[data-theme="cinema"] .filter-tab{background:transparent;border:none;border-bottom:1px solid transparent;border-radius:0;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;}
+body[data-theme="cinema"] .filter-tab.active{border-bottom-color:var(--accent);background:transparent;color:var(--accent);}
+body[data-theme="cinema"] .skill-chip{background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:30px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;}
+body[data-theme="cinema"] .pj-card .pj-img{border-radius:0;}
+body[data-theme="cinema"] .pj-card .pj-title{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;font-weight:400;}
+body[data-theme="cinema"] section{padding:100px 5%;}
+body[data-theme="cinema"] .btn-primary,body[data-theme="cinema"] .btn-outline{border-radius:0;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;letter-spacing:2px;text-transform:uppercase;}
+
+/* ── 5. CORPORATE — Professional ── */
+body[data-theme="corporate"] .hero-name{font-family:'Cairo',sans-serif !important;font-weight:700;letter-spacing:-1px;}
+body[data-theme="corporate"] .section-title,body[data-theme="corporate"] .sh h2{font-family:'Cairo',sans-serif !important;font-weight:700;font-size:30px !important;}
+body[data-theme="corporate"] .skill-chip{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:4px;font-weight:600;}
+body[data-theme="corporate"] .tool-card{border-radius:8px;background:var(--bg2);}
+body[data-theme="corporate"] .pj-card{border-radius:6px;}
+body[data-theme="corporate"] .btn-primary,body[data-theme="corporate"] .btn-outline{border-radius:4px;font-weight:600;}
+body[data-theme="corporate"] section{padding:70px 5%;}
+
+/* ═══════════════ ADDITIONAL LAYOUTS ═══════════════ */
+
+/* SKILLS — Bars layout */
+.skills-bars{display:grid;grid-template-columns:1fr;gap:14px;max-width:680px;margin:0 auto;}
+.skill-bar-item{display:flex;align-items:center;gap:14px;}
+.skill-bar-name{flex-shrink:0;width:140px;font-weight:600;font-size:14px;}
+.skill-bar-track{flex:1;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;}
+.skill-bar-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .8s ease;}
+
+/* SKILLS — Inline tags (pure typography) */
+.skills-inline{font-size:clamp(20px,2.6vw,32px);font-weight:300;line-height:1.6;text-align:center;max-width:1100px;margin:0 auto;color:var(--sub);}
+.skills-inline span{color:var(--text);font-weight:600;display:inline-block;margin:0 4px;transition:color .2s;}
+.skills-inline span:hover{color:var(--accent);}
+.skills-inline .dot{color:var(--accent);margin:0 8px;}
+
+/* TOOLS — Compact list */
+.tools-compact{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;}
+.tool-compact{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--border);padding:10px 16px;border-radius:30px;font-size:13px;font-weight:600;}
+.tool-compact i{color:var(--accent);font-size:16px;}
+.tool-compact img{width:18px;height:18px;object-fit:contain;border-radius:3px;}
+
+/* EXPERIENCE — Timeline */
+.exp-timeline{position:relative;max-width:760px;margin:0 auto;padding-inline-start:32px;}
+.exp-timeline::before{content:'';position:absolute;inset-inline-start:7px;top:8px;bottom:8px;width:1px;background:var(--border);}
+.exp-tl-item{position:relative;padding-bottom:32px;}
+.exp-tl-item::before{content:'';position:absolute;inset-inline-start:-30px;top:6px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--accent);}
+.exp-tl-period{font-size:12px;color:var(--accent);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.exp-tl-company{font-size:18px;font-weight:700;margin-bottom:4px;}
+.exp-tl-role{color:var(--sub);font-size:14px;}
+
+/* PROJECTS — Masonry-ish */
+.projects-grid.mode-masonry{column-count:3;column-gap:14px;}
+.projects-grid.mode-masonry .pj-card{break-inside:avoid;margin-bottom:14px;display:inline-block;width:100%;}
+@media(max-width:900px){.projects-grid.mode-masonry{column-count:2;}}
+@media(max-width:560px){.projects-grid.mode-masonry{column-count:1;}}
+
+/* PROJECTS — List style (text-focused) */
+.projects-grid.mode-list{display:flex;flex-direction:column;gap:0;}
+.projects-grid.mode-list .pj-card{display:flex;align-items:center;gap:24px;padding:20px 0;border-radius:0;border-top:1px solid var(--border);background:transparent;}
+.projects-grid.mode-list .pj-card:last-child{border-bottom:1px solid var(--border);}
+.projects-grid.mode-list .pj-img{width:120px;height:80px;flex-shrink:0;border-radius:6px;}
+.projects-grid.mode-list .pj-info{flex:1;padding:0;}
+.projects-grid.mode-list .pj-title{font-size:20px;margin-bottom:4px;}
+.projects-grid.mode-list .pj-cat{font-size:12px;}
+@media(max-width:560px){.projects-grid.mode-list .pj-card{flex-direction:column;align-items:flex-start;}.projects-grid.mode-list .pj-img{width:100%;height:200px;}}
+
+/* CONTACT — Split layout */
+.contact-split{display:grid;grid-template-columns:1fr 1fr;gap:48px;max-width:1100px;margin:0 auto;align-items:start;}
+.contact-split-info{padding:8px 0;}
+.contact-split-info .ci-item{display:flex;align-items:center;gap:14px;margin-bottom:18px;font-size:15px;}
+.contact-split-info .ci-item i{width:40px;height:40px;background:var(--bg2);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:16px;flex-shrink:0;}
+@media(max-width:900px){.contact-split{grid-template-columns:1fr;}}
+
 /* ── ABOUT LAYOUTS ── */
 .about-simple{text-align:center;max-width:760px;margin:0 auto;}
 .about-simple .about-text{font-size:18px;line-height:1.9;margin:24px 0;}
@@ -550,7 +663,14 @@ function applyColors(){
   const c=S.colors||{},r=document.documentElement;
   const dk=(h,p)=>{const n=parseInt(h.replace('#',''),16),f=1-p/100;return'#'+[n>>16,n>>8&0xff,n&0xff].map(v=>Math.max(0,Math.round(v*f)).toString(16).padStart(2,'0')).join('');};
   const lk=(h,p)=>{const n=parseInt(h.replace('#',''),16);return'#'+[n>>16,n>>8&0xff,n&0xff].map(v=>Math.min(255,Math.round(v+255*p/100)).toString(16).padStart(2,'0')).join('');};
-  if(c.accent){r.style.setProperty('--accent',c.accent);r.style.setProperty('--accent2',dk(c.accent,15));}
+  // Theme can suggest accent (only if user hasn't customized it)
+  let accent = c.accent;
+  if(!S._custom_colors){
+    const themeId = S.style_theme || 'default';
+    const theme = THEMES[themeId];
+    if(theme && theme.accent) accent = theme.accent;
+  }
+  if(accent){r.style.setProperty('--accent',accent);r.style.setProperty('--accent2',dk(accent,15));}
   if(c.bg){r.style.setProperty('--bg',c.bg);}
   if(c.bg2){r.style.setProperty('--bg2',c.bg2);r.style.setProperty('--bg3',lk(c.bg2,5));}
   if(c.text)r.style.setProperty('--text',c.text);
@@ -558,6 +678,89 @@ function applyColors(){
 }
 
 // ══════════════ STYLE SYSTEM ══════════════
+// ══════════════ THEME SYSTEM ══════════════
+// Each theme is a complete preset that overrides multiple style choices.
+// Themes can still be customized by user after selection.
+const THEMES = {
+  // Default — current behavior, no overrides
+  default: null,
+
+  // 1. Editorial — Magazine luxury (Playfair, dark, dramatic)
+  editorial: {
+    style_hero:      'massive',
+    style_about:     'visual',
+    style_font:      'editorial',
+    style_bg_preset: 'dark',
+    style_anim:      'fade-up',
+    style_skills:    'inline',
+    style_tools:     'compact',
+    style_exp:       'timeline',
+    style_projects:  'list',
+    style_contact:   'split',
+    accent:          '#D4A574',
+  },
+
+  // 2. Minimal Pro — Clean, monochrome, tech
+  minimal: {
+    style_hero:      'minimal',
+    style_about:     'simple',
+    style_font:      'modern',
+    style_bg_preset: 'pearl',
+    style_anim:      'fade',
+    style_skills:    'tags',
+    style_tools:     'compact',
+    style_exp:       'classic',
+    style_projects:  'grid',
+    style_contact:   'classic',
+    accent:          '#000000',
+  },
+
+  // 3. Creative Bold — Big typography, vibrant accents
+  creative: {
+    style_hero:      'massive',
+    style_about:     'classic',
+    style_font:      'bold',
+    style_bg_preset: 'dark',
+    style_anim:      'fade-up',
+    style_skills:    'tags',
+    style_tools:     'classic',
+    style_exp:       'classic',
+    style_projects:  'masonry',
+    style_contact:   'classic',
+    accent:          '#FF4500',
+  },
+
+  // 4. Cinema Dark — Cinematic photography
+  cinema: {
+    style_hero:      'cover-full',
+    style_about:     'visual',
+    style_font:      'elegant',
+    style_bg_preset: 'mono',
+    style_anim:      'fade',
+    style_skills:    'tags',
+    style_tools:     'compact',
+    style_exp:       'timeline',
+    style_projects:  'masonry',
+    style_contact:   'split',
+    accent:          '#C9A961',
+  },
+
+  // 5. Corporate — Professional, structured
+  corporate: {
+    style_hero:      'split',
+    style_about:     'classic',
+    style_font:      'default',
+    style_bg_preset: 'ocean',
+    style_anim:      'fade-up',
+    style_skills:    'bars',
+    style_tools:     'classic',
+    style_exp:       'classic',
+    style_projects:  'grid',
+    style_contact:   'split',
+    accent:          '#3B82F6',
+  },
+};
+
 const FONT_PAIRS = {
   default: { ar:'Cairo',         en:'Montserrat',          weights:'400;600;700;800;900' },
   modern:  { ar:'Tajawal',       en:'Inter',               weights:'400;500;700;800' },
@@ -576,8 +779,23 @@ const BG_PRESETS = {
 
 function applyStyle(){
   const root=document.documentElement, body=document.body;
+
+  // 0. Apply theme overrides (theme can override individual settings)
+  const themeId = S.style_theme || 'default';
+  const theme = THEMES[themeId];
+  body.dataset.theme = themeId;
+  // Effective settings: theme defaults, but user customizations win
+  const eff = (key, fallback) => {
+    // If user explicitly customized, use their value
+    if(S['_custom_'+key]) return S[key];
+    // Else use theme value if exists
+    if(theme && theme[key] !== undefined) return theme[key];
+    // Else use S value or fallback
+    return S[key] || fallback;
+  };
   // 1. Font
-  const fp = FONT_PAIRS[S.style_font] || FONT_PAIRS.default;
+  const fontId = eff('style_font', 'default');
+  const fp = FONT_PAIRS[fontId] || FONT_PAIRS.default;
   loadFontPair(fp);
   root.style.setProperty('--font-ar', `'${fp.ar}', sans-serif`);
   root.style.setProperty('--font-en', `'${fp.en}', sans-serif`);
@@ -591,7 +809,7 @@ function applyStyle(){
   // 2. Background
   body.classList.remove('bg-gradient','bg-noise','bg-light');
   body.style.background=''; body.style.backgroundAttachment='';
-  const presetId = S.style_bg_preset || 'dark';
+  const presetId = eff('style_bg_preset', 'dark');
   let p;
   if(presetId === 'custom'){
     const c1 = S.style_bg_color1 || '#0a0a0a';
@@ -759,7 +977,9 @@ function buildExpertise(c,a){
 }
 
 function buildHero(c,a){
-  const layout = S.style_hero || 'centered';
+  const themeId = S.style_theme || 'default';
+  const theme = THEMES[themeId];
+  const layout = (theme && !S._custom_style_hero && theme.style_hero) || S.style_hero || 'centered';
   const name=a?(c.name_ar||''):(c.name_en||'');const title=a?(c.title_ar||''):(c.title_en||'');
   const b1=a?(c.btn1_ar||''):(c.btn1_en||'');const b2=a?(c.btn2_ar||''):(c.btn2_en||'');
   const ps=name.split(' ');const f=ps[0]||name;const l=ps.slice(1).join(' ');
@@ -836,7 +1056,9 @@ function buildHero(c,a){
   </section>`;
 }
 function buildAbout(c,a){
-  const layout = S.style_about || 'classic';
+  const themeId = S.style_theme || 'default';
+  const theme = THEMES[themeId];
+  const layout = (theme && !S._custom_style_about && theme.style_about) || S.style_about || 'classic';
   const text=a?(c.text_ar||''):(c.text_en||'');
   const tags=(a?(c.tags_ar||''):(c.tags_en||'')).split(',').filter(Boolean);
   const photoHtml=S.photo_url?`<img id="aboutPhoto" src="${S.photo_url}" alt="photo">`:`<div class="about-ph"><i class="fa-solid fa-user"></i></div>`;
@@ -869,27 +1091,92 @@ function buildEdu(c,a){
   let items=[];try{items=JSON.parse(c.items||'[]');}catch{}
   return`<section id="education" class="sw alt"><div class="sh"><h2>${a?'التعليم':'Education'}</h2><div class="sl"></div></div><div class="edu-list">${items.map(it=>`<div class="edu-card"><div class="edu-icon"><i class="fa-solid fa-graduation-cap"></i></div><div><div class="edu-degree">${a?(it.school_ar||it.school_en):(it.school_en||'')}</div><div class="edu-detail">${a?(it.degree_ar||it.degree_en):(it.degree_en||'')} &bull; ${it.years||''}</div></div></div>`).join('')}</div></section>`;
 }
+// Helper: get effective layout for a section (theme override, unless user customized)
+function effLayout(key, fallback){
+  const themeId = S.style_theme || 'default';
+  const theme = THEMES[themeId];
+  if(theme && !S['_custom_'+key] && theme[key]) return theme[key];
+  return S[key] || fallback;
+}
+
 function buildSkills(c,a){
   const chips=(a?(c.items_ar||''):(c.items_en||'')).split(',').filter(Boolean);
-  return`<section id="skills" class="sw"><div class="sh"><h2>${a?'المهارات':'Soft Skills'}</h2><div class="sl"></div></div><div class="skills-grid">${chips.map(ch=>`<div class="skill-chip">${ch.trim()}</div>`).join('')}</div></section>`;
+  const layout = effLayout('style_skills', 'tags');
+  const title = a?'المهارات':'Soft Skills';
+
+  if(layout === 'bars'){
+    // Skills as progress bars (each chip can have :level format e.g., "Photoshop:90")
+    const items = chips.map(ch => {
+      const parts = ch.split(':');
+      return { name: (parts[0]||'').trim(), level: parseInt(parts[1])||80 };
+    });
+    return `<section id="skills" class="sw"><div class="sh"><h2>${title}</h2><div class="sl"></div></div>
+      <div class="skills-bars">${items.map(it=>`
+        <div class="skill-bar-item">
+          <div class="skill-bar-name">${it.name}</div>
+          <div class="skill-bar-track"><div class="skill-bar-fill" style="width:${it.level}%"></div></div>
+        </div>`).join('')}</div></section>`;
+  }
+
+  if(layout === 'inline'){
+    // Big typographic statement
+    const html = chips.map(ch => `<span>${ch.trim()}</span>`).join('<span class="dot">·</span>');
+    return `<section id="skills" class="sw"><div class="sh"><h2>${title}</h2><div class="sl"></div></div>
+      <div class="skills-inline">${html}</div></section>`;
+  }
+
+  // Default: tags/chips
+  return`<section id="skills" class="sw"><div class="sh"><h2>${title}</h2><div class="sl"></div></div><div class="skills-grid">${chips.map(ch=>`<div class="skill-chip">${ch.trim()}</div>`).join('')}</div></section>`;
 }
+
 function buildTools(c,a){
   let items=[];try{items=JSON.parse(c.items||'[]');}catch{}
+  const layout = effLayout('style_tools', 'classic');
+  const title = a?'الأدوات والبرامج':'Tools & Software';
+
+  if(layout === 'compact'){
+    const cards = items.map((it,i)=>{
+      const imgUrl = S[`tool_img_url_${i}`]||it.img_url||'';
+      const icon = imgUrl ? `<img src="${imgUrl}" alt="${it.name}">` : `<i class="${it.icon||'fa-solid fa-wrench'}"></i>`;
+      return `<div class="tool-compact">${icon} ${it.name}</div>`;
+    }).join('');
+    return `<section id="tools" class="sw alt"><div class="sh"><h2>${title}</h2><div class="sl"></div></div><div class="tools-compact">${cards}</div></section>`;
+  }
+
+  // Default: cards
   const cards=items.map((it,i)=>{
-    // tool can have a custom image or a fontawesome icon
     const imgUrl=S[`tool_img_url_${i}`]||it.img_url||'';
     const iconHtml=imgUrl
       ?`<img src="${imgUrl}" alt="${it.name}" style="width:52px;height:52px;object-fit:contain;border-radius:8px;">`
       :`<i class="${it.icon||'fa-solid fa-wrench'}"></i>`;
     return`<div class="tool-card"><div class="tool-icon">${iconHtml}</div><div class="tool-name">${it.name}</div></div>`;
   }).join('');
-  return`<section id="tools" class="sw alt"><div class="sh"><h2>${a?'الأدوات والبرامج':'Tools & Software'}</h2><div class="sl"></div></div><div class="tools-grid">${cards}</div></section>`;
+  return`<section id="tools" class="sw alt"><div class="sh"><h2>${title}</h2><div class="sl"></div></div><div class="tools-grid">${cards}</div></section>`;
 }
+
 function buildExp(c,a){
   let items=[];try{items=JSON.parse(c.items||'[]');}catch{}
-  return`<section id="experience" class="sw"><div class="sh"><h2>${a?'الخبرات':'Experience'}</h2><div class="sl"></div></div><div class="exp-list">${items.map(it=>`<div class="exp-card"><div class="exp-header"><div class="exp-company">${a?(it.company_ar||it.company_en):(it.company_en||'')}</div><div class="exp-period">${it.years||''}</div></div><div class="exp-role">${a?(it.role_ar||it.role_en):(it.role_en||'')}</div></div>`).join('')}</div></section>`;
+  const layout = effLayout('style_exp', 'classic');
+  const title = a?'الخبرات':'Experience';
+
+  if(layout === 'timeline'){
+    return `<section id="experience" class="sw"><div class="sh"><h2>${title}</h2><div class="sl"></div></div>
+      <div class="exp-timeline">${items.map(it=>`
+        <div class="exp-tl-item">
+          <div class="exp-tl-period">${it.years||''}</div>
+          <div class="exp-tl-company">${a?(it.company_ar||it.company_en):(it.company_en||'')}</div>
+          <div class="exp-tl-role">${a?(it.role_ar||it.role_en):(it.role_en||'')}</div>
+        </div>`).join('')}</div></section>`;
+  }
+
+  // Default: classic cards
+  return`<section id="experience" class="sw"><div class="sh"><h2>${title}</h2><div class="sl"></div></div><div class="exp-list">${items.map(it=>`<div class="exp-card"><div class="exp-header"><div class="exp-company">${a?(it.company_ar||it.company_en):(it.company_en||'')}</div><div class="exp-period">${it.years||''}</div></div><div class="exp-role">${a?(it.role_ar||it.role_en):(it.role_en||'')}</div></div>`).join('')}</div></section>`;
 }
+
 function buildProjects(c,a){
+  // Projects layout: grid (default) / masonry / list
+  const layout = effLayout('style_projects', 'grid');
+  const modeClass = layout === 'masonry' ? 'mode-masonry' : (layout === 'list' ? 'mode-list' : '');
   return`<section id="projects" class="sw alt">
     <div class="sh"><h2>${a?(c.title_ar||'أعمال مختارة'):(c.title_en||'Selected Work')}</h2><p>${a?(c.subtitle_ar||''):(c.subtitle_en||'')}</p><div class="sl"></div></div>
     <div class="filter-tabs">
@@ -897,11 +1184,34 @@ function buildProjects(c,a){
       <button class="filter-tab" id="tabVideo" onclick="filterProjects('video',this)"><i class="fa-brands fa-instagram" style="margin-left:6px;"></i>${t('reels')}</button>
     </div>
     <div class="cat-filter-tabs" id="catFilterTabs"></div>
-    <div class="projects-grid mode-image" id="projectsGrid"></div>
+    <div class="projects-grid mode-image ${modeClass}" id="projectsGrid" data-layout="${layout}"></div>
   </section>`;
 }
+
 function buildContact(c,a){
-  return`<section id="contact" class="sw"><div class="sh"><h2>${a?(c.title_ar||'تواصل معي'):(c.title_en||"Let's Work Together")}</h2><div class="sl"></div></div><p class="contact-sub">${a?(c.subtitle_ar||''):(c.subtitle_en||'')}</p><div class="contact-form"><div class="form-row"><div class="form-group"><input type="text" id="cf_name" placeholder="${t('name')}"></div><div class="form-group"><input type="email" id="cf_email" placeholder="${t('email')}"></div></div><div class="form-row"><div class="form-group full"><input type="text" id="cf_subject" placeholder="${t('subject')}"></div></div><div class="form-row"><div class="form-group full"><textarea id="cf_message" placeholder="${t('msg')}"></textarea></div></div><button class="btn-submit" id="cf_btn" onclick="sendMsg()">${t('send')}</button></div></section>`;
+  const layout = effLayout('style_contact', 'classic');
+  const title = a?(c.title_ar||'تواصل معي'):(c.title_en||"Let's Work Together");
+  const subtitle = a?(c.subtitle_ar||''):(c.subtitle_en||'');
+
+  const formHtml = `<div class="contact-form"><div class="form-row"><div class="form-group"><input type="text" id="cf_name" placeholder="${t('name')}"></div><div class="form-group"><input type="email" id="cf_email" placeholder="${t('email')}"></div></div><div class="form-row"><div class="form-group full"><input type="text" id="cf_subject" placeholder="${t('subject')}"></div></div><div class="form-row"><div class="form-group full"><textarea id="cf_message" placeholder="${t('msg')}"></textarea></div></div><button class="btn-submit" id="cf_btn" onclick="sendMsg()">${t('send')}</button></div>`;
+
+  if(layout === 'split'){
+    const email = (c.email||'').trim();
+    const phone = (c.phone||'').trim();
+    const infoItems = [];
+    if(email) infoItems.push(`<div class="ci-item"><i class="fa-solid fa-envelope"></i><span>${email}</span></div>`);
+    if(phone) infoItems.push(`<div class="ci-item"><i class="fa-solid fa-phone"></i><span>${phone}</span></div>`);
+    return `<section id="contact" class="sw"><div class="sh"><h2>${title}</h2><div class="sl"></div></div>
+      <div class="contact-split">
+        <div class="contact-split-info">
+          <p class="contact-sub" style="text-align:start;margin-bottom:30px;">${subtitle}</p>
+          ${infoItems.join('')}
+        </div>
+        <div>${formHtml}</div>
+      </div></section>`;
+  }
+
+  return`<section id="contact" class="sw"><div class="sh"><h2>${title}</h2><div class="sl"></div></div><p class="contact-sub">${subtitle}</p>${formHtml}</section>`;
 }
 function footerInner(a){
   const ch=(S.content||{}).hero||{};const nm=a?(ch.name_ar||''):(ch.name_en||'Portfolio');
