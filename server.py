@@ -956,18 +956,47 @@ def change_credentials():
     db.commit(); session['username'] = new_user; return jsonify({'ok':True})
 
 # ── IMPORT UTILITIES ──
-import urllib.request, urllib.error, html as html_mod
+import urllib.request, urllib.error, html as html_mod, gzip, io
 
-def fetch_url(url, timeout=12):
-    req = urllib.request.Request(url, headers={'User-Agent':'Mozilla/5.0'})
+# Realistic browser headers — bypasses most anti-bot checks
+BROWSER_HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.9,ar;q=0.8',
+    'Accept-Encoding': 'gzip, deflate',
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache',
+    'Sec-Fetch-Dest': 'document',
+    'Sec-Fetch-Mode': 'navigate',
+    'Sec-Fetch-Site': 'none',
+    'Sec-Fetch-User': '?1',
+    'Upgrade-Insecure-Requests': '1',
+}
+
+def fetch_url(url, timeout=15, extra_headers=None):
+    headers = dict(BROWSER_HEADERS)
+    if extra_headers: headers.update(extra_headers)
+    req = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(req, timeout=timeout) as r:
-        return r.read().decode('utf-8','replace'), r.headers.get_content_type()
+        raw = r.read()
+        # Handle gzip-encoded responses
+        if r.headers.get('Content-Encoding','').lower() == 'gzip':
+            try: raw = gzip.decompress(raw)
+            except: pass
+        return raw.decode('utf-8','replace'), r.headers.get_content_type()
 
 def proxy_one(url):
-    req = urllib.request.Request(url, headers={'User-Agent':'Mozilla/5.0','Referer':'https://www.behance.net/'})
+    headers = dict(BROWSER_HEADERS)
+    headers['Referer'] = 'https://www.behance.net/'
+    headers['Accept'] = 'image/webp,image/apng,image/*,*/*;q=0.8'
+    req = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(req, timeout=10) as resp:
+        raw = resp.read()
+        if resp.headers.get('Content-Encoding','').lower() == 'gzip':
+            try: raw = gzip.decompress(raw)
+            except: pass
         ct = resp.headers.get_content_type() or 'image/jpeg'
-        return f'data:{ct};base64,{base64.b64encode(resp.read()).decode()}'
+        return f'data:{ct};base64,{base64.b64encode(raw).decode()}'
 
 @app.route('/api/proxy-image', methods=['POST'])
 @login_required
@@ -1013,6 +1042,16 @@ def behance_fetch():
     if 'behance.net' not in url: return jsonify({'error':'يجب أن يكون رابط Behance'}), 400
     try:
         body, _ = fetch_url(url)
+    except urllib.error.HTTPError as e:
+        if e.code == 403:
+            return jsonify({'error':'⚠️ Behance يرفض الطلب — جرّب: ١) تأكد المشروع متاح للعامة (مش private) ٢) جرّب فتحه في المتصفح أولاً ٣) أعد المحاولة بعد دقيقة'}), 502
+        elif e.code == 404:
+            return jsonify({'error':'⚠️ المشروع غير موجود — تأكد من الرابط'}), 404
+        else:
+            return jsonify({'error':f'⚠️ خطأ من Behance ({e.code})'}), 502
+    except Exception as e:
+        return jsonify({'error': f'تعذر الاتصال: {str(e)}'}), 502
+    try:
 
         # ── Title ──
         title = ''
