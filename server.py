@@ -1049,6 +1049,57 @@ def proxy_images():
         except: results.append(None)
     return jsonify({'images':results})
 
+@app.route('/api/import/save-images', methods=['POST'])
+@login_required
+def import_save_images():
+    """Download images from URLs and save to disk directly. Returns URL paths.
+    Avoids huge base64 payloads in subsequent project save."""
+    urls = (request.get_json() or {}).get('urls',[])[:60]
+    if not urls: return jsonify({'images': []})
+    user_id = uid()
+    db = get_db()
+    # Check storage limit upfront (rough estimate)
+    user = db.execute("SELECT storage_limit_mb, storage_used_mb FROM users WHERE id=?", (user_id,)).fetchone()
+    available_bytes = ((user['storage_limit_mb'] or 0) - (user['storage_used_mb'] or 0)) * 1024 * 1024
+
+    results = []
+    total_bytes = 0
+    for url in urls:
+        try:
+            if not isinstance(url, str) or not url.startswith('http'):
+                results.append(None); continue
+            body, err = fetch_url(url)
+            if err or not body:
+                results.append(None); continue
+            content = body if isinstance(body, bytes) else body.encode('latin-1', errors='ignore')
+            if len(content) < 1024:
+                results.append(None); continue
+            if total_bytes + len(content) > available_bytes:
+                results.append(None); continue
+            # Save with unique name
+            ext = 'jpg'
+            url_lower = url.lower().split('?')[0]
+            for e in ('webp','png','gif','jpeg','jpg'):
+                if url_lower.endswith('.'+e): ext = 'webp' if e=='jpeg' else e; break
+            ts = int(time.time() * 1000) + len(results)
+            fname = f"u{user_id}_bh_{ts}.{ext}"
+            fpath = os.path.join(UPLOAD_DIR, fname)
+            with open(fpath, 'wb') as fp: fp.write(content)
+            # Optimize
+            if ext in ('jpg','jpeg','png','webp'):
+                try: optimize_image(fpath)
+                except Exception as oe: print(f'optimize failed: {oe}')
+            total_bytes += os.path.getsize(fpath)
+            results.append(f'/uploads/{fname}')
+        except Exception as e:
+            print(f'save-images error: {e}')
+            results.append(None)
+
+    if total_bytes:
+        upd_storage(user_id, total_bytes, db)
+        db.commit()
+    return jsonify({'images': results, 'total_mb': round(total_bytes/(1024*1024), 2)})
+
 @app.route('/api/vimeo/fetch', methods=['POST'])
 @login_required
 def vimeo_fetch():
