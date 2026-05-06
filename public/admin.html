@@ -2861,6 +2861,13 @@ function renderBhModules(){
     if(m.type==='image'){
       preview = `<img src="${m.src}" alt="" loading="lazy" style="width:100%;aspect-ratio:4/3;object-fit:cover;display:block;" onerror="this.parentElement.innerHTML='<div style=\\'aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;color:#666;background:#0a0a0a;\\'><i class=\\'fa-solid fa-image-slash\\' style=\\'font-size:30px;\\'></i></div>'">`;
       label = 'صورة';
+    } else if(m.type==='image_row'){
+      // Show as grid of images side by side
+      const imgs = (m.images||[]).slice(0,4);
+      preview = `<div style="aspect-ratio:4/3;display:grid;grid-template-columns:repeat(${imgs.length},1fr);gap:2px;background:#0a0a0a;">
+        ${imgs.map(src=>`<img src="${src}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">`).join('')}
+      </div>`;
+      label = `شبكة (${m.images.length} صور)`;
     } else if(m.type==='video' || m.type==='embed'){
       const isVimeo = (m.url||m.src||'').includes('vimeo');
       preview = `<div style="aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a1a,#0a0a0a);color:${isVimeo?'#1ab7ea':'#ff0000'};font-size:42px;"><i class="${isVimeo?'fa-brands fa-vimeo-v':'fa-brands fa-youtube'}"></i></div>`;
@@ -2898,32 +2905,46 @@ async function saveBhImport(){
   const btn = document.getElementById('btnSaveBh');
   btn.disabled = true;
 
-  // Step 1: download images via proxy in parallel
-  const imageUrls = selected.filter(m=>m.type==='image').map(m=>m.src);
+  // Step 1: collect ALL image URLs (from both image and image_row modules)
+  const allUrls = [];
+  selected.forEach(m=>{
+    if(m.type==='image') allUrls.push(m.src);
+    else if(m.type==='image_row') (m.images||[]).forEach(s=>allUrls.push(s));
+  });
+
   let imagesByUrl = {};
-  if(imageUrls.length){
-    toast(`⏳ جاري جلب ${imageUrls.length} صورة...`);
+  if(allUrls.length){
+    toast(`⏳ جاري جلب ${allUrls.length} صورة...`);
     try{
       const r = await fetch('/api/proxy-images',{method:'POST',credentials:'include',
-        headers:{'Content-Type':'application/json'},body:JSON.stringify({urls: imageUrls})});
+        headers:{'Content-Type':'application/json'},body:JSON.stringify({urls: allUrls})});
       if(r.ok){
         const d = await r.json();
-        (d.images||[]).forEach((b64,idx)=>{ if(b64) imagesByUrl[imageUrls[idx]] = b64; });
+        (d.images||[]).forEach((b64,idx)=>{ if(b64) imagesByUrl[allUrls[idx]] = b64; });
       }
     }catch(e){console.warn('proxy:',e);}
   }
 
-  // Step 2: build modules
+  // Step 2: build modules in editor format
   const finalModules = selected.map(m => {
     if(m.type==='image') return {type:'image', src: imagesByUrl[m.src] || m.src};
+    if(m.type==='image_row'){
+      // Convert to photo-grid format (editor knows this)
+      const items = (m.images||[]).map(src => ({src: imagesByUrl[src] || src}));
+      return {type:'photo-grid', items: items};
+    }
     if(m.type==='video') return {type:'video', src: m.src};
     if(m.type==='embed') return {type:'embed', url: m.url};
     if(m.type==='text')  return {type:'text', content: m.content};
     return null;
   }).filter(Boolean);
 
+  // Find first image for cover (from image or image_row)
   let coverImage = null;
-  for(const m of finalModules){ if(m.type==='image'){ coverImage = m.src; break; } }
+  for(const m of finalModules){
+    if(m.type==='image'){ coverImage = m.src; break; }
+    if(m.type==='photo-grid' && m.items && m.items[0]){ coverImage = m.items[0].src; break; }
+  }
 
   const body = {
     title: document.getElementById('bhTitle').value || 'Behance Project',
@@ -2942,7 +2963,6 @@ async function saveBhImport(){
       headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     if(!r.ok){const e=await r.json();toast('⚠️ '+(e.error||'فشل'),'error');btn.disabled=false;return;}
     const proj = await r.json();
-    // Save modules
     const modR = await fetch(`/api/projects/${proj.id}/modules`,{method:'PUT',credentials:'include',
       headers:{'Content-Type':'application/json'},body:JSON.stringify({modules: finalModules, projectType:'editor'})});
     if(!modR.ok){const e=await modR.json();toast('⚠️ '+(e.error||'فشل حفظ المحتوى'),'error');}
