@@ -342,6 +342,20 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 /* Hide users management — moved to /owner panel */
 #usersNavItem, #tab-users, #addUserModal { display: none !important; }
 
+/* ══ ANALYTICS ══ */
+.stat-box{background:var(--bg2);border:1px solid var(--brd);border-radius:12px;padding:18px;display:flex;gap:14px;align-items:center;}
+.stat-icon{width:46px;height:46px;border-radius:50%;background:rgba(249,115,22,.1);color:var(--o);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.stat-num{font-size:28px;font-weight:800;color:#fff;line-height:1;}
+.stat-lbl{color:#888;font-size:12px;margin-top:4px;}
+.an-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #1a1a1a;}
+.an-row:last-child{border-bottom:none;}
+.an-row-label{flex:1;font-size:14px;font-weight:600;color:#fff;}
+.an-row-bar{flex:2;height:6px;background:#0a0a0a;border-radius:3px;overflow:hidden;}
+.an-row-fill{height:100%;background:var(--o);border-radius:3px;transition:width .8s ease;}
+.an-row-val{flex-shrink:0;font-size:13px;color:#888;font-weight:700;min-width:50px;text-align:end;}
+.an-empty{text-align:center;padding:40px 20px;color:#666;}
+.an-empty i{font-size:32px;display:block;margin-bottom:10px;color:#444;}
+
 /* ══ DESIGN TAB ══ */
 .design-subnav{display:flex;gap:8px;margin-bottom:24px;padding:6px;background:#161616;border-radius:10px;overflow-x:auto;}
 .dsn-btn{flex:1;min-width:120px;background:transparent;border:none;color:#999;padding:11px 14px;border-radius:7px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;transition:.2s;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;}
@@ -406,6 +420,30 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 .bg-opt input:checked + .bg-card{border-color:var(--o);transform:scale(1.02);}
 .bg-card.bg-custom{background:#0e0e0e !important;align-items:center;justify-content:center;flex-direction:column;gap:6px;}
 .bg-name{font-size:12px;font-weight:700;}
+
+/* ══ THEME CARDS ══ */
+.theme-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.theme-opt{cursor:pointer;}
+.theme-opt input{display:none;}
+.theme-card{background:#0e0e0e;border:2px solid #222;border-radius:14px;overflow:hidden;transition:all .25s;}
+.theme-opt input:checked + .theme-card{border-color:var(--o);transform:translateY(-3px);box-shadow:0 12px 30px rgba(249,115,22,.15);}
+.theme-opt:hover .theme-card{border-color:#444;transform:translateY(-1px);}
+.theme-preview{position:relative;height:130px;background:#0a0a0a;display:flex;flex-direction:column;justify-content:flex-end;padding:14px;overflow:hidden;}
+.tp-bar{position:absolute;top:0;left:0;right:0;height:24px;background:rgba(255,255,255,.04);}
+.tp-bar::before{content:'';position:absolute;top:8px;inset-inline-start:12px;width:30px;height:8px;background:rgba(255,255,255,.2);border-radius:2px;}
+.tp-bar::after{content:'';position:absolute;top:8px;inset-inline-end:12px;width:60px;height:8px;background:rgba(255,255,255,.15);border-radius:2px;}
+.tp-content{position:relative;z-index:1;}
+.tp-title{font-size:18px;font-weight:800;color:#fff;margin-bottom:3px;}
+.tp-sub{font-size:11px;color:#888;letter-spacing:1px;text-transform:uppercase;}
+.theme-info{padding:14px 16px;}
+.theme-name{font-size:15px;font-weight:700;margin-bottom:4px;}
+.theme-desc{font-size:12px;color:#999;margin-bottom:10px;line-height:1.5;}
+.theme-tags{display:flex;gap:5px;flex-wrap:wrap;}
+.theme-tags span{background:rgba(255,255,255,.05);color:#aaa;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;}
+.theme-default .theme-preview{background:repeating-linear-gradient(45deg,#0a0a0a,#0a0a0a 10px,#0e0e0e 10px,#0e0e0e 20px);}
+.theme-editorial .theme-preview{background:linear-gradient(135deg,#0a0a0a,#1a1410);}
+.theme-creative .theme-preview{background:linear-gradient(135deg,#0a0a0a,#1f0a05);}
+.theme-cinema .theme-preview .tp-content::before{content:'';position:absolute;inset:-50px -20px 0 -20px;background:linear-gradient(to top,rgba(0,0,0,.8),transparent);z-index:-1;}
 </style>
 </head>
 <body>
@@ -431,6 +469,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
   <div class="sb-logo"><i class="fa-solid fa-gem"></i> Portfolio Admin</div>
   <nav class="sb-nav">
     <div class="ni active" onclick="setTab('projects',this)"><i class="fa-solid fa-images"></i> المشاريع</div>
+    <div class="ni" onclick="setTab('analytics',this)"><i class="fa-solid fa-chart-line"></i> الإحصائيات</div>
     <div class="ni" onclick="setTab('reorder',this)"><i class="fa-solid fa-sort"></i> ترتيب المشاريع</div>
     <div class="ni" onclick="setTab('categories',this)"><i class="fa-solid fa-tags"></i> التصنيفات</div>
     <div class="ni" onclick="setTab('design',this)"><i class="fa-solid fa-wand-magic-sparkles"></i> التصميم</div>
@@ -460,6 +499,70 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 
 <!-- MAIN -->
 <div id="adminMain">
+
+<!-- PROJECTS TAB -->
+<!-- ANALYTICS TAB ═══════════════════════════════════════════════ -->
+<div id="tab-analytics" style="display:none;">
+  <div class="ph">
+    <div><div class="pt">📊 إحصائيات الزوار</div><div class="ps">شاهد من زار موقعك ومن أين</div></div>
+    <select class="fse" id="anRange" onchange="loadAnalytics()" style="width:auto;min-width:160px;">
+      <option value="7">آخر 7 أيام</option>
+      <option value="30" selected>آخر 30 يوم</option>
+      <option value="90">آخر 90 يوم</option>
+      <option value="365">آخر سنة</option>
+    </select>
+  </div>
+
+  <!-- Stat cards -->
+  <div class="stats" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px;">
+    <div class="stat-box">
+      <div class="stat-icon"><i class="fa-solid fa-eye"></i></div>
+      <div><div class="stat-num" id="anTotal">—</div><div class="stat-lbl">إجمالي الزيارات</div></div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+      <div><div class="stat-num" id="anUnique">—</div><div class="stat-lbl">زائر فريد</div></div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-icon"><i class="fa-solid fa-mobile-screen"></i></div>
+      <div><div class="stat-num" id="anMobile">—</div><div class="stat-lbl">من الموبايل</div></div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-icon"><i class="fa-solid fa-globe"></i></div>
+      <div><div class="stat-num" id="anCountries">—</div><div class="stat-lbl">دولة مختلفة</div></div>
+    </div>
+  </div>
+
+  <!-- Daily Chart -->
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-chart-column" style="color:var(--o);margin-left:6px"></i> الزوار يومياً</div>
+    <div id="anChart" style="margin-top:14px;min-height:220px;"></div>
+  </div>
+
+  <!-- Two columns: Top projects + Top countries -->
+  <div class="frow" style="align-items:flex-start;">
+    <div class="card" style="flex:1;min-width:280px;">
+      <div class="card-title"><i class="fa-solid fa-trophy" style="color:var(--o);margin-left:6px"></i> أكثر المشاريع مشاهدة</div>
+      <div id="anProjects" style="margin-top:14px;"></div>
+    </div>
+    <div class="card" style="flex:1;min-width:280px;">
+      <div class="card-title"><i class="fa-solid fa-earth-americas" style="color:var(--o);margin-left:6px"></i> أعلى الدول زيارة</div>
+      <div id="anCountriesList" style="margin-top:14px;"></div>
+    </div>
+  </div>
+
+  <!-- Devices + Referrers -->
+  <div class="frow" style="align-items:flex-start;">
+    <div class="card" style="flex:1;min-width:280px;">
+      <div class="card-title"><i class="fa-solid fa-display" style="color:var(--o);margin-left:6px"></i> الأجهزة</div>
+      <div id="anDevices" style="margin-top:14px;"></div>
+    </div>
+    <div class="card" style="flex:1;min-width:280px;">
+      <div class="card-title"><i class="fa-solid fa-link" style="color:var(--o);margin-left:6px"></i> مصادر الزيارات</div>
+      <div id="anReferrers" style="margin-top:14px;"></div>
+    </div>
+  </div>
+</div>
 
 <!-- PROJECTS TAB -->
 <div id="tab-projects">
@@ -536,15 +639,135 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 
   <!-- Sub-navigation -->
   <div class="design-subnav">
-    <button class="dsn-btn active" onclick="setDsn('layouts',this)"><i class="fa-solid fa-table-layout"></i> التخطيطات</button>
+    <button class="dsn-btn active" onclick="setDsn('themes',this)"><i class="fa-solid fa-shapes"></i> الثيمات</button>
+    <button class="dsn-btn" onclick="setDsn('layouts',this)"><i class="fa-solid fa-table-layout"></i> التخطيطات</button>
     <button class="dsn-btn" onclick="setDsn('typo',this)"><i class="fa-solid fa-font"></i> الخطوط</button>
     <button class="dsn-btn" onclick="setDsn('bg',this)"><i class="fa-solid fa-fill-drip"></i> الخلفية</button>
     <button class="dsn-btn" onclick="setDsn('cursor',this)"><i class="fa-solid fa-arrow-pointer"></i> المؤشر</button>
     <button class="dsn-btn" onclick="setDsn('anim',this)"><i class="fa-solid fa-wand-sparkles"></i> الحركات</button>
   </div>
 
+  <!-- ── THEMES (NEW) ── -->
+  <div id="dsn-themes" class="dsn-section">
+    <div class="card">
+      <div class="card-title"><i class="fa-solid fa-shapes" style="color:var(--o);margin-left:6px"></i> الثيمات الجاهزة</div>
+      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;">اختر ثيم احترافي كامل — يغير كل شيء دفعة واحدة. تقدر تخصص أي تفصيلة بعدها</p>
+
+      <div class="theme-grid">
+        <!-- Default -->
+        <label class="theme-opt"><input type="radio" name="style_theme" value="default">
+          <div class="theme-card theme-default">
+            <div class="theme-preview">
+              <div class="tp-bar"></div>
+              <div class="tp-content">
+                <div class="tp-title">Custom</div>
+                <div class="tp-sub">تخصيص يدوي</div>
+              </div>
+            </div>
+            <div class="theme-info">
+              <div class="theme-name">⚙️ مخصّص</div>
+              <div class="theme-desc">اختياراتك بنفسك</div>
+            </div>
+          </div></label>
+
+        <!-- 1. Editorial -->
+        <label class="theme-opt"><input type="radio" name="style_theme" value="editorial">
+          <div class="theme-card theme-editorial">
+            <div class="theme-preview">
+              <div class="tp-bar"></div>
+              <div class="tp-content">
+                <div class="tp-title" style="font-family:'Playfair Display',serif;font-style:italic;font-size:16px;">Editorial</div>
+                <div class="tp-sub">مجلة فاخرة</div>
+              </div>
+            </div>
+            <div class="theme-info">
+              <div class="theme-name">📰 Editorial</div>
+              <div class="theme-desc">مجلة فاخرة — للكتّاب والمخرجين</div>
+              <div class="theme-tags"><span>Playfair</span><span>ضخم</span><span>Timeline</span></div>
+            </div>
+          </div></label>
+
+        <!-- 2. Minimal Pro -->
+        <label class="theme-opt"><input type="radio" name="style_theme" value="minimal">
+          <div class="theme-card theme-minimal">
+            <div class="theme-preview" style="background:#fafaf5">
+              <div class="tp-bar" style="background:rgba(0,0,0,.06)"></div>
+              <div class="tp-content" style="color:#1a1a1a">
+                <div class="tp-title" style="font-family:'Inter',sans-serif;font-weight:800;color:#1a1a1a">Minimal</div>
+                <div class="tp-sub" style="color:#666">Clean & Modern</div>
+              </div>
+            </div>
+            <div class="theme-info">
+              <div class="theme-name">⚪ Minimal Pro</div>
+              <div class="theme-desc">نظيف وعصري — لمصممي UI/UX</div>
+              <div class="theme-tags"><span>Inter</span><span>فاتح</span><span>Grid</span></div>
+            </div>
+          </div></label>
+
+        <!-- 3. Creative Bold -->
+        <label class="theme-opt"><input type="radio" name="style_theme" value="creative">
+          <div class="theme-card theme-creative">
+            <div class="theme-preview">
+              <div class="tp-bar" style="background:rgba(255,69,0,.3)"></div>
+              <div class="tp-content">
+                <div class="tp-title" style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:#FF4500">CREATIVE</div>
+                <div class="tp-sub">BIG & BOLD</div>
+              </div>
+            </div>
+            <div class="theme-info">
+              <div class="theme-name">🎨 Creative Bold</div>
+              <div class="theme-desc">جريء وملوّن — للمصممين الجرافيك</div>
+              <div class="theme-tags"><span>Bebas</span><span>Masonry</span><span>برتقالي</span></div>
+            </div>
+          </div></label>
+
+        <!-- 4. Cinema Dark -->
+        <label class="theme-opt"><input type="radio" name="style_theme" value="cinema">
+          <div class="theme-card theme-cinema">
+            <div class="theme-preview" style="background:#000">
+              <div class="tp-bar" style="background:rgba(201,169,97,.2)"></div>
+              <div class="tp-content">
+                <div class="tp-title" style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:22px;color:#C9A961">Cinema</div>
+                <div class="tp-sub" style="color:#888">Cinematic Dark</div>
+              </div>
+            </div>
+            <div class="theme-info">
+              <div class="theme-name">🎬 Cinema Dark</div>
+              <div class="theme-desc">سينمائي مظلم — للمصورين والفيديو</div>
+              <div class="theme-tags"><span>Cormorant</span><span>صورة كاملة</span><span>ذهبي</span></div>
+            </div>
+          </div></label>
+
+        <!-- 5. Corporate -->
+        <label class="theme-opt"><input type="radio" name="style_theme" value="corporate">
+          <div class="theme-card theme-corporate">
+            <div class="theme-preview" style="background:linear-gradient(135deg,#0a1628,#0f1f3d)">
+              <div class="tp-bar" style="background:rgba(59,130,246,.3)"></div>
+              <div class="tp-content">
+                <div class="tp-title" style="color:#3B82F6;font-weight:700">Corporate</div>
+                <div class="tp-sub" style="color:#8a9cb8">Professional</div>
+              </div>
+            </div>
+            <div class="theme-info">
+              <div class="theme-name">💼 Corporate</div>
+              <div class="theme-desc">احترافي ومنظّم — للاستشاريين</div>
+              <div class="theme-tags"><span>Cairo</span><span>Split</span><span>أزرق</span></div>
+            </div>
+          </div></label>
+      </div>
+
+      <div style="margin-top:20px;background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.2);border-radius:10px;padding:14px;display:flex;gap:10px;align-items:flex-start;">
+        <i class="fa-solid fa-info-circle" style="color:var(--o);font-size:18px;margin-top:2px;"></i>
+        <div>
+          <div style="font-weight:700;font-size:13px;margin-bottom:4px;">كيف تعمل الثيمات؟</div>
+          <p style="color:#999;font-size:12px;margin:0;line-height:1.7;">الثيم بيغير كل شي دفعة واحدة (الخط، الخلفية، التخطيطات...). بعد ما تختار ثيم، تقدر تروح لأي تبويب (الخطوط، الخلفية، التخطيطات) وتعدّل أي تفصيلة. تعديلاتك بتغلب على الثيم.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ── LAYOUTS ── -->
-  <div id="dsn-layouts" class="dsn-section">
+  <div id="dsn-layouts" class="dsn-section" style="display:none;">
     <div class="card">
       <div class="card-title"><i class="fa-solid fa-house" style="color:var(--o);margin-left:6px"></i> القسم الرئيسي (Hero)</div>
       <p style="color:var(--g2);font-size:13px;margin-bottom:18px;">اختر شكل أول قسم يشاهده الزائر</p>
@@ -1266,22 +1489,154 @@ async function initApp(){
 // ══ TABS ══
 function setTab(tab,el){
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));el.classList.add('active');
-  ['projects','reorder','categories','colors','design','sections','navbar','content','social','users'].forEach(t=>{
+  ['projects','analytics','reorder','categories','colors','design','sections','navbar','content','social','users'].forEach(t=>{
     const d=document.getElementById('tab-'+t);if(d)d.style.display=t===tab?'block':'none';
   });
   if(tab==='navbar')renderNavbarList();
   if(tab==='reorder'){reorderData=[];renderReorderList();}
   if(tab==='categories')renderCategoriesUI();
   if(tab==='design')loadDesign();
+  if(tab==='analytics')loadAnalytics();
   if(tab==='users')loadUsers();
   if(window.innerWidth<=900)toggleSidebar(false);
 }
 
 // ══ DESIGN TAB ══
+// ══════════════ ANALYTICS ══════════════
+const COUNTRY_NAMES = {AE:'الإمارات',SA:'السعودية',EG:'مصر',KW:'الكويت',QA:'قطر',BH:'البحرين',OM:'عُمان',JO:'الأردن',LB:'لبنان',MA:'المغرب',TN:'تونس',DZ:'الجزائر',IQ:'العراق',SY:'سوريا',YE:'اليمن',SD:'السودان',LY:'ليبيا',US:'أمريكا',GB:'بريطانيا',DE:'ألمانيا',FR:'فرنسا',IT:'إيطاليا',ES:'إسبانيا',TR:'تركيا',IN:'الهند',CN:'الصين',JP:'اليابان',CA:'كندا',AU:'أستراليا',BR:'البرازيل',RU:'روسيا',ZA:'جنوب أفريقيا'};
+const DEVICE_NAMES = {desktop:'كمبيوتر',mobile:'موبايل',tablet:'تابلت'};
+const DEVICE_ICONS = {desktop:'fa-desktop',mobile:'fa-mobile-screen',tablet:'fa-tablet-screen-button'};
+
+async function loadAnalytics(){
+  const range = document.getElementById('anRange').value;
+  try{
+    const r = await fetch(`/api/analytics?days=${range}`, {credentials:'include'}).then(r=>r.json());
+    renderAnalytics(r);
+  }catch(e){
+    console.error('analytics error:', e);
+    showToast('تعذر تحميل الإحصائيات', 'error');
+  }
+}
+
+function renderAnalytics(d){
+  // Stat cards
+  document.getElementById('anTotal').textContent  = d.total_visits || 0;
+  document.getElementById('anUnique').textContent = d.unique_visitors || 0;
+  const mobileCount = (d.devices||[]).filter(x=>x.device==='mobile').reduce((s,x)=>s+x.visits,0);
+  const totalDev = (d.devices||[]).reduce((s,x)=>s+x.visits,0);
+  const mobilePct = totalDev ? Math.round(mobileCount/totalDev*100) : 0;
+  document.getElementById('anMobile').textContent = mobilePct + '%';
+  document.getElementById('anCountries').textContent = (d.top_countries||[]).length;
+
+  // Daily chart (SVG bar chart, no library)
+  renderDailyChart(d.daily || []);
+
+  // Top projects
+  const proj = d.top_projects || [];
+  const projHtml = proj.length
+    ? barRows(proj, p => p.title, p => p.views, Math.max(...proj.map(p=>p.views)))
+    : emptyState('lightbulb', 'لا توجد مشاهدات بعد');
+  document.getElementById('anProjects').innerHTML = projHtml;
+
+  // Countries
+  const countries = d.top_countries || [];
+  const cMax = countries.length ? Math.max(...countries.map(c=>c.visits)) : 1;
+  const cHtml = countries.length
+    ? countries.map(c => `
+        <div class="an-row">
+          <div class="an-row-label">${flagEmoji(c.country)} ${COUNTRY_NAMES[c.country]||c.country}</div>
+          <div class="an-row-bar"><div class="an-row-fill" style="width:${c.visits/cMax*100}%"></div></div>
+          <div class="an-row-val">${c.visits}</div>
+        </div>`).join('')
+    : emptyState('earth-americas', 'لا توجد بيانات دول بعد');
+  document.getElementById('anCountriesList').innerHTML = cHtml;
+
+  // Devices
+  const devs = d.devices || [];
+  const dMax = devs.length ? Math.max(...devs.map(x=>x.visits)) : 1;
+  const dHtml = devs.length
+    ? devs.map(x => `
+        <div class="an-row">
+          <div class="an-row-label"><i class="fa-solid ${DEVICE_ICONS[x.device]||'fa-desktop'}" style="color:var(--o);margin-left:6px"></i>${DEVICE_NAMES[x.device]||x.device}</div>
+          <div class="an-row-bar"><div class="an-row-fill" style="width:${x.visits/dMax*100}%"></div></div>
+          <div class="an-row-val">${x.visits}</div>
+        </div>`).join('')
+    : emptyState('display', 'لا توجد بيانات أجهزة');
+  document.getElementById('anDevices').innerHTML = dHtml;
+
+  // Referrers
+  const refs = d.referrers || [];
+  const rMax = refs.length ? Math.max(...refs.map(x=>x.visits)) : 1;
+  const rHtml = refs.length
+    ? refs.map(x => `
+        <div class="an-row">
+          <div class="an-row-label">${x.referrer}</div>
+          <div class="an-row-bar"><div class="an-row-fill" style="width:${x.visits/rMax*100}%"></div></div>
+          <div class="an-row-val">${x.visits}</div>
+        </div>`).join('')
+    : emptyState('link', 'معظم الزوار جوا مباشرة (بدون مصدر خارجي)');
+  document.getElementById('anReferrers').innerHTML = rHtml;
+}
+
+function barRows(items, getLabel, getValue, maxVal){
+  return items.map(it => {
+    const v = getValue(it), pct = maxVal ? v/maxVal*100 : 0;
+    return `<div class="an-row">
+      <div class="an-row-label">${getLabel(it)}</div>
+      <div class="an-row-bar"><div class="an-row-fill" style="width:${pct}%"></div></div>
+      <div class="an-row-val">${v}</div>
+    </div>`;
+  }).join('');
+}
+
+function emptyState(icon, msg){
+  return `<div class="an-empty"><i class="fa-solid fa-${icon}"></i>${msg}</div>`;
+}
+
+function flagEmoji(cc){
+  if(!cc || cc.length !== 2) return '🌐';
+  const A = 0x1F1E6;
+  return String.fromCodePoint(A + cc.charCodeAt(0) - 65) + String.fromCodePoint(A + cc.charCodeAt(1) - 65);
+}
+
+function renderDailyChart(daily){
+  const container = document.getElementById('anChart');
+  if(!daily.length){ container.innerHTML = emptyState('chart-column', 'لا توجد بيانات'); return; }
+  const max = Math.max(...daily.map(d=>d.visits), 1);
+  const w = container.clientWidth || 800;
+  const h = 200;
+  const pad = { l: 30, r: 10, t: 20, b: 30 };
+  const innerW = w - pad.l - pad.r;
+  const innerH = h - pad.t - pad.b;
+  const barW = Math.max(2, innerW / daily.length - 2);
+  const bars = daily.map((d, i) => {
+    const x = pad.l + i * (innerW / daily.length);
+    const bh = (d.visits / max) * innerH;
+    const y = pad.t + innerH - bh;
+    return `<rect x="${x}" y="${y}" width="${barW}" height="${bh}" rx="2" fill="var(--o)" opacity="0.85">
+      <title>${d.day}: ${d.visits} زيارة</title>
+    </rect>`;
+  }).join('');
+  // Y-axis labels
+  const yLabels = [0, Math.round(max/2), max].map(v => {
+    const y = pad.t + innerH - (v/max)*innerH;
+    return `<text x="${pad.l-6}" y="${y+4}" font-size="10" fill="#666" text-anchor="end">${v}</text>`;
+  }).join('');
+  // X-axis labels (first, middle, last)
+  const xIdx = [0, Math.floor(daily.length/2), daily.length-1];
+  const xLabels = xIdx.map(i => {
+    const d = daily[i]; if(!d) return '';
+    const x = pad.l + i * (innerW / daily.length) + barW/2;
+    const lbl = d.day.slice(5);
+    return `<text x="${x}" y="${h-8}" font-size="10" fill="#666" text-anchor="middle">${lbl}</text>`;
+  }).join('');
+  container.innerHTML = `<svg width="100%" height="${h}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">${yLabels}${bars}${xLabels}</svg>`;
+}
+
 function setDsn(sec, btn){
   document.querySelectorAll('.dsn-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  ['layouts','typo','bg','cursor','anim'].forEach(s=>{
+  ['themes','layouts','typo','bg','cursor','anim'].forEach(s=>{
     const el=document.getElementById('dsn-'+s);
     if(el) el.style.display = s===sec ? 'block' : 'none';
   });
@@ -1294,6 +1649,7 @@ function loadDesign(){
     const r = document.querySelector(`input[name="${name}"][value="${v}"]`);
     if(r) r.checked = true;
   };
+  setRadio('style_theme',     S.style_theme,     'default');
   setRadio('style_hero',      S.style_hero,      'centered');
   setRadio('style_about',     S.style_about,     'classic');
   setRadio('style_font',      S.style_font,      'default');
@@ -1302,6 +1658,25 @@ function loadDesign(){
   setRadio('style_bg_type',   S.style_bg_type,   'solid');
   setRadio('style_cursor',    S.style_cursor,    'default');
   setRadio('style_anim',      S.style_anim,      'fade-up');
+
+  // Theme change handler — when user picks a theme, mark customizations as not custom
+  document.querySelectorAll('input[name="style_theme"]').forEach(r=>{
+    r.onchange = () => {
+      // When a new theme is selected, clear all _custom flags so theme defaults apply
+      ['style_hero','style_about','style_font','style_bg_preset','style_anim','colors'].forEach(k=>{
+        S['_custom_'+k] = false;
+      });
+      showToast('💡 تم اختيار الثيم — احفظ لتطبيقه', 'success');
+    };
+  });
+
+  // Mark customizations: when user changes anything in other tabs, set _custom flag
+  ['style_hero','style_about','style_font','style_bg_preset','style_anim'].forEach(name=>{
+    document.querySelectorAll(`input[name="${name}"]`).forEach(r=>{
+      const orig = r.onchange;
+      r.addEventListener('change', () => { S['_custom_'+name] = true; });
+    });
+  });
 
   // Custom bg colors
   const c1=document.getElementById('bgColor1'), h1=document.getElementById('bgHex1');
@@ -1318,6 +1693,11 @@ function loadDesign(){
   setColor('cAccent', 'hAccent', colors.accent || '#F97316');
   setColor('cText',   'hText',   colors.text   || '#FFFFFF');
   setColor('cSub',    'hSub',    colors.subtext|| '#999999');
+  // Mark colors as customized when accent/text/sub change
+  ['cAccent','cText','cSub'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('change', () => { S._custom_colors = true; });
+  });
 
   // Hero cover image
   if(S.hero_cover_url) updateHeroPreviewImg(S.hero_cover_url);
@@ -1357,6 +1737,8 @@ async function saveDesign(){
   const elVal = id => { const el=document.getElementById(id); return el ? el.value : null; };
 
   const payload = {
+    // Theme
+    style_theme: get('style_theme') || 'default',
     // Layouts
     style_hero:      get('style_hero')      || 'centered',
     style_about:     get('style_about')     || 'classic',
@@ -1371,6 +1753,13 @@ async function saveDesign(){
     // Cursor + Animations
     style_cursor:    get('style_cursor')    || 'default',
     style_anim:      get('style_anim')      || 'fade-up',
+    // Customization flags (1 if user explicitly customized, overrides theme)
+    _custom_style_hero:      S._custom_style_hero ? '1' : '0',
+    _custom_style_about:     S._custom_style_about ? '1' : '0',
+    _custom_style_font:      S._custom_style_font ? '1' : '0',
+    _custom_style_bg_preset: S._custom_style_bg_preset ? '1' : '0',
+    _custom_style_anim:      S._custom_style_anim ? '1' : '0',
+    _custom_colors:          S._custom_colors ? '1' : '0',
     // Theme Colors (consolidated into 'colors' object)
     colors: {
       accent:  elVal('cAccent') || '#F97316',
@@ -2353,8 +2742,8 @@ async function saveVimeoProject(){
 }
 
 // ══ BEHANCE IMPORT ══
-let behanceImages=[];   // [{url, selected, b64}]
 function openBehanceImport(){
+  behanceModules=[];
   behanceImages=[];
   document.getElementById('behanceUrl').value='';
   document.getElementById('behancePreview').style.display='none';
@@ -2363,6 +2752,12 @@ function openBehanceImport(){
   document.getElementById('behanceModal').classList.add('open');
 }
 function closeBehanceModal(){document.getElementById('behanceModal').classList.remove('open');}
+
+let behanceImages=[];   // legacy compat
+
+// ══ BEHANCE IMPORT ══
+let behanceModules = [];  // {type:'image'|'embed'|'text', src/url/content, selected, b64}
+let behanceFetchData = null;
 
 async function fetchBehance(){
   const url=document.getElementById('behanceUrl').value.trim();
@@ -2375,62 +2770,149 @@ async function fetchBehance(){
       headers:{'Content-Type':'application/json'},body:JSON.stringify({url})});
     const d=await r.json();
     if(!r.ok){toast('⚠️ '+(d.error||'تعذّر جلب المشروع'));btn.disabled=false;spin.style.display='none';return;}
+    behanceFetchData = d;
     document.getElementById('behanceFinalTitle').value=d.title||'';
     document.getElementById('behanceDesc').value=d.description||'';
-    // Build image grid
-    behanceImages=d.images.map(u=>({url:u,selected:false,b64:null}));
-    // auto-select cover if available
-    if(d.cover&&!behanceImages.find(x=>x.url===d.cover))
-      behanceImages.unshift({url:d.cover,selected:true,b64:d.cover_b64||null});
+
+    // Build modules list — prefer new structured modules, fallback to legacy images
+    let mods = (d.modules && d.modules.length) ? d.modules : (d.images||[]).map(u=>({type:'image',src:u}));
+    // Mark all selected by default
+    behanceModules = mods.map(m => ({...m, selected: true}));
+    // Add cover at start if not already in modules
+    if(d.cover){
+      const inModules = behanceModules.some(m => m.type==='image' && m.src===d.cover);
+      if(!inModules) behanceModules.unshift({type:'image', src:d.cover, selected:true, b64:d.cover_b64||null, isCover:true});
+    }
     renderBehanceGrid();
     document.getElementById('behancePreview').style.display='block';
     document.getElementById('btnSaveBehance').style.display='flex';
+    // Update count
+    const cnt = behanceModules.length;
+    const types = {};
+    behanceModules.forEach(m => types[m.type] = (types[m.type]||0)+1);
+    let summary = `تم العثور على ${cnt} عنصر`;
+    if(types.image) summary += ` — ${types.image} صورة`;
+    if(types.embed) summary += ` — ${types.embed} فيديو`;
+    if(types.text)  summary += ` — ${types.text} نص`;
+    toast('✓ ' + summary);
   }catch(e){toast('خطأ في الاتصال: '+e.message);}
   btn.disabled=false;spin.style.display='none';
 }
 
 function renderBehanceGrid(){
   const grid=document.getElementById('behanceImgGrid');
-  if(!behanceImages.length){grid.innerHTML='<div class="import-status">لم يتم العثور على صور</div>';return;}
-  grid.innerHTML=behanceImages.map((img,i)=>`
-    <div class="import-card ${img.selected?'selected':''}" onclick="toggleBehanceImg(${i})">
+  if(!behanceModules.length){grid.innerHTML='<div class="import-status">لم يتم العثور على محتوى</div>';return;}
+  grid.innerHTML=behanceModules.map((m,i)=>{
+    let preview='', label='', icon='';
+    if(m.type === 'image'){
+      preview = `<img src="${m.src}" alt="" loading="lazy" style="width:100%;aspect-ratio:4/3;object-fit:cover;display:block;" onerror="this.parentElement.innerHTML='<div style=\\'aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;color:#666;background:#0a0a0a;\\'><i class=\\'fa-solid fa-image-slash\\' style=\\'font-size:30px;\\'></i></div>'">`;
+      label = m.isCover ? 'صورة الغلاف' : 'صورة';
+      icon = 'fa-image';
+    } else if(m.type === 'embed'){
+      const isVimeo = m.url && m.url.includes('vimeo');
+      preview = `<div style="aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a1a,#0a0a0a);color:${isVimeo?'#1ab7ea':'#ff0000'};font-size:42px;"><i class="fa-${isVimeo?'brands fa-vimeo-v':'brands fa-youtube'}"></i></div>`;
+      label = isVimeo ? 'فيديو Vimeo' : 'فيديو YouTube';
+      icon = 'fa-video';
+    } else if(m.type === 'text'){
+      const txt = (m.content||'').slice(0, 90);
+      preview = `<div style="aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:#0a0a0a;color:#aaa;padding:14px;font-size:11px;line-height:1.5;text-align:center;overflow:hidden;">"${txt}${m.content.length>90?'...':''}"</div>`;
+      label = 'نص';
+      icon = 'fa-align-right';
+    }
+    return `<div class="import-card ${m.selected?'selected':''}" onclick="toggleBehanceMod(${i})">
       <div class="import-check"><i class="fa-solid fa-check"></i></div>
-      <img src="${img.url}" alt="" loading="lazy" style="width:100%;aspect-ratio:4/3;object-fit:cover;display:block;" onerror="this.style.display='none'">
-      <div class="import-card-body"><div class="import-card-meta">${img.selected?'✓ محدد':'اضغط لتحديد'}</div></div>
-    </div>`).join('');
+      ${preview}
+      <div class="import-card-body" style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:11px;color:#aaa;"><i class="fa-solid ${icon}" style="margin-left:4px;"></i>${label}</span>
+        <span style="font-size:10px;color:var(--o);">#${i+1}</span>
+      </div>
+    </div>`;
+  }).join('');
 }
-function toggleBehanceImg(i){behanceImages[i].selected=!behanceImages[i].selected;renderBehanceGrid();}
+
+function toggleBehanceMod(i){
+  behanceModules[i].selected = !behanceModules[i].selected;
+  renderBehanceGrid();
+}
+
+// Backward compat (in case any other code calls toggleBehanceImg)
+function toggleBehanceImg(i){ toggleBehanceMod(i); }
 
 async function saveBehanceProject(){
-  const selected=behanceImages.filter(x=>x.selected);
-  if(!selected.length){toast('⚠️ اختر صورة واحدة على الأقل');return;}
+  const selected = behanceModules.filter(m=>m.selected);
+  if(!selected.length){toast('⚠️ اختر عنصراً واحداً على الأقل');return;}
   const btn=document.getElementById('btnSaveBehance');
-  const spin=document.getElementById('spinSaveVimeo')||document.getElementById('spinSaveBehance');
+  const spin=document.getElementById('spinSaveBehance');
   btn.disabled=true;if(spin)spin.style.display='inline-block';
-  toast('⏳ جاري جلب الصور...');
-  // Fetch all selected images as base64 via proxy
-  const urls=selected.map(x=>x.url);
-  let images=[];
+
+  // Step 1: download all images via proxy in batch
+  const imageUrls = selected.filter(m=>m.type==='image').map(m=>m.src);
+  toast(`⏳ جاري جلب ${imageUrls.length} صورة...`);
+  let imagesByUrl = {};
   try{
-    const r=await fetch('/api/proxy-images',{method:'POST',credentials:'include',
-      headers:{'Content-Type':'application/json'},body:JSON.stringify({urls})});
-    if(r.ok){const d=await r.json();images=d.images||[];}
-  }catch{}
-  const body={
-    title:v('behanceFinalTitle')||'Behance Project',
-    category:document.getElementById('behanceCat').value,
-    description:v('behanceDesc'),
-    mediaType:'image',
-    keepImages:[],
-    images:images.filter(Boolean).slice(1),  // gallery = all except first
+    if(imageUrls.length){
+      const r = await fetch('/api/proxy-images',{method:'POST',credentials:'include',
+        headers:{'Content-Type':'application/json'},body:JSON.stringify({urls: imageUrls})});
+      if(r.ok){
+        const d = await r.json();
+        (d.images||[]).forEach((b64, idx) => {
+          if(b64) imagesByUrl[imageUrls[idx]] = b64;
+        });
+      }
+    }
+  }catch(e){console.warn('proxy error:',e);}
+
+  // Step 2: Build modules array for the editor (with base64 data for upload)
+  const finalModules = selected.map(m => {
+    if(m.type === 'image'){
+      const b64 = imagesByUrl[m.src] || m.b64 || m.src;
+      return {type:'image', src: b64};
+    }
+    if(m.type === 'embed'){
+      return {type:'embed', url: m.url};
+    }
+    if(m.type === 'text'){
+      return {type:'text', content: m.content};
+    }
+    return null;
+  }).filter(Boolean);
+
+  // Cover = first image found
+  let coverImage = null;
+  for(const m of finalModules){
+    if(m.type === 'image'){ coverImage = m.src; break; }
+  }
+
+  // Step 3: Create the project as 'editor' type with all modules
+  const body = {
+    title: v('behanceFinalTitle') || 'Behance Project',
+    category: document.getElementById('behanceCat').value,
+    description: v('behanceDesc'),
+    mediaType: 'image',
+    projectType: 'editor',          // ← Use editor type to keep order
+    coverImage: coverImage,
+    images: [],                      // not used for editor type
+    keepImages: [],
   };
-  if(images[0])body.coverImage=images[0];  // first = cover
+
   try{
-    const r=await fetch('/api/projects',{method:'POST',credentials:'include',
+    toast('⏳ جاري إنشاء المشروع...');
+    const r = await fetch('/api/projects',{method:'POST',credentials:'include',
       headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    if(r.ok){closeBehanceModal();await loadProjects();toast('✓ تم استيراد المشروع من Behance');}
-    else{const e=await r.json();toast('خطأ: '+(e.error||'فشل'));}
-  }catch{toast('خطأ في الاتصال');}
+    if(!r.ok){const e=await r.json();toast('خطأ: '+(e.error||'فشل'));btn.disabled=false;if(spin)spin.style.display='none';return;}
+    const proj = await r.json();
+
+    // Step 4: Save modules to the project
+    toast('⏳ جاري حفظ المحتوى...');
+    const modR = await fetch(`/api/projects/${proj.id}/modules`,{method:'PUT',credentials:'include',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify({modules: finalModules, projectType:'editor'})});
+    if(!modR.ok){const e=await modR.json();toast('⚠️ تم إنشاء المشروع لكن '+(e.error||'فشل حفظ المحتوى'));}
+
+    closeBehanceModal();
+    toast('✓ تم استيراد المشروع — جاري فتح المحرر');
+    // Navigate to the editor for further customization
+    setTimeout(() => { location.href = `/admin/editor/${proj.id}`; }, 800);
+  }catch(e){toast('خطأ في الاتصال: '+e.message);}
   btn.disabled=false;if(spin)spin.style.display='none';
 }
 

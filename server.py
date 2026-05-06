@@ -60,6 +60,13 @@ def auto_backup():
                     while len(bks) > 7:
                         try: os.remove(os.path.join(BACKUP_DIR, bks.pop(0)))
                         except: pass
+                    # Cleanup old visits (keep 1 year)
+                    try:
+                        c = sqlite3.connect(DB_PATH)
+                        c.execute("DELETE FROM visits WHERE visited_at < datetime('now','-365 days')")
+                        c.commit()
+                        c.close()
+                    except: pass
             except Exception as e:
                 print(f'Backup error: {e}')
             time.sleep(6 * 3600)
@@ -175,6 +182,19 @@ def init_db():
                 domain     TEXT UNIQUE NOT NULL,
                 created_at TEXT DEFAULT (datetime('now'))
             );
+            CREATE TABLE IF NOT EXISTS visits (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id    INTEGER NOT NULL,
+                visited_at TEXT DEFAULT (datetime('now')),
+                visitor_id TEXT,
+                page       TEXT,
+                project_id INTEGER,
+                country    TEXT,
+                device     TEXT,
+                referrer   TEXT
+            );
+            CREATE INDEX IF NOT EXISTS idx_visits_user_date ON visits(user_id, visited_at);
+            CREATE INDEX IF NOT EXISTS idx_visits_visitor ON visits(visitor_id, page);
         ''')
 
         # settings table with user_id
@@ -452,6 +472,127 @@ def my_storage():
     user = get_db().execute("SELECT storage_limit_mb, storage_used_mb FROM users WHERE id=?", (uid(),)).fetchone()
     if not user: return jsonify({'error':'not found'}), 404
     return jsonify({'storage_limit_mb':user['storage_limit_mb'],'storage_used_mb':round(user['storage_used_mb'],2),'storage_pct':round(user['storage_used_mb']/user['storage_limit_mb']*100,1) if user['storage_limit_mb'] else 0})
+
+# ══════════════ ANALYTICS ══════════════
+
+def detect_device(ua):
+    ua = (ua or '').lower()
+    if 'ipad' in ua or 'tablet' in ua: return 'tablet'
+    if 'mobile' in ua or 'android' in ua or 'iphone' in ua: return 'mobile'
+    return 'desktop'
+
+@app.route('/api/track', methods=['POST'])
+def track_visit():
+    """Public endpoint — records a visit. Skips owner viewing own portfolio."""
+    d = request.get_json() or {}
+    try: user_id = int(d.get('user_id', 0))
+    except: user_id = 0
+    if not user_id: return jsonify({'ok':False}), 400
+
+    # Skip if viewer is the portfolio owner (logged in admin viewing own site)
+    if session.get('logged_in') and session.get('user_id') == user_id:
+        return jsonify({'ok':True, 'skipped':'self'})
+
+    visitor_id = (d.get('visitor_id') or '')[:64]
+    page       = (d.get('page') or 'home')[:50]
+    referrer   = (d.get('referrer') or '')[:200]
+    try: project_id = int(d.get('project_id')) if d.get('project_id') else None
+    except: project_id = None
+
+    device  = detect_device(request.headers.get('User-Agent', ''))
+    # Country from Cloudflare header (if behind CF) or X-Country header
+    country = (request.headers.get('CF-IPCountry') or request.headers.get('X-Country') or '')[:2].upper()
+    if country in ('XX', 'T1'): country = ''
+
+    db = get_db()
+    # Throttle: same visitor + same page within 30 min = skip duplicate
+    if visitor_id:
+        recent = db.execute(
+            "SELECT id FROM visits WHERE user_id=? AND visitor_id=? AND page=? "
+            "AND visited_at > datetime('now','-30 minutes') LIMIT 1",
+            (user_id, visitor_id, page)
+        ).fetchone()
+        if recent: return jsonify({'ok':True, 'throttled':True})
+
+    db.execute(
+        "INSERT INTO visits(user_id, visitor_id, page, project_id, country, device, referrer) "
+        "VALUES (?,?,?,?,?,?,?)",
+        (user_id, visitor_id, page, project_id, country, device, referrer)
+    )
+    db.commit()
+    return jsonify({'ok':True})
+
+
+@app.route('/api/analytics')
+@login_required
+def get_analytics():
+    user_id = uid()
+    try: days = int(request.args.get('days', 30))
+    except: days = 30
+    if days not in (7, 30, 90, 365): days = 30
+    range_clause = f"-{days} days"
+
+    db = get_db()
+    args = (user_id, range_clause)
+
+    total_visits = db.execute(
+        "SELECT COUNT(*) FROM visits WHERE user_id=? AND visited_at > datetime('now',?)", args
+    ).fetchone()[0]
+
+    unique_visitors = db.execute(
+        "SELECT COUNT(DISTINCT visitor_id) FROM visits "
+        "WHERE user_id=? AND visited_at > datetime('now',?) AND visitor_id != ''", args
+    ).fetchone()[0]
+
+    daily = db.execute(
+        "SELECT date(visited_at) AS day, COUNT(*) AS visits FROM visits "
+        "WHERE user_id=? AND visited_at > datetime('now',?) "
+        "GROUP BY day ORDER BY day ASC", args
+    ).fetchall()
+
+    top_projects = db.execute(
+        "SELECT p.id, p.title, COUNT(v.id) AS views FROM visits v "
+        "JOIN projects p ON p.id = v.project_id "
+        "WHERE v.user_id=? AND v.project_id IS NOT NULL AND v.visited_at > datetime('now',?) "
+        "GROUP BY p.id ORDER BY views DESC LIMIT 10", args
+    ).fetchall()
+
+    top_countries = db.execute(
+        "SELECT country, COUNT(*) AS visits FROM visits "
+        "WHERE user_id=? AND country != '' AND visited_at > datetime('now',?) "
+        "GROUP BY country ORDER BY visits DESC LIMIT 10", args
+    ).fetchall()
+
+    devices = db.execute(
+        "SELECT device, COUNT(*) AS visits FROM visits "
+        "WHERE user_id=? AND visited_at > datetime('now',?) "
+        "GROUP BY device", args
+    ).fetchall()
+
+    referrers = db.execute(
+        "SELECT referrer, COUNT(*) AS visits FROM visits "
+        "WHERE user_id=? AND referrer != '' AND visited_at > datetime('now',?) "
+        "GROUP BY referrer ORDER BY visits DESC LIMIT 8", args
+    ).fetchall()
+
+    # Fill missing days with 0 (so chart is continuous)
+    from datetime import datetime as _dt, timedelta as _td
+    daily_map = {r['day']: r['visits'] for r in daily}
+    today = _dt.utcnow().date()
+    daily_full = []
+    for i in range(days, -1, -1):
+        d = (today - _td(days=i)).isoformat()
+        daily_full.append({'day': d, 'visits': daily_map.get(d, 0)})
+
+    return jsonify({
+        'total_visits': total_visits,
+        'unique_visitors': unique_visitors,
+        'daily': daily_full,
+        'top_projects': [dict(p) for p in top_projects],
+        'top_countries': [dict(c) for c in top_countries],
+        'devices': [dict(d) for d in devices],
+        'referrers': [dict(r) for r in referrers],
+    })
 
 # ── STORAGE HELPERS ──
 def upd_storage(user_id, delta_bytes, db):
@@ -872,29 +1013,116 @@ def behance_fetch():
     if 'behance.net' not in url: return jsonify({'error':'يجب أن يكون رابط Behance'}), 400
     try:
         body, _ = fetch_url(url)
-        title = ''; t = re.search(r'<meta property="og:title"\s+content="([^"]+)"', body)
+
+        # ── Title ──
+        title = ''
+        t = re.search(r'<meta property="og:title"\s+content="([^"]+)"', body)
         if t: title = html_mod.unescape(t.group(1))
         if not title:
             t2 = re.search(r'<title>([^<]+)</title>', body)
             if t2: title = html_mod.unescape(t2.group(1).split('::')[0].strip())
-        desc = ''; dv = re.search(r'<meta property="og:description"\s+content="([^"]+)"', body)
+
+        # ── Description ──
+        desc = ''
+        dv = re.search(r'<meta property="og:description"\s+content="([^"]+)"', body)
         if dv: desc = html_mod.unescape(dv.group(1))
+
+        # ── Cover ──
         cm = re.search(r'<meta property="og:image"\s+content="([^"]+)"', body)
         cover = html_mod.unescape(cm.group(1)) if cm else ''
-        img_urls = []
-        for mv in re.finditer(r'"url"\s*:\s*"(https://mir-s3-cdn-cf\.behance\.net/project_modules/[^"]+)"', body):
-            u = mv.group(1)
-            if ('fs/' in u or 'max_1200/' in u or 'max_3840/' in u) and u not in img_urls: img_urls.append(u)
-        if not img_urls:
-            for mv in re.finditer(r'(https://mir-s3-cdn-cf\.behance\.net/project_modules/[^"\s]+\.(?:jpg|png|jpeg|webp))', body):
-                u = mv.group(1)
-                if u not in img_urls: img_urls.append(u)
         cover_b64 = ''
         if cover:
             try: cover_b64 = proxy_one(cover)
             except: pass
-        return jsonify({'title':title,'description':desc,'cover':cover,'cover_b64':cover_b64,'images':img_urls[:20]})
-    except Exception as e: return jsonify({'error':str(e)}), 502
+
+        # ── Try to extract structured project data from embedded JSON ──
+        modules = []
+        seen_urls = set()
+
+        # Behance embeds project data in window.__INITIAL_STATE__ or similar
+        # Look for project modules array with their types (image/embed/text)
+        json_match = re.search(r'project["\']?\s*:\s*({.*?"modules"\s*:\s*\[.*?\]})', body, re.DOTALL)
+
+        if json_match:
+            # Try to parse modules from structured JSON
+            json_str = json_match.group(1)
+            # Extract individual module objects
+            mod_pattern = re.finditer(
+                r'\{[^{}]*?"(?:type|__typename)"\s*:\s*"([^"]+)"[^{}]*?\}',
+                json_str
+            )
+            for m in mod_pattern:
+                mtype = m.group(1).lower()
+                block = m.group(0)
+                if 'image' in mtype:
+                    # Extract image url
+                    iu = re.search(r'"(?:src|url|original)"\s*:\s*"(https://[^"]+\.(?:jpg|jpeg|png|webp|gif)[^"]*)"', block)
+                    if iu:
+                        u = iu.group(1).replace('\\/', '/')
+                        if u not in seen_urls:
+                            seen_urls.add(u)
+                            modules.append({'type':'image','src':u})
+                elif 'video' in mtype or 'embed' in mtype:
+                    # Embedded video (vimeo/youtube)
+                    eu = re.search(r'"(?:src|url|embed)"\s*:\s*"([^"]+)"', block)
+                    if eu:
+                        modules.append({'type':'embed','url':eu.group(1).replace('\\/','/')})
+                elif 'text' in mtype:
+                    tx = re.search(r'"(?:text|content)"\s*:\s*"((?:[^"\\]|\\.)*)"', block)
+                    if tx:
+                        clean = tx.group(1).replace('\\n','\n').replace('\\"','"').replace('\\/','/')
+                        clean = re.sub(r'<[^>]+>', '', clean).strip()
+                        if clean and len(clean) > 5:
+                            modules.append({'type':'text','content':clean})
+
+        # ── Fallback: scrape image URLs in document order, deduplicated ──
+        if not modules:
+            # First-pass: only highest quality images
+            for mv in re.finditer(r'"(?:src|url|original)"\s*:\s*"(https://mir-s3-cdn-cf\.behance\.net/project_modules/[^"]+)"', body):
+                u = mv.group(1).replace('\\/', '/')
+                # Prefer max_3840 > max_1200 > fs > disp
+                if u not in seen_urls and ('fs/' in u or 'max_1200/' in u or 'max_3840/' in u or 'source/' in u):
+                    seen_urls.add(u)
+                    # Skip thumbnails
+                    if any(skip in u for skip in ['/disp/','/202/','/115/','/100/']): continue
+                    modules.append({'type':'image','src':u})
+
+            # Second pass — any remaining behance images
+            if not modules:
+                for mv in re.finditer(r'(https://mir-s3-cdn-cf\.behance\.net/project_modules/[^"\s\\]+\.(?:jpg|jpeg|png|webp|gif))', body):
+                    u = mv.group(1)
+                    if u not in seen_urls and not any(skip in u for skip in ['/disp/','/202/','/115/','/100/']):
+                        seen_urls.add(u)
+                        modules.append({'type':'image','src':u})
+
+        # ── Detect embedded videos (Vimeo / YouTube iframes) ──
+        for mv in re.finditer(r'(https://player\.vimeo\.com/video/\d+[^"\'\\s]*)', body):
+            u = mv.group(1).replace('\\/','/').rstrip('"\\')
+            if u not in seen_urls:
+                seen_urls.add(u)
+                modules.append({'type':'embed','url':u})
+
+        for mv in re.finditer(r'(https://(?:www\.)?youtube\.com/embed/[^"\'\s\\]+)', body):
+            u = mv.group(1).replace('\\/','/').rstrip('"\\')
+            if u not in seen_urls:
+                seen_urls.add(u)
+                modules.append({'type':'embed','url':u})
+
+        # ── Limit and return ──
+        modules = modules[:40]  # safety cap
+
+        # Legacy fields for backward compatibility
+        img_urls = [m['src'] for m in modules if m.get('type')=='image']
+
+        return jsonify({
+            'title': title,
+            'description': desc,
+            'cover': cover,
+            'cover_b64': cover_b64,
+            'images': img_urls[:20],   # legacy
+            'modules': modules,        # new: full structured modules
+        })
+    except Exception as e: return jsonify({'error': str(e)}), 502
 
 # ── CONTACT ──
 _crate = {}
