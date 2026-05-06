@@ -1064,145 +1064,288 @@ def vimeo_fetch():
                        'embed_url':f'https://player.vimeo.com/video/{vid_id}?portrait=0&byline=0&title=0'})
     except Exception as e: return jsonify({'error':str(e)}), 502
 
-@app.route('/api/behance/fetch', methods=['POST'])
-@login_required
-def behance_fetch():
-    d = request.get_json() or {}
-    url = (d.get('url') or '').strip()
-    pasted_html = d.get('html', '')  # fallback: user pastes HTML directly
+# ══════════════ BOOKMARKLET ══════════════
+# Bookmarklet runs in user's browser on Behance, sends data via POST,
+# then redirects user back to admin with import_id in URL.
 
-    body = None
-    if pasted_html and len(pasted_html) > 1000:
-        # User pasted source HTML manually (workaround for IP blocking)
-        body = pasted_html
-    else:
-        if 'behance.net' not in url:
-            return jsonify({'error':'يجب أن يكون رابط Behance'}), 400
-        # Try multiple fetch strategies
-        body, err = fetch_url_with_fallback(url)
-        if body is None:
-            code = getattr(err, 'code', 0) if err else 0
-            if code == 403:
-                return jsonify({
-                    'error': '⚠️ Behance حجب الطلب من السيرفر — استخدم الطريقة البديلة بالأسفل',
-                    'blocked': True,
-                }), 502
-            elif code == 404:
-                return jsonify({'error':'⚠️ المشروع غير موجود — تأكد من الرابط'}), 404
-            else:
-                return jsonify({'error': f'تعذر الاتصال: {err}'}), 502
+_pending_imports = {}  # {import_id: {data, expires_at}}
+
+@app.route('/bookmarklet.js')
+def bookmarklet_js():
+    """JS file run inside Behance's page context. Extracts content and posts to our API."""
+    base = request.host_url.rstrip('/')
+    js = f'''(function(){{
+  if(!location.host.includes('behance.net')){{
+    alert('⚠️ هذا الزر يعمل فقط على صفحات Behance');
+    return;
+  }}
+  var modules = [];
+  var seen = {{}};
+
+  // Title
+  var title = '';
+  var ogT = document.querySelector('meta[property="og:title"]');
+  if(ogT) title = ogT.content;
+  if(!title) title = (document.title||'').split('::')[0].split('|')[0].trim();
+
+  // Description
+  var desc = '';
+  var ogD = document.querySelector('meta[property="og:description"]');
+  if(ogD) desc = ogD.content;
+
+  // Cover
+  var cover = '';
+  var ogI = document.querySelector('meta[property="og:image"]');
+  if(ogI) cover = ogI.content;
+
+  // Find project content
+  var content = document.querySelector('[class*="Project-modules"], [class*="project-modules"], [class*="ProjectModule"], main, article') || document.body;
+
+  // Walk elements in document order
+  var walker = document.createTreeWalker(content, NodeFilter.SHOW_ELEMENT);
+  var node;
+  while((node = walker.nextNode())){{
+    var tag = node.tagName;
+    if(tag === 'IMG'){{
+      var src = node.currentSrc || node.src || node.getAttribute('data-src') || '';
+      if(!src || !src.startsWith('http')) continue;
+      var isBehance = src.indexOf('mir-s3-cdn-cf.behance.net') > -1;
+      if(!isBehance && (node.naturalWidth || 0) < 400) continue;
+      // Upgrade to highest resolution
+      var hires = src.replace(/\\/(disp|115|202|404|disp_500)\\//g, '/source/');
+      if(seen[hires]) continue;
+      seen[hires] = 1;
+      modules.push({{type:'image', src: hires}});
+    }} else if(tag === 'VIDEO'){{
+      var v = node.currentSrc || node.src || '';
+      if(v && !seen[v]){{ seen[v]=1; modules.push({{type:'video', src: v}}); }}
+    }} else if(tag === 'IFRAME'){{
+      var f = node.src || '';
+      if(f && (f.indexOf('vimeo.com')>-1 || f.indexOf('youtube.com')>-1) && !seen[f]){{
+        seen[f]=1; modules.push({{type:'embed', url: f}});
+      }}
+    }} else if(tag==='P' || tag==='H1' || tag==='H2' || tag==='H3' || tag==='BLOCKQUOTE'){{
+      var text = (node.innerText||'').trim();
+      if(text.length < 30 || text.length > 4000) continue;
+      if(node.closest('nav, header, footer, [class*="toolbar"], [class*="appreciation"], [class*="comment"], [class*="related"]')) continue;
+      var key = 't:'+text.slice(0,50);
+      if(seen[key]) continue;
+      seen[key] = 1;
+      modules.push({{type:'text', content: text}});
+    }}
+  }}
+
+  if(!modules.length){{
+    alert('⚠️ لم يتم العثور على محتوى في هذه الصفحة');
+    return;
+  }}
+
+  // Send to our server
+  fetch('{base}/api/bookmarklet/submit', {{
+    method:'POST',
+    headers:{{'Content-Type':'application/json'}},
+    body: JSON.stringify({{
+      title: title, description: desc, cover: cover, modules: modules,
+      source_url: location.href
+    }})
+  }})
+  .then(function(r){{ return r.json(); }})
+  .then(function(d){{
+    if(d.import_id){{
+      // Open admin with import ready
+      window.open('{base}/admin?bh=' + d.import_id, '_blank');
+    }} else {{
+      alert('❌ ' + (d.error||'فشل الإرسال'));
+    }}
+  }})
+  .catch(function(e){{ alert('❌ خطأ: '+e.message); }});
+}})();'''
+    return js, 200, {'Content-Type':'application/javascript; charset=utf-8',
+                     'Cache-Control':'public, max-age=300',
+                     'Access-Control-Allow-Origin':'*'}
+
+
+@app.route('/api/bookmarklet/submit', methods=['POST', 'OPTIONS'])
+def bookmarklet_submit():
+    """Receives scraped data from bookmarklet running on Behance."""
+    if request.method == 'OPTIONS':
+        resp = jsonify({'ok':True})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        resp.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
+        resp.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+        return resp
+
+    d = request.get_json() or {}
+    # Sanitize modules
+    raw_mods = d.get('modules') or []
+    modules = []
+    for m in raw_mods[:80]:
+        if not isinstance(m, dict): continue
+        t = m.get('type')
+        if t == 'image':
+            src = (m.get('src') or '')[:1000]
+            if src.startswith('http'): modules.append({'type':'image','src':src})
+        elif t == 'video':
+            src = (m.get('src') or '')[:1000]
+            if src.startswith('http'): modules.append({'type':'video','src':src})
+        elif t == 'embed':
+            url = (m.get('url') or '')[:500]
+            if url.startswith('http'): modules.append({'type':'embed','url':url})
+        elif t == 'text':
+            content = (m.get('content') or '')[:5000]
+            if content.strip(): modules.append({'type':'text','content':content})
+
+    if not modules:
+        resp = jsonify({'error':'لا توجد عناصر صالحة'})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp, 400
+
+    # Generate short import ID
+    import_id = base64.urlsafe_b64encode(os.urandom(9)).decode().rstrip('=')
+
+    _pending_imports[import_id] = {
+        'data': {
+            'title': (d.get('title') or '')[:300],
+            'description': (d.get('description') or '')[:2000],
+            'cover': (d.get('cover') or '')[:500],
+            'modules': modules,
+            'source_url': (d.get('source_url') or '')[:500],
+        },
+        'expires_at': time.time() + 1800,  # 30 minutes
+    }
+    # Cleanup expired
+    now = time.time()
+    expired = [k for k,v in _pending_imports.items() if v['expires_at'] < now]
+    for k in expired: _pending_imports.pop(k, None)
+
+    resp = jsonify({'ok':True, 'import_id': import_id, 'count': len(modules)})
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    return resp
+
+
+@app.route('/api/bookmarklet/get/<import_id>')
+@login_required
+def bookmarklet_get(import_id):
+    """Admin fetches the pending import data."""
+    item = _pending_imports.get(import_id)
+    if not item: return jsonify({'error':'لم يتم العثور على البيانات (قد تكون انتهت صلاحيتها)'}), 404
+    if item['expires_at'] < time.time():
+        _pending_imports.pop(import_id, None)
+        return jsonify({'error':'انتهت صلاحية البيانات'}), 410
+    # One-shot retrieval
+    _pending_imports.pop(import_id, None)
+    return jsonify({'ok':True, 'data': item['data']})
+
+
+# ══════════════ ZIP IMPORT ══════════════
+import zipfile, io as _io
+ALLOWED_IMG_EXT = ('.jpg','.jpeg','.png','.webp','.gif','.bmp')
+ALLOWED_VID_EXT = ('.mp4','.mov','.webm','.m4v')
+
+@app.route('/api/import/zip', methods=['POST'])
+@login_required
+def import_zip():
+    """Receives a ZIP file containing images (and optional videos) → creates a project."""
+    if 'zip' not in request.files: return jsonify({'error':'لم يتم رفع ملف'}), 400
+    f = request.files['zip']
+    if not f.filename.lower().endswith('.zip'):
+        return jsonify({'error':'يجب أن يكون الملف ZIP'}), 400
+
+    title    = (request.form.get('title') or 'مشروع جديد').strip()[:200]
+    category = (request.form.get('category') or '').strip()[:100]
+    desc     = (request.form.get('description') or '').strip()[:5000]
 
     try:
+        data = f.read()
+        if len(data) > 90 * 1024 * 1024:
+            return jsonify({'error':'حجم الملف أكبر من 90 ميجا'}), 400
+        zf = zipfile.ZipFile(_io.BytesIO(data))
+    except zipfile.BadZipFile:
+        return jsonify({'error':'الملف ليس ZIP صالح'}), 400
+    except Exception as e:
+        return jsonify({'error': f'خطأ: {str(e)}'}), 400
 
-        # ── Title ──
-        title = ''
-        t = re.search(r'<meta property="og:title"\s+content="([^"]+)"', body)
-        if t: title = html_mod.unescape(t.group(1))
-        if not title:
-            t2 = re.search(r'<title>([^<]+)</title>', body)
-            if t2: title = html_mod.unescape(t2.group(1).split('::')[0].strip())
+    db = get_db()
+    user = db.execute("SELECT storage_limit_mb, storage_used_mb FROM users WHERE id=?", (uid(),)).fetchone()
+    available_mb = (user['storage_limit_mb'] or 0) - (user['storage_used_mb'] or 0)
+    total_zip_mb = sum(zi.file_size for zi in zf.infolist() if not zi.is_dir()) / (1024*1024)
+    if total_zip_mb > available_mb:
+        return jsonify({'error': f'⚠️ مساحة غير كافية. تحتاج ~{round(total_zip_mb,1)} MB، المتاح {round(available_mb,1)} MB'}), 400
 
-        # ── Description ──
-        desc = ''
-        dv = re.search(r'<meta property="og:description"\s+content="([^"]+)"', body)
-        if dv: desc = html_mod.unescape(dv.group(1))
+    entries = []
+    for zi in zf.infolist():
+        if zi.is_dir(): continue
+        name = zi.filename
+        base = os.path.basename(name)
+        if base.startswith('.') or '__MACOSX' in name: continue
+        ext = os.path.splitext(name)[1].lower()
+        if ext in ALLOWED_IMG_EXT:
+            entries.append({'zi': zi, 'name': name, 'type': 'image', 'ext': ext})
+        elif ext in ALLOWED_VID_EXT:
+            entries.append({'zi': zi, 'name': name, 'type': 'video', 'ext': ext})
 
-        # ── Cover ──
-        cm = re.search(r'<meta property="og:image"\s+content="([^"]+)"', body)
-        cover = html_mod.unescape(cm.group(1)) if cm else ''
-        cover_b64 = ''
-        if cover:
-            try: cover_b64 = proxy_one(cover)
+    if not entries:
+        return jsonify({'error':'لم يتم العثور على صور أو فيديوهات في الملف'}), 400
+
+    def natural_key(s):
+        return [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', s)]
+    entries.sort(key=lambda e: natural_key(e['name']))
+    entries = entries[:60]
+
+    sort_order = (db.execute("SELECT COALESCE(MAX(sort_order),0) FROM projects WHERE user_id=?", (uid(),)).fetchone()[0] or 0) + 1
+    cur = db.execute(
+        "INSERT INTO projects(user_id,title,category,description,media_type,project_type,sort_order) VALUES(?,?,?,?,?,?,?)",
+        (uid(), title, category, desc, 'image', 'editor', sort_order)
+    )
+    project_id = cur.lastrowid
+
+    saved_modules = []
+    cover_set = False
+    total_bytes = 0
+
+    for ent in entries:
+        try: content = zf.read(ent['zi'])
+        except Exception: continue
+
+        ext = ent['ext'].lstrip('.')
+        ts = int(time.time() * 1000) + len(saved_modules)
+        fname = f"u{uid()}_p{project_id}_{ts}.{ext}"
+        fpath = os.path.join(UPLOAD_DIR, fname)
+
+        try:
+            if ent['type'] == 'video' and len(content) > 50 * 1024 * 1024:
+                continue
+            with open(fpath, 'wb') as fp: fp.write(content)
+            if ent['type'] == 'image' and ext in ('jpg','jpeg','png','webp'):
+                optimize_image(fpath)
+            file_size = os.path.getsize(fpath)
+            total_bytes += file_size
+            public_url = f'/uploads/{fname}'
+
+            if ent['type'] == 'image':
+                if not cover_set:
+                    db.execute("UPDATE projects SET cover_url=? WHERE id=?", (public_url, project_id))
+                    cover_set = True
+                saved_modules.append({'type':'image','src':public_url})
+            else:
+                saved_modules.append({'type':'video','src':public_url})
+        except Exception as e:
+            print(f'zip entry error: {e}')
+            try: os.remove(fpath)
             except: pass
+            continue
 
-        # ── Try to extract structured project data from embedded JSON ──
-        modules = []
-        seen_urls = set()
+    db.execute("UPDATE projects SET modules=? WHERE id=?", (json.dumps(saved_modules), project_id))
+    upd_storage(uid(), total_bytes, db)
+    db.commit()
 
-        # Behance embeds project data in window.__INITIAL_STATE__ or similar
-        # Look for project modules array with their types (image/embed/text)
-        json_match = re.search(r'project["\']?\s*:\s*({.*?"modules"\s*:\s*\[.*?\]})', body, re.DOTALL)
+    return jsonify({
+        'ok': True,
+        'project_id': project_id,
+        'count': len(saved_modules),
+        'total_mb': round(total_bytes/(1024*1024), 2),
+    })
 
-        if json_match:
-            # Try to parse modules from structured JSON
-            json_str = json_match.group(1)
-            # Extract individual module objects
-            mod_pattern = re.finditer(
-                r'\{[^{}]*?"(?:type|__typename)"\s*:\s*"([^"]+)"[^{}]*?\}',
-                json_str
-            )
-            for m in mod_pattern:
-                mtype = m.group(1).lower()
-                block = m.group(0)
-                if 'image' in mtype:
-                    # Extract image url
-                    iu = re.search(r'"(?:src|url|original)"\s*:\s*"(https://[^"]+\.(?:jpg|jpeg|png|webp|gif)[^"]*)"', block)
-                    if iu:
-                        u = iu.group(1).replace('\\/', '/')
-                        if u not in seen_urls:
-                            seen_urls.add(u)
-                            modules.append({'type':'image','src':u})
-                elif 'video' in mtype or 'embed' in mtype:
-                    # Embedded video (vimeo/youtube)
-                    eu = re.search(r'"(?:src|url|embed)"\s*:\s*"([^"]+)"', block)
-                    if eu:
-                        modules.append({'type':'embed','url':eu.group(1).replace('\\/','/')})
-                elif 'text' in mtype:
-                    tx = re.search(r'"(?:text|content)"\s*:\s*"((?:[^"\\]|\\.)*)"', block)
-                    if tx:
-                        clean = tx.group(1).replace('\\n','\n').replace('\\"','"').replace('\\/','/')
-                        clean = re.sub(r'<[^>]+>', '', clean).strip()
-                        if clean and len(clean) > 5:
-                            modules.append({'type':'text','content':clean})
-
-        # ── Fallback: scrape image URLs in document order, deduplicated ──
-        if not modules:
-            # First-pass: only highest quality images
-            for mv in re.finditer(r'"(?:src|url|original)"\s*:\s*"(https://mir-s3-cdn-cf\.behance\.net/project_modules/[^"]+)"', body):
-                u = mv.group(1).replace('\\/', '/')
-                # Prefer max_3840 > max_1200 > fs > disp
-                if u not in seen_urls and ('fs/' in u or 'max_1200/' in u or 'max_3840/' in u or 'source/' in u):
-                    seen_urls.add(u)
-                    # Skip thumbnails
-                    if any(skip in u for skip in ['/disp/','/202/','/115/','/100/']): continue
-                    modules.append({'type':'image','src':u})
-
-            # Second pass — any remaining behance images
-            if not modules:
-                for mv in re.finditer(r'(https://mir-s3-cdn-cf\.behance\.net/project_modules/[^"\s\\]+\.(?:jpg|jpeg|png|webp|gif))', body):
-                    u = mv.group(1)
-                    if u not in seen_urls and not any(skip in u for skip in ['/disp/','/202/','/115/','/100/']):
-                        seen_urls.add(u)
-                        modules.append({'type':'image','src':u})
-
-        # ── Detect embedded videos (Vimeo / YouTube iframes) ──
-        for mv in re.finditer(r'(https://player\.vimeo\.com/video/\d+[^"\'\\s]*)', body):
-            u = mv.group(1).replace('\\/','/').rstrip('"\\')
-            if u not in seen_urls:
-                seen_urls.add(u)
-                modules.append({'type':'embed','url':u})
-
-        for mv in re.finditer(r'(https://(?:www\.)?youtube\.com/embed/[^"\'\s\\]+)', body):
-            u = mv.group(1).replace('\\/','/').rstrip('"\\')
-            if u not in seen_urls:
-                seen_urls.add(u)
-                modules.append({'type':'embed','url':u})
-
-        # ── Limit and return ──
-        modules = modules[:40]  # safety cap
-
-        # Legacy fields for backward compatibility
-        img_urls = [m['src'] for m in modules if m.get('type')=='image']
-
-        return jsonify({
-            'title': title,
-            'description': desc,
-            'cover': cover,
-            'cover_b64': cover_b64,
-            'images': img_urls[:20],   # legacy
-            'modules': modules,        # new: full structured modules
-        })
-    except Exception as e: return jsonify({'error': str(e)}), 502
 
 # ── CONTACT ──
 _crate = {}

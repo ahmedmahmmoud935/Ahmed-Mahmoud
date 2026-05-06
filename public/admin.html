@@ -571,6 +571,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
       <button class="btn-vimeo" onclick="openVimeoImport()"><i class="fa-brands fa-vimeo-v" style="color:#1ab7ea;font-size:15px;"></i> Vimeo</button>
       <button class="btn-vimeo" onclick="openBehanceImport()" style="border-color:#1769ff;color:#1769ff;"><i class="fa-brands fa-behance" style="font-size:15px;"></i> Behance</button>
+      <button class="btn-vimeo" onclick="openZipImport()" style="border-color:#22c55e;color:#22c55e;"><i class="fa-solid fa-file-zipper" style="font-size:15px;"></i> رفع ZIP</button>
       <button class="btn-add" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> مشروع جديد</button>
     </div>
   </div>
@@ -1228,76 +1229,145 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 </div>
 
 <!-- BEHANCE IMPORT MODAL -->
+<!-- BEHANCE BOOKMARKLET MODAL -->
 <div class="mo" id="behanceModal">
-  <div class="modal" style="max-width:640px;">
+  <div class="modal" style="max-width:580px;">
     <div class="mh">
       <div class="mt"><i class="fa-brands fa-behance" style="color:#1769ff;margin-left:10px;"></i>استيراد من Behance</div>
       <button class="mc" onclick="closeBehanceModal()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="mb">
-      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;">الصق رابط أي مشروع على Behance وسيتم جلب صوره وعنوانه تلقائياً</p>
-      <div class="fg">
-        <label class="fl">رابط المشروع</label>
-        <div style="display:flex;gap:10px;">
-          <input class="fi" id="behanceUrl" placeholder="https://www.behance.net/gallery/12345/Project-Name" style="flex:1;" onkeydown="if(event.key==='Enter')fetchBehance()">
-          <button class="btn-import" onclick="fetchBehance()" id="btnFetchBehance" style="flex-shrink:0;background:#1769ff;">
-            <div class="spin" id="spinBehance" style="display:none;"></div>
-            <span>جلب</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Fallback: manual HTML paste (shown when URL fetch fails) -->
-      <div id="behanceManualBox" style="display:none;margin-top:14px;background:rgba(249,115,22,.05);border:1px solid rgba(249,115,22,.25);border-radius:10px;padding:14px;">
+      <div style="background:linear-gradient(135deg,rgba(23,105,255,0.1),rgba(23,105,255,0.03));border:1px solid rgba(23,105,255,0.3);border-radius:12px;padding:18px;margin-bottom:18px;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-          <i class="fa-solid fa-circle-info" style="color:var(--o);font-size:18px;"></i>
-          <div style="font-weight:700;font-size:14px;">طريقة بديلة (لو فشل الجلب التلقائي)</div>
+          <div style="width:36px;height:36px;background:#1769ff;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;"><i class="fa-solid fa-bolt"></i></div>
+          <div>
+            <div style="font-weight:800;font-size:14px;">طريقة سريعة ومضمونة</div>
+            <div style="font-size:11px;color:#888;">يستخرج كل الصور والفيديوهات تلقائياً من صفحة Behance</div>
+          </div>
         </div>
-        <p style="color:var(--g2);font-size:12px;line-height:1.7;margin-bottom:10px;">
-          <b style="color:#fff;">الخطوات:</b><br>
-          ١. افتح رابط المشروع في متصفحك<br>
-          ٢. اضغط <code style="background:#000;padding:2px 6px;border-radius:3px;">⌘ + U</code> (Mac) أو <code style="background:#000;padding:2px 6px;border-radius:3px;">Ctrl + U</code> (Windows)<br>
-          ٣. اضغط <code style="background:#000;padding:2px 6px;border-radius:3px;">⌘ + A</code> ثم <code style="background:#000;padding:2px 6px;border-radius:3px;">⌘ + C</code> لنسخ الكل<br>
-          ٤. ألصقه في المربع تحت ←
-        </p>
-        <textarea class="fta" id="behanceHtmlPaste" placeholder="ألصق محتوى صفحة Behance هنا..." style="min-height:80px;font-family:monospace;font-size:11px;direction:ltr;"></textarea>
-        <button class="btn-import" onclick="fetchBehanceFromHtml()" style="margin-top:10px;background:#1769ff;width:100%;">
-          <i class="fa-solid fa-clipboard" style="margin-left:6px;"></i>تحليل المحتوى
-        </button>
       </div>
 
-      <!-- Preview -->
-      <div id="behancePreview" style="display:none;margin-top:16px;">
-        <div class="fg">
-          <label class="fl">عنوان المشروع (قابل للتعديل)</label>
-          <input class="fi" id="behanceFinalTitle" placeholder="عنوان المشروع">
+      <div style="background:#0a0a0a;border-radius:10px;padding:18px;margin-bottom:14px;">
+        <div style="font-weight:700;font-size:13px;margin-bottom:14px;color:var(--o);">⚙️ ثبّت الزر مرة واحدة فقط:</div>
+        <ol style="color:#ccc;font-size:12px;line-height:2;padding-inline-start:20px;margin:0;">
+          <li>أظهر شريط المفضلة (<code style="background:#000;padding:2px 6px;border-radius:3px;font-size:11px;">⌘+⇧+B</code> للماك أو <code style="background:#000;padding:2px 6px;border-radius:3px;font-size:11px;">Ctrl+Shift+B</code> للويندوز)</li>
+          <li>اسحب الزر التالي إلى شريط المفضلة:</li>
+        </ol>
+        <div style="text-align:center;padding:14px 0 4px;">
+          <a id="bhBookmarklet" href="javascript:void(0)" style="display:inline-block;background:#1769ff;color:#fff !important;padding:14px 28px;border-radius:10px;font-weight:800;font-size:14px;text-decoration:none;cursor:grab;border:2px dashed rgba(255,255,255,0.4);box-shadow:0 4px 12px rgba(23,105,255,0.3);">
+            <i class="fa-brands fa-behance" style="margin-left:8px;"></i> استورد لـ Portfolio
+          </a>
+          <p style="color:#666;font-size:11px;margin-top:10px;">↑ اسحب هذا الزر للأعلى</p>
         </div>
-        <div class="fg">
-          <label class="fl">التصنيف</label>
-          <select class="fse" id="behanceCat">
-            <option value="Brand Identity">Brand Identity</option>
-            <option value="Social Media">Social Media</option>
-            <option value="Print Design">Print Design</option>
-            <option value="Motion Graphics">Motion Graphics</option>
-            <option value="Packaging">Packaging</option>
-            <option value="Other">Other</option>
-          </select>
+      </div>
+
+      <div style="background:#0a0a0a;border-radius:10px;padding:18px;">
+        <div style="font-weight:700;font-size:13px;margin-bottom:10px;color:#22c55e;">✨ كيفية الاستخدام:</div>
+        <ol style="color:#ccc;font-size:12px;line-height:2;padding-inline-start:20px;margin:0;">
+          <li>افتح أي مشروع على Behance في تبويب جديد</li>
+          <li>اضغط زر <b style="color:#1769ff;">"استورد لـ Portfolio"</b> من شريط المفضلة</li>
+          <li>سيفتح موقعك تلقائياً مع كل المحتوى جاهزاً</li>
+        </ol>
+      </div>
+    </div>
+    <div class="mfo">
+      <button class="btn-cancel" onclick="closeBehanceModal()">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- ZIP IMPORT MODAL -->
+<div class="mo" id="zipModal">
+  <div class="modal" style="max-width:540px;">
+    <div class="mh">
+      <div class="mt"><i class="fa-solid fa-file-zipper" style="color:#22c55e;margin-left:10px;"></i>رفع مشروع من ZIP</div>
+      <button class="mc" onclick="closeZipModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="mb">
+      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;line-height:1.7;">
+        💡 <b style="color:#fff;">طريقة سريعة لرفع مشروع كامل:</b><br>
+        ضع كل صور المشروع في مجلد، سمّها بأرقام (1.jpg, 2.jpg...) للترتيب الصحيح، ثم اضغط المجلد كملف ZIP وارفعه هنا.
+      </p>
+
+      <div class="fg">
+        <label class="fl">عنوان المشروع</label>
+        <input class="fi" id="zipTitle" placeholder="مثلاً: حملة سنادك">
+      </div>
+
+      <div class="fg">
+        <label class="fl">التصنيف</label>
+        <select class="fse" id="zipCat"></select>
+      </div>
+
+      <div class="fg">
+        <label class="fl">الوصف (اختياري)</label>
+        <textarea class="fta" id="zipDesc" style="min-height:60px;" placeholder="وصف قصير للمشروع"></textarea>
+      </div>
+
+      <div class="fg">
+        <label class="fl">ملف ZIP</label>
+        <div id="zipDropZone" style="border:2px dashed #444;border-radius:12px;padding:30px;text-align:center;cursor:pointer;transition:all .2s;background:#0a0a0a;" onclick="document.getElementById('zipFile').click()">
+          <i class="fa-solid fa-cloud-arrow-up" style="font-size:36px;color:#22c55e;margin-bottom:10px;"></i>
+          <div id="zipFileLabel" style="font-weight:700;font-size:14px;">اضغط أو اسحب ملف ZIP هنا</div>
+          <div id="zipFileSize" style="font-size:11px;color:#888;margin-top:6px;">حد أقصى 90 MB · يدعم JPG, PNG, WEBP, MP4</div>
         </div>
-        <div class="fg">
-          <label class="fl">الوصف</label>
-          <textarea class="fta" id="behanceDesc" style="min-height:70px;"></textarea>
+        <input type="file" id="zipFile" accept=".zip,application/zip" style="display:none;" onchange="onZipSelected(this)">
+      </div>
+
+      <div id="zipProgress" style="display:none;background:#0a0a0a;border-radius:8px;padding:14px;margin-top:14px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <div class="spin" style="border-color:#22c55e transparent #22c55e #22c55e;"></div>
+          <span id="zipProgressText" style="font-weight:700;font-size:13px;">جاري الرفع...</span>
         </div>
-        <div>
-          <label class="fl" style="margin-bottom:10px;">الصور المُجلبة — اختر اللي عايزه ✓</label>
-          <div id="behanceImgGrid" class="import-grid"></div>
-          <p style="color:#555;font-size:12px;margin-top:8px;">💡 اضغط على الصورة لتحديدها — الصورة الأولى المحددة ستكون الغلاف</p>
+        <div style="background:#000;border-radius:3px;height:6px;overflow:hidden;">
+          <div id="zipProgressBar" style="height:100%;background:#22c55e;width:0%;transition:width .3s;"></div>
         </div>
       </div>
     </div>
-    <div class="mf">
-      <button class="btn-cancel" onclick="closeBehanceModal()">إلغاء</button>
-      <button class="btn-import" id="btnSaveBehance" onclick="saveBehanceProject()" style="display:none;background:#1769ff;">
-        <div class="spin" id="spinSaveBehance" style="display:none;"></div>
+    <div class="mfo">
+      <button class="btn-cancel" onclick="closeZipModal()">إلغاء</button>
+      <button class="btn-import" id="btnSaveZip" onclick="uploadZip()" style="background:#22c55e;" disabled>
+        <i class="fa-solid fa-upload"></i> رفع المشروع
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- BEHANCE IMPORT PREVIEW MODAL (shown when bookmarklet brings data) -->
+<div class="mo" id="bhPreviewModal">
+  <div class="modal" style="max-width:760px;">
+    <div class="mh">
+      <div class="mt"><i class="fa-brands fa-behance" style="color:#1769ff;margin-left:10px;"></i>معاينة الاستيراد</div>
+      <button class="mc" onclick="closeBhPreview()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="mb">
+      <div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:12px;margin-bottom:18px;color:#22c55e;font-size:13px;font-weight:700;text-align:center;">
+        <i class="fa-solid fa-check-circle"></i> تم استلام <span id="bhCount">0</span> عنصر من Behance
+      </div>
+
+      <div class="fg">
+        <label class="fl">عنوان المشروع</label>
+        <input class="fi" id="bhTitle">
+      </div>
+
+      <div class="fg">
+        <label class="fl">التصنيف</label>
+        <select class="fse" id="bhCategory"></select>
+      </div>
+
+      <div class="fg">
+        <label class="fl">الوصف</label>
+        <textarea class="fta" id="bhDesc" style="min-height:60px;"></textarea>
+      </div>
+
+      <div class="fg">
+        <label class="fl">المحتوى (انقر لاختيار/إلغاء)</label>
+        <div id="bhModulesGrid" class="import-grid"></div>
+      </div>
+    </div>
+    <div class="mfo">
+      <button class="btn-cancel" onclick="closeBhPreview()">إلغاء</button>
+      <button class="btn-import" id="btnSaveBh" onclick="saveBhImport()" style="background:#1769ff;">
         <i class="fa-solid fa-download"></i> استيراد المشروع
       </button>
     </div>
@@ -2761,179 +2831,137 @@ async function saveVimeoProject(){
 }
 
 // ══ BEHANCE IMPORT ══
+// ══ BEHANCE BOOKMARKLET ══
 function openBehanceImport(){
-  behanceModules=[];
-  behanceImages=[];
-  document.getElementById('behanceUrl').value='';
-  document.getElementById('behancePreview').style.display='none';
-  document.getElementById('btnSaveBehance').style.display='none';
-  document.getElementById('behanceImgGrid').innerHTML='';
   document.getElementById('behanceModal').classList.add('open');
+  // Build bookmarklet href
+  const origin = location.origin;
+  const code = `javascript:(function(){var s=document.createElement('script');s.src='${origin}/bookmarklet.js?t='+Date.now();document.body.appendChild(s);})();`;
+  const btn = document.getElementById('bhBookmarklet');
+  if(btn){
+    btn.setAttribute('href', code);
+    btn.onclick = e => { e.preventDefault(); toast('💡 اسحب الزر للـ bookmarks bar — لا تضغطه هنا'); return false; };
+  }
 }
 function closeBehanceModal(){document.getElementById('behanceModal').classList.remove('open');}
 
-let behanceImages=[];   // legacy compat
+// ══ BEHANCE IMPORT PREVIEW (called when bookmarklet brings data) ══
+let bhImportData = null;
+let bhImportModules = [];
 
-// ══ BEHANCE IMPORT ══
-let behanceModules = [];  // {type:'image'|'embed'|'text', src/url/content, selected, b64}
-let behanceFetchData = null;
-
-async function fetchBehance(){
-  const url=document.getElementById('behanceUrl').value.trim();
-  if(!url||!url.includes('behance.net')){toast('⚠️ أدخل رابط Behance صحيح');return;}
-  const btn=document.getElementById('btnFetchBehance');
-  const spin=document.getElementById('spinBehance');
-  btn.disabled=true;spin.style.display='inline-block';
-  document.getElementById('behanceManualBox').style.display='none';
+async function checkBehanceImport(){
+  // Check URL for ?bh=<import_id>
+  const params = new URLSearchParams(location.search);
+  const importId = params.get('bh');
+  if(!importId) return;
+  // Clean URL
+  history.replaceState({}, '', location.pathname);
   try{
-    const r=await fetch('/api/behance/fetch',{method:'POST',credentials:'include',
-      headers:{'Content-Type':'application/json'},body:JSON.stringify({url})});
-    const d=await r.json();
+    const r = await fetch(`/api/bookmarklet/get/${importId}`, {credentials:'include'});
     if(!r.ok){
-      toast('⚠️ '+(d.error||'تعذّر جلب المشروع'));
-      // Show manual paste fallback if blocked
-      if(d.blocked){
-        document.getElementById('behanceManualBox').style.display='block';
-      }
-      btn.disabled=false;spin.style.display='none';
+      const e = await r.json();
+      toast('⚠️ '+(e.error||'فشل تحميل البيانات'), 'error');
       return;
     }
-    handleBehanceData(d);
-  }catch(e){toast('خطأ في الاتصال: '+e.message);}
-  btn.disabled=false;spin.style.display='none';
-}
-
-async function fetchBehanceFromHtml(){
-  const html = document.getElementById('behanceHtmlPaste').value.trim();
-  const url  = document.getElementById('behanceUrl').value.trim();
-  if(html.length < 1000){toast('⚠️ المحتوى قصير جداً — تأكد من نسخ كل الصفحة');return;}
-  toast('⏳ جاري تحليل المحتوى...');
-  try{
-    const r = await fetch('/api/behance/fetch',{method:'POST',credentials:'include',
-      headers:{'Content-Type':'application/json'}, body: JSON.stringify({url, html})});
     const d = await r.json();
-    if(!r.ok){toast('⚠️ '+(d.error||'فشل التحليل'));return;}
-    handleBehanceData(d);
-    document.getElementById('behanceManualBox').style.display='none';
-  }catch(e){toast('خطأ: '+e.message);}
+    bhImportData = d.data;
+    bhImportModules = (d.data.modules || []).map(m => ({...m, selected: true}));
+    document.getElementById('bhTitle').value = d.data.title || '';
+    document.getElementById('bhDesc').value = d.data.description || '';
+    document.getElementById('bhCount').textContent = bhImportModules.length;
+    // Populate categories
+    const sel = document.getElementById('bhCategory');
+    sel.innerHTML='';
+    (CATEGORIES||[]).forEach(c=>{
+      const opt=document.createElement('option');
+      opt.value=c.name; opt.textContent=c.name;
+      sel.appendChild(opt);
+    });
+    renderBhModules();
+    document.getElementById('bhPreviewModal').classList.add('open');
+  }catch(e){toast('خطأ: '+e.message,'error');}
 }
 
-function handleBehanceData(d){
-  behanceFetchData = d;
-  document.getElementById('behanceFinalTitle').value=d.title||'';
-  document.getElementById('behanceDesc').value=d.description||'';
-  let mods = (d.modules && d.modules.length) ? d.modules : (d.images||[]).map(u=>({type:'image',src:u}));
-  behanceModules = mods.map(m => ({...m, selected: true}));
-  if(d.cover){
-    const inModules = behanceModules.some(m => m.type==='image' && m.src===d.cover);
-    if(!inModules) behanceModules.unshift({type:'image', src:d.cover, selected:true, b64:d.cover_b64||null, isCover:true});
-  }
-  renderBehanceGrid();
-  document.getElementById('behancePreview').style.display='block';
-  document.getElementById('btnSaveBehance').style.display='flex';
-  const cnt = behanceModules.length;
-  const types = {};
-  behanceModules.forEach(m => types[m.type] = (types[m.type]||0)+1);
-  let summary = `تم العثور على ${cnt} عنصر`;
-  if(types.image) summary += ` — ${types.image} صورة`;
-  if(types.embed) summary += ` — ${types.embed} فيديو`;
-  if(types.text)  summary += ` — ${types.text} نص`;
-  toast('✓ ' + summary);
-}
-
-function renderBehanceGrid(){
-  const grid=document.getElementById('behanceImgGrid');
-  if(!behanceModules.length){grid.innerHTML='<div class="import-status">لم يتم العثور على محتوى</div>';return;}
-  grid.innerHTML=behanceModules.map((m,i)=>{
+function renderBhModules(){
+  const grid = document.getElementById('bhModulesGrid');
+  if(!bhImportModules.length){grid.innerHTML='<div class="import-status">لا يوجد محتوى</div>';return;}
+  grid.innerHTML = bhImportModules.map((m,i)=>{
     let preview='', label='', icon='';
-    if(m.type === 'image'){
+    if(m.type==='image'){
       preview = `<img src="${m.src}" alt="" loading="lazy" style="width:100%;aspect-ratio:4/3;object-fit:cover;display:block;" onerror="this.parentElement.innerHTML='<div style=\\'aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;color:#666;background:#0a0a0a;\\'><i class=\\'fa-solid fa-image-slash\\' style=\\'font-size:30px;\\'></i></div>'">`;
-      label = m.isCover ? 'صورة الغلاف' : 'صورة';
-      icon = 'fa-image';
-    } else if(m.type === 'embed'){
-      const isVimeo = m.url && m.url.includes('vimeo');
-      preview = `<div style="aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a1a,#0a0a0a);color:${isVimeo?'#1ab7ea':'#ff0000'};font-size:42px;"><i class="fa-${isVimeo?'brands fa-vimeo-v':'brands fa-youtube'}"></i></div>`;
-      label = isVimeo ? 'فيديو Vimeo' : 'فيديو YouTube';
-      icon = 'fa-video';
-    } else if(m.type === 'text'){
-      const txt = (m.content||'').slice(0, 90);
+      label = 'صورة';
+    } else if(m.type==='video' || m.type==='embed'){
+      const isVimeo = (m.url||m.src||'').includes('vimeo');
+      preview = `<div style="aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a1a,#0a0a0a);color:${isVimeo?'#1ab7ea':'#ff0000'};font-size:42px;"><i class="${isVimeo?'fa-brands fa-vimeo-v':'fa-brands fa-youtube'}"></i></div>`;
+      label = isVimeo ? 'فيديو Vimeo' : 'فيديو';
+    } else if(m.type==='text'){
+      const txt = (m.content||'').slice(0,90);
       preview = `<div style="aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:#0a0a0a;color:#aaa;padding:14px;font-size:11px;line-height:1.5;text-align:center;overflow:hidden;">"${txt}${m.content.length>90?'...':''}"</div>`;
       label = 'نص';
-      icon = 'fa-align-right';
     }
-    return `<div class="import-card ${m.selected?'selected':''}" onclick="toggleBehanceMod(${i})">
+    return `<div class="import-card ${m.selected?'selected':''}" onclick="toggleBhMod(${i})">
       <div class="import-check"><i class="fa-solid fa-check"></i></div>
       ${preview}
       <div class="import-card-body" style="display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-size:11px;color:#aaa;"><i class="fa-solid ${icon}" style="margin-left:4px;"></i>${label}</span>
+        <span style="font-size:11px;color:#aaa;">${label}</span>
         <span style="font-size:10px;color:var(--o);">#${i+1}</span>
       </div>
     </div>`;
   }).join('');
 }
 
-function toggleBehanceMod(i){
-  behanceModules[i].selected = !behanceModules[i].selected;
-  renderBehanceGrid();
+function toggleBhMod(i){
+  bhImportModules[i].selected = !bhImportModules[i].selected;
+  renderBhModules();
 }
 
-// Backward compat (in case any other code calls toggleBehanceImg)
-function toggleBehanceImg(i){ toggleBehanceMod(i); }
+function closeBhPreview(){
+  document.getElementById('bhPreviewModal').classList.remove('open');
+  bhImportData = null;
+  bhImportModules = [];
+}
 
-async function saveBehanceProject(){
-  const selected = behanceModules.filter(m=>m.selected);
-  if(!selected.length){toast('⚠️ اختر عنصراً واحداً على الأقل');return;}
-  const btn=document.getElementById('btnSaveBehance');
-  const spin=document.getElementById('spinSaveBehance');
-  btn.disabled=true;if(spin)spin.style.display='inline-block';
+async function saveBhImport(){
+  const selected = bhImportModules.filter(m=>m.selected);
+  if(!selected.length){toast('⚠️ اختر عنصراً على الأقل');return;}
+  const btn = document.getElementById('btnSaveBh');
+  btn.disabled = true;
 
-  // Step 1: download all images via proxy in batch
+  // Step 1: download images via proxy in parallel
   const imageUrls = selected.filter(m=>m.type==='image').map(m=>m.src);
-  toast(`⏳ جاري جلب ${imageUrls.length} صورة...`);
   let imagesByUrl = {};
-  try{
-    if(imageUrls.length){
+  if(imageUrls.length){
+    toast(`⏳ جاري جلب ${imageUrls.length} صورة...`);
+    try{
       const r = await fetch('/api/proxy-images',{method:'POST',credentials:'include',
         headers:{'Content-Type':'application/json'},body:JSON.stringify({urls: imageUrls})});
       if(r.ok){
         const d = await r.json();
-        (d.images||[]).forEach((b64, idx) => {
-          if(b64) imagesByUrl[imageUrls[idx]] = b64;
-        });
+        (d.images||[]).forEach((b64,idx)=>{ if(b64) imagesByUrl[imageUrls[idx]] = b64; });
       }
-    }
-  }catch(e){console.warn('proxy error:',e);}
+    }catch(e){console.warn('proxy:',e);}
+  }
 
-  // Step 2: Build modules array for the editor (with base64 data for upload)
+  // Step 2: build modules
   const finalModules = selected.map(m => {
-    if(m.type === 'image'){
-      const b64 = imagesByUrl[m.src] || m.b64 || m.src;
-      return {type:'image', src: b64};
-    }
-    if(m.type === 'embed'){
-      return {type:'embed', url: m.url};
-    }
-    if(m.type === 'text'){
-      return {type:'text', content: m.content};
-    }
+    if(m.type==='image') return {type:'image', src: imagesByUrl[m.src] || m.src};
+    if(m.type==='video') return {type:'video', src: m.src};
+    if(m.type==='embed') return {type:'embed', url: m.url};
+    if(m.type==='text')  return {type:'text', content: m.content};
     return null;
   }).filter(Boolean);
 
-  // Cover = first image found
   let coverImage = null;
-  for(const m of finalModules){
-    if(m.type === 'image'){ coverImage = m.src; break; }
-  }
+  for(const m of finalModules){ if(m.type==='image'){ coverImage = m.src; break; } }
 
-  // Step 3: Create the project as 'editor' type with all modules
   const body = {
-    title: v('behanceFinalTitle') || 'Behance Project',
-    category: document.getElementById('behanceCat').value,
-    description: v('behanceDesc'),
+    title: document.getElementById('bhTitle').value || 'Behance Project',
+    category: document.getElementById('bhCategory').value,
+    description: document.getElementById('bhDesc').value,
     mediaType: 'image',
-    projectType: 'editor',          // ← Use editor type to keep order
+    projectType: 'editor',
     coverImage: coverImage,
-    images: [],                      // not used for editor type
+    images: [],
     keepImages: [],
   };
 
@@ -2941,21 +2969,124 @@ async function saveBehanceProject(){
     toast('⏳ جاري إنشاء المشروع...');
     const r = await fetch('/api/projects',{method:'POST',credentials:'include',
       headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    if(!r.ok){const e=await r.json();toast('خطأ: '+(e.error||'فشل'));btn.disabled=false;if(spin)spin.style.display='none';return;}
+    if(!r.ok){const e=await r.json();toast('⚠️ '+(e.error||'فشل'),'error');btn.disabled=false;return;}
     const proj = await r.json();
-
-    // Step 4: Save modules to the project
-    toast('⏳ جاري حفظ المحتوى...');
+    // Save modules
     const modR = await fetch(`/api/projects/${proj.id}/modules`,{method:'PUT',credentials:'include',
       headers:{'Content-Type':'application/json'},body:JSON.stringify({modules: finalModules, projectType:'editor'})});
-    if(!modR.ok){const e=await modR.json();toast('⚠️ تم إنشاء المشروع لكن '+(e.error||'فشل حفظ المحتوى'));}
-
-    closeBehanceModal();
+    if(!modR.ok){const e=await modR.json();toast('⚠️ '+(e.error||'فشل حفظ المحتوى'),'error');}
+    closeBhPreview();
     toast('✓ تم استيراد المشروع — جاري فتح المحرر');
-    // Navigate to the editor for further customization
-    setTimeout(() => { location.href = `/admin/editor/${proj.id}`; }, 800);
-  }catch(e){toast('خطأ في الاتصال: '+e.message);}
-  btn.disabled=false;if(spin)spin.style.display='none';
+    setTimeout(()=>{ location.href = `/admin/editor/${proj.id}`; }, 800);
+  }catch(e){toast('خطأ: '+e.message,'error');}
+  btn.disabled = false;
+}
+
+// Check for pending import on page load
+window.addEventListener('DOMContentLoaded', () => { setTimeout(checkBehanceImport, 500); });
+
+// ══ ZIP IMPORT ══
+let zipFileSelected = null;
+
+function openZipImport(){
+  zipFileSelected = null;
+  document.getElementById('zipFile').value='';
+  document.getElementById('zipFileLabel').textContent='اضغط أو اسحب ملف ZIP هنا';
+  document.getElementById('zipFileLabel').style.color='';
+  document.getElementById('zipFileSize').textContent='حد أقصى 90 MB · يدعم JPG, PNG, WEBP, MP4';
+  document.getElementById('zipTitle').value='';
+  document.getElementById('zipDesc').value='';
+  document.getElementById('zipProgress').style.display='none';
+  document.getElementById('btnSaveZip').disabled=true;
+  // Categories
+  const sel = document.getElementById('zipCat');
+  sel.innerHTML='';
+  (CATEGORIES||[]).forEach(c=>{
+    const opt=document.createElement('option');
+    opt.value=c.name; opt.textContent=c.name;
+    sel.appendChild(opt);
+  });
+  document.getElementById('zipModal').classList.add('open');
+  // Drag & drop
+  const dz = document.getElementById('zipDropZone');
+  dz.ondragover = e => { e.preventDefault(); dz.style.borderColor='#22c55e'; dz.style.background='rgba(34,197,94,0.05)'; };
+  dz.ondragleave = e => { dz.style.borderColor='#444'; dz.style.background='#0a0a0a'; };
+  dz.ondrop = e => {
+    e.preventDefault();
+    dz.style.borderColor='#444'; dz.style.background='#0a0a0a';
+    if(e.dataTransfer.files.length){
+      document.getElementById('zipFile').files = e.dataTransfer.files;
+      onZipSelected(document.getElementById('zipFile'));
+    }
+  };
+}
+
+function closeZipModal(){document.getElementById('zipModal').classList.remove('open');}
+
+function onZipSelected(input){
+  const f = input.files[0];
+  if(!f) return;
+  if(!f.name.toLowerCase().endsWith('.zip')){toast('⚠️ يجب أن يكون الملف ZIP');input.value='';return;}
+  if(f.size > 90 * 1024 * 1024){toast('⚠️ حجم الملف أكبر من 90 ميجا');input.value='';return;}
+  zipFileSelected = f;
+  document.getElementById('zipFileLabel').textContent = '✓ ' + f.name;
+  document.getElementById('zipFileLabel').style.color = '#22c55e';
+  document.getElementById('zipFileSize').textContent = `الحجم: ${(f.size/(1024*1024)).toFixed(2)} MB`;
+  document.getElementById('btnSaveZip').disabled = false;
+}
+
+async function uploadZip(){
+  if(!zipFileSelected){toast('⚠️ اختر ملف ZIP أولاً');return;}
+  const title = document.getElementById('zipTitle').value.trim();
+  if(!title){toast('⚠️ أدخل عنوان المشروع');return;}
+  const btn = document.getElementById('btnSaveZip');
+  btn.disabled = true;
+  document.getElementById('zipProgress').style.display = 'block';
+  document.getElementById('zipProgressText').textContent = 'جاري رفع الملف...';
+
+  const fd = new FormData();
+  fd.append('zip', zipFileSelected);
+  fd.append('title', title);
+  fd.append('category', document.getElementById('zipCat').value);
+  fd.append('description', document.getElementById('zipDesc').value);
+
+  try{
+    // Use XMLHttpRequest for upload progress
+    const result = await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/api/import/zip');
+      xhr.withCredentials = true;
+      xhr.upload.onprogress = e => {
+        if(e.lengthComputable){
+          const pct = Math.round(e.loaded / e.total * 100);
+          document.getElementById('zipProgressBar').style.width = pct + '%';
+          if(pct < 100) document.getElementById('zipProgressText').textContent = `جاري الرفع... ${pct}%`;
+          else document.getElementById('zipProgressText').textContent = 'جاري معالجة الصور...';
+        }
+      };
+      xhr.onload = () => {
+        try { resolve({status: xhr.status, body: JSON.parse(xhr.responseText)}); }
+        catch(e){ reject(new Error('Invalid response')); }
+      };
+      xhr.onerror = () => reject(new Error('Network error'));
+      xhr.send(fd);
+    });
+
+    if(result.status >= 200 && result.status < 300){
+      closeZipModal();
+      toast(`✓ تم استيراد ${result.body.count} عنصر (${result.body.total_mb} MB)`);
+      await loadProjects();
+      // Open editor
+      if(result.body.project_id){
+        setTimeout(()=>{ location.href = `/admin/editor/${result.body.project_id}`; }, 800);
+      }
+    } else {
+      toast('⚠️ '+(result.body.error||'فشل الرفع'),'error');
+    }
+  }catch(e){toast('خطأ: '+e.message,'error');}
+  btn.disabled = false;
+  document.getElementById('zipProgress').style.display='none';
+  document.getElementById('zipProgressBar').style.width='0%';
 }
 
 // ══ CHANGE CREDENTIALS ══
