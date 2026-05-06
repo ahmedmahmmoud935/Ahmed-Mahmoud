@@ -1152,13 +1152,15 @@ def bookmarklet_js():
   .then(function(r){{ return r.json(); }})
   .then(function(d){{
     if(d.import_id){{
-      // Open admin with import ready
-      window.open('{base}/admin?bh=' + d.import_id, '_blank');
+      var url = '{base}/admin?bh=' + d.import_id;
+      // Show user the count + open admin
+      var ok = confirm('✓ تم استخراج ' + d.count + ' عنصر\\n\\nاضغط OK لفتح لوحة التحكم');
+      if(ok){{ window.location.href = url; }}
     }} else {{
       alert('❌ ' + (d.error||'فشل الإرسال'));
     }}
   }})
-  .catch(function(e){{ alert('❌ خطأ: '+e.message); }});
+  .catch(function(e){{ alert('❌ خطأ في الإرسال: '+e.message); }});
 }})();'''
     return js, 200, {'Content-Type':'application/javascript; charset=utf-8',
                      'Cache-Control':'public, max-age=300',

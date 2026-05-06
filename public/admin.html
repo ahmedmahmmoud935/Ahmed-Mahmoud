@@ -2854,32 +2854,60 @@ async function checkBehanceImport(){
   const params = new URLSearchParams(location.search);
   const importId = params.get('bh');
   if(!importId) return;
+  console.log('[Behance] Found import_id in URL:', importId);
   // Clean URL
   history.replaceState({}, '', location.pathname);
+
+  // Wait for settings to load (S.image_categories)
+  let waited = 0;
+  while((!window.S || !S.image_categories) && waited < 5000){
+    await new Promise(r => setTimeout(r, 200));
+    waited += 200;
+  }
+  console.log('[Behance] Settings loaded after', waited, 'ms');
+
   try{
     const r = await fetch(`/api/bookmarklet/get/${importId}`, {credentials:'include'});
+    console.log('[Behance] Fetch response:', r.status);
     if(!r.ok){
-      const e = await r.json();
-      toast('⚠️ '+(e.error||'فشل تحميل البيانات'), 'error');
+      const e = await r.json().catch(()=>({}));
+      console.error('[Behance] Error:', e);
+      alert('⚠️ ' + (e.error || `فشل تحميل البيانات (${r.status})\n\nقد تكون انتهت صلاحية البيانات`));
       return;
     }
     const d = await r.json();
+    console.log('[Behance] Got data:', d);
+    if(!d.data || !d.data.modules || !d.data.modules.length){
+      alert('⚠️ البيانات فارغة - لم يتم العثور على محتوى');
+      return;
+    }
     bhImportData = d.data;
-    bhImportModules = (d.data.modules || []).map(m => ({...m, selected: true}));
+    bhImportModules = d.data.modules.map(m => ({...m, selected: true}));
     document.getElementById('bhTitle').value = d.data.title || '';
     document.getElementById('bhDesc').value = d.data.description || '';
     document.getElementById('bhCount').textContent = bhImportModules.length;
-    // Populate categories
+    // Populate categories from S settings (image categories)
     const sel = document.getElementById('bhCategory');
     sel.innerHTML='';
-    (CATEGORIES||[]).forEach(c=>{
+    const cats = (S && S.image_categories) ? S.image_categories : [];
+    if(!cats.length){
       const opt=document.createElement('option');
-      opt.value=c.name; opt.textContent=c.name;
+      opt.value=''; opt.textContent='— بدون تصنيف —';
       sel.appendChild(opt);
-    });
+    } else {
+      cats.forEach(c=>{
+        const opt=document.createElement('option');
+        opt.value=c; opt.textContent=c;
+        sel.appendChild(opt);
+      });
+    }
     renderBhModules();
     document.getElementById('bhPreviewModal').classList.add('open');
-  }catch(e){toast('خطأ: '+e.message,'error');}
+    toast(`✓ تم استلام ${bhImportModules.length} عنصر`);
+  }catch(e){
+    console.error('[Behance] Exception:', e);
+    alert('خطأ: '+e.message);
+  }
 }
 
 function renderBhModules(){
@@ -2998,14 +3026,21 @@ function openZipImport(){
   document.getElementById('zipDesc').value='';
   document.getElementById('zipProgress').style.display='none';
   document.getElementById('btnSaveZip').disabled=true;
-  // Categories
+  // Categories from settings
   const sel = document.getElementById('zipCat');
   sel.innerHTML='';
-  (CATEGORIES||[]).forEach(c=>{
+  const cats = (window.S && S.image_categories) ? S.image_categories : [];
+  if(!cats.length){
     const opt=document.createElement('option');
-    opt.value=c.name; opt.textContent=c.name;
+    opt.value=''; opt.textContent='— بدون تصنيف —';
     sel.appendChild(opt);
-  });
+  } else {
+    cats.forEach(c=>{
+      const opt=document.createElement('option');
+      opt.value=c; opt.textContent=c;
+      sel.appendChild(opt);
+    });
+  }
   document.getElementById('zipModal').classList.add('open');
   // Drag & drop
   const dz = document.getElementById('zipDropZone');
