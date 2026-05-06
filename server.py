@@ -979,11 +979,40 @@ def fetch_url(url, timeout=15, extra_headers=None):
     req = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(req, timeout=timeout) as r:
         raw = r.read()
-        # Handle gzip-encoded responses
         if r.headers.get('Content-Encoding','').lower() == 'gzip':
             try: raw = gzip.decompress(raw)
             except: pass
         return raw.decode('utf-8','replace'), r.headers.get_content_type()
+
+def fetch_url_with_fallback(url, timeout=15):
+    """Try multiple strategies to bypass anti-bot. Returns (body, error_msg)."""
+    strategies = [
+        # Strategy 1: Desktop Safari
+        {'name':'safari', 'headers': dict(BROWSER_HEADERS)},
+        # Strategy 2: Mobile iPhone
+        {'name':'mobile', 'headers': {**BROWSER_HEADERS, 'User-Agent':'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1'}},
+        # Strategy 3: Googlebot (most sites whitelist this)
+        {'name':'googlebot', 'headers': {**BROWSER_HEADERS, 'User-Agent':'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'}},
+    ]
+
+    last_error = None
+    for s in strategies:
+        try:
+            req = urllib.request.Request(url, headers=s['headers'])
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                raw = r.read()
+                if r.headers.get('Content-Encoding','').lower() == 'gzip':
+                    try: raw = gzip.decompress(raw)
+                    except: pass
+                return raw.decode('utf-8','replace'), None
+        except urllib.error.HTTPError as e:
+            last_error = e
+            time.sleep(0.5)  # brief delay before retry
+            continue
+        except Exception as e:
+            last_error = e
+            continue
+    return None, last_error
 
 def proxy_one(url):
     headers = dict(BROWSER_HEADERS)
@@ -1038,19 +1067,31 @@ def vimeo_fetch():
 @app.route('/api/behance/fetch', methods=['POST'])
 @login_required
 def behance_fetch():
-    url = (request.get_json() or {}).get('url','').strip()
-    if 'behance.net' not in url: return jsonify({'error':'يجب أن يكون رابط Behance'}), 400
-    try:
-        body, _ = fetch_url(url)
-    except urllib.error.HTTPError as e:
-        if e.code == 403:
-            return jsonify({'error':'⚠️ Behance يرفض الطلب — جرّب: ١) تأكد المشروع متاح للعامة (مش private) ٢) جرّب فتحه في المتصفح أولاً ٣) أعد المحاولة بعد دقيقة'}), 502
-        elif e.code == 404:
-            return jsonify({'error':'⚠️ المشروع غير موجود — تأكد من الرابط'}), 404
-        else:
-            return jsonify({'error':f'⚠️ خطأ من Behance ({e.code})'}), 502
-    except Exception as e:
-        return jsonify({'error': f'تعذر الاتصال: {str(e)}'}), 502
+    d = request.get_json() or {}
+    url = (d.get('url') or '').strip()
+    pasted_html = d.get('html', '')  # fallback: user pastes HTML directly
+
+    body = None
+    if pasted_html and len(pasted_html) > 1000:
+        # User pasted source HTML manually (workaround for IP blocking)
+        body = pasted_html
+    else:
+        if 'behance.net' not in url:
+            return jsonify({'error':'يجب أن يكون رابط Behance'}), 400
+        # Try multiple fetch strategies
+        body, err = fetch_url_with_fallback(url)
+        if body is None:
+            code = getattr(err, 'code', 0) if err else 0
+            if code == 403:
+                return jsonify({
+                    'error': '⚠️ Behance حجب الطلب من السيرفر — استخدم الطريقة البديلة بالأسفل',
+                    'blocked': True,
+                }), 502
+            elif code == 404:
+                return jsonify({'error':'⚠️ المشروع غير موجود — تأكد من الرابط'}), 404
+            else:
+                return jsonify({'error': f'تعذر الاتصال: {err}'}), 502
+
     try:
 
         # ── Title ──

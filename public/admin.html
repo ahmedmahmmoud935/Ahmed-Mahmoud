@@ -1247,6 +1247,25 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
         </div>
       </div>
 
+      <!-- Fallback: manual HTML paste (shown when URL fetch fails) -->
+      <div id="behanceManualBox" style="display:none;margin-top:14px;background:rgba(249,115,22,.05);border:1px solid rgba(249,115,22,.25);border-radius:10px;padding:14px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <i class="fa-solid fa-circle-info" style="color:var(--o);font-size:18px;"></i>
+          <div style="font-weight:700;font-size:14px;">طريقة بديلة (لو فشل الجلب التلقائي)</div>
+        </div>
+        <p style="color:var(--g2);font-size:12px;line-height:1.7;margin-bottom:10px;">
+          <b style="color:#fff;">الخطوات:</b><br>
+          ١. افتح رابط المشروع في متصفحك<br>
+          ٢. اضغط <code style="background:#000;padding:2px 6px;border-radius:3px;">⌘ + U</code> (Mac) أو <code style="background:#000;padding:2px 6px;border-radius:3px;">Ctrl + U</code> (Windows)<br>
+          ٣. اضغط <code style="background:#000;padding:2px 6px;border-radius:3px;">⌘ + A</code> ثم <code style="background:#000;padding:2px 6px;border-radius:3px;">⌘ + C</code> لنسخ الكل<br>
+          ٤. ألصقه في المربع تحت ←
+        </p>
+        <textarea class="fta" id="behanceHtmlPaste" placeholder="ألصق محتوى صفحة Behance هنا..." style="min-height:80px;font-family:monospace;font-size:11px;direction:ltr;"></textarea>
+        <button class="btn-import" onclick="fetchBehanceFromHtml()" style="margin-top:10px;background:#1769ff;width:100%;">
+          <i class="fa-solid fa-clipboard" style="margin-left:6px;"></i>تحليل المحتوى
+        </button>
+      </div>
+
       <!-- Preview -->
       <div id="behancePreview" style="display:none;margin-top:16px;">
         <div class="fg">
@@ -2765,38 +2784,61 @@ async function fetchBehance(){
   const btn=document.getElementById('btnFetchBehance');
   const spin=document.getElementById('spinBehance');
   btn.disabled=true;spin.style.display='inline-block';
+  document.getElementById('behanceManualBox').style.display='none';
   try{
     const r=await fetch('/api/behance/fetch',{method:'POST',credentials:'include',
       headers:{'Content-Type':'application/json'},body:JSON.stringify({url})});
     const d=await r.json();
-    if(!r.ok){toast('⚠️ '+(d.error||'تعذّر جلب المشروع'));btn.disabled=false;spin.style.display='none';return;}
-    behanceFetchData = d;
-    document.getElementById('behanceFinalTitle').value=d.title||'';
-    document.getElementById('behanceDesc').value=d.description||'';
-
-    // Build modules list — prefer new structured modules, fallback to legacy images
-    let mods = (d.modules && d.modules.length) ? d.modules : (d.images||[]).map(u=>({type:'image',src:u}));
-    // Mark all selected by default
-    behanceModules = mods.map(m => ({...m, selected: true}));
-    // Add cover at start if not already in modules
-    if(d.cover){
-      const inModules = behanceModules.some(m => m.type==='image' && m.src===d.cover);
-      if(!inModules) behanceModules.unshift({type:'image', src:d.cover, selected:true, b64:d.cover_b64||null, isCover:true});
+    if(!r.ok){
+      toast('⚠️ '+(d.error||'تعذّر جلب المشروع'));
+      // Show manual paste fallback if blocked
+      if(d.blocked){
+        document.getElementById('behanceManualBox').style.display='block';
+      }
+      btn.disabled=false;spin.style.display='none';
+      return;
     }
-    renderBehanceGrid();
-    document.getElementById('behancePreview').style.display='block';
-    document.getElementById('btnSaveBehance').style.display='flex';
-    // Update count
-    const cnt = behanceModules.length;
-    const types = {};
-    behanceModules.forEach(m => types[m.type] = (types[m.type]||0)+1);
-    let summary = `تم العثور على ${cnt} عنصر`;
-    if(types.image) summary += ` — ${types.image} صورة`;
-    if(types.embed) summary += ` — ${types.embed} فيديو`;
-    if(types.text)  summary += ` — ${types.text} نص`;
-    toast('✓ ' + summary);
+    handleBehanceData(d);
   }catch(e){toast('خطأ في الاتصال: '+e.message);}
   btn.disabled=false;spin.style.display='none';
+}
+
+async function fetchBehanceFromHtml(){
+  const html = document.getElementById('behanceHtmlPaste').value.trim();
+  const url  = document.getElementById('behanceUrl').value.trim();
+  if(html.length < 1000){toast('⚠️ المحتوى قصير جداً — تأكد من نسخ كل الصفحة');return;}
+  toast('⏳ جاري تحليل المحتوى...');
+  try{
+    const r = await fetch('/api/behance/fetch',{method:'POST',credentials:'include',
+      headers:{'Content-Type':'application/json'}, body: JSON.stringify({url, html})});
+    const d = await r.json();
+    if(!r.ok){toast('⚠️ '+(d.error||'فشل التحليل'));return;}
+    handleBehanceData(d);
+    document.getElementById('behanceManualBox').style.display='none';
+  }catch(e){toast('خطأ: '+e.message);}
+}
+
+function handleBehanceData(d){
+  behanceFetchData = d;
+  document.getElementById('behanceFinalTitle').value=d.title||'';
+  document.getElementById('behanceDesc').value=d.description||'';
+  let mods = (d.modules && d.modules.length) ? d.modules : (d.images||[]).map(u=>({type:'image',src:u}));
+  behanceModules = mods.map(m => ({...m, selected: true}));
+  if(d.cover){
+    const inModules = behanceModules.some(m => m.type==='image' && m.src===d.cover);
+    if(!inModules) behanceModules.unshift({type:'image', src:d.cover, selected:true, b64:d.cover_b64||null, isCover:true});
+  }
+  renderBehanceGrid();
+  document.getElementById('behancePreview').style.display='block';
+  document.getElementById('btnSaveBehance').style.display='flex';
+  const cnt = behanceModules.length;
+  const types = {};
+  behanceModules.forEach(m => types[m.type] = (types[m.type]||0)+1);
+  let summary = `تم العثور على ${cnt} عنصر`;
+  if(types.image) summary += ` — ${types.image} صورة`;
+  if(types.embed) summary += ` — ${types.embed} فيديو`;
+  if(types.text)  summary += ` — ${types.text} نص`;
+  toast('✓ ' + summary);
 }
 
 function renderBehanceGrid(){
