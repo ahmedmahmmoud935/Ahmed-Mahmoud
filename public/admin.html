@@ -571,7 +571,6 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
       <button class="btn-vimeo" onclick="openVimeoImport()"><i class="fa-brands fa-vimeo-v" style="color:#1ab7ea;font-size:15px;"></i> Vimeo</button>
       <button class="btn-vimeo" onclick="openBehanceImport()" style="border-color:#1769ff;color:#1769ff;"><i class="fa-brands fa-behance" style="font-size:15px;"></i> Behance</button>
-      <button class="btn-vimeo" onclick="openZipImport()" style="border-color:#22c55e;color:#22c55e;"><i class="fa-solid fa-file-zipper" style="font-size:15px;"></i> رفع ZIP</button>
       <button class="btn-add" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> مشروع جديد</button>
     </div>
   </div>
@@ -1277,62 +1276,6 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 </div>
 
 <!-- ZIP IMPORT MODAL -->
-<div class="mo" id="zipModal">
-  <div class="modal" style="max-width:540px;">
-    <div class="mh">
-      <div class="mt"><i class="fa-solid fa-file-zipper" style="color:#22c55e;margin-left:10px;"></i>رفع مشروع من ZIP</div>
-      <button class="mc" onclick="closeZipModal()"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div class="mb">
-      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;line-height:1.7;">
-        💡 <b style="color:#fff;">طريقة سريعة لرفع مشروع كامل:</b><br>
-        ضع كل صور المشروع في مجلد، سمّها بأرقام (1.jpg, 2.jpg...) للترتيب الصحيح، ثم اضغط المجلد كملف ZIP وارفعه هنا.
-      </p>
-
-      <div class="fg">
-        <label class="fl">عنوان المشروع</label>
-        <input class="fi" id="zipTitle" placeholder="مثلاً: حملة سنادك">
-      </div>
-
-      <div class="fg">
-        <label class="fl">التصنيف</label>
-        <select class="fse" id="zipCat"></select>
-      </div>
-
-      <div class="fg">
-        <label class="fl">الوصف (اختياري)</label>
-        <textarea class="fta" id="zipDesc" style="min-height:60px;" placeholder="وصف قصير للمشروع"></textarea>
-      </div>
-
-      <div class="fg">
-        <label class="fl">ملف ZIP</label>
-        <div id="zipDropZone" style="border:2px dashed #444;border-radius:12px;padding:30px;text-align:center;cursor:pointer;transition:all .2s;background:#0a0a0a;" onclick="document.getElementById('zipFile').click()">
-          <i class="fa-solid fa-cloud-arrow-up" style="font-size:36px;color:#22c55e;margin-bottom:10px;"></i>
-          <div id="zipFileLabel" style="font-weight:700;font-size:14px;">اضغط أو اسحب ملف ZIP هنا</div>
-          <div id="zipFileSize" style="font-size:11px;color:#888;margin-top:6px;">حد أقصى 90 MB · يدعم JPG, PNG, WEBP, MP4</div>
-        </div>
-        <input type="file" id="zipFile" accept=".zip,application/zip" style="display:none;" onchange="onZipSelected(this)">
-      </div>
-
-      <div id="zipProgress" style="display:none;background:#0a0a0a;border-radius:8px;padding:14px;margin-top:14px;">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-          <div class="spin" style="border-color:#22c55e transparent #22c55e #22c55e;"></div>
-          <span id="zipProgressText" style="font-weight:700;font-size:13px;">جاري الرفع...</span>
-        </div>
-        <div style="background:#000;border-radius:3px;height:6px;overflow:hidden;">
-          <div id="zipProgressBar" style="height:100%;background:#22c55e;width:0%;transition:width .3s;"></div>
-        </div>
-      </div>
-    </div>
-    <div class="mfo">
-      <button class="btn-cancel" onclick="closeZipModal()">إلغاء</button>
-      <button class="btn-import" id="btnSaveZip" onclick="uploadZip()" style="background:#22c55e;" disabled>
-        <i class="fa-solid fa-upload"></i> رفع المشروع
-      </button>
-    </div>
-  </div>
-</div>
-
 <!-- BEHANCE IMPORT PREVIEW MODAL (shown when bookmarklet brings data) -->
 <div class="mo" id="bhPreviewModal">
   <div class="modal" style="max-width:760px;">
@@ -3012,117 +2955,6 @@ async function saveBhImport(){
 
 // Check for pending import on page load
 window.addEventListener('DOMContentLoaded', () => { setTimeout(checkBehanceImport, 500); });
-
-// ══ ZIP IMPORT ══
-let zipFileSelected = null;
-
-function openZipImport(){
-  zipFileSelected = null;
-  document.getElementById('zipFile').value='';
-  document.getElementById('zipFileLabel').textContent='اضغط أو اسحب ملف ZIP هنا';
-  document.getElementById('zipFileLabel').style.color='';
-  document.getElementById('zipFileSize').textContent='حد أقصى 90 MB · يدعم JPG, PNG, WEBP, MP4';
-  document.getElementById('zipTitle').value='';
-  document.getElementById('zipDesc').value='';
-  document.getElementById('zipProgress').style.display='none';
-  document.getElementById('btnSaveZip').disabled=true;
-  // Categories from settings
-  const sel = document.getElementById('zipCat');
-  sel.innerHTML='';
-  const cats = (window.S && S.image_categories) ? S.image_categories : [];
-  if(!cats.length){
-    const opt=document.createElement('option');
-    opt.value=''; opt.textContent='— بدون تصنيف —';
-    sel.appendChild(opt);
-  } else {
-    cats.forEach(c=>{
-      const opt=document.createElement('option');
-      opt.value=c; opt.textContent=c;
-      sel.appendChild(opt);
-    });
-  }
-  document.getElementById('zipModal').classList.add('open');
-  // Drag & drop
-  const dz = document.getElementById('zipDropZone');
-  dz.ondragover = e => { e.preventDefault(); dz.style.borderColor='#22c55e'; dz.style.background='rgba(34,197,94,0.05)'; };
-  dz.ondragleave = e => { dz.style.borderColor='#444'; dz.style.background='#0a0a0a'; };
-  dz.ondrop = e => {
-    e.preventDefault();
-    dz.style.borderColor='#444'; dz.style.background='#0a0a0a';
-    if(e.dataTransfer.files.length){
-      document.getElementById('zipFile').files = e.dataTransfer.files;
-      onZipSelected(document.getElementById('zipFile'));
-    }
-  };
-}
-
-function closeZipModal(){document.getElementById('zipModal').classList.remove('open');}
-
-function onZipSelected(input){
-  const f = input.files[0];
-  if(!f) return;
-  if(!f.name.toLowerCase().endsWith('.zip')){toast('⚠️ يجب أن يكون الملف ZIP');input.value='';return;}
-  if(f.size > 90 * 1024 * 1024){toast('⚠️ حجم الملف أكبر من 90 ميجا');input.value='';return;}
-  zipFileSelected = f;
-  document.getElementById('zipFileLabel').textContent = '✓ ' + f.name;
-  document.getElementById('zipFileLabel').style.color = '#22c55e';
-  document.getElementById('zipFileSize').textContent = `الحجم: ${(f.size/(1024*1024)).toFixed(2)} MB`;
-  document.getElementById('btnSaveZip').disabled = false;
-}
-
-async function uploadZip(){
-  if(!zipFileSelected){toast('⚠️ اختر ملف ZIP أولاً');return;}
-  const title = document.getElementById('zipTitle').value.trim();
-  if(!title){toast('⚠️ أدخل عنوان المشروع');return;}
-  const btn = document.getElementById('btnSaveZip');
-  btn.disabled = true;
-  document.getElementById('zipProgress').style.display = 'block';
-  document.getElementById('zipProgressText').textContent = 'جاري رفع الملف...';
-
-  const fd = new FormData();
-  fd.append('zip', zipFileSelected);
-  fd.append('title', title);
-  fd.append('category', document.getElementById('zipCat').value);
-  fd.append('description', document.getElementById('zipDesc').value);
-
-  try{
-    // Use XMLHttpRequest for upload progress
-    const result = await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', '/api/import/zip');
-      xhr.withCredentials = true;
-      xhr.upload.onprogress = e => {
-        if(e.lengthComputable){
-          const pct = Math.round(e.loaded / e.total * 100);
-          document.getElementById('zipProgressBar').style.width = pct + '%';
-          if(pct < 100) document.getElementById('zipProgressText').textContent = `جاري الرفع... ${pct}%`;
-          else document.getElementById('zipProgressText').textContent = 'جاري معالجة الصور...';
-        }
-      };
-      xhr.onload = () => {
-        try { resolve({status: xhr.status, body: JSON.parse(xhr.responseText)}); }
-        catch(e){ reject(new Error('Invalid response')); }
-      };
-      xhr.onerror = () => reject(new Error('Network error'));
-      xhr.send(fd);
-    });
-
-    if(result.status >= 200 && result.status < 300){
-      closeZipModal();
-      toast(`✓ تم استيراد ${result.body.count} عنصر (${result.body.total_mb} MB)`);
-      await loadProjects();
-      // Open editor
-      if(result.body.project_id){
-        setTimeout(()=>{ location.href = `/admin/editor/${result.body.project_id}`; }, 800);
-      }
-    } else {
-      toast('⚠️ '+(result.body.error||'فشل الرفع'),'error');
-    }
-  }catch(e){toast('خطأ: '+e.message,'error');}
-  btn.disabled = false;
-  document.getElementById('zipProgress').style.display='none';
-  document.getElementById('zipProgressBar').style.width='0%';
-}
 
 // ══ CHANGE CREDENTIALS ══
 async function changeCredentials(){

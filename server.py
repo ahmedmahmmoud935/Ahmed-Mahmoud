@@ -1079,91 +1079,152 @@ def bookmarklet_js():
     alert('⚠️ هذا الزر يعمل فقط على صفحات Behance');
     return;
   }}
-  var modules = [];
-  var seen = {{}};
 
-  // Title
-  var title = '';
-  var ogT = document.querySelector('meta[property="og:title"]');
-  if(ogT) title = ogT.content;
-  if(!title) title = (document.title||'').split('::')[0].split('|')[0].trim();
+  // Show progress overlay
+  var overlay = document.createElement('div');
+  overlay.id = '__bh_overlay';
+  overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:999999;display:flex;align-items:center;justify-content:center;color:#fff;font-family:Arial,sans-serif;font-size:18px;flex-direction:column;';
+  overlay.innerHTML = '<div style="background:#1769ff;padding:30px 50px;border-radius:12px;text-align:center;"><div id="__bh_msg" style="font-size:18px;font-weight:bold;margin-bottom:14px;">⏳ جاري التحضير...</div><div id="__bh_sub" style="font-size:13px;opacity:0.8;">يرجى عدم التحرك</div></div>';
+  document.body.appendChild(overlay);
+  var setMsg = function(m, s){{ var el=document.getElementById('__bh_msg'); if(el) el.textContent=m; var es=document.getElementById('__bh_sub'); if(es && s!==undefined) es.textContent=s; }};
 
-  // Description
-  var desc = '';
-  var ogD = document.querySelector('meta[property="og:description"]');
-  if(ogD) desc = ogD.content;
+  // Step 1: Auto-scroll to load all lazy images
+  setMsg('⏳ جاري تحميل كل الصور...', 'سيتم التمرير تلقائياً');
+  var scrollHeight = document.body.scrollHeight;
+  var pos = 0;
+  var step = window.innerHeight * 0.7;
+  var scrollTimer = setInterval(function(){{
+    pos += step;
+    window.scrollTo(0, pos);
+    if(pos >= document.body.scrollHeight + 200){{
+      clearInterval(scrollTimer);
+      window.scrollTo(0, 0);
+      setTimeout(extractContent, 800);  // wait for images to render
+    }}
+  }}, 200);
 
-  // Cover
-  var cover = '';
-  var ogI = document.querySelector('meta[property="og:image"]');
-  if(ogI) cover = ogI.content;
+  function extractContent(){{
+    setMsg('🔍 جاري استخراج المحتوى...', '');
 
-  // Find project content
-  var content = document.querySelector('[class*="Project-modules"], [class*="project-modules"], [class*="ProjectModule"], main, article') || document.body;
+    var modules = [];
+    var seen = {{}};
 
-  // Walk elements in document order
-  var walker = document.createTreeWalker(content, NodeFilter.SHOW_ELEMENT);
-  var node;
-  while((node = walker.nextNode())){{
-    var tag = node.tagName;
-    if(tag === 'IMG'){{
-      var src = node.currentSrc || node.src || node.getAttribute('data-src') || '';
-      if(!src || !src.startsWith('http')) continue;
-      var isBehance = src.indexOf('mir-s3-cdn-cf.behance.net') > -1;
-      if(!isBehance && (node.naturalWidth || 0) < 400) continue;
-      // Upgrade to highest resolution
-      var hires = src.replace(/\\/(disp|115|202|404|disp_500)\\//g, '/source/');
-      if(seen[hires]) continue;
-      seen[hires] = 1;
-      modules.push({{type:'image', src: hires}});
-    }} else if(tag === 'VIDEO'){{
-      var v = node.currentSrc || node.src || '';
-      if(v && !seen[v]){{ seen[v]=1; modules.push({{type:'video', src: v}}); }}
-    }} else if(tag === 'IFRAME'){{
-      var f = node.src || '';
-      if(f && (f.indexOf('vimeo.com')>-1 || f.indexOf('youtube.com')>-1) && !seen[f]){{
-        seen[f]=1; modules.push({{type:'embed', url: f}});
+    // Title from og:title or page title
+    var title = '';
+    var ogT = document.querySelector('meta[property="og:title"]');
+    if(ogT) title = ogT.content;
+    if(!title) title = (document.title||'').split('::')[0].split('|')[0].trim();
+
+    // Description
+    var desc = '';
+    var ogD = document.querySelector('meta[property="og:description"]');
+    if(ogD) desc = ogD.content;
+
+    // Cover
+    var cover = '';
+    var ogI = document.querySelector('meta[property="og:image"]');
+    if(ogI) cover = ogI.content;
+
+    // Find ALL images on page (not restricted to a container)
+    var allImgs = document.querySelectorAll('img');
+    for(var i=0; i<allImgs.length; i++){{
+      var node = allImgs[i];
+      var src = node.currentSrc || node.src || node.getAttribute('data-src') || node.getAttribute('data-lazy-src') || '';
+      if(!src || src.indexOf('http') !== 0) continue;
+      // Only Behance project images (skip avatars, ads, icons)
+      var isBehanceProject = src.indexOf('mir-s3-cdn-cf.behance.net/project_modules') > -1 ||
+                              src.indexOf('mir-s3-cdn-cf.behance.net/projects/') > -1;
+      if(!isBehanceProject) continue;
+      // Upgrade to source resolution
+      var hires = src.replace(/\\/(disp|115|202|404|disp_500|max_1200)\\//g, '/source/');
+      // Skip if this URL already seen (or its lower-res version)
+      var key = hires.split('?')[0];
+      if(seen[key]) continue;
+      seen[key] = 1;
+      modules.push({{type:'image', src: hires, _y: node.getBoundingClientRect().top + window.scrollY}});
+    }}
+
+    // Find videos
+    var allVids = document.querySelectorAll('video');
+    for(var i=0; i<allVids.length; i++){{
+      var v = allVids[i].currentSrc || allVids[i].src || '';
+      if(v && !seen[v]){{
+        seen[v]=1;
+        modules.push({{type:'video', src: v, _y: allVids[i].getBoundingClientRect().top + window.scrollY}});
       }}
-    }} else if(tag==='P' || tag==='H1' || tag==='H2' || tag==='H3' || tag==='BLOCKQUOTE'){{
+    }}
+
+    // Find iframes (Vimeo / YouTube)
+    var allFrames = document.querySelectorAll('iframe');
+    for(var i=0; i<allFrames.length; i++){{
+      var f = allFrames[i].src || '';
+      if(f && (f.indexOf('vimeo.com')>-1 || f.indexOf('youtube.com')>-1) && !seen[f]){{
+        seen[f]=1;
+        modules.push({{type:'embed', url: f, _y: allFrames[i].getBoundingClientRect().top + window.scrollY}});
+      }}
+    }}
+
+    // Find text blocks within project modules
+    var textNodes = document.querySelectorAll('p, h1, h2, h3, blockquote');
+    for(var i=0; i<textNodes.length; i++){{
+      var node = textNodes[i];
       var text = (node.innerText||'').trim();
       if(text.length < 30 || text.length > 4000) continue;
-      if(node.closest('nav, header, footer, [class*="toolbar"], [class*="appreciation"], [class*="comment"], [class*="related"]')) continue;
+      // Skip if inside nav/header/footer/comments
+      if(node.closest('nav, header, footer, [class*="toolbar"], [class*="appreciation"], [class*="comment"], [class*="related"], [class*="profile-stats"], [class*="byline"]')) continue;
       var key = 't:'+text.slice(0,50);
       if(seen[key]) continue;
       seen[key] = 1;
-      modules.push({{type:'text', content: text}});
+      modules.push({{type:'text', content: text, _y: node.getBoundingClientRect().top + window.scrollY}});
     }}
-  }}
 
-  if(!modules.length){{
-    alert('⚠️ لم يتم العثور على محتوى في هذه الصفحة');
-    return;
-  }}
+    // Sort modules by Y position (document order)
+    modules.sort(function(a,b){{ return (a._y||0) - (b._y||0); }});
+    // Remove _y before sending
+    modules.forEach(function(m){{ delete m._y; }});
 
-  // Send to our server
-  fetch('{base}/api/bookmarklet/submit', {{
-    method:'POST',
-    headers:{{'Content-Type':'application/json'}},
-    body: JSON.stringify({{
-      title: title, description: desc, cover: cover, modules: modules,
-      source_url: location.href
+    if(!modules.length){{
+      document.body.removeChild(overlay);
+      alert('⚠️ لم يتم العثور على محتوى\\n\\nتأكد إنك على صفحة مشروع Behance (وليس صفحة البروفايل)');
+      return;
+    }}
+
+    setMsg('📤 جاري إرسال ' + modules.length + ' عنصر...', 'لا تغلق الصفحة');
+
+    // Send to our server
+    fetch('{base}/api/bookmarklet/submit', {{
+      method:'POST',
+      headers:{{'Content-Type':'application/json'}},
+      body: JSON.stringify({{
+        title: title, description: desc, cover: cover, modules: modules,
+        source_url: location.href
+      }})
     }})
-  }})
-  .then(function(r){{ return r.json(); }})
-  .then(function(d){{
-    if(d.import_id){{
-      var url = '{base}/admin?bh=' + d.import_id;
-      // Show user the count + open admin
-      var ok = confirm('✓ تم استخراج ' + d.count + ' عنصر\\n\\nاضغط OK لفتح لوحة التحكم');
-      if(ok){{ window.location.href = url; }}
-    }} else {{
-      alert('❌ ' + (d.error||'فشل الإرسال'));
-    }}
-  }})
-  .catch(function(e){{ alert('❌ خطأ في الإرسال: '+e.message); }});
+    .then(function(r){{
+      if(!r.ok) throw new Error('Server returned ' + r.status);
+      return r.json();
+    }})
+    .then(function(d){{
+      document.body.removeChild(overlay);
+      if(d.import_id){{
+        var url = '{base}/admin?bh=' + d.import_id;
+        var ok = confirm('✅ تم استخراج ' + d.count + ' عنصر بنجاح!\\n\\nاضغط OK لفتح لوحة التحكم');
+        if(ok){{
+          // Open in same tab so cookies/session work
+          window.location.href = url;
+        }}
+      }} else {{
+        alert('❌ ' + (d.error||'فشل الإرسال'));
+      }}
+    }})
+    .catch(function(e){{
+      document.body.removeChild(overlay);
+      alert('❌ خطأ في الإرسال:\\n' + e.message + '\\n\\nتأكد من أنك مسجل دخول في موقع Portfolio');
+    }});
+  }}
 }})();'''
     return js, 200, {'Content-Type':'application/javascript; charset=utf-8',
-                     'Cache-Control':'public, max-age=300',
+                     'Cache-Control':'no-cache',
                      'Access-Control-Allow-Origin':'*'}
 
 
@@ -1238,115 +1299,6 @@ def bookmarklet_get(import_id):
     _pending_imports.pop(import_id, None)
     return jsonify({'ok':True, 'data': item['data']})
 
-
-# ══════════════ ZIP IMPORT ══════════════
-import zipfile, io as _io
-ALLOWED_IMG_EXT = ('.jpg','.jpeg','.png','.webp','.gif','.bmp')
-ALLOWED_VID_EXT = ('.mp4','.mov','.webm','.m4v')
-
-@app.route('/api/import/zip', methods=['POST'])
-@login_required
-def import_zip():
-    """Receives a ZIP file containing images (and optional videos) → creates a project."""
-    if 'zip' not in request.files: return jsonify({'error':'لم يتم رفع ملف'}), 400
-    f = request.files['zip']
-    if not f.filename.lower().endswith('.zip'):
-        return jsonify({'error':'يجب أن يكون الملف ZIP'}), 400
-
-    title    = (request.form.get('title') or 'مشروع جديد').strip()[:200]
-    category = (request.form.get('category') or '').strip()[:100]
-    desc     = (request.form.get('description') or '').strip()[:5000]
-
-    try:
-        data = f.read()
-        if len(data) > 90 * 1024 * 1024:
-            return jsonify({'error':'حجم الملف أكبر من 90 ميجا'}), 400
-        zf = zipfile.ZipFile(_io.BytesIO(data))
-    except zipfile.BadZipFile:
-        return jsonify({'error':'الملف ليس ZIP صالح'}), 400
-    except Exception as e:
-        return jsonify({'error': f'خطأ: {str(e)}'}), 400
-
-    db = get_db()
-    user = db.execute("SELECT storage_limit_mb, storage_used_mb FROM users WHERE id=?", (uid(),)).fetchone()
-    available_mb = (user['storage_limit_mb'] or 0) - (user['storage_used_mb'] or 0)
-    total_zip_mb = sum(zi.file_size for zi in zf.infolist() if not zi.is_dir()) / (1024*1024)
-    if total_zip_mb > available_mb:
-        return jsonify({'error': f'⚠️ مساحة غير كافية. تحتاج ~{round(total_zip_mb,1)} MB، المتاح {round(available_mb,1)} MB'}), 400
-
-    entries = []
-    for zi in zf.infolist():
-        if zi.is_dir(): continue
-        name = zi.filename
-        base = os.path.basename(name)
-        if base.startswith('.') or '__MACOSX' in name: continue
-        ext = os.path.splitext(name)[1].lower()
-        if ext in ALLOWED_IMG_EXT:
-            entries.append({'zi': zi, 'name': name, 'type': 'image', 'ext': ext})
-        elif ext in ALLOWED_VID_EXT:
-            entries.append({'zi': zi, 'name': name, 'type': 'video', 'ext': ext})
-
-    if not entries:
-        return jsonify({'error':'لم يتم العثور على صور أو فيديوهات في الملف'}), 400
-
-    def natural_key(s):
-        return [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', s)]
-    entries.sort(key=lambda e: natural_key(e['name']))
-    entries = entries[:60]
-
-    sort_order = (db.execute("SELECT COALESCE(MAX(sort_order),0) FROM projects WHERE user_id=?", (uid(),)).fetchone()[0] or 0) + 1
-    cur = db.execute(
-        "INSERT INTO projects(user_id,title,category,description,media_type,project_type,sort_order) VALUES(?,?,?,?,?,?,?)",
-        (uid(), title, category, desc, 'image', 'editor', sort_order)
-    )
-    project_id = cur.lastrowid
-
-    saved_modules = []
-    cover_set = False
-    total_bytes = 0
-
-    for ent in entries:
-        try: content = zf.read(ent['zi'])
-        except Exception: continue
-
-        ext = ent['ext'].lstrip('.')
-        ts = int(time.time() * 1000) + len(saved_modules)
-        fname = f"u{uid()}_p{project_id}_{ts}.{ext}"
-        fpath = os.path.join(UPLOAD_DIR, fname)
-
-        try:
-            if ent['type'] == 'video' and len(content) > 50 * 1024 * 1024:
-                continue
-            with open(fpath, 'wb') as fp: fp.write(content)
-            if ent['type'] == 'image' and ext in ('jpg','jpeg','png','webp'):
-                optimize_image(fpath)
-            file_size = os.path.getsize(fpath)
-            total_bytes += file_size
-            public_url = f'/uploads/{fname}'
-
-            if ent['type'] == 'image':
-                if not cover_set:
-                    db.execute("UPDATE projects SET cover_url=? WHERE id=?", (public_url, project_id))
-                    cover_set = True
-                saved_modules.append({'type':'image','src':public_url})
-            else:
-                saved_modules.append({'type':'video','src':public_url})
-        except Exception as e:
-            print(f'zip entry error: {e}')
-            try: os.remove(fpath)
-            except: pass
-            continue
-
-    db.execute("UPDATE projects SET modules=? WHERE id=?", (json.dumps(saved_modules), project_id))
-    upd_storage(uid(), total_bytes, db)
-    db.commit()
-
-    return jsonify({
-        'ok': True,
-        'project_id': project_id,
-        'count': len(saved_modules),
-        'total_mb': round(total_bytes/(1024*1024), 2),
-    })
 
 
 # ── CONTACT ──
