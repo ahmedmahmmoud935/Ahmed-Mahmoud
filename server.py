@@ -1066,30 +1066,56 @@ def import_save_images():
     headers['Referer'] = 'https://www.behance.net/'
     headers['Accept'] = 'image/webp,image/apng,image/*,*/*;q=0.8'
 
+    def try_download(url):
+        """Try downloading, with fallback to lower resolutions if /source/ fails."""
+        attempts = [url]
+        # If URL has /source/, try /max_3840/ and /max_1200/ as fallbacks
+        if '/source/' in url:
+            attempts.append(url.replace('/source/', '/max_3840/'))
+            attempts.append(url.replace('/source/', '/max_1200/'))
+            attempts.append(url.replace('/source/', '/disp/'))
+
+        last_err = None
+        for attempt_url in attempts:
+            try:
+                req = urllib.request.Request(attempt_url, headers=headers)
+                with urllib.request.urlopen(req, timeout=20) as resp:
+                    content = resp.read()
+                    if resp.headers.get('Content-Encoding','').lower() == 'gzip':
+                        try: content = gzip.decompress(content)
+                        except: pass
+                    ct = (resp.headers.get_content_type() or 'image/jpeg').lower()
+                    if len(content) >= 1024:
+                        return content, ct, attempt_url
+            except Exception as e:
+                last_err = str(e)
+                continue
+        return None, None, last_err
+
     results = []
     total_bytes = 0
     success_count = 0
     fail_count = 0
+    fail_log = []
 
     for url in urls:
         try:
             if not isinstance(url, str) or not url.startswith('http'):
-                results.append(None); fail_count += 1; continue
+                results.append(None); fail_count += 1
+                fail_log.append(f'invalid url: {str(url)[:100]}')
+                continue
 
-            req = urllib.request.Request(url, headers=headers)
-            with urllib.request.urlopen(req, timeout=15) as resp:
-                content = resp.read()
-                if resp.headers.get('Content-Encoding','').lower() == 'gzip':
-                    try: content = gzip.decompress(content)
-                    except: pass
-                ct = (resp.headers.get_content_type() or 'image/jpeg').lower()
+            content, ct, info = try_download(url)
+            if not content:
+                results.append(None); fail_count += 1
+                fail_log.append(f'all attempts failed for {url[:80]}: {info}')
+                continue
 
-            if len(content) < 1024:
-                results.append(None); fail_count += 1; continue
             if total_bytes + len(content) > available_bytes:
-                results.append(None); fail_count += 1; continue
+                results.append(None); fail_count += 1
+                fail_log.append('storage limit reached')
+                continue
 
-            # Determine extension from content-type
             ext_map = {'image/jpeg':'jpg','image/jpg':'jpg','image/png':'png',
                        'image/webp':'webp','image/gif':'gif'}
             ext = ext_map.get(ct, 'jpg')
@@ -1109,15 +1135,17 @@ def import_save_images():
             results.append(f'/uploads/{fname}')
 
         except Exception as e:
-            print(f'save-images error for {url[:80]}: {e}')
+            print(f'save-images outer error for {str(url)[:80]}: {e}')
             fail_count += 1
+            fail_log.append(f'outer: {e}')
             results.append(None)
 
     if total_bytes:
         upd_storage(user_id, total_bytes, db)
         db.commit()
 
-    print(f'[import] {success_count} saved, {fail_count} failed, {round(total_bytes/(1024*1024),2)} MB')
+    print(f'[import] {success_count}/{len(urls)} saved, {fail_count} failed, {round(total_bytes/(1024*1024),2)} MB')
+    if fail_log: print(f'[import] fails: {fail_log[:3]}')
     return jsonify({'images': results, 'total_mb': round(total_bytes/(1024*1024), 2),
                     'saved': success_count, 'failed': fail_count})
 
