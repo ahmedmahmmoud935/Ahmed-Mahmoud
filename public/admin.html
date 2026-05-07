@@ -3060,24 +3060,54 @@ async function saveBhImport(){
     stage: `الخطوة 2 من 3: المعالجة`,
   });
 
-  const finalModules = selected.map(m => {
+  const finalModules = [];
+  selected.forEach(m => {
     if(m.type==='image'){
       const src = urlMap[m.src] || m.src;
-      // Skip if image failed to download
-      if(!urlMap[m.src] && !src.startsWith('/')) return null;
-      return {type:'image', src: src};
+      if(!urlMap[m.src] && !src.startsWith('/')) return;
+      finalModules.push({type:'image', src: src});
     }
-    if(m.type==='image_row'){
-      const items = (m.images||[]).map(src => ({src: urlMap[src] || src})).filter(it => it.src.startsWith('/'));
-      if(items.length === 0) return null;
-      if(items.length === 1) return {type:'image', src: items[0].src};
-      return {type:'photo-grid', items: items};
+    else if(m.type==='image_row'){
+      // Grid → editor format: {type:'grid', items:[{src},...]}
+      const items = (m.images||[])
+        .map(srcUrl => urlMap[srcUrl])
+        .filter(Boolean)
+        .map(s => ({src: s}));
+      if(items.length === 0) return;
+      if(items.length === 1){ finalModules.push({type:'image', src: items[0].src}); return; }
+      finalModules.push({type:'grid', items: items});
     }
-    if(m.type==='video') return {type:'video', src: m.src};
-    if(m.type==='embed') return {type:'embed', url: m.url};
-    if(m.type==='text')  return {type:'text', content: m.content};
-    return null;
-  }).filter(Boolean);
+    else if(m.type==='video'){
+      finalModules.push({type:'video', src: m.src});
+    }
+    else if(m.type==='embed'){
+      // Editor video format: {type:'video', embedType, embedUrl, rawUrl}
+      const url = m.url || '';
+      let embedType = 'youtube', embedUrl = '';
+      // Vimeo
+      let vm = url.match(/(?:player\.vimeo\.com\/video\/|vimeo\.com\/(?:video\/)?)(\d+)/);
+      if(vm){
+        embedType = 'vimeo';
+        embedUrl = `https://player.vimeo.com/video/${vm[1]}?portrait=0&byline=0&title=0`;
+      } else {
+        // YouTube
+        let ym = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+        if(ym){
+          embedType = 'youtube';
+          embedUrl = `https://www.youtube.com/embed/${ym[1]}`;
+        }
+      }
+      if(embedUrl){
+        finalModules.push({type:'video', embedType: embedType, embedUrl: embedUrl, rawUrl: url});
+      }
+    }
+    else if(m.type==='text'){
+      // Editor text format: {type:'text', textType, value}
+      finalModules.push({type:'text', textType: 'p', value: m.content});
+    }
+  });
+
+  console.log('[Behance] Final modules:', finalModules);
 
   if(!finalModules.length){
     hideLoader();
@@ -3086,23 +3116,34 @@ async function saveBhImport(){
     return;
   }
 
-  // Find first image for cover (server URL only, never base64)
+  // Find first image for cover (from image or grid)
   let coverImage = null;
   for(const m of finalModules){
-    if(m.type==='image' && m.src.startsWith('/')){ coverImage = m.src; break; }
-    if(m.type==='photo-grid' && m.items && m.items[0]){ coverImage = m.items[0].src; break; }
+    if(m.type==='image' && m.src && m.src.startsWith('/')){ coverImage = m.src; break; }
+    if(m.type==='grid' && m.items && m.items[0] && m.items[0].src){ coverImage = m.items[0].src; break; }
+  }
+
+  // Special case: if no images and only Vimeo embed → make it a video project
+  const hasImages = finalModules.some(m => m.type==='image' || m.type==='grid');
+  const videos = finalModules.filter(m => m.type==='video' && m.embedUrl);
+  let primaryEmbed = null;
+  if(!hasImages && videos.length === 1){
+    primaryEmbed = videos[0].embedUrl;
   }
 
   const body = {
     title: document.getElementById('bhTitle').value || 'Behance Project',
     category: document.getElementById('bhCategory').value,
     description: document.getElementById('bhDesc').value,
-    mediaType: 'image',
-    projectType: 'editor',
+    mediaType: primaryEmbed ? 'video' : 'image',
+    projectType: 'free',
     coverImage: coverImage,
     images: [],
     keepImages: [],
   };
+  if(primaryEmbed){
+    body.embedUrl = primaryEmbed;
+  }
 
   try{
     updateLoader({
@@ -3133,7 +3174,7 @@ async function saveBhImport(){
     });
 
     const modR = await fetch(`/api/projects/${proj.id}/modules`,{method:'PUT',credentials:'include',
-      headers:{'Content-Type':'application/json'},body:JSON.stringify({modules: finalModules, projectType:'editor'})});
+      headers:{'Content-Type':'application/json'},body:JSON.stringify({modules: finalModules, projectType:'free'})});
     if(!modR.ok){
       const e=await modR.json();
       console.warn('save modules err:', e);
