@@ -1194,17 +1194,28 @@ def bookmarklet_js():
   var bgCache = {{}};
 
   function captureImagesNow(){{
-    // Capture all visible images
+    // Capture all visible images (including from <picture> srcset)
     var imgs = document.querySelectorAll('img');
     for(var i=0; i<imgs.length; i++){{
       var node = imgs[i];
       var src = node.currentSrc || node.src || node.getAttribute('data-src') || node.getAttribute('data-lazy-src') || '';
+      // Try srcset if regular src didn't match
+      if(!isBehanceProjectImage(src)){{
+        var srcset = node.srcset || node.getAttribute('data-srcset') || '';
+        if(srcset){{
+          // Parse srcset, get last (largest) URL
+          var parts = srcset.split(',');
+          for(var p=parts.length-1; p>=0; p--){{
+            var url = parts[p].trim().split(' ')[0];
+            if(isBehanceProjectImage(url)){{ src = url; break; }}
+          }}
+        }}
+      }}
       if(!isBehanceProjectImage(src)) continue;
       var hires = upgradeRes(src);
       var key = hires.split('?')[0];
       if(imageCache[key]) continue;
       var rect = node.getBoundingClientRect();
-      // Only capture images that are reasonable size
       if(rect.width < 50 || rect.height < 50) continue;
       imageCache[key] = {{
         src: hires,
@@ -1214,8 +1225,32 @@ def bookmarklet_js():
         height: rect.height
       }};
     }}
+    // Capture <source> tags inside <picture>
+    var sources = document.querySelectorAll('source[srcset]');
+    for(var i=0; i<sources.length; i++){{
+      var srcset = sources[i].srcset || '';
+      var parts = srcset.split(',');
+      for(var p=parts.length-1; p>=0; p--){{
+        var url = parts[p].trim().split(' ')[0];
+        if(!isBehanceProjectImage(url)) continue;
+        var hires = upgradeRes(url);
+        var key = hires.split('?')[0];
+        if(imageCache[key]) continue;
+        var pict = sources[i].parentElement;
+        var rect = pict ? pict.getBoundingClientRect() : {{top:0,left:0,width:200,height:200}};
+        if(rect.width < 50 || rect.height < 50) continue;
+        imageCache[key] = {{
+          src: hires,
+          y: rect.top + window.scrollY,
+          x: rect.left,
+          width: rect.width,
+          height: rect.height
+        }};
+        break;
+      }}
+    }}
     // Capture background-image elements
-    var bgEls = document.querySelectorAll('[style*="background"], [class*="image"], [class*="Image"], [class*="grid"], [class*="Grid"]');
+    var bgEls = document.querySelectorAll('[style*="background"], [class*="image"], [class*="Image"], [class*="grid"], [class*="Grid"], [class*="module"], [class*="Module"]');
     for(var i=0; i<bgEls.length; i++){{
       var el = bgEls[i];
       var bg = getBgImage(el);
@@ -1285,8 +1320,20 @@ def bookmarklet_js():
 
   function isBehanceProjectImage(src){{
     if(!src || src.indexOf('http') !== 0) return false;
+    // Skip data URLs, gifs of small icons, profile pics
+    if(src.indexOf('data:') === 0) return false;
+    if(src.indexOf('/profiles/') > -1) return false;
+    if(src.indexOf('/users/') > -1) return false;
+    if(src.indexOf('avatar') > -1) return false;
+    // Behance CDNs
     return src.indexOf('mir-s3-cdn-cf.behance.net/project_modules') > -1 ||
-           src.indexOf('mir-s3-cdn-cf.behance.net/projects/') > -1;
+           src.indexOf('mir-s3-cdn-cf.behance.net/projects/') > -1 ||
+           src.indexOf('mir-cdn.behance.net/project_modules') > -1 ||
+           src.indexOf('mir-cdn.behance.net/v1/project_modules') > -1 ||
+           // Also: any subdomain.behance.net with project_modules path
+           (src.indexOf('.behance.net') > -1 && src.indexOf('project_modules') > -1) ||
+           // Also accept images inside an EditProject context (more permissive)
+           (location.pathname.indexOf('/edit') > -1 && src.indexOf('behance.net') > -1 && src.indexOf('project_modules') > -1);
   }}
 
   function extractContent(){{
@@ -1415,12 +1462,23 @@ def bookmarklet_js():
     }}
 
     var totalImages = 0;
+    var totalEmbeds = 0;
+    var totalText = 0;
     modules.forEach(function(m){{
       if(m.type === 'image') totalImages++;
       else if(m.type === 'image_row') totalImages += m.images.length;
+      else if(m.type === 'embed') totalEmbeds++;
+      else if(m.type === 'text') totalText++;
     }});
 
-    setMsg('📤 جاري إرسال ' + totalImages + ' عنصر...', 'لا تغلق الصفحة');
+    console.log('[Bookmarklet] Extracted:', {{
+      images: totalImages, embeds: totalEmbeds, text: totalText,
+      imageCache: Object.keys(imageCache).length,
+      bgCache: Object.keys(bgCache).length,
+      modules: modules.length
+    }});
+
+    setMsg('📤 جاري إرسال ' + totalImages + ' صورة + ' + totalEmbeds + ' فيديو...', 'لا تغلق الصفحة');
 
     fetch('{base}/api/bookmarklet/submit', {{
       method:'POST',
