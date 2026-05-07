@@ -1161,19 +1161,77 @@ def bookmarklet_js():
   var setMsg = function(m, s){{ var el=document.getElementById('__bh_msg'); if(el) el.textContent=m; var es=document.getElementById('__bh_sub'); if(es && s!==undefined) es.textContent=s; }};
   var removeOverlay = function(){{ try{{ document.body.removeChild(overlay); }}catch(e){{}} }};
 
-  // Auto-scroll to load lazy images
+  // Cache images as we scroll (Behance may dispose images that leave viewport)
+  var imageCache = {{}};  // key → {{src, y, x, width, height}}
+  var bgCache = {{}};
+
+  function captureImagesNow(){{
+    // Capture all visible images
+    var imgs = document.querySelectorAll('img');
+    for(var i=0; i<imgs.length; i++){{
+      var node = imgs[i];
+      var src = node.currentSrc || node.src || node.getAttribute('data-src') || node.getAttribute('data-lazy-src') || '';
+      if(!isBehanceProjectImage(src)) continue;
+      var hires = upgradeRes(src);
+      var key = hires.split('?')[0];
+      if(imageCache[key]) continue;
+      var rect = node.getBoundingClientRect();
+      // Only capture images that are reasonable size
+      if(rect.width < 50 || rect.height < 50) continue;
+      imageCache[key] = {{
+        src: hires,
+        y: rect.top + window.scrollY,
+        x: rect.left,
+        width: rect.width,
+        height: rect.height
+      }};
+    }}
+    // Capture background-image elements
+    var bgEls = document.querySelectorAll('[style*="background"], [class*="image"], [class*="Image"], [class*="grid"], [class*="Grid"]');
+    for(var i=0; i<bgEls.length; i++){{
+      var el = bgEls[i];
+      var bg = getBgImage(el);
+      if(!bg || !isBehanceProjectImage(bg)) continue;
+      var hires = upgradeRes(bg);
+      var key = hires.split('?')[0];
+      if(imageCache[key] || bgCache[key]) continue;
+      var rect = el.getBoundingClientRect();
+      if(rect.width < 100 || rect.height < 100) continue;
+      bgCache[key] = {{
+        src: hires,
+        y: rect.top + window.scrollY,
+        x: rect.left,
+        width: rect.width,
+        height: rect.height
+      }};
+    }}
+  }}
+
+  // Auto-scroll to load lazy images, capturing images as we go
   setMsg('⏳ جاري تحميل كل الصور...', 'سيتم التمرير تلقائياً');
   var pos = 0;
-  var step = window.innerHeight * 0.7;
+  var step = window.innerHeight * 0.5;  // smaller steps
+  captureImagesNow();  // initial capture
   var scrollTimer = setInterval(function(){{
     pos += step;
     window.scrollTo(0, pos);
+    captureImagesNow();  // capture during scroll
     if(pos >= document.body.scrollHeight + 200){{
       clearInterval(scrollTimer);
-      window.scrollTo(0, 0);
-      setTimeout(extractContent, 1200);
+      // Final pass: scroll back up gradually, capturing again
+      var backPos = document.body.scrollHeight;
+      var backTimer = setInterval(function(){{
+        backPos -= step;
+        window.scrollTo(0, Math.max(0, backPos));
+        captureImagesNow();
+        if(backPos <= 0){{
+          clearInterval(backTimer);
+          window.scrollTo(0, 0);
+          setTimeout(extractContent, 1500);
+        }}
+      }}, 400);
     }}
-  }}, 250);
+  }}, 400);  // slower: 400ms per step
 
   function upgradeRes(src){{
     if(!src) return src;
@@ -1206,7 +1264,10 @@ def bookmarklet_js():
   function extractContent(){{
     setMsg('🔍 جاري استخراج المحتوى...', '');
 
-    var allItems = [];  // {{type, src/url/content, y, x, height, width, el}}
+    // Final capture before extraction
+    captureImagesNow();
+
+    var allItems = [];
     var seen = {{}};
 
     var title = '';
@@ -1222,45 +1283,25 @@ def bookmarklet_js():
     var ogI = document.querySelector('meta[property="og:image"]');
     if(ogI) cover = ogI.content;
 
-    // 1. All <img> elements
-    var allImgs = document.querySelectorAll('img');
-    for(var i=0; i<allImgs.length; i++){{
-      var node = allImgs[i];
-      var src = node.currentSrc || node.src || node.getAttribute('data-src') || node.getAttribute('data-lazy-src') || '';
-      if(!isBehanceProjectImage(src)) continue;
-      var hires = upgradeRes(src);
-      var key = hires.split('?')[0];
+    // 1. All cached images (from <img> tags during scroll)
+    for(var key in imageCache){{
       if(seen[key]) continue;
       seen[key] = 1;
-      var rect = node.getBoundingClientRect();
+      var ic = imageCache[key];
       allItems.push({{
-        type:'image', src: hires,
-        y: rect.top + window.scrollY,
-        x: rect.left,
-        width: rect.width,
-        height: rect.height
+        type:'image', src: ic.src,
+        y: ic.y, x: ic.x, width: ic.width, height: ic.height
       }});
     }}
 
-    // 2. Elements with background-image (CSS) — for grid layouts
-    var bgCandidates = document.querySelectorAll('[style*="background"], [class*="image"], [class*="Image"], [class*="grid"], [class*="Grid"]');
-    for(var i=0; i<bgCandidates.length; i++){{
-      var el = bgCandidates[i];
-      var bg = getBgImage(el);
-      if(!bg || !isBehanceProjectImage(bg)) continue;
-      var hires = upgradeRes(bg);
-      var key = hires.split('?')[0];
+    // 2. All cached background-image elements
+    for(var key in bgCache){{
       if(seen[key]) continue;
       seen[key] = 1;
-      var rect = el.getBoundingClientRect();
-      // Skip tiny elements (icons, avatars)
-      if(rect.width < 100 || rect.height < 100) continue;
+      var bc = bgCache[key];
       allItems.push({{
-        type:'image', src: hires,
-        y: rect.top + window.scrollY,
-        x: rect.left,
-        width: rect.width,
-        height: rect.height
+        type:'image', src: bc.src,
+        y: bc.y, x: bc.x, width: bc.width, height: bc.height
       }});
     }}
 
