@@ -1260,52 +1260,74 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 
 <!-- BEHANCE BOOKMARKLET MODAL -->
 <div class="mo" id="behanceModal">
-  <div class="modal" style="max-width:540px;">
+  <div class="modal" style="max-width:580px;">
     <div class="mh">
       <div class="mt"><i class="fa-brands fa-behance" style="color:#1769ff;margin-left:10px;"></i>استيراد من Behance</div>
       <button class="mc" onclick="closeBehanceModal()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="mb">
 
-      <!-- Hero with bookmark button -->
-      <div style="background:linear-gradient(135deg,rgba(23,105,255,0.12),rgba(23,105,255,0.03));border:1px solid rgba(23,105,255,0.25);border-radius:14px;padding:22px;margin-bottom:18px;text-align:center;">
-        <div style="font-size:30px;margin-bottom:8px;">🔖</div>
-        <div style="font-weight:800;font-size:15px;margin-bottom:6px;color:#fff;">أضف الزر لشريط المفضلة (مرة واحدة فقط)</div>
-        <div style="font-size:12px;color:#999;margin-bottom:18px;line-height:1.6;">
-          أظهر شريط المفضلة أولاً:<br>
-          <code style="background:#000;padding:2px 7px;border-radius:4px;font-size:11px;color:#fff;">⌘+⇧+B</code> للماك &nbsp;·&nbsp;
-          <code style="background:#000;padding:2px 7px;border-radius:4px;font-size:11px;color:#fff;">Ctrl+⇧+B</code> للويندوز
-        </div>
-
-        <!-- The drag-to-bookmark button -->
-        <a id="bhBookmarklet" href="javascript:void(0)" draggable="true" style="display:inline-block;background:linear-gradient(135deg,#1769ff,#0d4cb8);color:#fff !important;padding:14px 32px;border-radius:10px;font-weight:800;font-size:14px;text-decoration:none;cursor:grab;box-shadow:0 6px 20px rgba(23,105,255,0.4);user-select:none;animation:bhPulse 2s ease-in-out infinite;">
-          <i class="fa-brands fa-behance" style="margin-left:8px;"></i> استورد من Behance
-        </a>
-        <div style="font-size:11.5px;color:#1769ff;margin-top:14px;font-weight:600;">
-          ☝️ <b>اضغط مع الاستمرار</b> ثم اسحبه إلى شريط المفضلة فوق
-        </div>
-        <div style="font-size:10.5px;color:#666;margin-top:6px;line-height:1.5;">
-          (لا تضغط ضغطة عادية — لازم سحب)
-        </div>
-
-        <!-- Alternative method -->
-        <div style="margin-top:14px;padding-top:14px;border-top:1px solid #1a1a1a;">
-          <div style="font-size:11px;color:#888;margin-bottom:8px;">لا تستطيع السحب؟ جرب الطريقة البديلة:</div>
-          <button onclick="bhTryAutoAdd()" style="background:transparent;border:1px solid #1769ff;color:#1769ff;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:700;font-size:12px;font-family:inherit;">
-            <i class="fa-solid fa-keyboard" style="margin-left:6px;"></i> طريقة لوحة المفاتيح
-          </button>
+      <!-- Hero -->
+      <div style="background:linear-gradient(135deg,rgba(34,197,94,0.12),rgba(34,197,94,0.03));border:1px solid rgba(34,197,94,0.25);border-radius:14px;padding:16px;margin-bottom:18px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:40px;height:40px;background:#22c55e;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;flex-shrink:0;">⚡</div>
+          <div>
+            <div style="font-weight:800;font-size:14px;margin-bottom:3px;">3 خطوات بسيطة — يعمل على أي متصفح</div>
+            <div style="font-size:11.5px;color:#888;">انسخ الكود، الصقه، احذف //، اضغط Enter</div>
+          </div>
         </div>
       </div>
 
-      <!-- Usage instructions -->
-      <div style="background:#0a0a0a;border-radius:12px;padding:16px 18px;">
-        <div style="font-weight:700;font-size:13px;margin-bottom:12px;color:#22c55e;">✨ بعد التثبيت، الاستخدام بسيط:</div>
-        <ol style="color:#ccc;font-size:12.5px;line-height:1.9;padding-inline-start:20px;margin:0;">
-          <li>افتح المشروع على Behance واضغط <b style="color:#1769ff;">Edit Project</b></li>
-          <li>اضغط زر <b style="color:#1769ff;">"استورد من Behance"</b> من شريط المفضلة</li>
-          <li>سيفتح موقعك تلقائياً مع كل المحتوى جاهز</li>
-        </ol>
+      <!-- CRITICAL WARNING -->
+      <div style="background:linear-gradient(135deg,rgba(239,68,68,0.15),rgba(239,68,68,0.05));border:2px solid rgba(239,68,68,0.4);border-radius:12px;padding:14px 16px;margin-bottom:18px;">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <div style="font-size:22px;flex-shrink:0;">⚠️</div>
+          <div>
+            <div style="font-weight:800;font-size:13.5px;color:#ff6b6b;margin-bottom:6px;">تنبيه هام جداً</div>
+            <div style="font-size:12px;color:#ffb3b3;line-height:1.7;">
+              بعد ما تلصق الكود في شريط العنوان، <b style="color:#fff;">احذف العلامتين <code style="background:#000;padding:2px 6px;border-radius:4px;color:#fbbf24;font-weight:800;">//</code> الموجودين في بداية الكود</b> ثم اضغط Enter.<br>
+              <span style="font-size:11px;color:#999;">(العلامتان دول موجودين عشان المتصفح ميحذفش الكود — لازم تحذفهم قبل التشغيل)</span>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <!-- Steps -->
+      <ol style="list-style:none;counter-reset:step;padding:0;margin:0 0 18px;">
+
+        <li style="counter-increment:step;display:flex;gap:14px;margin-bottom:18px;">
+          <div style="flex-shrink:0;width:32px;height:32px;background:#1769ff;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;">1</div>
+          <div style="flex:1;padding-top:5px;">
+            <div style="font-weight:700;font-size:14px;color:#fff;margin-bottom:4px;">افتح المشروع على Behance في وضع التعديل</div>
+            <div style="font-size:12px;color:#999;line-height:1.6;">ادخل المشروع اللي عايز تستورده، ثم اضغط <b style="color:#1769ff;">Edit Project</b> (تعديل المشروع)</div>
+          </div>
+        </li>
+
+        <li style="counter-increment:step;display:flex;gap:14px;margin-bottom:18px;">
+          <div style="flex-shrink:0;width:32px;height:32px;background:#1769ff;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;">2</div>
+          <div style="flex:1;padding-top:5px;">
+            <div style="font-weight:700;font-size:14px;color:#fff;margin-bottom:8px;">انسخ الكود من هنا</div>
+            <div style="position:relative;background:#000;border:1px solid #2a2a2a;border-radius:8px;padding:14px;">
+              <code id="bhCodeText" style="display:block;font-size:10.5px;color:#22c55e;font-family:'SF Mono','Monaco',monospace;word-break:break-all;line-height:1.6;user-select:all;-webkit-user-select:all;cursor:text;padding-inline-end:80px;direction:ltr;text-align:left;"></code>
+              <button onclick="copyBhCode()" id="bhCopyBtn" style="position:absolute;top:10px;inset-inline-start:10px;background:#22c55e;color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:700;font-size:12px;font-family:inherit;display:flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(34,197,94,0.3);">
+                <i class="fa-solid fa-copy"></i> نسخ
+              </button>
+            </div>
+          </div>
+        </li>
+
+        <li style="counter-increment:step;display:flex;gap:14px;">
+          <div style="flex-shrink:0;width:32px;height:32px;background:#1769ff;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;">3</div>
+          <div style="flex:1;padding-top:5px;">
+            <div style="font-weight:700;font-size:14px;color:#fff;margin-bottom:6px;">الصق الكود في صفحة Behance</div>
+            <div style="font-size:12px;color:#999;line-height:1.7;">
+              في صفحة Edit Project، الصق الكود في <b style="color:#fff;">شريط العنوان (URL bar)</b> فوق ↑<br>
+              <span style="color:#fbbf24;font-weight:700;">⚠️ احذف <code style="background:#000;padding:1px 5px;border-radius:3px;color:#fff;">//</code> من بداية الكود</span><br>
+              ثم اضغط <code style="background:#000;padding:1px 5px;border-radius:3px;font-size:11px;color:#fff;">Enter</code> — سيفتح موقعك تلقائياً مع المحتوى
+            </div>
+          </div>
+        </li>
+      </ol>
 
     </div>
     <div class="mfo">
@@ -2816,40 +2838,37 @@ async function saveVimeoProject(){
 function openBehanceImport(){
   document.getElementById('behanceModal').classList.add('open');
   const origin = location.origin;
-  const code = `javascript:(function(){var s=document.createElement('script');s.src='${origin}/bookmarklet.js?t='+Date.now();document.body.appendChild(s);})();`;
-  const btn = document.getElementById('bhBookmarklet');
-  if(btn){
-    btn.setAttribute('href', code);
-    btn.onclick = e => {
-      e.preventDefault();
-      toast('💡 اسحب الزر للأعلى بالماوس — لا تضغط عليه');
-      return false;
-    };
-  }
+  // Add // prefix so browsers don't strip "javascript:" — user removes // before pressing Enter
+  const code = `//javascript:(function(){var s=document.createElement('script');s.src='${origin}/bookmarklet.js?t='+Date.now();document.body.appendChild(s);})();`;
+  const codeEl = document.getElementById('bhCodeText');
+  if(codeEl) codeEl.textContent = code;
 }
+
 function closeBehanceModal(){
   document.getElementById('behanceModal').classList.remove('open');
 }
 
-function bhTryAutoAdd(){
-  // Try legacy bookmark APIs first
-  const url = document.getElementById('bhBookmarklet').getAttribute('href');
-  const title = 'استورد من Behance';
-  // Modern browsers don't allow programmatic bookmarks anymore
-  // Show clear instructions instead
-  const isMac = /Mac/.test(navigator.platform);
-  const shortcut = isMac ? '⌘ + D' : 'Ctrl + D';
-  alert(
-    'لإضافة الزر للمفضلة بلوحة المفاتيح:\n\n' +
-    '1. اضغط ' + shortcut + ' على الكيبورد\n' +
-    '2. هتظهر نافذة "Add Bookmark"\n' +
-    '3. غيّر الاسم لـ "استورد من Behance"\n' +
-    '4. اختار "Bookmarks Bar" كمكان الحفظ\n' +
-    '5. اضغط Save / Done\n\n' +
-    '⚠️ مهم: بعد ما تحفظ، روح لـ Edit Bookmarks (' + (isMac?'⌘+⌥+B':'Ctrl+Shift+O') + ')\n' +
-    'لاقي البوكمارك الجديد، عدّل الـ URL، والصق فيه الكود من الموقع.\n\n' +
-    'أو بكل بساطة: استخدم طريقة السحب الأسهل ↑'
-  );
+async function copyBhCode(){
+  const code = document.getElementById('bhCodeText').textContent;
+  const btn = document.getElementById('bhCopyBtn');
+  try{
+    await navigator.clipboard.writeText(code);
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> تم النسخ!';
+    btn.style.background = '#16a34a';
+    setTimeout(()=>{
+      btn.innerHTML = '<i class="fa-solid fa-copy"></i> نسخ';
+      btn.style.background = '#22c55e';
+    }, 2000);
+    toast('✓ تم نسخ الكود — لا تنسى حذف // قبل الضغط على Enter');
+  }catch(e){
+    const ta = document.createElement('textarea');
+    ta.value = code;
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); toast('✓ تم النسخ — احذف // قبل Enter'); }
+    catch(err) { toast('⚠️ فشل النسخ - حدد يدوياً','error'); }
+    document.body.removeChild(ta);
+  }
 }
 
 // ══ BEHANCE IMPORT PREVIEW (called when bookmarklet brings data) ══

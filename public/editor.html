@@ -137,6 +137,25 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
       <label class="fg-label">الوصف</label>
       <textarea class="fi" id="projDesc" style="min-height:80px;resize:vertical;" placeholder="وصف..."></textarea>
     </div>
+
+    <div class="sb-section">
+      <div class="sb-label">صورة الغلاف</div>
+      <div id="coverPreview" style="background:#0a0a0a;border:1px dashed #333;border-radius:8px;padding:14px;text-align:center;cursor:pointer;transition:all .2s;" onclick="document.getElementById('coverFileInput').click()">
+        <div id="coverEmpty" style="display:block;">
+          <i class="fa-regular fa-image" style="font-size:30px;color:#444;margin-bottom:8px;"></i>
+          <div style="font-size:11px;color:#888;">اضغط لرفع صورة الغلاف</div>
+          <div style="font-size:10px;color:#555;margin-top:4px;">JPG, PNG, WEBP — أقصى 10MB</div>
+        </div>
+        <div id="coverFilled" style="display:none;position:relative;">
+          <img id="coverImg" src="" style="width:100%;max-height:140px;object-fit:cover;border-radius:6px;display:block;">
+          <button type="button" onclick="event.stopPropagation();removeCover()" style="position:absolute;top:6px;inset-inline-start:6px;background:#ef4444;color:#fff;border:none;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;" title="حذف">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+      <input type="file" id="coverFileInput" accept="image/*" style="display:none;" onchange="onCoverSelected(this)">
+      <div style="font-size:10px;color:#666;margin-top:6px;line-height:1.5;">صورة الغلاف هي اللي بتظهر في قائمة المشاريع</div>
+    </div>
   </div>
 
   <div class="canvas" id="canvas">
@@ -153,6 +172,35 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 <script>
 const PID = parseInt(location.pathname.split('/').pop());
 let PROJECT=null, modules=[], gridImages=[], pType='grid', dragIdx=null;
+let coverData = null;     // null=unchanged, ''=remove, 'data:...'=new
+let coverChanged = false; // track if user touched cover
+
+function onCoverSelected(input){
+  const f = input.files[0];
+  if(!f) return;
+  if(!f.type.startsWith('image/')){toast('⚠️ يجب أن يكون الملف صورة');input.value='';return;}
+  if(f.size > 10 * 1024 * 1024){toast('⚠️ حجم الصورة أكبر من 10 ميجا');input.value='';return;}
+  const reader = new FileReader();
+  reader.onload = e => {
+    coverData = e.target.result;
+    coverChanged = true;
+    document.getElementById('coverImg').src = coverData;
+    document.getElementById('coverEmpty').style.display = 'none';
+    document.getElementById('coverFilled').style.display = 'block';
+    toast('✓ سيتم حفظ الغلاف عند الضغط على حفظ');
+  };
+  reader.readAsDataURL(f);
+}
+
+function removeCover(){
+  coverData = '';
+  coverChanged = true;
+  document.getElementById('coverImg').src = '';
+  document.getElementById('coverEmpty').style.display = 'block';
+  document.getElementById('coverFilled').style.display = 'none';
+  document.getElementById('coverFileInput').value = '';
+  toast('سيتم حذف الغلاف عند الضغط على حفظ');
+}
 
 (async()=>{
   try{
@@ -165,6 +213,13 @@ let PROJECT=null, modules=[], gridImages=[], pType='grid', dragIdx=null;
     document.getElementById('projDesc').value=PROJECT.description||'';
     document.getElementById('projCat').value=PROJECT.category||'Brand Identity';
     document.getElementById('tbTitle').textContent=PROJECT.title||'محرر';
+    // Load existing cover
+    if(PROJECT.coverImage){
+      coverData = null;  // null = unchanged
+      document.getElementById('coverImg').src = PROJECT.coverImage;
+      document.getElementById('coverEmpty').style.display = 'none';
+      document.getElementById('coverFilled').style.display = 'block';
+    }
     if(pType==='grid'){
       // Gallery only — cover is separate
       gridImages = (PROJECT.images||[]).map(src=>({src,isNew:false}));
@@ -385,7 +440,18 @@ async function doSave(){
   if(!title){toast('⚠️ أدخل عنوان المشروع');return;}
   const btn=document.getElementById('saveBtn'), spin=document.getElementById('saveSpin');
   btn.disabled=true; spin.style.display='inline-block';
-  try{ await fetch('/api/projects/'+PID,{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,category:document.getElementById('projCat').value,description:document.getElementById('projDesc').value})}); }catch{}
+  // Build project update body
+  const projBody = {
+    title,
+    category: document.getElementById('projCat').value,
+    description: document.getElementById('projDesc').value,
+  };
+  // Include cover only if user changed it
+  if(coverChanged){
+    if(coverData === '') projBody.coverImage = '';      // remove
+    else if(coverData) projBody.coverImage = coverData;  // new (base64)
+  }
+  try{ await fetch('/api/projects/'+PID,{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(projBody)}); }catch{}
   const payload=pType==='grid'
     ?{modules:gridImages.map(img=>({type:'image',src:img.src})),projectType:'grid'}
     :{modules,projectType:'free'};
