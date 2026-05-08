@@ -1100,15 +1100,46 @@ def import_save_images():
 
     for url in urls:
         try:
-            if not isinstance(url, str) or not url.startswith('http'):
+            if not isinstance(url, str):
                 results.append(None); fail_count += 1
-                fail_log.append(f'invalid url: {str(url)[:100]}')
+                fail_log.append('not a string')
                 continue
 
-            content, ct, info = try_download(url)
-            if not content:
+            content = None
+            ct = 'image/jpeg'
+
+            # Handle base64 data URLs (from bookmarklet client-side conversion)
+            if url.startswith('data:'):
+                try:
+                    header, b64data = url.split(',', 1)
+                    # Extract content type
+                    if ';' in header:
+                        mt = header.split(':')[1].split(';')[0]
+                        if mt: ct = mt.lower()
+                    content = base64.b64decode(b64data)
+                except Exception as e:
+                    print(f'base64 decode failed: {e}')
+                    results.append(None); fail_count += 1
+                    fail_log.append(f'base64 decode: {e}')
+                    continue
+            elif url.startswith('http'):
+                # Download from URL
+                content_data, ct_dl, info = try_download(url)
+                if content_data:
+                    content = content_data
+                    if ct_dl: ct = ct_dl
+                else:
+                    results.append(None); fail_count += 1
+                    fail_log.append(f'http fail for {url[:80]}: {info}')
+                    continue
+            else:
                 results.append(None); fail_count += 1
-                fail_log.append(f'all attempts failed for {url[:80]}: {info}')
+                fail_log.append(f'invalid scheme: {url[:50]}')
+                continue
+
+            if not content or len(content) < 1024:
+                results.append(None); fail_count += 1
+                fail_log.append('content too small')
                 continue
 
             if total_bytes + len(content) > available_bytes:
@@ -1135,7 +1166,7 @@ def import_save_images():
             results.append(f'/uploads/{fname}')
 
         except Exception as e:
-            print(f'save-images outer error for {str(url)[:80]}: {e}')
+            print(f'save-images outer error: {e}')
             fail_count += 1
             fail_log.append(f'outer: {e}')
             results.append(None)
@@ -1523,13 +1554,140 @@ def bookmarklet_js():
       modules: modules.length
     }});
 
-    setMsg('📤 جاري إرسال ' + totalImages + ' صورة + ' + totalEmbeds + ' فيديو...', 'لا تغلق الصفحة');
+    // Convert images to base64 IN BROWSER (Behance returns 403 to server but works in browser)
+    setMsg('🖼️ جاري تحويل الصور...', '0 / ' + totalImages);
 
-    fetch('{base}/api/bookmarklet/submit', {{
+    function urlToBase64(url){{
+      return new Promise(function(resolve){{
+        var img = new Image();
+        img.crossOrigin = 'anonymous';
+        var done = false;
+        var timeoutId = setTimeout(function(){{
+          if(done) return;
+          done = true;
+          // Try fetch() as fallback
+          fetch(url, {{credentials:'include'}})
+            .then(function(r){{ if(!r.ok) throw new Error('fail'); return r.blob(); }})
+            .then(function(blob){{
+              var reader = new FileReader();
+              reader.onload = function(){{ resolve(reader.result); }};
+              reader.onerror = function(){{ resolve(null); }};
+              reader.readAsDataURL(blob);
+            }})
+            .catch(function(){{ resolve(null); }});
+        }}, 8000);
+        img.onload = function(){{
+          if(done) return;
+          done = true;
+          clearTimeout(timeoutId);
+          try {{
+            var canvas = document.createElement('canvas');
+            canvas.width = img.naturalWidth || 1200;
+            canvas.height = img.naturalHeight || 800;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            // Use JPEG with 0.9 quality for smaller payload
+            var dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+            if(dataUrl.length < 300) {{ resolve(null); return; }}
+            resolve(dataUrl);
+          }} catch(e){{
+            // CORS taint — fallback to fetch
+            fetch(url, {{credentials:'include'}})
+              .then(function(r){{ if(!r.ok) throw new Error('fail'); return r.blob(); }})
+              .then(function(blob){{
+                var reader = new FileReader();
+                reader.onload = function(){{ resolve(reader.result); }};
+                reader.onerror = function(){{ resolve(null); }};
+                reader.readAsDataURL(blob);
+              }})
+              .catch(function(){{ resolve(null); }});
+          }}
+        }};
+        img.onerror = function(){{
+          if(done) return;
+          done = true;
+          clearTimeout(timeoutId);
+          // Fallback to fetch
+          fetch(url, {{credentials:'include'}})
+            .then(function(r){{ if(!r.ok) throw new Error('fail'); return r.blob(); }})
+            .then(function(blob){{
+              var reader = new FileReader();
+              reader.onload = function(){{ resolve(reader.result); }};
+              reader.onerror = function(){{ resolve(null); }};
+              reader.readAsDataURL(blob);
+            }})
+            .catch(function(){{ resolve(null); }});
+        }};
+        img.src = url;
+      }});
+    }}
+
+    // Process all image URLs in parallel (with concurrency limit)
+    async function convertAllImages(){{
+      var allUrls = [];
+      modules.forEach(function(m){{
+        if(m.type === 'image') allUrls.push(m.src);
+        else if(m.type === 'image_row') (m.images||[]).forEach(function(s){{ allUrls.push(s); }});
+      }});
+
+      var urlToData = {{}};
+      var done = 0;
+      var concurrency = 4;
+      var idx = 0;
+
+      async function worker(){{
+        while(idx < allUrls.length){{
+          var myIdx = idx++;
+          var url = allUrls[myIdx];
+          if(urlToData[url] !== undefined){{ done++; continue; }}
+          var data = await urlToBase64(url);
+          urlToData[url] = data;
+          done++;
+          setMsg('🖼️ جاري تحويل الصور...', done + ' / ' + allUrls.length);
+        }}
+      }}
+
+      var workers = [];
+      for(var w=0; w<concurrency; w++) workers.push(worker());
+      await Promise.all(workers);
+
+      // Replace URLs with base64 (only successful ones)
+      var newModules = [];
+      modules.forEach(function(m){{
+        if(m.type === 'image'){{
+          var data = urlToData[m.src];
+          if(data) newModules.push({{type:'image', src: data, originalUrl: m.src}});
+          else newModules.push({{type:'image', src: m.src}});  // keep URL as fallback
+        }} else if(m.type === 'image_row'){{
+          var newImages = [];
+          (m.images||[]).forEach(function(s){{
+            var data = urlToData[s];
+            newImages.push(data || s);
+          }});
+          if(newImages.length) newModules.push({{type:'image_row', images: newImages}});
+        }} else {{
+          newModules.push(m);
+        }}
+      }});
+
+      var successCount = 0;
+      Object.keys(urlToData).forEach(function(k){{ if(urlToData[k]) successCount++; }});
+      console.log('[Bookmarklet] Converted', successCount, '/', allUrls.length, 'images to base64');
+
+      return newModules;
+    }}
+
+    convertAllImages().then(function(processedModules){{
+      setMsg('📤 جاري الإرسال...', 'لا تغلق الصفحة');
+      sendToServer(processedModules);
+    }});
+
+    function sendToServer(processedModules){{
+      fetch('{base}/api/bookmarklet/submit', {{
       method:'POST',
       headers:{{'Content-Type':'application/json'}},
       body: JSON.stringify({{
-        title: title, description: desc, cover: cover, modules: modules,
+        title: title, description: desc, cover: cover, modules: processedModules,
         source_url: location.href
       }})
     }})
@@ -1558,6 +1716,7 @@ def bookmarklet_js():
       removeOverlay();
       alert('❌ خطأ في الإرسال:\\n' + e.message + '\\n\\nتأكد من أنك مسجل دخول في موقع Portfolio');
     }});
+    }}
   }}
 }})();'''
     return js, 200, {'Content-Type':'application/javascript; charset=utf-8',
