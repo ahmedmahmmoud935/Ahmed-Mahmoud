@@ -1287,6 +1287,14 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
         <div style="font-size:10.5px;color:#666;margin-top:6px;line-height:1.5;">
           (لا تضغط ضغطة عادية — لازم سحب)
         </div>
+
+        <!-- Alternative method -->
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid #1a1a1a;">
+          <div style="font-size:11px;color:#888;margin-bottom:8px;">لا تستطيع السحب؟ جرب الطريقة البديلة:</div>
+          <button onclick="bhTryAutoAdd()" style="background:transparent;border:1px solid #1769ff;color:#1769ff;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:700;font-size:12px;font-family:inherit;">
+            <i class="fa-solid fa-keyboard" style="margin-left:6px;"></i> طريقة لوحة المفاتيح
+          </button>
+        </div>
       </div>
 
       <!-- Usage instructions -->
@@ -2821,6 +2829,27 @@ function openBehanceImport(){
 }
 function closeBehanceModal(){
   document.getElementById('behanceModal').classList.remove('open');
+}
+
+function bhTryAutoAdd(){
+  // Try legacy bookmark APIs first
+  const url = document.getElementById('bhBookmarklet').getAttribute('href');
+  const title = 'استورد من Behance';
+  // Modern browsers don't allow programmatic bookmarks anymore
+  // Show clear instructions instead
+  const isMac = /Mac/.test(navigator.platform);
+  const shortcut = isMac ? '⌘ + D' : 'Ctrl + D';
+  alert(
+    'لإضافة الزر للمفضلة بلوحة المفاتيح:\n\n' +
+    '1. اضغط ' + shortcut + ' على الكيبورد\n' +
+    '2. هتظهر نافذة "Add Bookmark"\n' +
+    '3. غيّر الاسم لـ "استورد من Behance"\n' +
+    '4. اختار "Bookmarks Bar" كمكان الحفظ\n' +
+    '5. اضغط Save / Done\n\n' +
+    '⚠️ مهم: بعد ما تحفظ، روح لـ Edit Bookmarks (' + (isMac?'⌘+⌥+B':'Ctrl+Shift+O') + ')\n' +
+    'لاقي البوكمارك الجديد، عدّل الـ URL، والصق فيه الكود من الموقع.\n\n' +
+    'أو بكل بساطة: استخدم طريقة السحب الأسهل ↑'
+  );
 }
 
 // ══ BEHANCE IMPORT PREVIEW (called when bookmarklet brings data) ══

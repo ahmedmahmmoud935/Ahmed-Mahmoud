@@ -391,7 +391,11 @@ async function doSave(){
     :{modules,projectType:'free'};
   try{
     const r=await fetch('/api/projects/'+PID+'/modules',{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    if(r.ok){ const d=await r.json(); if(pType==='free')modules=d.modules||[]; else gridImages=(d.modules||[]).map(m=>({src:m.src,isNew:false})); toast('✓ تم الحفظ'); document.getElementById('tbTitle').textContent=title; }
+    if(r.ok){
+      toast('✓ تم الحفظ — جاري الرجوع للوحة التحكم');
+      setTimeout(()=>{ location.href = '/admin'; }, 900);
+      return;
+    }
     else{ const e=await r.json(); toast('خطأ: '+(e.error||'فشل')); }
   }catch{toast('خطأ في الاتصال');}
   btn.disabled=false; spin.style.display='none';

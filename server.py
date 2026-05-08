@@ -1147,18 +1147,44 @@ def import_save_images():
                 fail_log.append('storage limit reached')
                 continue
 
-            ext_map = {'image/jpeg':'jpg','image/jpg':'jpg','image/png':'png',
-                       'image/webp':'webp','image/gif':'gif'}
-            ext = ext_map.get(ct, 'jpg')
-
+            # Save as WebP for smaller size & better web performance
             ts = int(time.time() * 1000) + len(results)
-            fname = f"u{user_id}_bh_{ts}.{ext}"
+            fname = f"u{user_id}_bh_{ts}.webp"
             fpath = os.path.join(UPLOAD_DIR, fname)
-            with open(fpath, 'wb') as fp: fp.write(content)
 
-            if ext in ('jpg','jpeg','png','webp'):
-                try: optimize_image(fpath)
-                except Exception as oe: print(f'optimize failed: {oe}')
+            # First write raw content, then convert to webp
+            tmp_path = fpath + '.tmp'
+            with open(tmp_path, 'wb') as fp: fp.write(content)
+
+            converted = False
+            if HAS_PIL:
+                try:
+                    img = ImageOps.exif_transpose(Image.open(tmp_path))
+                    # Convert RGBA/P → RGB for non-transparent images
+                    if img.mode == 'P':
+                        img = img.convert('RGBA' if 'transparency' in img.info else 'RGB')
+                    if img.width > 1920 or img.height > 1920:
+                        img.thumbnail((1920, 1920), Image.LANCZOS)
+                    # Save as webp with good quality
+                    img.save(fpath, 'WEBP', quality=82, method=6)
+                    os.remove(tmp_path)
+                    converted = True
+                except Exception as e:
+                    print(f'webp conversion failed: {e}, falling back to original')
+                    converted = False
+
+            if not converted:
+                # Fallback: keep original format
+                ext_map = {'image/jpeg':'jpg','image/jpg':'jpg','image/png':'png',
+                           'image/webp':'webp','image/gif':'gif'}
+                ext = ext_map.get(ct, 'jpg')
+                fname = f"u{user_id}_bh_{ts}.{ext}"
+                fpath_fallback = os.path.join(UPLOAD_DIR, fname)
+                shutil.move(tmp_path, fpath_fallback)
+                fpath = fpath_fallback
+                if ext in ('jpg','jpeg','png','webp'):
+                    try: optimize_image(fpath)
+                    except Exception as oe: print(f'optimize failed: {oe}')
 
             file_size = os.path.getsize(fpath)
             total_bytes += file_size
