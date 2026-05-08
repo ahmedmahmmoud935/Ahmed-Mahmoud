@@ -1270,31 +1270,76 @@ def bookmarklet_js():
     }}
   }}
 
-  // Auto-scroll to load lazy images, capturing images as we go
-  setMsg('⏳ جاري تحميل كل الصور...', 'سيتم التمرير تلقائياً');
-  var pos = 0;
-  var step = window.innerHeight * 0.5;  // smaller steps
-  captureImagesNow();  // initial capture
-  var scrollTimer = setInterval(function(){{
-    pos += step;
-    window.scrollTo(0, pos);
-    captureImagesNow();  // capture during scroll
-    if(pos >= document.body.scrollHeight + 200){{
-      clearInterval(scrollTimer);
-      // Final pass: scroll back up gradually, capturing again
-      var backPos = document.body.scrollHeight;
-      var backTimer = setInterval(function(){{
-        backPos -= step;
-        window.scrollTo(0, Math.max(0, backPos));
-        captureImagesNow();
-        if(backPos <= 0){{
-          clearInterval(backTimer);
-          window.scrollTo(0, 0);
-          setTimeout(extractContent, 1500);
+  // Smart auto-scroll: wait for images to actually load between scroll steps
+  setMsg('⏳ جاري تحميل كل الصور...', 'الخطوة 1 من 2: التمرير لأسفل');
+  var step = window.innerHeight * 0.4;  // smaller steps for thoroughness
+  captureImagesNow();
+
+  function waitForImagesToLoad(timeoutMs){{
+    return new Promise(function(resolve){{
+      var imgs = document.querySelectorAll('img');
+      var pending = 0;
+      for(var i=0; i<imgs.length; i++){{
+        var img = imgs[i];
+        if(!img.complete && img.src){{ pending++; }}
+      }}
+      if(pending === 0){{ setTimeout(resolve, 200); return; }}
+      // Wait for images or timeout
+      var done = false;
+      var timeout = setTimeout(function(){{ if(!done){{ done = true; resolve(); }} }}, timeoutMs);
+      var checkInterval = setInterval(function(){{
+        var stillPending = 0;
+        var imgs2 = document.querySelectorAll('img');
+        for(var i=0; i<imgs2.length; i++){{
+          if(!imgs2[i].complete && imgs2[i].src) stillPending++;
         }}
-      }}, 400);
+        if(stillPending === 0 && !done){{
+          done = true;
+          clearInterval(checkInterval);
+          clearTimeout(timeout);
+          setTimeout(resolve, 300);  // small buffer
+        }}
+      }}, 200);
+    }});
+  }}
+
+  async function smartScroll(){{
+    // Pass 1: scroll down, waiting for images at each step
+    var pos = 0;
+    var totalHeight = document.body.scrollHeight;
+    var stepCount = Math.ceil(totalHeight / step);
+    var current = 0;
+    while(pos < document.body.scrollHeight + 200){{
+      current++;
+      pos += step;
+      window.scrollTo(0, pos);
+      setMsg('⏳ جاري تحميل الصور...', 'تمرير ' + current + '/' + (stepCount + 2) + ' — انتظار التحميل');
+      await waitForImagesToLoad(2500);  // wait up to 2.5s for images
+      captureImagesNow();
+      // Update height in case page grew (lazy loaded sections)
+      if(document.body.scrollHeight > totalHeight){{
+        totalHeight = document.body.scrollHeight;
+        stepCount = Math.ceil(totalHeight / step);
+      }}
     }}
-  }}, 400);  // slower: 400ms per step
+
+    // Pass 2: scroll back up, capturing images that may have re-rendered
+    setMsg('⏳ جاري المرور النهائي...', 'الخطوة 2 من 2: التحقق');
+    var backPos = document.body.scrollHeight;
+    while(backPos > 0){{
+      backPos -= step * 1.5;  // bigger steps on the way up
+      window.scrollTo(0, Math.max(0, backPos));
+      await new Promise(r => setTimeout(r, 400));
+      captureImagesNow();
+    }}
+
+    // Final: back to top and extract
+    window.scrollTo(0, 0);
+    await new Promise(r => setTimeout(r, 800));
+    captureImagesNow();  // final capture
+    extractContent();
+  }}
+  smartScroll();
 
   function upgradeRes(src){{
     if(!src) return src;
