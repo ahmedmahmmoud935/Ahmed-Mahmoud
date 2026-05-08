@@ -492,7 +492,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
       </div>
       <div id="storageText" style="font-size:11px;color:#888;margin-top:4px;">—</div>
     </div>
-    <a href="/" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> عرض الموقع</a>
+    <a href="/" id="viewSiteLink" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> عرض الموقع</a>
     <a href="#" onclick="doLogout()" style="margin-top:8px;color:#ef4444 !important;"><i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج</a>
   </div>
 </div>
@@ -639,23 +639,23 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 
   <!-- Sub-navigation -->
   <div class="design-subnav">
-    <button class="dsn-btn active" onclick="setDsn('themes',this)"><i class="fa-solid fa-shapes"></i> الثيمات</button>
-    <button class="dsn-btn" onclick="setDsn('layouts',this)"><i class="fa-solid fa-table-layout"></i> التخطيطات</button>
+    <button class="dsn-btn active" onclick="setDsn('layouts',this)"><i class="fa-solid fa-table-layout"></i> التخطيطات</button>
     <button class="dsn-btn" onclick="setDsn('typo',this)"><i class="fa-solid fa-font"></i> الخطوط</button>
     <button class="dsn-btn" onclick="setDsn('bg',this)"><i class="fa-solid fa-fill-drip"></i> الخلفية</button>
     <button class="dsn-btn" onclick="setDsn('cursor',this)"><i class="fa-solid fa-arrow-pointer"></i> المؤشر</button>
     <button class="dsn-btn" onclick="setDsn('anim',this)"><i class="fa-solid fa-wand-sparkles"></i> الحركات</button>
+    <button class="dsn-btn" onclick="setDsn('themes',this)"><i class="fa-solid fa-shapes"></i> الثيمات</button>
   </div>
 
   <!-- ── THEMES (NEW) ── -->
-  <div id="dsn-themes" class="dsn-section">
+  <div id="dsn-themes" class="dsn-section" style="display:none;">
     <div class="card">
       <div class="card-title"><i class="fa-solid fa-shapes" style="color:var(--o);margin-left:6px"></i> الثيمات الجاهزة</div>
       <p style="color:var(--g2);font-size:13px;margin-bottom:18px;">اختر ثيم احترافي كامل — يغير كل شيء دفعة واحدة. تقدر تخصص أي تفصيلة بعدها</p>
 
       <div class="theme-grid">
-        <!-- Default -->
-        <label class="theme-opt"><input type="radio" name="style_theme" value="default">
+        <!-- Default (only option for now) -->
+        <label class="theme-opt"><input type="radio" name="style_theme" value="default" checked>
           <div class="theme-card theme-default">
             <div class="theme-preview">
               <div class="tp-bar"></div>
@@ -669,105 +669,18 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
               <div class="theme-desc">اختياراتك بنفسك</div>
             </div>
           </div></label>
-
-        <!-- 1. Editorial -->
-        <label class="theme-opt"><input type="radio" name="style_theme" value="editorial">
-          <div class="theme-card theme-editorial">
-            <div class="theme-preview">
-              <div class="tp-bar"></div>
-              <div class="tp-content">
-                <div class="tp-title" style="font-family:'Playfair Display',serif;font-style:italic;font-size:16px;">Editorial</div>
-                <div class="tp-sub">مجلة فاخرة</div>
-              </div>
-            </div>
-            <div class="theme-info">
-              <div class="theme-name">📰 Editorial</div>
-              <div class="theme-desc">مجلة فاخرة — للكتّاب والمخرجين</div>
-              <div class="theme-tags"><span>Playfair</span><span>ضخم</span><span>Timeline</span></div>
-            </div>
-          </div></label>
-
-        <!-- 2. Minimal Pro -->
-        <label class="theme-opt"><input type="radio" name="style_theme" value="minimal">
-          <div class="theme-card theme-minimal">
-            <div class="theme-preview" style="background:#fafaf5">
-              <div class="tp-bar" style="background:rgba(0,0,0,.06)"></div>
-              <div class="tp-content" style="color:#1a1a1a">
-                <div class="tp-title" style="font-family:'Inter',sans-serif;font-weight:800;color:#1a1a1a">Minimal</div>
-                <div class="tp-sub" style="color:#666">Clean & Modern</div>
-              </div>
-            </div>
-            <div class="theme-info">
-              <div class="theme-name">⚪ Minimal Pro</div>
-              <div class="theme-desc">نظيف وعصري — لمصممي UI/UX</div>
-              <div class="theme-tags"><span>Inter</span><span>فاتح</span><span>Grid</span></div>
-            </div>
-          </div></label>
-
-        <!-- 3. Creative Bold -->
-        <label class="theme-opt"><input type="radio" name="style_theme" value="creative">
-          <div class="theme-card theme-creative">
-            <div class="theme-preview">
-              <div class="tp-bar" style="background:rgba(255,69,0,.3)"></div>
-              <div class="tp-content">
-                <div class="tp-title" style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:#FF4500">CREATIVE</div>
-                <div class="tp-sub">BIG & BOLD</div>
-              </div>
-            </div>
-            <div class="theme-info">
-              <div class="theme-name">🎨 Creative Bold</div>
-              <div class="theme-desc">جريء وملوّن — للمصممين الجرافيك</div>
-              <div class="theme-tags"><span>Bebas</span><span>Masonry</span><span>برتقالي</span></div>
-            </div>
-          </div></label>
-
-        <!-- 4. Cinema Dark -->
-        <label class="theme-opt"><input type="radio" name="style_theme" value="cinema">
-          <div class="theme-card theme-cinema">
-            <div class="theme-preview" style="background:#000">
-              <div class="tp-bar" style="background:rgba(201,169,97,.2)"></div>
-              <div class="tp-content">
-                <div class="tp-title" style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:22px;color:#C9A961">Cinema</div>
-                <div class="tp-sub" style="color:#888">Cinematic Dark</div>
-              </div>
-            </div>
-            <div class="theme-info">
-              <div class="theme-name">🎬 Cinema Dark</div>
-              <div class="theme-desc">سينمائي مظلم — للمصورين والفيديو</div>
-              <div class="theme-tags"><span>Cormorant</span><span>صورة كاملة</span><span>ذهبي</span></div>
-            </div>
-          </div></label>
-
-        <!-- 5. Corporate -->
-        <label class="theme-opt"><input type="radio" name="style_theme" value="corporate">
-          <div class="theme-card theme-corporate">
-            <div class="theme-preview" style="background:linear-gradient(135deg,#0a1628,#0f1f3d)">
-              <div class="tp-bar" style="background:rgba(59,130,246,.3)"></div>
-              <div class="tp-content">
-                <div class="tp-title" style="color:#3B82F6;font-weight:700">Corporate</div>
-                <div class="tp-sub" style="color:#8a9cb8">Professional</div>
-              </div>
-            </div>
-            <div class="theme-info">
-              <div class="theme-name">💼 Corporate</div>
-              <div class="theme-desc">احترافي ومنظّم — للاستشاريين</div>
-              <div class="theme-tags"><span>Cairo</span><span>Split</span><span>أزرق</span></div>
-            </div>
-          </div></label>
       </div>
 
-      <div style="margin-top:20px;background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.2);border-radius:10px;padding:14px;display:flex;gap:10px;align-items:flex-start;">
-        <i class="fa-solid fa-info-circle" style="color:var(--o);font-size:18px;margin-top:2px;"></i>
-        <div>
-          <div style="font-weight:700;font-size:13px;margin-bottom:4px;">كيف تعمل الثيمات؟</div>
-          <p style="color:#999;font-size:12px;margin:0;line-height:1.7;">الثيم بيغير كل شي دفعة واحدة (الخط، الخلفية، التخطيطات...). بعد ما تختار ثيم، تقدر تروح لأي تبويب (الخطوط، الخلفية، التخطيطات) وتعدّل أي تفصيلة. تعديلاتك بتغلب على الثيم.</p>
-        </div>
+      <div style="margin-top:24px;background:linear-gradient(135deg,rgba(249,115,22,.12),rgba(249,115,22,.03));border:1px dashed rgba(249,115,22,.3);border-radius:12px;padding:20px;text-align:center;">
+        <div style="font-size:34px;margin-bottom:10px;">🚀</div>
+        <div style="font-weight:800;font-size:15px;margin-bottom:6px;color:#fff;">تحديثات قريبة</div>
+        <p style="color:#999;font-size:12.5px;margin:0;line-height:1.7;">ثيمات جاهزة احترافية قادمة بناءً على<br>ملاحظات وآراء عملائنا — ابقَ متابعاً!</p>
       </div>
     </div>
   </div>
 
   <!-- ── LAYOUTS ── -->
-  <div id="dsn-layouts" class="dsn-section" style="display:none;">
+  <div id="dsn-layouts" class="dsn-section">
     <div class="card">
       <div class="card-title"><i class="fa-solid fa-house" style="color:var(--o);margin-left:6px"></i> القسم الرئيسي (Hero)</div>
       <p style="color:var(--g2);font-size:13px;margin-bottom:18px;">اختر شكل أول قسم يشاهده الزائر</p>
@@ -953,27 +866,6 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
           <div class="bg-card" style="background:linear-gradient(135deg,#1a1a1a,#0a0a0a)"><div class="bg-name" style="color:#fff">رمادي</div></div></label>
         <label class="bg-opt"><input type="radio" name="style_bg_preset" value="pearl">
           <div class="bg-card" style="background:#fafaf5"><div class="bg-name" style="color:#1a1a1a">لؤلؤي (فاتح)</div></div></label>
-        <label class="bg-opt"><input type="radio" name="style_bg_preset" value="custom">
-          <div class="bg-card bg-custom"><i class="fa-solid fa-palette" style="font-size:24px;color:var(--o)"></i><div class="bg-name">مخصصة</div></div></label>
-      </div>
-    </div>
-
-    <div class="card" id="customBgCard" style="display:none;">
-      <div class="card-title"><i class="fa-solid fa-sliders" style="color:var(--o);margin-left:6px"></i> الخلفية المخصصة</div>
-      <div style="margin-bottom:16px;">
-        <div class="form-label" style="margin-bottom:10px">نوع الخلفية</div>
-        <div class="dsn-options" style="grid-template-columns:repeat(3,1fr)">
-          <label class="dsn-opt"><input type="radio" name="style_bg_type" value="solid">
-            <div class="dsn-card simple"><i class="fa-solid fa-square" style="font-size:22px"></i><div class="dsn-name">لون ثابت</div></div></label>
-          <label class="dsn-opt"><input type="radio" name="style_bg_type" value="gradient">
-            <div class="dsn-card simple"><div style="width:30px;height:30px;border-radius:6px;background:linear-gradient(135deg,#F97316,#0a0a0a)"></div><div class="dsn-name">تدرّج</div></div></label>
-          <label class="dsn-opt"><input type="radio" name="style_bg_type" value="noise">
-            <div class="dsn-card simple"><i class="fa-solid fa-braille" style="font-size:22px"></i><div class="dsn-name">حُبيبات</div></div></label>
-        </div>
-      </div>
-      <div class="color-grid">
-        <div class="color-item"><span class="color-label">اللون الأساسي</span><input type="color" class="color-preview" id="bgColor1" value="#0a0a0a" oninput="syncHex('bgColor1','bgHex1')"><input type="text" class="color-hex" id="bgHex1" value="#0a0a0a" oninput="syncColor('bgHex1','bgColor1')" maxlength="7"></div>
-        <div class="color-item"><span class="color-label">اللون الثاني (للتدرّج)</span><input type="color" class="color-preview" id="bgColor2" value="#1a1a1a" oninput="syncHex('bgColor2','bgHex2')"><input type="text" class="color-hex" id="bgHex2" value="#1a1a1a" oninput="syncColor('bgHex2','bgColor2')" maxlength="7"></div>
       </div>
     </div>
 
@@ -1556,6 +1448,11 @@ async function doLogin(){
       window._username = d.username;
       const sbU=document.getElementById('sbUsername');
       if(sbU) sbU.textContent=d.username||'—';
+      // Update "View Site" link based on user
+      const vsLink = document.getElementById('viewSiteLink');
+      if(vsLink){
+        vsLink.href = d.is_owner ? '/' : ('/u/' + encodeURIComponent(d.username));
+      }
       if(d.is_owner) document.querySelectorAll('.owner-only').forEach(el=>el.style.display='flex');
       initApp();
       loadStorageInfo();
@@ -1819,9 +1716,7 @@ function loadDesign(){
 }
 
 function toggleCustomBg(){
-  const sel = document.querySelector('input[name="style_bg_preset"]:checked');
-  const card = document.getElementById('customBgCard');
-  if(card) card.style.display = (sel && sel.value === 'custom') ? 'block' : 'none';
+  // Custom bg removed — function kept as no-op for compatibility
 }
 
 async function saveDesign(){
@@ -3436,6 +3331,11 @@ document.getElementById('behanceModal').addEventListener('click',function(e){if(
       // Show username in sidebar
       const sbU = document.getElementById('sbUsername');
       if(sbU) sbU.textContent = r.username || '—';
+      // Update "View Site" link based on user
+      const vsLink = document.getElementById('viewSiteLink');
+      if(vsLink){
+        vsLink.href = r.is_owner ? '/' : ('/u/' + encodeURIComponent(r.username));
+      }
       // Show owner-only items
       if(r.is_owner){
         document.querySelectorAll('.owner-only').forEach(el=>el.style.display='flex');
