@@ -83,15 +83,17 @@ def get_db():
 
 DEFAULT_COLORS   = json.dumps({"accent":"#F97316","bg":"#0A0A0A","bg2":"#111111","text":"#FFFFFF","subtext":"#999999"})
 DEFAULT_SECTIONS = json.dumps([
-    {"id":"hero",       "label_ar":"الرئيسية",  "label_en":"Hero",          "visible":True,"order":0},
-    {"id":"about",      "label_ar":"عن النفس",   "label_en":"About",         "visible":True,"order":1},
-    {"id":"expertise",  "label_ar":"الخدمات",    "label_en":"Key Expertise", "visible":True,"order":2},
-    {"id":"education",  "label_ar":"التعليم",     "label_en":"Education",     "visible":True,"order":3},
-    {"id":"skills",     "label_ar":"المهارات",    "label_en":"Skills",        "visible":True,"order":4},
-    {"id":"tools",      "label_ar":"الأدوات",     "label_en":"Tools",         "visible":True,"order":5},
-    {"id":"experience", "label_ar":"الخبرات",     "label_en":"Experience",    "visible":True,"order":6},
-    {"id":"projects",   "label_ar":"المشاريع",    "label_en":"Projects",      "visible":True,"order":7},
-    {"id":"contact",    "label_ar":"تواصل معي",   "label_en":"Contact",       "visible":True,"order":8},
+    {"id":"hero",         "label_ar":"الرئيسية",   "label_en":"Hero",          "visible":True,"order":0},
+    {"id":"about",        "label_ar":"عن النفس",    "label_en":"About",         "visible":True,"order":1},
+    {"id":"expertise",    "label_ar":"الخدمات",     "label_en":"Key Expertise", "visible":True,"order":2},
+    {"id":"education",    "label_ar":"التعليم",      "label_en":"Education",     "visible":True,"order":3},
+    {"id":"skills",       "label_ar":"المهارات",     "label_en":"Skills",        "visible":True,"order":4},
+    {"id":"tools",        "label_ar":"الأدوات",      "label_en":"Tools",         "visible":True,"order":5},
+    {"id":"experience",   "label_ar":"الخبرات",      "label_en":"Experience",    "visible":True,"order":6},
+    {"id":"projects",     "label_ar":"المشاريع",     "label_en":"Projects",      "visible":True,"order":7},
+    {"id":"logos",        "label_ar":"العملاء",      "label_en":"Clients",       "visible":True,"order":8},
+    {"id":"testimonials", "label_ar":"آراء العملاء","label_en":"Testimonials",  "visible":True,"order":9},
+    {"id":"contact",      "label_ar":"تواصل معي",   "label_en":"Contact",       "visible":True,"order":10},
 ])
 DEFAULT_CONTENT = json.dumps({
     "hero":{"name_en":"Your Name","name_ar":"اسمك","title_en":"Graphic Designer","title_ar":"مصمم جرافيك","btn1_en":"View Work","btn1_ar":"أعمالي","btn2_en":"Get In Touch","btn2_ar":"تواصل معي"},
@@ -195,6 +197,33 @@ def init_db():
             );
             CREATE INDEX IF NOT EXISTS idx_visits_user_date ON visits(user_id, visited_at);
             CREATE INDEX IF NOT EXISTS idx_visits_visitor ON visits(visitor_id, page);
+
+            CREATE TABLE IF NOT EXISTS client_logos (
+                id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id     INTEGER NOT NULL,
+                name        TEXT,
+                logo_url    TEXT NOT NULL,
+                website_url TEXT DEFAULT '',
+                sort_order  INTEGER DEFAULT 0,
+                created_at  TEXT DEFAULT (datetime('now'))
+            );
+            CREATE INDEX IF NOT EXISTS idx_logos_user ON client_logos(user_id, sort_order);
+
+            CREATE TABLE IF NOT EXISTS testimonials (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id      INTEGER NOT NULL,
+                name         TEXT NOT NULL,
+                role         TEXT DEFAULT '',
+                company      TEXT DEFAULT '',
+                content      TEXT NOT NULL,
+                avatar_url   TEXT DEFAULT '',
+                rating       INTEGER DEFAULT 5,
+                source       TEXT DEFAULT 'admin',
+                approved     INTEGER DEFAULT 1,
+                sort_order   INTEGER DEFAULT 0,
+                created_at   TEXT DEFAULT (datetime('now'))
+            );
+            CREATE INDEX IF NOT EXISTS idx_test_user ON testimonials(user_id, approved, sort_order);
         ''')
 
         # settings table with user_id
@@ -903,11 +932,41 @@ def get_settings():
     if not user_id:
         owner = get_db().execute("SELECT id FROM users WHERE is_owner=1").fetchone()
         user_id = owner['id'] if owner else 1
-    rows = get_db().execute('SELECT key,value FROM settings WHERE user_id=?', (user_id,)).fetchall()
+    db = get_db()
+    rows = db.execute('SELECT key,value FROM settings WHERE user_id=?', (user_id,)).fetchall()
     out = {}
     for r in rows:
         try: out[r['key']] = json.loads(r['value'])
         except: out[r['key']] = r['value']
+
+    # Auto-migrate sections: add logos & testimonials if missing (for existing users)
+    try:
+        secs = out.get('sections')
+        if isinstance(secs, list):
+            existing_ids = {s.get('id') for s in secs if isinstance(s, dict)}
+            changed = False
+            if 'logos' not in existing_ids:
+                # Insert before contact, or at end
+                contact_idx = next((i for i,s in enumerate(secs) if s.get('id')=='contact'), len(secs))
+                secs.insert(contact_idx, {"id":"logos","label_ar":"العملاء","label_en":"Clients","visible":True,"order":contact_idx})
+                changed = True
+            if 'testimonials' not in existing_ids:
+                contact_idx = next((i for i,s in enumerate(secs) if s.get('id')=='contact'), len(secs))
+                secs.insert(contact_idx, {"id":"testimonials","label_ar":"آراء العملاء","label_en":"Testimonials","visible":True,"order":contact_idx})
+                changed = True
+            if changed:
+                # Re-number orders
+                for i, s in enumerate(secs):
+                    if isinstance(s, dict): s['order'] = i
+                # Save back (only if user is owner of these settings)
+                if session.get('user_id') == user_id:
+                    db.execute("INSERT OR REPLACE INTO settings(user_id,key,value) VALUES(?,?,?)",
+                               (user_id, 'sections', json.dumps(secs)))
+                    db.commit()
+                out['sections'] = secs
+    except Exception as e:
+        print(f'sections migration error: {e}')
+
     return jsonify(out)
 
 @app.route('/api/settings', methods=['PUT'])
@@ -1831,6 +1890,284 @@ def bookmarklet_get(import_id):
     _pending_imports.pop(import_id, None)
     return jsonify({'ok':True, 'data': item['data']})
 
+
+
+# ══════════════ CLIENT LOGOS ══════════════
+
+@app.route('/api/users/by-username/<username>', methods=['GET'])
+def get_user_by_username(username):
+    """Public — get user_id from username (used by testimonial form)."""
+    db = get_db()
+    row = db.execute("SELECT id, username FROM users WHERE username=?", (username,)).fetchone()
+    if not row: return jsonify({'error':'not found'}), 404
+    return jsonify({'id': row['id'], 'username': row['username']})
+
+@app.route('/api/logos', methods=['GET'])
+def list_logos():
+    """Public endpoint — returns logos for given user_id (or current user)."""
+    user_id = request.args.get('user_id', type=int) or session.get("user_id")
+    if not user_id: return jsonify({'logos': []})
+    db = get_db()
+    rows = db.execute(
+        "SELECT id, name, logo_url, website_url, sort_order FROM client_logos WHERE user_id=? ORDER BY sort_order, id",
+        (user_id,)
+    ).fetchall()
+    return jsonify({'logos': [dict(r) for r in rows]})
+
+@app.route('/api/logos', methods=['POST'])
+@login_required
+def create_logo():
+    d = request.get_json() or {}
+    name = (d.get('name') or '').strip()[:100]
+    logo_data = d.get('logo') or ''
+    website = (d.get('website_url') or '').strip()[:500]
+    if not logo_data:
+        return jsonify({'error':'لم يتم رفع الشعار'}), 400
+
+    user_id = uid()
+    logo_url = ''
+    if logo_data.startswith('data:'):
+        logo_url = save_dataurl(logo_data, ALLOWED_IMG, user_id)
+        if logo_url == '__STORAGE_LIMIT__':
+            return jsonify({'error':'⚠️ وصلت للحد الأقصى من المساحة'}), 400
+    elif logo_data.startswith('/uploads/'):
+        logo_url = logo_data
+    else:
+        return jsonify({'error':'صيغة غير صالحة'}), 400
+
+    db = get_db()
+    sort_order = (db.execute(
+        "SELECT COALESCE(MAX(sort_order),0) FROM client_logos WHERE user_id=?", (user_id,)
+    ).fetchone()[0] or 0) + 1
+    cur = db.execute(
+        "INSERT INTO client_logos(user_id,name,logo_url,website_url,sort_order) VALUES(?,?,?,?,?)",
+        (user_id, name, logo_url, website, sort_order)
+    )
+    db.commit()
+    return jsonify({'ok':True,'id':cur.lastrowid,'logo_url':logo_url})
+
+@app.route('/api/logos/<int:lid>', methods=['PUT'])
+@login_required
+def update_logo(lid):
+    d = request.get_json() or {}
+    db = get_db()
+    row = db.execute("SELECT user_id, logo_url FROM client_logos WHERE id=?", (lid,)).fetchone()
+    if not row or row['user_id'] != uid():
+        return jsonify({'error':'غير موجود'}), 404
+    name = (d.get('name') or '').strip()[:100]
+    website = (d.get('website_url') or '').strip()[:500]
+    new_logo_url = row['logo_url']
+    if d.get('logo'):
+        ld = d['logo']
+        if ld.startswith('data:'):
+            saved = save_dataurl(ld, ALLOWED_IMG, uid())
+            if saved == '__STORAGE_LIMIT__':
+                return jsonify({'error':'⚠️ وصلت للحد الأقصى من المساحة'}), 400
+            # Delete old
+            try: delete_file(row['logo_url'])
+            except: pass
+            new_logo_url = saved
+    db.execute(
+        "UPDATE client_logos SET name=?, website_url=?, logo_url=? WHERE id=?",
+        (name, website, new_logo_url, lid)
+    )
+    db.commit()
+    return jsonify({'ok':True,'logo_url':new_logo_url})
+
+@app.route('/api/logos/<int:lid>', methods=['DELETE'])
+@login_required
+def delete_logo(lid):
+    db = get_db()
+    row = db.execute("SELECT user_id, logo_url FROM client_logos WHERE id=?", (lid,)).fetchone()
+    if not row or row['user_id'] != uid():
+        return jsonify({'error':'غير موجود'}), 404
+    try: delete_file(row['logo_url'])
+    except: pass
+    db.execute("DELETE FROM client_logos WHERE id=?", (lid,))
+    db.commit()
+    return jsonify({'ok':True})
+
+@app.route('/api/logos/reorder', methods=['PUT'])
+@login_required
+def reorder_logos():
+    d = request.get_json() or {}
+    ids = d.get('order', [])
+    db = get_db()
+    for i, lid in enumerate(ids):
+        db.execute("UPDATE client_logos SET sort_order=? WHERE id=? AND user_id=?", (i, lid, uid()))
+    db.commit()
+    return jsonify({'ok':True})
+
+
+# ══════════════ TESTIMONIALS ══════════════
+
+@app.route('/api/testimonials', methods=['GET'])
+def list_testimonials():
+    """Public — returns approved testimonials for given user."""
+    user_id = request.args.get('user_id', type=int) or session.get("user_id")
+    if not user_id: return jsonify({'testimonials': []})
+    # If owner is asking from admin, show all
+    show_all = session.get("user_id") == user_id and request.args.get('all') == '1'
+    db = get_db()
+    if show_all:
+        rows = db.execute(
+            "SELECT id, name, role, company, content, avatar_url, rating, source, approved, sort_order, created_at "
+            "FROM testimonials WHERE user_id=? ORDER BY sort_order, id DESC",
+            (user_id,)
+        ).fetchall()
+    else:
+        rows = db.execute(
+            "SELECT id, name, role, company, content, avatar_url, rating, sort_order "
+            "FROM testimonials WHERE user_id=? AND approved=1 ORDER BY sort_order, id DESC",
+            (user_id,)
+        ).fetchall()
+    return jsonify({'testimonials': [dict(r) for r in rows]})
+
+@app.route('/api/testimonials', methods=['POST'])
+@login_required
+def create_testimonial():
+    """Admin/owner adds a testimonial directly (auto-approved)."""
+    d = request.get_json() or {}
+    name = (d.get('name') or '').strip()[:100]
+    content = (d.get('content') or '').strip()[:2000]
+    if not name or not content:
+        return jsonify({'error':'الاسم والمحتوى مطلوبان'}), 400
+
+    user_id = uid()
+    avatar_url = ''
+    avatar_data = d.get('avatar') or ''
+    if avatar_data.startswith('data:'):
+        avatar_url = save_dataurl(avatar_data, ALLOWED_IMG, user_id)
+        if avatar_url == '__STORAGE_LIMIT__':
+            return jsonify({'error':'⚠️ وصلت للحد الأقصى من المساحة'}), 400
+    elif avatar_data.startswith('/uploads/'):
+        avatar_url = avatar_data
+
+    db = get_db()
+    sort_order = (db.execute(
+        "SELECT COALESCE(MAX(sort_order),0) FROM testimonials WHERE user_id=?", (user_id,)
+    ).fetchone()[0] or 0) + 1
+    rating = int(d.get('rating', 5))
+    rating = max(1, min(5, rating))
+    cur = db.execute(
+        "INSERT INTO testimonials(user_id,name,role,company,content,avatar_url,rating,source,approved,sort_order) "
+        "VALUES(?,?,?,?,?,?,?,?,1,?)",
+        (user_id, name, (d.get('role') or '').strip()[:100], (d.get('company') or '').strip()[:100],
+         content, avatar_url, rating, 'admin', sort_order)
+    )
+    db.commit()
+    return jsonify({'ok':True,'id':cur.lastrowid})
+
+@app.route('/api/testimonials/submit', methods=['POST'])
+def submit_testimonial():
+    """Public form — clients/visitors submit testimonials. Goes to pending until owner approves."""
+    d = request.get_json() or {}
+    user_id = d.get('user_id')
+    if not user_id: return jsonify({'error':'مستخدم غير محدد'}), 400
+    try: user_id = int(user_id)
+    except: return jsonify({'error':'مستخدم غير صالح'}), 400
+
+    # Check if user accepts public submissions
+    db = get_db()
+    s = db.execute(
+        "SELECT value FROM settings WHERE user_id=? AND key='testimonials_open'", (user_id,)
+    ).fetchone()
+    is_open = (s and s['value'] in ('1','true','True'))
+    if not is_open:
+        return jsonify({'error':'استقبال الآراء معطل'}), 403
+
+    name = (d.get('name') or '').strip()[:100]
+    content = (d.get('content') or '').strip()[:2000]
+    if not name or len(content) < 10:
+        return jsonify({'error':'الاسم والرأي مطلوبان (الرأي 10 أحرف على الأقل)'}), 400
+
+    role = (d.get('role') or '').strip()[:100]
+    company = (d.get('company') or '').strip()[:100]
+    rating = int(d.get('rating', 5))
+    rating = max(1, min(5, rating))
+
+    sort_order = (db.execute(
+        "SELECT COALESCE(MAX(sort_order),0) FROM testimonials WHERE user_id=?", (user_id,)
+    ).fetchone()[0] or 0) + 1
+    db.execute(
+        "INSERT INTO testimonials(user_id,name,role,company,content,rating,source,approved,sort_order) "
+        "VALUES(?,?,?,?,?,?,?,0,?)",
+        (user_id, name, role, company, content, rating, 'public', sort_order)
+    )
+    db.commit()
+    return jsonify({'ok':True,'message':'شكراً! سيتم مراجعة رأيك قبل النشر.'})
+
+@app.route('/api/testimonials/<int:tid>', methods=['PUT'])
+@login_required
+def update_testimonial(tid):
+    d = request.get_json() or {}
+    db = get_db()
+    row = db.execute("SELECT user_id, avatar_url FROM testimonials WHERE id=?", (tid,)).fetchone()
+    if not row or row['user_id'] != uid():
+        return jsonify({'error':'غير موجود'}), 404
+    fields, vals = [], []
+    for f in ('name','role','company','content'):
+        if f in d:
+            fields.append(f'{f}=?'); vals.append((d[f] or '').strip()[:2000 if f=='content' else 100])
+    if 'rating' in d:
+        try:
+            r = max(1, min(5, int(d['rating'])))
+            fields.append('rating=?'); vals.append(r)
+        except: pass
+    if 'approved' in d:
+        fields.append('approved=?'); vals.append(1 if d['approved'] else 0)
+    if d.get('avatar'):
+        ad = d['avatar']
+        if ad.startswith('data:'):
+            saved = save_dataurl(ad, ALLOWED_IMG, uid())
+            if saved == '__STORAGE_LIMIT__':
+                return jsonify({'error':'⚠️ وصلت للحد الأقصى من المساحة'}), 400
+            try: delete_file(row['avatar_url'])
+            except: pass
+            fields.append('avatar_url=?'); vals.append(saved)
+    if fields:
+        vals.append(tid)
+        db.execute(f"UPDATE testimonials SET {','.join(fields)} WHERE id=?", vals)
+        db.commit()
+    return jsonify({'ok':True})
+
+@app.route('/api/testimonials/<int:tid>', methods=['DELETE'])
+@login_required
+def delete_testimonial(tid):
+    db = get_db()
+    row = db.execute("SELECT user_id, avatar_url FROM testimonials WHERE id=?", (tid,)).fetchone()
+    if not row or row['user_id'] != uid():
+        return jsonify({'error':'غير موجود'}), 404
+    try: delete_file(row['avatar_url'])
+    except: pass
+    db.execute("DELETE FROM testimonials WHERE id=?", (tid,))
+    db.commit()
+    return jsonify({'ok':True})
+
+@app.route('/api/testimonials/reorder', methods=['PUT'])
+@login_required
+def reorder_testimonials():
+    d = request.get_json() or {}
+    ids = d.get('order', [])
+    db = get_db()
+    for i, tid in enumerate(ids):
+        db.execute("UPDATE testimonials SET sort_order=? WHERE id=? AND user_id=?", (i, tid, uid()))
+    db.commit()
+    return jsonify({'ok':True})
+
+# Public testimonial form page
+@app.route('/testimonial/<username>')
+def testimonial_form_page(username):
+    """Public form for clients to submit testimonials."""
+    db = get_db()
+    user = db.execute("SELECT id, username FROM users WHERE username=?", (username,)).fetchone()
+    if not user: abort(404)
+    s = db.execute(
+        "SELECT value FROM settings WHERE user_id=? AND key='testimonials_open'", (user['id'],)
+    ).fetchone()
+    if not (s and s['value'] in ('1','true','True')):
+        return '<html><body style="font-family:Arial;text-align:center;padding:60px;background:#0a0a0a;color:#fff;"><h2>هذه الصفحة غير متاحة حالياً</h2></body></html>', 403
+    return send_from_directory(app.static_folder, 'testimonial.html')
 
 
 # ── CONTACT ──

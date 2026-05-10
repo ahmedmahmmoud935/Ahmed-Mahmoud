@@ -476,6 +476,8 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
     <div class="ni" onclick="setTab('sections',this)"><i class="fa-solid fa-layer-group"></i> ترتيب الأقسام</div>
     <div class="ni" onclick="setTab('navbar',this)"><i class="fa-solid fa-bars"></i> الشريط العلوي</div>
     <div class="ni" onclick="setTab('content',this)"><i class="fa-solid fa-pen-to-square"></i> المحتوى</div>
+    <div class="ni" onclick="setTab('logos',this)"><i class="fa-solid fa-buildings"></i> العملاء</div>
+    <div class="ni" onclick="setTab('testimonials',this)"><i class="fa-solid fa-quote-right"></i> آراء العملاء</div>
     <div class="ni" onclick="setTab('social',this)"><i class="fa-solid fa-share-nodes"></i> التواصل</div>
     <!-- يظهر فقط للمالك -->
     <div class="ni owner-only" id="usersNavItem" onclick="setTab('users',this)" style="display:none"><i class="fa-solid fa-users"></i> إدارة العملاء</div>
@@ -944,6 +946,74 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
   <div id="contentSections"></div>
 </div>
 
+<!-- LOGOS TAB -->
+<div id="tab-logos" style="display:none;">
+  <div class="ph">
+    <div><div class="pt">شعارات العملاء</div><div class="ps">الشركات والعلامات التجارية اللي اشتغلت معاها</div></div>
+    <button class="btn-add" onclick="openLogoModal()"><i class="fa-solid fa-plus"></i> إضافة شعار</button>
+  </div>
+
+  <div class="card">
+    <div id="logosGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;">
+      <!-- logos rendered here -->
+    </div>
+    <div id="logosEmpty" style="text-align:center;padding:50px 20px;color:#666;display:none;">
+      <i class="fa-solid fa-buildings" style="font-size:42px;color:#333;margin-bottom:14px;"></i>
+      <div style="font-size:14px;">لا توجد شعارات بعد</div>
+      <div style="font-size:12px;color:#888;margin-top:4px;">اضغط "إضافة شعار" لبدء عرض شركات عملائك</div>
+    </div>
+  </div>
+</div>
+
+<!-- TESTIMONIALS TAB -->
+<div id="tab-testimonials" style="display:none;">
+  <div class="ph">
+    <div><div class="pt">آراء العملاء</div><div class="ps">إدارة آراء عملائك السابقين</div></div>
+    <button class="btn-add" onclick="openTestModal()"><i class="fa-solid fa-plus"></i> إضافة رأي</button>
+  </div>
+
+  <!-- Public form toggle -->
+  <div class="card" style="margin-bottom:14px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:240px;">
+        <div style="font-weight:800;font-size:14px;margin-bottom:6px;"><i class="fa-solid fa-link" style="color:var(--o);margin-inline-end:8px;"></i>استقبال آراء من العملاء</div>
+        <div style="color:#888;font-size:12px;line-height:1.6;">فعّل هذه الميزة لإرسال رابط لعملائك لكتابة رأيهم بأنفسهم. الآراء تكون قيد المراجعة قبل النشر.</div>
+      </div>
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+        <input type="checkbox" id="testOpenToggle" onchange="toggleTestOpen(this)" style="width:18px;height:18px;accent-color:var(--o);">
+        <span style="font-weight:700;font-size:13px;">تشغيل</span>
+      </label>
+    </div>
+    <div id="testLinkBox" style="display:none;margin-top:14px;padding:14px;background:#0a0a0a;border:1px solid #1f1f1f;border-radius:10px;">
+      <div style="font-size:12px;color:#888;margin-bottom:8px;">رابط استقبال الآراء (شارك مع عملائك):</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <code id="testLink" style="flex:1;background:#000;padding:10px 12px;border-radius:6px;font-size:11.5px;color:#22c55e;font-family:monospace;word-break:break-all;direction:ltr;text-align:left;"></code>
+        <button onclick="copyTestLink()" id="copyTestBtn" style="background:#22c55e;color:#fff;border:none;padding:10px 16px;border-radius:6px;cursor:pointer;font-weight:700;font-size:12px;font-family:inherit;flex-shrink:0;">
+          <i class="fa-solid fa-copy"></i> نسخ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending count -->
+  <div id="testPendingBox" class="card" style="display:none;background:linear-gradient(135deg,rgba(251,191,36,0.1),rgba(251,191,36,0.03));border:1px solid rgba(251,191,36,0.3);margin-bottom:14px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <i class="fa-solid fa-clock" style="color:#fbbf24;font-size:18px;"></i>
+      <div style="flex:1;font-weight:700;font-size:13px;color:#fbbf24;"><span id="testPendingCount">0</span> رأي بانتظار المراجعة</div>
+    </div>
+  </div>
+
+  <!-- All testimonials -->
+  <div class="card">
+    <div id="testGrid" style="display:grid;gap:12px;"></div>
+    <div id="testEmpty" style="text-align:center;padding:50px 20px;color:#666;display:none;">
+      <i class="fa-solid fa-quote-right" style="font-size:42px;color:#333;margin-bottom:14px;"></i>
+      <div style="font-size:14px;">لا توجد آراء بعد</div>
+      <div style="font-size:12px;color:#888;margin-top:4px;">اضغط "إضافة رأي" أو فعّل ميزة استقبال الآراء</div>
+    </div>
+  </div>
+</div>
+
 <!-- SOCIAL TAB -->
 <div id="tab-social" style="display:none;">
   <div class="ph"><div><div class="pt">التواصل الاجتماعي</div><div class="ps">الصورة الشخصية والروابط</div></div>
@@ -1151,6 +1221,104 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 </style>
 
 <!-- BEHANCE BOOKMARKLET MODAL -->
+<!-- LOGO MODAL -->
+<div class="mo" id="logoModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="mh">
+      <div class="mt"><i class="fa-solid fa-buildings" style="color:var(--o);margin-left:10px;"></i><span id="logoModalTitle">إضافة شعار</span></div>
+      <button class="mc" onclick="closeLogoModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="mb">
+      <input type="hidden" id="logoEditId">
+      <div class="fg">
+        <label class="fl">اسم العميل / الشركة</label>
+        <input class="fi" id="logoName" placeholder="مثال: سندك">
+      </div>
+      <div class="fg">
+        <label class="fl">رابط الموقع <span style="color:#666;font-size:11px;">(اختياري)</span></label>
+        <input class="fi" id="logoWebsite" placeholder="https://example.com">
+      </div>
+      <div class="fg">
+        <label class="fl">الشعار <span style="color:#ef4444;">*</span></label>
+        <div id="logoDropZone" style="border:2px dashed #444;border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;background:#0a0a0a;" onclick="document.getElementById('logoFile').click()">
+          <div id="logoPreviewWrap" style="display:none;">
+            <img id="logoPreview" src="" style="max-width:100%;max-height:120px;border-radius:6px;">
+          </div>
+          <div id="logoEmpty">
+            <i class="fa-solid fa-cloud-arrow-up" style="font-size:32px;color:var(--o);margin-bottom:10px;"></i>
+            <div style="font-weight:700;font-size:13px;">اضغط لاختيار الشعار</div>
+            <div style="font-size:11px;color:#888;margin-top:4px;">PNG شفاف موصى به · أقصى 2MB</div>
+          </div>
+        </div>
+        <input type="file" id="logoFile" accept="image/*" style="display:none;" onchange="onLogoSelected(this)">
+      </div>
+    </div>
+    <div class="mfo">
+      <button class="btn-cancel" onclick="closeLogoModal()">إلغاء</button>
+      <button class="btn-import" id="logoSaveBtn" onclick="saveLogo()" style="background:var(--o);">
+        <i class="fa-solid fa-floppy-disk"></i> حفظ
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TESTIMONIAL MODAL -->
+<div class="mo" id="testModal">
+  <div class="modal" style="max-width:560px;">
+    <div class="mh">
+      <div class="mt"><i class="fa-solid fa-quote-right" style="color:var(--o);margin-left:10px;"></i><span id="testModalTitle">إضافة رأي</span></div>
+      <button class="mc" onclick="closeTestModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="mb">
+      <input type="hidden" id="testEditId">
+      <div class="fg">
+        <label class="fl">الاسم <span style="color:#ef4444;">*</span></label>
+        <input class="fi" id="testName" placeholder="مثال: أحمد محمود" maxlength="100">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="fg">
+          <label class="fl">المسمى الوظيفي</label>
+          <input class="fi" id="testRole" placeholder="مثال: مدير تسويق" maxlength="100">
+        </div>
+        <div class="fg">
+          <label class="fl">الشركة</label>
+          <input class="fi" id="testCompany" placeholder="مثال: سندك" maxlength="100">
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">التقييم</label>
+        <div id="testRating" style="display:flex;gap:6px;">
+          <span class="t-star" data-v="1" style="cursor:pointer;font-size:30px;color:#fbbf24;">★</span>
+          <span class="t-star" data-v="2" style="cursor:pointer;font-size:30px;color:#fbbf24;">★</span>
+          <span class="t-star" data-v="3" style="cursor:pointer;font-size:30px;color:#fbbf24;">★</span>
+          <span class="t-star" data-v="4" style="cursor:pointer;font-size:30px;color:#fbbf24;">★</span>
+          <span class="t-star" data-v="5" style="cursor:pointer;font-size:30px;color:#fbbf24;">★</span>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">الرأي <span style="color:#ef4444;">*</span></label>
+        <textarea class="fta" id="testContent" style="min-height:100px;" placeholder="رأي العميل..." maxlength="2000"></textarea>
+      </div>
+      <div class="fg">
+        <label class="fl">صورة شخصية <span style="color:#666;font-size:11px;">(اختياري)</span></label>
+        <div id="testAvatarZone" style="display:flex;align-items:center;gap:14px;">
+          <div id="testAvatarPreview" style="width:64px;height:64px;border-radius:50%;background:#0a0a0a;border:2px dashed #333;display:flex;align-items:center;justify-content:center;color:#666;cursor:pointer;overflow:hidden;flex-shrink:0;" onclick="document.getElementById('testAvatarFile').click()">
+            <i class="fa-solid fa-user" style="font-size:22px;"></i>
+          </div>
+          <button type="button" onclick="document.getElementById('testAvatarFile').click()" style="background:transparent;border:1px solid #333;color:#ccc;padding:8px 14px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:12px;">اختر صورة</button>
+        </div>
+        <input type="file" id="testAvatarFile" accept="image/*" style="display:none;" onchange="onTestAvatarSelected(this)">
+      </div>
+    </div>
+    <div class="mfo">
+      <button class="btn-cancel" onclick="closeTestModal()">إلغاء</button>
+      <button class="btn-import" id="testSaveBtn" onclick="saveTestimonial()" style="background:var(--o);">
+        <i class="fa-solid fa-floppy-disk"></i> حفظ
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="mo" id="behanceModal">
   <div class="modal" style="max-width:580px;">
     <div class="mh">
@@ -1478,7 +1646,7 @@ async function initApp(){
 // ══ TABS ══
 function setTab(tab,el){
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));el.classList.add('active');
-  ['projects','analytics','reorder','categories','colors','design','sections','navbar','content','social','users'].forEach(t=>{
+  ['projects','analytics','reorder','categories','colors','design','sections','navbar','content','logos','testimonials','social','users'].forEach(t=>{
     const d=document.getElementById('tab-'+t);if(d)d.style.display=t===tab?'block':'none';
   });
   if(tab==='navbar')renderNavbarList();
@@ -1487,6 +1655,8 @@ function setTab(tab,el){
   if(tab==='design')loadDesign();
   if(tab==='analytics')loadAnalytics();
   if(tab==='users')loadUsers();
+  if(tab==='logos')loadLogos();
+  if(tab==='testimonials')loadTestimonials();
   if(window.innerWidth<=900)toggleSidebar(false);
 }
 
@@ -2193,7 +2363,7 @@ async function saveSections(){
 
 // ══ CONTENT ══
 let ctData={};
-const SEC_LABELS={hero:'الرئيسية',about:'عن النفس',expertise:'الخدمات',education:'التعليم',skills:'المهارات',tools:'الأدوات',experience:'الخبرات',projects:'المشاريع',contact:'التواصل'};
+const SEC_LABELS={hero:'الرئيسية',about:'عن النفس',expertise:'الخدمات',education:'التعليم',skills:'المهارات',tools:'الأدوات',experience:'الخبرات',projects:'المشاريع',logos:'العملاء',testimonials:'آراء العملاء',contact:'التواصل'};
 const e=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const v=id=>{const el=document.getElementById(id);return el?el.value.trim():'';};
 
@@ -3157,6 +3327,336 @@ async function saveBhImport(){
 
 // Check for pending import on page load
 window.addEventListener('DOMContentLoaded', () => { setTimeout(checkBehanceImport, 500); });
+
+// ══════════════ CLIENT LOGOS ══════════════
+let LOGOS = [];
+let editingLogoId = null;
+let logoData = null;
+
+async function loadLogos(){
+  try{
+    const r = await fetch('/api/logos?user_id=' + (window._userId||''),{credentials:'include'});
+    const d = await r.json();
+    LOGOS = d.logos || [];
+    renderLogos();
+  }catch(e){ console.warn('loadLogos:', e); }
+}
+
+function renderLogos(){
+  const grid = document.getElementById('logosGrid');
+  const empty = document.getElementById('logosEmpty');
+  if(!LOGOS.length){
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  grid.innerHTML = LOGOS.map(l => `
+    <div style="background:#0a0a0a;border:1px solid #1f1f1f;border-radius:12px;padding:16px;text-align:center;position:relative;transition:all .2s;">
+      <div style="background:#fff;border-radius:8px;padding:14px;height:90px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
+        <img src="${l.logo_url}" alt="${l.name||''}" style="max-width:100%;max-height:60px;object-fit:contain;">
+      </div>
+      <div style="font-weight:700;font-size:13px;margin-bottom:4px;">${l.name||'بدون اسم'}</div>
+      ${l.website_url ? `<div style="font-size:10.5px;color:#888;direction:ltr;">${l.website_url.replace(/^https?:\/\//,'').slice(0,30)}</div>` : ''}
+      <div style="display:flex;gap:6px;margin-top:10px;">
+        <button onclick="editLogo(${l.id})" style="flex:1;background:#1a1a1a;border:1px solid #333;color:#ccc;padding:6px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;"><i class="fa-solid fa-pen"></i></button>
+        <button onclick="deleteLogo(${l.id})" style="flex:1;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;padding:6px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openLogoModal(){
+  editingLogoId = null;
+  logoData = null;
+  document.getElementById('logoModalTitle').textContent = 'إضافة شعار';
+  document.getElementById('logoEditId').value = '';
+  document.getElementById('logoName').value = '';
+  document.getElementById('logoWebsite').value = '';
+  document.getElementById('logoFile').value = '';
+  document.getElementById('logoPreviewWrap').style.display = 'none';
+  document.getElementById('logoEmpty').style.display = 'block';
+  document.getElementById('logoModal').classList.add('open');
+}
+
+function closeLogoModal(){
+  document.getElementById('logoModal').classList.remove('open');
+}
+
+function onLogoSelected(input){
+  const f = input.files[0];
+  if(!f) return;
+  if(f.size > 2 * 1024 * 1024){ toast('⚠️ حجم الملف أكبر من 2MB'); input.value=''; return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    logoData = e.target.result;
+    document.getElementById('logoPreview').src = logoData;
+    document.getElementById('logoPreviewWrap').style.display = 'block';
+    document.getElementById('logoEmpty').style.display = 'none';
+  };
+  reader.readAsDataURL(f);
+}
+
+function editLogo(id){
+  const l = LOGOS.find(x => x.id === id);
+  if(!l) return;
+  editingLogoId = id;
+  logoData = null;
+  document.getElementById('logoModalTitle').textContent = 'تعديل شعار';
+  document.getElementById('logoEditId').value = id;
+  document.getElementById('logoName').value = l.name || '';
+  document.getElementById('logoWebsite').value = l.website_url || '';
+  document.getElementById('logoPreview').src = l.logo_url;
+  document.getElementById('logoPreviewWrap').style.display = 'block';
+  document.getElementById('logoEmpty').style.display = 'none';
+  document.getElementById('logoModal').classList.add('open');
+}
+
+async function saveLogo(){
+  const name = document.getElementById('logoName').value.trim();
+  const website = document.getElementById('logoWebsite').value.trim();
+  if(!editingLogoId && !logoData){ toast('⚠️ اختر صورة الشعار أولاً'); return; }
+
+  const btn = document.getElementById('logoSaveBtn');
+  btn.disabled = true;
+  const body = { name, website_url: website };
+  if(logoData) body.logo = logoData;
+
+  try{
+    let r;
+    if(editingLogoId){
+      r = await fetch('/api/logos/' + editingLogoId, {method:'PUT',credentials:'include',
+        headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    } else {
+      r = await fetch('/api/logos',{method:'POST',credentials:'include',
+        headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    }
+    const d = await r.json();
+    if(r.ok){
+      closeLogoModal();
+      toast('✓ تم الحفظ');
+      await loadLogos();
+      await loadStorageInfo();
+    } else { toast('⚠️ '+(d.error||'فشل الحفظ'),'error'); }
+  }catch(e){ toast('خطأ في الاتصال','error'); }
+  btn.disabled = false;
+}
+
+async function deleteLogo(id){
+  if(!confirm('هل أنت متأكد من حذف هذا الشعار؟')) return;
+  try{
+    const r = await fetch('/api/logos/' + id, {method:'DELETE',credentials:'include'});
+    if(r.ok){ toast('✓ تم الحذف'); await loadLogos(); await loadStorageInfo(); }
+    else { toast('⚠️ فشل الحذف','error'); }
+  }catch(e){ toast('خطأ','error'); }
+}
+
+// ══════════════ TESTIMONIALS ══════════════
+let TESTIMONIALS = [];
+let editingTestId = null;
+let testAvatarData = null;
+let testRating = 5;
+
+async function loadTestimonials(){
+  try{
+    const r = await fetch('/api/testimonials?user_id=' + (window._userId||'') + '&all=1',{credentials:'include'});
+    const d = await r.json();
+    TESTIMONIALS = d.testimonials || [];
+    renderTestimonials();
+    // Load toggle state
+    const sr = await fetch('/api/settings',{credentials:'include'}).then(r=>r.json()).catch(()=>({}));
+    const isOpen = sr.testimonials_open === '1' || sr.testimonials_open === 'true' || sr.testimonials_open === true;
+    document.getElementById('testOpenToggle').checked = isOpen;
+    updateTestLinkBox(isOpen);
+  }catch(e){ console.warn('loadTestimonials:',e); }
+}
+
+function renderTestimonials(){
+  const grid = document.getElementById('testGrid');
+  const empty = document.getElementById('testEmpty');
+  const pendingCount = TESTIMONIALS.filter(t => !t.approved).length;
+  document.getElementById('testPendingBox').style.display = pendingCount > 0 ? 'block' : 'none';
+  document.getElementById('testPendingCount').textContent = pendingCount;
+  if(!TESTIMONIALS.length){
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  grid.innerHTML = TESTIMONIALS.map(t => {
+    const stars = '★'.repeat(t.rating) + '☆'.repeat(5-t.rating);
+    const isPending = !t.approved;
+    return `
+    <div style="background:#0a0a0a;border:1px solid ${isPending?'rgba(251,191,36,0.4)':'#1f1f1f'};border-radius:12px;padding:16px;${isPending?'background:linear-gradient(135deg,rgba(251,191,36,0.05),transparent);':''}">
+      ${isPending ? '<div style="display:inline-block;background:rgba(251,191,36,0.2);color:#fbbf24;font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:10px;">⏳ بانتظار المراجعة</div>' : ''}
+      <div style="display:flex;gap:12px;margin-bottom:10px;">
+        <div style="width:48px;height:48px;border-radius:50%;background:${t.avatar_url?'transparent':'#1a1a1a'};overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#666;font-size:20px;">
+          ${t.avatar_url ? `<img src="${t.avatar_url}" style="width:100%;height:100%;object-fit:cover;">` : '<i class="fa-solid fa-user"></i>'}
+        </div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:14px;">${t.name}</div>
+          <div style="font-size:11.5px;color:#888;">${[t.role,t.company].filter(Boolean).join(' · ')||'—'}</div>
+          <div style="color:#fbbf24;font-size:13px;letter-spacing:1px;margin-top:3px;">${stars}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          ${isPending ? `<button onclick="approveTest(${t.id})" style="background:#22c55e;color:#fff;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;"><i class="fa-solid fa-check"></i> قبول</button>` : ''}
+          <button onclick="editTest(${t.id})" style="background:#1a1a1a;border:1px solid #333;color:#ccc;padding:5px 10px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;"><i class="fa-solid fa-pen"></i></button>
+          <button onclick="deleteTest(${t.id})" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;padding:5px 10px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+      <p style="color:#ccc;font-size:13px;line-height:1.7;margin:0;">"${t.content}"</p>
+    </div>
+    `;
+  }).join('');
+}
+
+function openTestModal(){
+  editingTestId = null;
+  testAvatarData = null;
+  testRating = 5;
+  document.getElementById('testModalTitle').textContent = 'إضافة رأي';
+  document.getElementById('testEditId').value = '';
+  ['testName','testRole','testCompany','testContent'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('testAvatarPreview').innerHTML = '<i class="fa-solid fa-user" style="font-size:22px;"></i>';
+  setTestRatingDisplay(5);
+  document.getElementById('testModal').classList.add('open');
+}
+
+function closeTestModal(){ document.getElementById('testModal').classList.remove('open'); }
+
+function setTestRatingDisplay(v){
+  testRating = v;
+  document.querySelectorAll('.t-star').forEach((s,i) => {
+    s.style.color = i < v ? '#fbbf24' : '#444';
+  });
+}
+
+document.addEventListener('click', e => {
+  if(e.target.classList && e.target.classList.contains('t-star')){
+    setTestRatingDisplay(parseInt(e.target.dataset.v));
+  }
+});
+
+function onTestAvatarSelected(input){
+  const f = input.files[0];
+  if(!f) return;
+  if(f.size > 2 * 1024 * 1024){ toast('⚠️ حجم الملف أكبر من 2MB'); input.value=''; return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    testAvatarData = e.target.result;
+    document.getElementById('testAvatarPreview').innerHTML = `<img src="${testAvatarData}" style="width:100%;height:100%;object-fit:cover;">`;
+  };
+  reader.readAsDataURL(f);
+}
+
+function editTest(id){
+  const t = TESTIMONIALS.find(x => x.id === id);
+  if(!t) return;
+  editingTestId = id;
+  testAvatarData = null;
+  document.getElementById('testModalTitle').textContent = 'تعديل رأي';
+  document.getElementById('testEditId').value = id;
+  document.getElementById('testName').value = t.name || '';
+  document.getElementById('testRole').value = t.role || '';
+  document.getElementById('testCompany').value = t.company || '';
+  document.getElementById('testContent').value = t.content || '';
+  setTestRatingDisplay(t.rating || 5);
+  if(t.avatar_url){
+    document.getElementById('testAvatarPreview').innerHTML = `<img src="${t.avatar_url}" style="width:100%;height:100%;object-fit:cover;">`;
+  } else {
+    document.getElementById('testAvatarPreview').innerHTML = '<i class="fa-solid fa-user" style="font-size:22px;"></i>';
+  }
+  document.getElementById('testModal').classList.add('open');
+}
+
+async function saveTestimonial(){
+  const name = document.getElementById('testName').value.trim();
+  const content = document.getElementById('testContent').value.trim();
+  if(!name){ toast('⚠️ اكتب الاسم'); return; }
+  if(content.length < 10){ toast('⚠️ الرأي قصير جداً'); return; }
+
+  const btn = document.getElementById('testSaveBtn');
+  btn.disabled = true;
+  const body = {
+    name, content,
+    role: document.getElementById('testRole').value.trim(),
+    company: document.getElementById('testCompany').value.trim(),
+    rating: testRating,
+  };
+  if(testAvatarData) body.avatar = testAvatarData;
+
+  try{
+    let r;
+    if(editingTestId){
+      r = await fetch('/api/testimonials/' + editingTestId,{method:'PUT',credentials:'include',
+        headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    } else {
+      r = await fetch('/api/testimonials',{method:'POST',credentials:'include',
+        headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    }
+    const d = await r.json();
+    if(r.ok){
+      closeTestModal();
+      toast('✓ تم الحفظ');
+      await loadTestimonials();
+      await loadStorageInfo();
+    } else { toast('⚠️ '+(d.error||'فشل'),'error'); }
+  }catch(e){ toast('خطأ','error'); }
+  btn.disabled = false;
+}
+
+async function approveTest(id){
+  try{
+    const r = await fetch('/api/testimonials/'+id,{method:'PUT',credentials:'include',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify({approved:true})});
+    if(r.ok){ toast('✓ تم القبول'); await loadTestimonials(); }
+  }catch{}
+}
+
+async function deleteTest(id){
+  if(!confirm('هل أنت متأكد من حذف هذا الرأي؟')) return;
+  try{
+    const r = await fetch('/api/testimonials/'+id,{method:'DELETE',credentials:'include'});
+    if(r.ok){ toast('✓ تم الحذف'); await loadTestimonials(); await loadStorageInfo(); }
+  }catch{}
+}
+
+async function toggleTestOpen(input){
+  const isOpen = input.checked;
+  try{
+    const r = await fetch('/api/settings',{method:'PUT',credentials:'include',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({testimonials_open: isOpen ? '1' : '0'})});
+    if(r.ok){
+      toast(isOpen ? '✓ تم تفعيل استقبال الآراء' : '✓ تم إيقاف استقبال الآراء');
+      updateTestLinkBox(isOpen);
+    }
+  }catch(e){ toast('خطأ في الاتصال','error'); input.checked = !isOpen; }
+}
+
+function updateTestLinkBox(isOpen){
+  const box = document.getElementById('testLinkBox');
+  if(isOpen){
+    const username = window._username || '';
+    document.getElementById('testLink').textContent = location.origin + '/testimonial/' + username;
+    box.style.display = 'block';
+  } else {
+    box.style.display = 'none';
+  }
+}
+
+async function copyTestLink(){
+  const link = document.getElementById('testLink').textContent;
+  const btn = document.getElementById('copyTestBtn');
+  try{
+    await navigator.clipboard.writeText(link);
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> تم النسخ';
+    setTimeout(()=> btn.innerHTML = '<i class="fa-solid fa-copy"></i> نسخ', 2000);
+    toast('✓ تم النسخ — شارك الرابط مع عملائك');
+  }catch{
+    toast('⚠️ افتح الرابط يدوياً','error');
+  }
+}
 
 // ══ CHANGE CREDENTIALS ══
 async function changeCredentials(){

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>شاركنا رأيك</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Cairo',sans-serif;
+  background:linear-gradient(135deg,#0a0a0a 0%,#1a0a1f 100%);
+  color:#fff;min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+}
+.container{
+  width:100%;max-width:600px;
+  background:#0f0f0f;border:1px solid #1f1f1f;
+  border-radius:20px;padding:40px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.5);
+}
+.header{text-align:center;margin-bottom:32px;}
+.header-icon{
+  width:64px;height:64px;
+  background:linear-gradient(135deg,#F97316,#ea580c);
+  border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 16px;font-size:28px;
+}
+h1{font-size:24px;font-weight:800;margin-bottom:8px;}
+.sub{color:#888;font-size:14px;line-height:1.7;}
+.fg{margin-bottom:18px;}
+label{
+  display:block;font-size:13px;font-weight:700;
+  margin-bottom:8px;color:#ccc;
+}
+.req{color:#ef4444;}
+input,textarea{
+  width:100%;background:#0a0a0a;border:1px solid #2a2a2a;
+  color:#fff;padding:12px 14px;border-radius:10px;
+  font-family:inherit;font-size:14px;outline:none;
+  transition:border-color .2s;
+}
+input:focus,textarea:focus{border-color:#F97316;}
+textarea{min-height:120px;resize:vertical;line-height:1.7;}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.rating{display:flex;gap:6px;margin-top:6px;justify-content:center;}
+.star{
+  cursor:pointer;font-size:32px;color:#333;
+  transition:all .15s;
+}
+.star.active{color:#fbbf24;transform:scale(1.1);}
+.star:hover{color:#fbbf24;}
+.btn{
+  width:100%;background:linear-gradient(135deg,#F97316,#ea580c);
+  color:#fff;border:none;padding:15px;
+  border-radius:12px;font-family:inherit;font-weight:800;
+  font-size:15px;cursor:pointer;margin-top:10px;
+  box-shadow:0 4px 14px rgba(249,115,22,0.3);
+  transition:all .2s;
+}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(249,115,22,0.4);}
+.btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+.success{
+  text-align:center;padding:40px 20px;
+  display:none;
+}
+.success-icon{
+  width:80px;height:80px;
+  background:#22c55e;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 20px;font-size:36px;
+}
+.error-msg{
+  background:rgba(239,68,68,0.1);
+  border:1px solid rgba(239,68,68,0.3);
+  color:#fca5a5;padding:12px;border-radius:8px;
+  font-size:13px;margin-bottom:18px;display:none;
+}
+.optional{color:#666;font-size:11px;font-weight:400;margin-inline-start:6px;}
+.spin{
+  display:inline-block;width:14px;height:14px;
+  border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;
+  border-radius:50%;animation:sp 0.7s linear infinite;
+  margin-inline-end:8px;
+}
+@keyframes sp{to{transform:rotate(360deg);}}
+@media(max-width:520px){
+  .container{padding:30px 20px;}
+  .row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- Form -->
+  <div id="formView">
+    <div class="header">
+      <div class="header-icon">⭐</div>
+      <h1>شاركنا رأيك</h1>
+      <p class="sub">رأيك يهمنا — اكتب تجربتك معنا في كلمات بسيطة</p>
+    </div>
+
+    <div class="error-msg" id="errMsg"></div>
+
+    <div class="fg">
+      <label>الاسم الكامل <span class="req">*</span></label>
+      <input type="text" id="fName" placeholder="مثال: أحمد محمود" maxlength="100">
+    </div>
+
+    <div class="row">
+      <div class="fg">
+        <label>المسمى الوظيفي <span class="optional">(اختياري)</span></label>
+        <input type="text" id="fRole" placeholder="مثال: مدير تسويق" maxlength="100">
+      </div>
+      <div class="fg">
+        <label>الشركة <span class="optional">(اختياري)</span></label>
+        <input type="text" id="fCompany" placeholder="مثال: شركة سندك" maxlength="100">
+      </div>
+    </div>
+
+    <div class="fg">
+      <label>تقييمك <span class="req">*</span></label>
+      <div class="rating" id="rating">
+        <span class="star active" data-v="1">★</span>
+        <span class="star active" data-v="2">★</span>
+        <span class="star active" data-v="3">★</span>
+        <span class="star active" data-v="4">★</span>
+        <span class="star active" data-v="5">★</span>
+      </div>
+    </div>
+
+    <div class="fg">
+      <label>رأيك <span class="req">*</span></label>
+      <textarea id="fContent" placeholder="اكتب رأيك بصراحة... ما الذي أعجبك في تجربتك؟" maxlength="2000"></textarea>
+    </div>
+
+    <button class="btn" id="submitBtn" onclick="submitForm()">
+      <span id="btnText"><i class="fa-solid fa-paper-plane" style="margin-inline-end:8px;"></i>إرسال الرأي</span>
+    </button>
+  </div>
+
+  <!-- Success -->
+  <div class="success" id="successView">
+    <div class="success-icon"><i class="fa-solid fa-check"></i></div>
+    <h1 style="margin-bottom:14px;">شكراً لك! 🎉</h1>
+    <p style="color:#999;font-size:14px;line-height:1.8;">
+      تم استلام رأيك بنجاح.<br>
+      سيتم مراجعته قبل النشر على الموقع.<br><br>
+      <span style="color:#F97316;">نقدّر وقتك وملاحظتك!</span>
+    </p>
+  </div>
+</div>
+
+<script>
+const USERNAME = location.pathname.split('/').pop();
+let rating = 5;
+
+// Star rating
+document.querySelectorAll('.star').forEach(star => {
+  star.addEventListener('click', e => {
+    const v = parseInt(e.target.dataset.v);
+    rating = v;
+    document.querySelectorAll('.star').forEach((s,i) => {
+      s.classList.toggle('active', i < v);
+    });
+  });
+  star.addEventListener('mouseenter', e => {
+    const v = parseInt(e.target.dataset.v);
+    document.querySelectorAll('.star').forEach((s,i) => {
+      s.style.color = i < v ? '#fbbf24' : '#333';
+    });
+  });
+});
+document.getElementById('rating').addEventListener('mouseleave', () => {
+  document.querySelectorAll('.star').forEach((s,i) => {
+    s.style.color = i < rating ? '#fbbf24' : '#333';
+    s.classList.toggle('active', i < rating);
+  });
+});
+
+function showError(msg){
+  const e = document.getElementById('errMsg');
+  e.textContent = '⚠️ ' + msg;
+  e.style.display = 'block';
+  setTimeout(()=>e.style.display='none', 5000);
+}
+
+async function submitForm(){
+  const name = document.getElementById('fName').value.trim();
+  const content = document.getElementById('fContent').value.trim();
+  if(!name){ showError('من فضلك اكتب اسمك'); return; }
+  if(content.length < 10){ showError('الرأي قصير جداً (10 أحرف على الأقل)'); return; }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  document.getElementById('btnText').innerHTML = '<span class="spin"></span>جاري الإرسال...';
+
+  try{
+    // Get user_id from username
+    const userRes = await fetch('/api/users/by-username/' + encodeURIComponent(USERNAME));
+    if(!userRes.ok){ showError('المستخدم غير موجود'); btn.disabled=false; document.getElementById('btnText').innerHTML='<i class="fa-solid fa-paper-plane" style="margin-inline-end:8px;"></i>إرسال الرأي'; return; }
+    const userData = await userRes.json();
+
+    const r = await fetch('/api/testimonials/submit', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        user_id: userData.id,
+        name, content, rating,
+        role: document.getElementById('fRole').value.trim(),
+        company: document.getElementById('fCompany').value.trim(),
+      })
+    });
+    const d = await r.json();
+    if(r.ok){
+      document.getElementById('formView').style.display = 'none';
+      document.getElementById('successView').style.display = 'block';
+    } else {
+      showError(d.error || 'فشل الإرسال');
+      btn.disabled = false;
+      document.getElementById('btnText').innerHTML = '<i class="fa-solid fa-paper-plane" style="margin-inline-end:8px;"></i>إرسال الرأي';
+    }
+  }catch(e){
+    showError('خطأ في الاتصال');
+    btn.disabled = false;
+    document.getElementById('btnText').innerHTML = '<i class="fa-solid fa-paper-plane" style="margin-inline-end:8px;"></i>إرسال الرأي';
+  }
+}
+</script>
+</body>
+</html>

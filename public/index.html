@@ -72,6 +72,28 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
 .edu-list{display:flex;flex-direction:column;gap:14px;max-width:750px;margin:0 auto;}
 .edu-card{background:var(--bg3);border:1px solid #222;border-radius:12px;padding:24px 30px;display:flex;gap:18px;align-items:flex-start;transition:border-color .3s;}
 .edu-card:hover{border-color:var(--accent);}
+
+/* Client Logos */
+.logos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:18px;max-width:1100px;margin:0 auto;}
+.logo-card{background:#fff;border-radius:12px;padding:24px 18px;height:120px;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:all .3s;border:1px solid #eee;filter:grayscale(100%);opacity:0.65;}
+.logo-card:hover{filter:grayscale(0%);opacity:1;transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,0.15);}
+.logo-card img{max-width:100%;max-height:70px;object-fit:contain;}
+@media(max-width:600px){.logos-grid{grid-template-columns:repeat(2,1fr);gap:12px;}.logo-card{height:90px;padding:14px;}.logo-card img{max-height:50px;}}
+
+/* Testimonials */
+.testimonials-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;max-width:1100px;margin:0 auto;}
+.t-card{background:var(--bg3);border:1px solid #222;border-radius:14px;padding:26px;transition:all .3s;display:flex;flex-direction:column;}
+.t-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+.t-stars{color:#fbbf24;font-size:16px;letter-spacing:2px;margin-bottom:14px;}
+.t-content{color:var(--text);font-size:14px;line-height:1.9;margin:0 0 20px;flex:1;}
+.t-meta{display:flex;gap:12px;align-items:center;padding-top:16px;border-top:1px solid rgba(255,255,255,0.05);}
+.t-avatar{width:44px;height:44px;border-radius:50%;overflow:hidden;flex-shrink:0;background:var(--accent);display:flex;align-items:center;justify-content:center;}
+.t-avatar img{width:100%;height:100%;object-fit:cover;}
+.t-initial{color:#fff;font-weight:800;font-size:18px;}
+.t-name{font-weight:700;font-size:13.5px;color:var(--text);}
+.t-role{font-size:11.5px;color:var(--sub);margin-top:2px;}
+@media(max-width:600px){.testimonials-grid{grid-template-columns:1fr;}.t-card{padding:20px;}}
+
 .edu-icon{color:var(--accent);font-size:22px;margin-top:2px;}
 .edu-degree{font-family:'Montserrat',sans-serif;font-weight:700;font-size:16px;margin-bottom:5px;}
 .edu-detail{color:var(--sub);font-size:14px;}
@@ -856,12 +878,16 @@ async function boot(){
   window.__currentUserId = userId;
   const qs = userId ? `?user_id=${userId}` : '';
   try{
-    const[s,p]=await Promise.all([
+    const[s,p,lo,ts]=await Promise.all([
       fetch(`/api/settings${qs}`).then(r=>r.json()),
-      fetch(`/api/projects${qs}`).then(r=>r.json())
+      fetch(`/api/projects${qs}`).then(r=>r.json()),
+      fetch(`/api/logos${qs}`).then(r=>r.json()).catch(()=>({logos:[]})),
+      fetch(`/api/testimonials${qs}`).then(r=>r.json()).catch(()=>({testimonials:[]})),
     ]);
     S=s;PROJECTS=p;
-  }catch(e){S={};PROJECTS=[];}
+    window._LOGOS = lo.logos || [];
+    window._TESTIMONIALS = ts.testimonials || [];
+  }catch(e){S={};PROJECTS=[];window._LOGOS=[];window._TESTIMONIALS=[];}
   applyColors();applyStyle();applyLang();buildPage();setupAnimations();
   trackPageView();
 }
@@ -1202,8 +1228,48 @@ function buildSec(s,ct,a){
     case'education':return buildEdu(c,a);case'skills':return buildSkills(c,a);
     case'tools':return buildTools(c,a);case'experience':return buildExp(c,a);
     case'projects':return buildProjects(c,a);case'contact':return buildContact(c,a);
+    case'logos':return buildLogos(a);
+    case'testimonials':return buildTestimonials(a);
     default:return'';
   }
+}
+
+function buildLogos(a){
+  if(!window._LOGOS || !window._LOGOS.length) return '';
+  const title = a ? 'عملاؤنا' : 'Our Clients';
+  const items = window._LOGOS.map(l => {
+    const link = l.website_url ? `href="${l.website_url}" target="_blank" rel="noopener"` : 'href="javascript:void(0)"';
+    return `<a class="logo-card" ${link} title="${l.name||''}">
+      <img src="${l.logo_url}" alt="${l.name||'Client'}" loading="lazy">
+    </a>`;
+  }).join('');
+  return `<section id="logos" class="sw"><div class="sh"><h2>${title}</h2><div class="sl"></div></div>
+    <div class="logos-grid">${items}</div></section>`;
+}
+
+function buildTestimonials(a){
+  if(!window._TESTIMONIALS || !window._TESTIMONIALS.length) return '';
+  const title = a ? 'آراء العملاء' : 'Testimonials';
+  const items = window._TESTIMONIALS.map(t => {
+    const stars = '★'.repeat(t.rating) + '☆'.repeat(5-t.rating);
+    const role = [t.role,t.company].filter(Boolean).join(' · ');
+    const avatar = t.avatar_url
+      ? `<img src="${t.avatar_url}" alt="${t.name}">`
+      : `<div class="t-initial">${(t.name||'?').charAt(0).toUpperCase()}</div>`;
+    return `<div class="t-card">
+      <div class="t-stars">${stars}</div>
+      <p class="t-content">"${t.content}"</p>
+      <div class="t-meta">
+        <div class="t-avatar">${avatar}</div>
+        <div>
+          <div class="t-name">${t.name}</div>
+          ${role ? `<div class="t-role">${role}</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  return `<section id="testimonials" class="sw alt"><div class="sh"><h2>${title}</h2><div class="sl"></div></div>
+    <div class="testimonials-grid">${items}</div></section>`;
 }
 
 function buildExpertise(c,a){
