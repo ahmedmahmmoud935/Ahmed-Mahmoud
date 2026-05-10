@@ -452,10 +452,10 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 <div id="loginScreen">
   <div class="lbox">
     <div class="llogo"><i class="fa-solid fa-gem" style="color:var(--o);margin-left:8px;"></i>Admin <span>Panel</span></div>
-    <div class="lsub">لوحة التحكم الكاملة</div>
-    <div class="lf"><input type="text" id="lu" placeholder="اسم المستخدم" value="admin"></div>
-    <div class="lf"><input type="password" id="lp" placeholder="كلمة المرور"></div>
-    <button class="lbtn" id="lBtn" onclick="doLogin()"><span>دخول</span></button>
+    <div class="lsub" data-i18n="login.title">لوحة التحكم الكاملة</div>
+    <div class="lf"><input type="text" id="lu" data-i18n-ph="login.username" placeholder="اسم المستخدم" value="admin"></div>
+    <div class="lf"><input type="password" id="lp" data-i18n-ph="login.password" placeholder="كلمة المرور"></div>
+    <button class="lbtn" id="lBtn" onclick="doLogin()"><span data-i18n="login.submit">دخول</span></button>
     <div class="lerr" id="lerr">بيانات غير صحيحة</div>
   </div>
 </div>
@@ -466,36 +466,41 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 
 <!-- SIDEBAR -->
 <div id="sidebar">
-  <div class="sb-logo"><i class="fa-solid fa-gem"></i> Portfolio Admin</div>
+  <div class="sb-logo" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+    <div><i class="fa-solid fa-gem"></i> Portfolio Admin</div>
+    <button id="langToggleBtn" onclick="toggleLang()" style="background:#1a1a1a;border:1px solid #333;color:#ccc;padding:6px 12px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;">
+      <i class="fa-solid fa-language"></i> EN
+    </button>
+  </div>
   <nav class="sb-nav">
-    <div class="ni active" onclick="setTab('projects',this)"><i class="fa-solid fa-images"></i> المشاريع</div>
-    <div class="ni" onclick="setTab('analytics',this)"><i class="fa-solid fa-chart-line"></i> الإحصائيات</div>
-    <div class="ni" onclick="setTab('reorder',this)"><i class="fa-solid fa-sort"></i> ترتيب المشاريع</div>
-    <div class="ni" onclick="setTab('categories',this)"><i class="fa-solid fa-tags"></i> التصنيفات</div>
-    <div class="ni" onclick="setTab('design',this)"><i class="fa-solid fa-wand-magic-sparkles"></i> التصميم</div>
-    <div class="ni" onclick="setTab('sections',this)"><i class="fa-solid fa-layer-group"></i> ترتيب الأقسام</div>
-    <div class="ni" onclick="setTab('navbar',this)"><i class="fa-solid fa-bars"></i> الشريط العلوي</div>
-    <div class="ni" onclick="setTab('content',this)"><i class="fa-solid fa-pen-to-square"></i> المحتوى</div>
-    <div class="ni" onclick="setTab('logos',this)"><i class="fa-solid fa-buildings"></i> العملاء</div>
-    <div class="ni" onclick="setTab('testimonials',this)"><i class="fa-solid fa-quote-right"></i> آراء العملاء</div>
-    <div class="ni" onclick="setTab('social',this)"><i class="fa-solid fa-share-nodes"></i> التواصل</div>
+    <div class="ni active" onclick="setTab('projects',this)"><i class="fa-solid fa-images"></i> <span data-i18n="nav.projects">المشاريع</span></div>
+    <div class="ni" onclick="setTab('analytics',this)"><i class="fa-solid fa-chart-line"></i> <span data-i18n="nav.analytics">الإحصائيات</span></div>
+    <div class="ni" onclick="setTab('reorder',this)"><i class="fa-solid fa-sort"></i> <span data-i18n="nav.reorder">ترتيب المشاريع</span></div>
+    <div class="ni" onclick="setTab('categories',this)"><i class="fa-solid fa-tags"></i> <span data-i18n="nav.categories">التصنيفات</span></div>
+    <div class="ni" onclick="setTab('design',this)"><i class="fa-solid fa-wand-magic-sparkles"></i> <span data-i18n="nav.design">التصميم</span></div>
+    <div class="ni" onclick="setTab('sections',this)"><i class="fa-solid fa-layer-group"></i> <span data-i18n="nav.sections">ترتيب الأقسام</span></div>
+    <div class="ni" onclick="setTab('navbar',this)"><i class="fa-solid fa-bars"></i> <span data-i18n="nav.navbar">الشريط العلوي</span></div>
+    <div class="ni" onclick="setTab('content',this)"><i class="fa-solid fa-pen-to-square"></i> <span data-i18n="nav.content">المحتوى</span></div>
+    <div class="ni" onclick="setTab('logos',this)"><i class="fa-solid fa-buildings"></i> <span data-i18n="nav.logos">العملاء</span></div>
+    <div class="ni" onclick="setTab('testimonials',this)"><i class="fa-solid fa-quote-right"></i> <span data-i18n="nav.testimonials">آراء العملاء</span></div>
+    <div class="ni" onclick="setTab('social',this)"><i class="fa-solid fa-share-nodes"></i> <span data-i18n="nav.social">التواصل</span></div>
     <!-- يظهر فقط للمالك -->
-    <div class="ni owner-only" id="usersNavItem" onclick="setTab('users',this)" style="display:none"><i class="fa-solid fa-users"></i> إدارة العملاء</div>
+    <div class="ni owner-only" id="usersNavItem" onclick="setTab('users',this)" style="display:none"><i class="fa-solid fa-users"></i> <span data-i18n="nav.users">إدارة العملاء</span></div>
   </nav>
   <div class="sb-footer">
     <!-- معلومات المستخدم الحالي -->
     <div style="margin-bottom:12px;padding:10px;background:#161616;border-radius:8px;">
-      <div style="font-size:12px;color:#888;margin-bottom:4px;">مسجل كـ</div>
+      <div style="font-size:12px;color:#888;margin-bottom:4px;" data-i18n="sb.loggedAs">مسجل كـ</div>
       <div id="sbUsername" style="font-size:13px;font-weight:700;color:#fff;margin-bottom:8px;">—</div>
       <!-- عداد المساحة -->
-      <div style="font-size:11px;color:#888;margin-bottom:4px;" id="storageLabel">المساحة المستخدمة</div>
+      <div style="font-size:11px;color:#888;margin-bottom:4px;" id="storageLabel" data-i18n="sb.storage">المساحة المستخدمة</div>
       <div style="background:#222;border-radius:4px;height:6px;overflow:hidden;">
         <div id="storageBar" style="height:100%;background:var(--o);border-radius:4px;width:0%;transition:width .5s;"></div>
       </div>
       <div id="storageText" style="font-size:11px;color:#888;margin-top:4px;">—</div>
     </div>
-    <a href="/" id="viewSiteLink" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> عرض الموقع</a>
-    <a href="#" onclick="doLogout()" style="margin-top:8px;color:#ef4444 !important;"><i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج</a>
+    <a href="/" id="viewSiteLink" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> <span data-i18n="sb.viewSite">عرض الموقع</span></a>
+    <a href="#" onclick="doLogout()" style="margin-top:8px;color:#ef4444 !important;"><i class="fa-solid fa-right-from-bracket"></i> <span data-i18n="sb.logout">تسجيل الخروج</span></a>
   </div>
 </div>
 
@@ -506,7 +511,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 <!-- ANALYTICS TAB ═══════════════════════════════════════════════ -->
 <div id="tab-analytics" style="display:none;">
   <div class="ph">
-    <div><div class="pt">📊 إحصائيات الزوار</div><div class="ps">شاهد من زار موقعك ومن أين</div></div>
+    <div><div class="pt" data-i18n="page.analytics.title">📊 إحصائيات الزوار</div><div class="ps" data-i18n="page.analytics.sub">شاهد من زار موقعك ومن أين</div></div>
     <select class="fse" id="anRange" onchange="loadAnalytics()" style="width:auto;min-width:160px;">
       <option value="7">آخر 7 أيام</option>
       <option value="30" selected>آخر 30 يوم</option>
@@ -569,11 +574,11 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 <!-- PROJECTS TAB -->
 <div id="tab-projects">
   <div class="ph">
-    <div><div class="pt">المشاريع</div><div class="ps">إدارة أعمالك ومشاريعك</div></div>
+    <div><div class="pt" data-i18n="page.projects.title">المشاريع</div><div class="ps" data-i18n="page.projects.sub">إدارة أعمالك ومشاريعك</div></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
       <button class="btn-vimeo" onclick="openVimeoImport()"><i class="fa-brands fa-vimeo-v" style="color:#1ab7ea;font-size:15px;"></i> Vimeo</button>
       <button class="btn-vimeo" onclick="openBehanceImport()" style="border-color:#1769ff;color:#1769ff;"><i class="fa-brands fa-behance" style="font-size:15px;"></i> Behance</button>
-      <button class="btn-add" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> مشروع جديد</button>
+      <button class="btn-add" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> <span data-i18n="btn.newProject">مشروع جديد</span></button>
     </div>
   </div>
   <div class="stats">
@@ -596,7 +601,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 <!-- REORDER TAB -->
 <div id="tab-reorder" style="display:none;">
   <div class="ph">
-    <div><div class="pt">ترتيب المشاريع</div><div class="ps">اسحب لإعادة الترتيب</div></div>
+    <div><div class="pt" data-i18n="page.reorder.title">ترتيب المشاريع</div><div class="ps" data-i18n="page.reorder.sub">اسحب لإعادة الترتيب</div></div>
     <button class="btn-add" onclick="saveReorder()"><i class="fa-solid fa-floppy-disk"></i> حفظ الترتيب</button>
   </div>
   <div class="card">
@@ -608,8 +613,8 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 <!-- CATEGORIES TAB -->
 <div id="tab-categories" style="display:none;">
   <div class="ph">
-    <div><div class="pt">التصنيفات</div><div class="ps">أضف وعدل تصنيفات التصاميم والريلز — هتظهر كفلتر في الموقع</div></div>
-    <button class="btn-add" onclick="saveCategories()"><i class="fa-solid fa-floppy-disk"></i> حفظ</button>
+    <div><div class="pt" data-i18n="page.categories.title">التصنيفات</div><div class="ps" data-i18n="page.categories.sub">أضف وعدل تصنيفات التصاميم والريلز — هتظهر كفلتر في الموقع</div></div>
+    <button class="btn-add" onclick="saveCategories()"><i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn.save">حفظ</span></button>
   </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
     <div class="card">
@@ -635,7 +640,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 <!-- DESIGN TAB ═══════════════════════════════════════════════ -->
 <div id="tab-design" style="display:none;">
   <div class="ph">
-    <div><div class="pt">🎨 التصميم</div><div class="ps">خصص شكل موقعك بالكامل</div></div>
+    <div><div class="pt" data-i18n="page.design.title">🎨 التصميم</div><div class="ps" data-i18n="page.design.sub">خصص شكل موقعك بالكامل</div></div>
     <button class="btn-add" onclick="saveDesign()"><i class="fa-solid fa-floppy-disk"></i> حفظ التصميم</button>
   </div>
 
@@ -916,7 +921,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 
 <!-- SECTIONS TAB -->
 <div id="tab-sections" style="display:none;">
-  <div class="ph"><div><div class="pt">ترتيب الأقسام</div><div class="ps">اسحب لإعادة الترتيب</div></div>
+  <div class="ph"><div><div class="pt" data-i18n="page.sections.title">ترتيب الأقسام</div><div class="ps" data-i18n="page.sections.sub">اسحب لإعادة الترتيب</div></div>
     <button class="btn-add" onclick="saveSections()"><i class="fa-solid fa-floppy-disk"></i> حفظ</button>
   </div>
   <div class="card">
@@ -927,7 +932,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 
 <!-- NAVBAR TAB -->
 <div id="tab-navbar" style="display:none;">
-  <div class="ph"><div><div class="pt">الشريط العلوي</div><div class="ps">تحكم في الروابط الظاهرة في الـ Navbar</div></div>
+  <div class="ph"><div><div class="pt" data-i18n="page.navbar.title">الشريط العلوي</div><div class="ps" data-i18n="page.navbar.sub">تحكم في الروابط الظاهرة في الـ Navbar</div></div>
     <button class="btn-add" onclick="saveNavbar()"><i class="fa-solid fa-floppy-disk"></i> حفظ</button>
   </div>
   <div class="card">
@@ -939,7 +944,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 
 <!-- CONTENT TAB -->
 <div id="tab-content" style="display:none;">
-  <div class="ph"><div><div class="pt">تعديل المحتوى</div><div class="ps">عدّل نصوص وبيانات كل قسم</div></div>
+  <div class="ph"><div><div class="pt" data-i18n="page.content.title">تعديل المحتوى</div><div class="ps" data-i18n="page.content.sub">عدّل نصوص وبيانات كل قسم</div></div>
     <button class="btn-add" onclick="saveContent()"><i class="fa-solid fa-floppy-disk"></i> حفظ</button>
   </div>
   <div class="ctabs" id="ctabs"></div>
@@ -949,8 +954,8 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 <!-- LOGOS TAB -->
 <div id="tab-logos" style="display:none;">
   <div class="ph">
-    <div><div class="pt">شعارات العملاء</div><div class="ps">الشركات والعلامات التجارية اللي اشتغلت معاها</div></div>
-    <button class="btn-add" onclick="openLogoModal()"><i class="fa-solid fa-plus"></i> إضافة شعار</button>
+    <div><div class="pt" data-i18n="page.logos.title">شعارات العملاء</div><div class="ps" data-i18n="page.logos.sub">الشركات والعلامات التجارية اللي اشتغلت معاها</div></div>
+    <button class="btn-add" onclick="openLogoModal()"><i class="fa-solid fa-plus"></i> <span data-i18n="logos.addLogo">إضافة شعار</span></button>
   </div>
 
   <div class="card">
@@ -959,8 +964,8 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
     </div>
     <div id="logosEmpty" style="text-align:center;padding:50px 20px;color:#666;display:none;">
       <i class="fa-solid fa-buildings" style="font-size:42px;color:#333;margin-bottom:14px;"></i>
-      <div style="font-size:14px;">لا توجد شعارات بعد</div>
-      <div style="font-size:12px;color:#888;margin-top:4px;">اضغط "إضافة شعار" لبدء عرض شركات عملائك</div>
+      <div style="font-size:14px;" data-i18n="logos.empty">لا توجد شعارات بعد</div>
+      <div style="font-size:12px;color:#888;margin-top:4px;" data-i18n="logos.emptyHint">اضغط "إضافة شعار" لبدء عرض شركات عملائك</div>
     </div>
   </div>
 </div>
@@ -968,24 +973,24 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 <!-- TESTIMONIALS TAB -->
 <div id="tab-testimonials" style="display:none;">
   <div class="ph">
-    <div><div class="pt">آراء العملاء</div><div class="ps">إدارة آراء عملائك السابقين</div></div>
-    <button class="btn-add" onclick="openTestModal()"><i class="fa-solid fa-plus"></i> إضافة رأي</button>
+    <div><div class="pt" data-i18n="page.test.title">آراء العملاء</div><div class="ps" data-i18n="page.test.sub">إدارة آراء عملائك السابقين</div></div>
+    <button class="btn-add" onclick="openTestModal()"><i class="fa-solid fa-plus"></i> <span data-i18n="test.add">إضافة رأي</span></button>
   </div>
 
   <!-- Public form toggle -->
   <div class="card" style="margin-bottom:14px;">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;">
       <div style="flex:1;min-width:240px;">
-        <div style="font-weight:800;font-size:14px;margin-bottom:6px;"><i class="fa-solid fa-link" style="color:var(--o);margin-inline-end:8px;"></i>استقبال آراء من العملاء</div>
-        <div style="color:#888;font-size:12px;line-height:1.6;">فعّل هذه الميزة لإرسال رابط لعملائك لكتابة رأيهم بأنفسهم. الآراء تكون قيد المراجعة قبل النشر.</div>
+        <div style="font-weight:800;font-size:14px;margin-bottom:6px;"><i class="fa-solid fa-link" style="color:var(--o);margin-inline-end:8px;"></i><span data-i18n="test.openTitle">استقبال آراء من العملاء</span></div>
+        <div style="color:#888;font-size:12px;line-height:1.6;" data-i18n="test.openDesc">فعّل هذه الميزة لإرسال رابط لعملائك لكتابة رأيهم بأنفسهم. الآراء تكون قيد المراجعة قبل النشر.</div>
       </div>
       <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
         <input type="checkbox" id="testOpenToggle" onchange="toggleTestOpen(this)" style="width:18px;height:18px;accent-color:var(--o);">
-        <span style="font-weight:700;font-size:13px;">تشغيل</span>
+        <span style="font-weight:700;font-size:13px;" data-i18n="test.toggle">تشغيل</span>
       </label>
     </div>
     <div id="testLinkBox" style="display:none;margin-top:14px;padding:14px;background:#0a0a0a;border:1px solid #1f1f1f;border-radius:10px;">
-      <div style="font-size:12px;color:#888;margin-bottom:8px;">رابط استقبال الآراء (شارك مع عملائك):</div>
+      <div style="font-size:12px;color:#888;margin-bottom:8px;" data-i18n="test.linkLabel">رابط استقبال الآراء (شارك مع عملائك):</div>
       <div style="display:flex;gap:8px;align-items:center;">
         <code id="testLink" style="flex:1;background:#000;padding:10px 12px;border-radius:6px;font-size:11.5px;color:#22c55e;font-family:monospace;word-break:break-all;direction:ltr;text-align:left;"></code>
         <button onclick="copyTestLink()" id="copyTestBtn" style="background:#22c55e;color:#fff;border:none;padding:10px 16px;border-radius:6px;cursor:pointer;font-weight:700;font-size:12px;font-family:inherit;flex-shrink:0;">
@@ -1008,15 +1013,15 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
     <div id="testGrid" style="display:grid;gap:12px;"></div>
     <div id="testEmpty" style="text-align:center;padding:50px 20px;color:#666;display:none;">
       <i class="fa-solid fa-quote-right" style="font-size:42px;color:#333;margin-bottom:14px;"></i>
-      <div style="font-size:14px;">لا توجد آراء بعد</div>
-      <div style="font-size:12px;color:#888;margin-top:4px;">اضغط "إضافة رأي" أو فعّل ميزة استقبال الآراء</div>
+      <div style="font-size:14px;" data-i18n="test.empty">لا توجد آراء بعد</div>
+      <div style="font-size:12px;color:#888;margin-top:4px;" data-i18n="test.emptyHint">اضغط "إضافة رأي" أو فعّل ميزة استقبال الآراء</div>
     </div>
   </div>
 </div>
 
 <!-- SOCIAL TAB -->
 <div id="tab-social" style="display:none;">
-  <div class="ph"><div><div class="pt">التواصل الاجتماعي</div><div class="ps">الصورة الشخصية والروابط</div></div>
+  <div class="ph"><div><div class="pt" data-i18n="page.social.title">التواصل الاجتماعي</div><div class="ps" data-i18n="page.social.sub">الصورة الشخصية والروابط</div></div>
     <button class="btn-add" onclick="saveSocial()"><i class="fa-solid fa-floppy-disk"></i> حفظ</button>
   </div>
   <div class="card">
@@ -1098,7 +1103,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
     ✅ قسم إدارة العملاء يعمل
   </div>
   <div class="ph">
-    <div><div class="pt">إدارة العملاء</div><div class="ps">أضف وأدر حسابات العملاء</div></div>
+    <div><div class="pt" data-i18n="page.users.title">إدارة العملاء</div><div class="ps" data-i18n="page.users.sub">أضف وأدر حسابات العملاء</div></div>
     <button class="btn-add" onclick="showAddUserModal()"><i class="fa-solid fa-user-plus"></i> عميل جديد</button>
   </div>
   <div class="tw" id="usersTable">
@@ -1225,7 +1230,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 <div class="mo" id="logoModal">
   <div class="modal" style="max-width:480px;">
     <div class="mh">
-      <div class="mt"><i class="fa-solid fa-buildings" style="color:var(--o);margin-left:10px;"></i><span id="logoModalTitle">إضافة شعار</span></div>
+      <div class="mt"><i class="fa-solid fa-buildings" style="color:var(--o);margin-left:10px;"></i><span id="logoModalTitle" data-i18n="logos.modal.add">إضافة شعار</span></div>
       <button class="mc" onclick="closeLogoModal()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="mb">
@@ -1254,9 +1259,9 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
       </div>
     </div>
     <div class="mfo">
-      <button class="btn-cancel" onclick="closeLogoModal()">إلغاء</button>
+      <button class="btn-cancel" onclick="closeLogoModal()" data-i18n="btn.cancel">إلغاء</button>
       <button class="btn-import" id="logoSaveBtn" onclick="saveLogo()" style="background:var(--o);">
-        <i class="fa-solid fa-floppy-disk"></i> حفظ
+        <i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn.save">حفظ</span>
       </button>
     </div>
   </div>
@@ -1266,7 +1271,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 <div class="mo" id="testModal">
   <div class="modal" style="max-width:560px;">
     <div class="mh">
-      <div class="mt"><i class="fa-solid fa-quote-right" style="color:var(--o);margin-left:10px;"></i><span id="testModalTitle">إضافة رأي</span></div>
+      <div class="mt"><i class="fa-solid fa-quote-right" style="color:var(--o);margin-left:10px;"></i><span id="testModalTitle" data-i18n="test.modal.add">إضافة رأي</span></div>
       <button class="mc" onclick="closeTestModal()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="mb">
@@ -1311,7 +1316,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
       </div>
     </div>
     <div class="mfo">
-      <button class="btn-cancel" onclick="closeTestModal()">إلغاء</button>
+      <button class="btn-cancel" onclick="closeTestModal()" data-i18n="btn.cancel">إلغاء</button>
       <button class="btn-import" id="testSaveBtn" onclick="saveTestimonial()" style="background:var(--o);">
         <i class="fa-solid fa-floppy-disk"></i> حفظ
       </button>
@@ -1322,7 +1327,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 <div class="mo" id="behanceModal">
   <div class="modal" style="max-width:580px;">
     <div class="mh">
-      <div class="mt"><i class="fa-brands fa-behance" style="color:#1769ff;margin-left:10px;"></i>استيراد من Behance</div>
+      <div class="mt"><i class="fa-brands fa-behance" style="color:#1769ff;margin-left:10px;"></i><span data-i18n="bh.title">استيراد من Behance</span></div>
       <button class="mc" onclick="closeBehanceModal()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="mb">
@@ -1391,7 +1396,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 
     </div>
     <div class="mfo">
-      <button class="btn-cancel" onclick="closeBehanceModal()">إغلاق</button>
+      <button class="btn-cancel" onclick="closeBehanceModal()" data-i18n="btn.close">إغلاق</button>
     </div>
   </div>
 </div>
@@ -1598,6 +1603,405 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 
 <script>
 // ══ STATE ══
+// ══════════════ I18N SYSTEM ══════════════
+const I18N = {
+  ar: {
+    // Login
+    'login.title': 'لوحة التحكم',
+    'login.username': 'اسم المستخدم',
+    'login.password': 'كلمة المرور',
+    'login.submit': 'دخول',
+    'login.welcome': 'مرحباً بعودتك',
+    // Sidebar nav
+    'nav.projects': 'المشاريع',
+    'nav.analytics': 'الإحصائيات',
+    'nav.reorder': 'ترتيب المشاريع',
+    'nav.categories': 'التصنيفات',
+    'nav.design': 'التصميم',
+    'nav.sections': 'ترتيب الأقسام',
+    'nav.navbar': 'الشريط العلوي',
+    'nav.content': 'المحتوى',
+    'nav.logos': 'العملاء',
+    'nav.testimonials': 'آراء العملاء',
+    'nav.social': 'التواصل',
+    'nav.users': 'إدارة العملاء',
+    // Sidebar footer
+    'sb.loggedAs': 'مسجل كـ',
+    'sb.storage': 'المساحة المستخدمة',
+    'sb.viewSite': 'عرض الموقع',
+    'sb.logout': 'تسجيل الخروج',
+    // Page headers - Projects
+    'page.projects.title': 'المشاريع',
+    'page.projects.sub': 'إدارة أعمالك ومشاريعك',
+    'btn.newProject': 'مشروع جديد',
+    'btn.behance': 'Behance',
+    'btn.vimeo': 'Vimeo',
+    // Stats
+    'stats.images': 'صور',
+    'stats.reels': 'Reels',
+    'stats.designs': 'تصاميم',
+    'stats.total': 'إجمالي',
+    // Project filter
+    'filter.all': 'الكل',
+    'filter.designs': 'التصاميم',
+    'filter.videos': 'الفيديوهات',
+    // Table headers
+    'th.project': 'المشروع',
+    'th.category': 'التصنيف',
+    'th.date': 'التاريخ',
+    'th.actions': 'إجراءات',
+    // Common buttons
+    'btn.save': 'حفظ',
+    'btn.cancel': 'إلغاء',
+    'btn.delete': 'حذف',
+    'btn.edit': 'تعديل',
+    'btn.add': 'إضافة',
+    'btn.close': 'إغلاق',
+    'btn.confirm': 'تأكيد',
+    'btn.copy': 'نسخ',
+    'btn.copied': 'تم النسخ!',
+    // Analytics
+    'page.analytics.title': 'الإحصائيات',
+    'page.analytics.sub': 'تحليل زوار موقعك',
+    'an.totalVisits': 'إجمالي الزيارات',
+    'an.uniqueVisitors': 'زوار فريدون',
+    'an.mobilePct': 'نسبة الموبايل',
+    'an.countries': 'الدول',
+    'an.range7': 'آخر 7 أيام',
+    'an.range30': 'آخر 30 يوم',
+    'an.range90': 'آخر 90 يوم',
+    'an.range365': 'سنة',
+    'an.dailyVisits': 'الزيارات اليومية',
+    'an.topProjects': 'أكثر المشاريع زيارة',
+    'an.topCountries': 'الدول الأكثر زيارة',
+    'an.devices': 'الأجهزة',
+    'an.referrers': 'المصادر',
+    // Reorder
+    'page.reorder.title': 'ترتيب المشاريع',
+    'page.reorder.sub': 'اسحب لإعادة الترتيب',
+    // Categories
+    'page.categories.title': 'التصنيفات',
+    'page.categories.sub': 'إدارة فئات مشاريعك',
+    'cat.image': 'تصنيفات الصور',
+    'cat.video': 'تصنيفات الفيديو',
+    // Design
+    'page.design.title': 'التصميم',
+    'page.design.sub': 'خصص شكل موقعك بالكامل',
+    'design.themes': 'الثيمات',
+    'design.layouts': 'التخطيطات',
+    'design.fonts': 'الخطوط',
+    'design.bg': 'الخلفية',
+    'design.cursor': 'المؤشر',
+    'design.anim': 'الحركات',
+    'btn.saveDesign': 'حفظ التصميم',
+    // Sections
+    'page.sections.title': 'ترتيب الأقسام',
+    'page.sections.sub': 'اسحب لإعادة الترتيب',
+    // Navbar
+    'page.navbar.title': 'الشريط العلوي',
+    'page.navbar.sub': 'تحكم في الروابط الظاهرة في الـ Navbar',
+    // Content
+    'page.content.title': 'تعديل المحتوى',
+    'page.content.sub': 'عدّل نصوص وبيانات كل قسم',
+    // Logos
+    'page.logos.title': 'شعارات العملاء',
+    'page.logos.sub': 'الشركات والعلامات التجارية اللي اشتغلت معاها',
+    'logos.addLogo': 'إضافة شعار',
+    'logos.empty': 'لا توجد شعارات بعد',
+    'logos.emptyHint': 'اضغط "إضافة شعار" لبدء عرض شركات عملائك',
+    'logos.modal.add': 'إضافة شعار',
+    'logos.modal.edit': 'تعديل شعار',
+    'logos.name': 'اسم العميل / الشركة',
+    'logos.website': 'رابط الموقع',
+    'logos.optional': '(اختياري)',
+    'logos.logo': 'الشعار',
+    'logos.uploadHint': 'اضغط لاختيار الشعار',
+    'logos.uploadFmt': 'PNG شفاف موصى به · أقصى 2MB',
+    // Testimonials
+    'page.test.title': 'آراء العملاء',
+    'page.test.sub': 'إدارة آراء عملائك السابقين',
+    'test.add': 'إضافة رأي',
+    'test.openTitle': 'استقبال آراء من العملاء',
+    'test.openDesc': 'فعّل هذه الميزة لإرسال رابط لعملائك لكتابة رأيهم بأنفسهم. الآراء تكون قيد المراجعة قبل النشر.',
+    'test.toggle': 'تشغيل',
+    'test.linkLabel': 'رابط استقبال الآراء (شارك مع عملائك):',
+    'test.pending': 'رأي بانتظار المراجعة',
+    'test.empty': 'لا توجد آراء بعد',
+    'test.emptyHint': 'اضغط "إضافة رأي" أو فعّل ميزة استقبال الآراء',
+    'test.modal.add': 'إضافة رأي',
+    'test.modal.edit': 'تعديل رأي',
+    'test.name': 'الاسم',
+    'test.role': 'المسمى الوظيفي',
+    'test.company': 'الشركة',
+    'test.rating': 'التقييم',
+    'test.content': 'الرأي',
+    'test.avatar': 'صورة شخصية',
+    'test.chooseAvatar': 'اختر صورة',
+    'test.approve': 'قبول',
+    'test.pendingBadge': 'بانتظار المراجعة',
+    // Social
+    'page.social.title': 'التواصل الاجتماعي',
+    'page.social.sub': 'الصورة الشخصية والروابط',
+    // Users
+    'page.users.title': 'إدارة العملاء',
+    'page.users.sub': 'إنشاء وإدارة حسابات العملاء',
+    'users.addUser': 'إضافة عميل',
+    // Toasts
+    'toast.saved': '✓ تم الحفظ',
+    'toast.deleted': '✓ تم الحذف',
+    'toast.error': 'خطأ',
+    'toast.connectionError': 'خطأ في الاتصال',
+    // Confirms
+    'confirm.deleteLogo': 'هل أنت متأكد من حذف هذا الشعار؟',
+    'confirm.deleteTest': 'هل أنت متأكد من حذف هذا الرأي؟',
+    'confirm.deleteProject': 'هل أنت متأكد من حذف هذا المشروع؟',
+    // Behance modal
+    'bh.title': 'استيراد من Behance',
+    'bh.heroTitle': '3 خطوات بسيطة — يعمل على أي متصفح',
+    'bh.heroSub': 'انسخ الكود، الصقه، احذف //، اضغط Enter',
+    'bh.warningTitle': 'تنبيه هام جداً',
+    'bh.step1.title': 'افتح المشروع على Behance في وضع التعديل',
+    'bh.step1.desc': 'ادخل المشروع اللي عايز تستورده، ثم اضغط Edit Project (تعديل المشروع)',
+    'bh.step2.title': 'انسخ الكود من هنا',
+    'bh.step3.title': 'الصق الكود في صفحة Behance',
+    // Storage
+    'storage.full': 'وصلت للحد الأقصى من المساحة',
+  },
+  en: {
+    // Login
+    'login.title': 'Dashboard',
+    'login.username': 'Username',
+    'login.password': 'Password',
+    'login.submit': 'Sign In',
+    'login.welcome': 'Welcome back',
+    // Sidebar nav
+    'nav.projects': 'Projects',
+    'nav.analytics': 'Analytics',
+    'nav.reorder': 'Reorder Projects',
+    'nav.categories': 'Categories',
+    'nav.design': 'Design',
+    'nav.sections': 'Sections Order',
+    'nav.navbar': 'Top Navbar',
+    'nav.content': 'Content',
+    'nav.logos': 'Clients',
+    'nav.testimonials': 'Testimonials',
+    'nav.social': 'Social',
+    'nav.users': 'Manage Clients',
+    // Sidebar footer
+    'sb.loggedAs': 'Logged in as',
+    'sb.storage': 'Storage Used',
+    'sb.viewSite': 'View Site',
+    'sb.logout': 'Sign Out',
+    // Projects
+    'page.projects.title': 'Projects',
+    'page.projects.sub': 'Manage your work and projects',
+    'btn.newProject': 'New Project',
+    'btn.behance': 'Behance',
+    'btn.vimeo': 'Vimeo',
+    // Stats
+    'stats.images': 'Images',
+    'stats.reels': 'Reels',
+    'stats.designs': 'Designs',
+    'stats.total': 'Total',
+    // Filter
+    'filter.all': 'All',
+    'filter.designs': 'Designs',
+    'filter.videos': 'Videos',
+    // Table
+    'th.project': 'Project',
+    'th.category': 'Category',
+    'th.date': 'Date',
+    'th.actions': 'Actions',
+    // Buttons
+    'btn.save': 'Save',
+    'btn.cancel': 'Cancel',
+    'btn.delete': 'Delete',
+    'btn.edit': 'Edit',
+    'btn.add': 'Add',
+    'btn.close': 'Close',
+    'btn.confirm': 'Confirm',
+    'btn.copy': 'Copy',
+    'btn.copied': 'Copied!',
+    // Analytics
+    'page.analytics.title': 'Analytics',
+    'page.analytics.sub': 'Analyze your site visitors',
+    'an.totalVisits': 'Total Visits',
+    'an.uniqueVisitors': 'Unique Visitors',
+    'an.mobilePct': 'Mobile %',
+    'an.countries': 'Countries',
+    'an.range7': 'Last 7 days',
+    'an.range30': 'Last 30 days',
+    'an.range90': 'Last 90 days',
+    'an.range365': '1 Year',
+    'an.dailyVisits': 'Daily Visits',
+    'an.topProjects': 'Top Projects',
+    'an.topCountries': 'Top Countries',
+    'an.devices': 'Devices',
+    'an.referrers': 'Referrers',
+    // Reorder
+    'page.reorder.title': 'Reorder Projects',
+    'page.reorder.sub': 'Drag to reorder',
+    // Categories
+    'page.categories.title': 'Categories',
+    'page.categories.sub': 'Manage your project categories',
+    'cat.image': 'Image Categories',
+    'cat.video': 'Video Categories',
+    // Design
+    'page.design.title': 'Design',
+    'page.design.sub': 'Customize your site appearance',
+    'design.themes': 'Themes',
+    'design.layouts': 'Layouts',
+    'design.fonts': 'Fonts',
+    'design.bg': 'Background',
+    'design.cursor': 'Cursor',
+    'design.anim': 'Animations',
+    'btn.saveDesign': 'Save Design',
+    // Sections
+    'page.sections.title': 'Sections Order',
+    'page.sections.sub': 'Drag to reorder',
+    // Navbar
+    'page.navbar.title': 'Top Navbar',
+    'page.navbar.sub': 'Control navbar links',
+    // Content
+    'page.content.title': 'Edit Content',
+    'page.content.sub': 'Edit text and data for each section',
+    // Logos
+    'page.logos.title': 'Client Logos',
+    'page.logos.sub': 'Companies and brands you worked with',
+    'logos.addLogo': 'Add Logo',
+    'logos.empty': 'No logos yet',
+    'logos.emptyHint': 'Click "Add Logo" to start showcasing your clients',
+    'logos.modal.add': 'Add Logo',
+    'logos.modal.edit': 'Edit Logo',
+    'logos.name': 'Client / Company Name',
+    'logos.website': 'Website URL',
+    'logos.optional': '(optional)',
+    'logos.logo': 'Logo',
+    'logos.uploadHint': 'Click to choose logo',
+    'logos.uploadFmt': 'Transparent PNG recommended · Max 2MB',
+    // Testimonials
+    'page.test.title': 'Testimonials',
+    'page.test.sub': 'Manage your client reviews',
+    'test.add': 'Add Testimonial',
+    'test.openTitle': 'Receive testimonials from clients',
+    'test.openDesc': 'Enable this to send your clients a link where they can write their own reviews. Reviews are pending until you approve them.',
+    'test.toggle': 'Enable',
+    'test.linkLabel': 'Public testimonial link (share with clients):',
+    'test.pending': 'review(s) pending approval',
+    'test.empty': 'No testimonials yet',
+    'test.emptyHint': 'Click "Add Testimonial" or enable public submissions',
+    'test.modal.add': 'Add Testimonial',
+    'test.modal.edit': 'Edit Testimonial',
+    'test.name': 'Name',
+    'test.role': 'Job Title',
+    'test.company': 'Company',
+    'test.rating': 'Rating',
+    'test.content': 'Review',
+    'test.avatar': 'Profile Photo',
+    'test.chooseAvatar': 'Choose Photo',
+    'test.approve': 'Approve',
+    'test.pendingBadge': 'Pending Review',
+    // Social
+    'page.social.title': 'Social Media',
+    'page.social.sub': 'Profile photo and links',
+    // Users
+    'page.users.title': 'Manage Clients',
+    'page.users.sub': 'Create and manage client accounts',
+    'users.addUser': 'Add Client',
+    // Toasts
+    'toast.saved': '✓ Saved',
+    'toast.deleted': '✓ Deleted',
+    'toast.error': 'Error',
+    'toast.connectionError': 'Connection error',
+    // Confirms
+    'confirm.deleteLogo': 'Are you sure you want to delete this logo?',
+    'confirm.deleteTest': 'Are you sure you want to delete this review?',
+    'confirm.deleteProject': 'Are you sure you want to delete this project?',
+    // Behance
+    'bh.title': 'Import from Behance',
+    'bh.heroTitle': '3 Simple Steps — Works on any browser',
+    'bh.heroSub': 'Copy the code, paste it, remove //, press Enter',
+    'bh.warningTitle': 'Important Notice',
+    'bh.step1.title': 'Open the project on Behance in Edit mode',
+    'bh.step1.desc': 'Open the project you want to import, then click Edit Project',
+    'bh.step2.title': 'Copy the code below',
+    'bh.step3.title': 'Paste the code on Behance page',
+    // Storage
+    'storage.full': 'Storage limit reached',
+  }
+};
+
+let currentLang = localStorage.getItem('admin_lang') || 'ar';
+
+function t(key){
+  return (I18N[currentLang] && I18N[currentLang][key]) || (I18N.ar[key]) || key;
+}
+
+function setLang(lang){
+  if(lang !== 'ar' && lang !== 'en') lang = 'ar';
+  currentLang = lang;
+  localStorage.setItem('admin_lang', lang);
+  document.documentElement.setAttribute('lang', lang);
+  document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+  applyI18n();
+}
+
+function applyI18n(){
+  // Translate all elements with data-i18n
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const text = t(key);
+    // For elements with no children OR only text — replace textContent
+    if(el.children.length === 0){
+      el.textContent = text;
+    } else {
+      // Has children (icons, etc.) — find first text node and update
+      let textNode = null;
+      for(const node of el.childNodes){
+        if(node.nodeType === Node.TEXT_NODE && node.textContent.trim()){
+          textNode = node; break;
+        }
+      }
+      if(textNode){
+        textNode.textContent = ' ' + text;
+      } else {
+        el.appendChild(document.createTextNode(' ' + text));
+      }
+    }
+  });
+  // Translate placeholders
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    el.setAttribute('placeholder', t(el.getAttribute('data-i18n-ph')));
+  });
+  // Translate titles
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    el.setAttribute('title', t(el.getAttribute('data-i18n-title')));
+  });
+  // Update lang toggle button label
+  const btn = document.getElementById('langToggleBtn');
+  if(btn){
+    btn.innerHTML = currentLang === 'ar'
+      ? '<i class="fa-solid fa-language"></i> EN'
+      : '<i class="fa-solid fa-language"></i> AR';
+  }
+}
+
+function toggleLang(){
+  setLang(currentLang === 'ar' ? 'en' : 'ar');
+  // Re-render dynamic content
+  if(typeof renderNavbarList === 'function' && document.getElementById('tab-navbar')?.style.display !== 'none') renderNavbarList();
+  if(typeof renderLogos === 'function') renderLogos();
+  if(typeof renderTestimonials === 'function') renderTestimonials();
+}
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', () => {
+  document.documentElement.setAttribute('lang', currentLang);
+  document.documentElement.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
+  // Apply translations after a brief delay to ensure all elements are rendered
+  setTimeout(() => applyI18n(), 100);
+});
+
 let S={}, projects=[], deleteId=null;
 let photoData=null, heroCoverData=null, brandLogoData=null, faviconData=null;
 let toolImgUploads={}, expSvcImgUploads={};
