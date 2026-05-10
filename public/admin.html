@@ -480,7 +480,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
     <div class="lf"><input type="text" id="lu" data-i18n-ph="login.username" placeholder="اسم المستخدم" value="admin"></div>
     <div class="lf"><input type="password" id="lp" data-i18n-ph="login.password" placeholder="كلمة المرور"></div>
     <button class="lbtn" id="lBtn" onclick="doLogin()"><span data-i18n="login.submit">دخول</span></button>
-    <div class="lerr" id="lerr">بيانات غير صحيحة</div>
+    <div class="lerr" id="lerr" data-i18n="login.invalidCreds">بيانات غير صحيحة</div>
   </div>
 </div>
 
@@ -542,10 +542,10 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
   <div class="ph">
     <div><div class="pt" data-i18n="page.analytics.title">📊 إحصائيات الزوار</div><div class="ps" data-i18n="page.analytics.sub">شاهد من زار موقعك ومن أين</div></div>
     <select class="fse" id="anRange" onchange="loadAnalytics()" style="width:auto;min-width:160px;">
-      <option value="7">آخر 7 أيام</option>
-      <option value="30" selected>آخر 30 يوم</option>
-      <option value="90">آخر 90 يوم</option>
-      <option value="365">آخر سنة</option>
+      <option value="7" data-i18n="an.range7">آخر 7 أيام</option>
+      <option value="30" selected data-i18n="an.range30">آخر 30 يوم</option>
+      <option value="90" data-i18n="an.range90">آخر 90 يوم</option>
+      <option value="365" data-i18n="an.range1y">آخر سنة</option>
     </select>
   </div>
 
@@ -553,36 +553,36 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
   <div class="stats" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px;">
     <div class="stat-box">
       <div class="stat-icon"><i class="fa-solid fa-eye"></i></div>
-      <div><div class="stat-num" id="anTotal">—</div><div class="stat-lbl">إجمالي الزيارات</div></div>
+      <div><div class="stat-num" id="anTotal">—</div><div class="stat-lbl" data-i18n="an.totalVisits">إجمالي الزيارات</div></div>
     </div>
     <div class="stat-box">
       <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
-      <div><div class="stat-num" id="anUnique">—</div><div class="stat-lbl">زائر فريد</div></div>
+      <div><div class="stat-num" id="anUnique">—</div><div class="stat-lbl" data-i18n="an.uniqueOne">زائر فريد</div></div>
     </div>
     <div class="stat-box">
       <div class="stat-icon"><i class="fa-solid fa-mobile-screen"></i></div>
-      <div><div class="stat-num" id="anMobile">—</div><div class="stat-lbl">من الموبايل</div></div>
+      <div><div class="stat-num" id="anMobile">—</div><div class="stat-lbl" data-i18n="an.fromMobile">من الموبايل</div></div>
     </div>
     <div class="stat-box">
       <div class="stat-icon"><i class="fa-solid fa-globe"></i></div>
-      <div><div class="stat-num" id="anCountries">—</div><div class="stat-lbl">دولة مختلفة</div></div>
+      <div><div class="stat-num" id="anCountries">—</div><div class="stat-lbl" data-i18n="an.diffCountries">دولة مختلفة</div></div>
     </div>
   </div>
 
   <!-- Daily Chart -->
   <div class="card">
-    <div class="card-title"><i class="fa-solid fa-chart-column" style="color:var(--o);margin-left:6px"></i> الزوار يومياً</div>
+    <div class="card-title"><i class="fa-solid fa-chart-column" style="color:var(--o);margin-left:6px"></i> <span data-i18n="an.dailyVisitors">الزوار يومياً</span></div>
     <div id="anChart" style="margin-top:14px;min-height:220px;"></div>
   </div>
 
   <!-- Two columns: Top projects + Top countries -->
   <div class="frow" style="align-items:flex-start;">
     <div class="card" style="flex:1;min-width:280px;">
-      <div class="card-title"><i class="fa-solid fa-trophy" style="color:var(--o);margin-left:6px"></i> أكثر المشاريع مشاهدة</div>
+      <div class="card-title"><i class="fa-solid fa-trophy" style="color:var(--o);margin-left:6px"></i> <span data-i18n="an.mostViewed">أكثر المشاريع مشاهدة</span></div>
       <div id="anProjects" style="margin-top:14px;"></div>
     </div>
     <div class="card" style="flex:1;min-width:280px;">
-      <div class="card-title"><i class="fa-solid fa-earth-americas" style="color:var(--o);margin-left:6px"></i> أعلى الدول زيارة</div>
+      <div class="card-title"><i class="fa-solid fa-earth-americas" style="color:var(--o);margin-left:6px"></i> <span data-i18n="an.topCountriesIcon">أعلى الدول زيارة</span></div>
       <div id="anCountriesList" style="margin-top:14px;"></div>
     </div>
   </div>
@@ -590,11 +590,11 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
   <!-- Devices + Referrers -->
   <div class="frow" style="align-items:flex-start;">
     <div class="card" style="flex:1;min-width:280px;">
-      <div class="card-title"><i class="fa-solid fa-display" style="color:var(--o);margin-left:6px"></i> الأجهزة</div>
+      <div class="card-title"><i class="fa-solid fa-display" style="color:var(--o);margin-left:6px"></i> <span data-i18n="an.devicesTitle">الأجهزة</span></div>
       <div id="anDevices" style="margin-top:14px;"></div>
     </div>
     <div class="card" style="flex:1;min-width:280px;">
-      <div class="card-title"><i class="fa-solid fa-link" style="color:var(--o);margin-left:6px"></i> مصادر الزيارات</div>
+      <div class="card-title"><i class="fa-solid fa-link" style="color:var(--o);margin-left:6px"></i> <span data-i18n="an.referrerSources">مصادر الزيارات</span></div>
       <div id="anReferrers" style="margin-top:14px;"></div>
     </div>
   </div>
@@ -611,18 +611,18 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
     </div>
   </div>
   <div class="stats">
-    <div class="sc"><div class="si"><i class="fa-solid fa-folder-open"></i></div><div class="sn" id="stTotal">0</div><div class="sl-stat">إجمالي</div></div>
-    <div class="sc"><div class="si"><i class="fa-solid fa-image"></i></div><div class="sn" id="stImg">0</div><div class="sl-stat">تصاميم</div></div>
-    <div class="sc"><div class="si"><i class="fa-brands fa-instagram"></i></div><div class="sn" id="stReel">0</div><div class="sl-stat">Reels</div></div>
-    <div class="sc"><div class="si"><i class="fa-solid fa-images"></i></div><div class="sn" id="stFiles">0</div><div class="sl-stat">صور</div></div>
+    <div class="sc"><div class="si"><i class="fa-solid fa-folder-open"></i></div><div class="sn" id="stTotal">0</div><div class="sl-stat" data-i18n="stats.total2">إجمالي</div></div>
+    <div class="sc"><div class="si"><i class="fa-solid fa-image"></i></div><div class="sn" id="stImg">0</div><div class="sl-stat" data-i18n="stats.designs2">تصاميم</div></div>
+    <div class="sc"><div class="si"><i class="fa-brands fa-instagram"></i></div><div class="sn" id="stReel">0</div><div class="sl-stat" data-i18n="stats.reels2">Reels</div></div>
+    <div class="sc"><div class="si"><i class="fa-solid fa-images"></i></div><div class="sn" id="stFiles">0</div><div class="sl-stat" data-i18n="stats.images2">صور</div></div>
   </div>
   <div class="proj-filter-tabs">
-    <button class="pft-btn active" id="pftAll" onclick="setProjFilter('all')"><i class="fa-solid fa-layer-group"></i> الكل</button>
-    <button class="pft-btn" id="pftImg" onclick="setProjFilter('image')"><i class="fa-solid fa-image"></i> التصاميم</button>
-    <button class="pft-btn" id="pftVid" onclick="setProjFilter('video')"><i class="fa-brands fa-instagram"></i> الفيديوهات</button>
+    <button class="pft-btn active" id="pftAll" onclick="setProjFilter('all')"><i class="fa-solid fa-layer-group"></i> <span data-i18n="filter.allBtn">الكل</span></button>
+    <button class="pft-btn" id="pftImg" onclick="setProjFilter('image')"><i class="fa-solid fa-image"></i> <span data-i18n="filter.designsBtn">التصاميم</span></button>
+    <button class="pft-btn" id="pftVid" onclick="setProjFilter('video')"><i class="fa-brands fa-instagram"></i> <span data-i18n="filter.videosBtn">الفيديوهات</span></button>
   </div>
   <div class="tw">
-    <div class="thead"><div></div><div>المشروع</div><div>التصنيف</div><div>التاريخ</div><div>إجراءات</div></div>
+    <div class="thead"><div></div><div data-i18n="th.projectCol">المشروع</div><div data-i18n="th.categoryCol">التصنيف</div><div data-i18n="th.dateCol">التاريخ</div><div data-i18n="th.actionsCol">إجراءات</div></div>
     <div id="tBody"><div class="empty"><div class="spin"></div></div></div>
   </div>
 </div>
@@ -631,10 +631,10 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 <div id="tab-reorder" style="display:none;">
   <div class="ph">
     <div><div class="pt" data-i18n="page.reorder.title">ترتيب المشاريع</div><div class="ps" data-i18n="page.reorder.sub">اسحب لإعادة الترتيب</div></div>
-    <button class="btn-add" onclick="saveReorder()"><i class="fa-solid fa-floppy-disk"></i> حفظ الترتيب</button>
+    <button class="btn-add" onclick="saveReorder()"><i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn.saveOrder">حفظ الترتيب</span></button>
   </div>
   <div class="card">
-    <div class="card-title">اسحب المشروع لتغيير ترتيبه</div>
+    <div class="card-title" data-i18n="reorder.dragMsg">اسحب المشروع لتغيير ترتيبه</div>
     <div class="sec-list" id="reorderList"></div>
   </div>
 </div>
@@ -647,23 +647,23 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
   </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
     <div class="card">
-      <div class="card-title"><i class="fa-solid fa-image" style="color:var(--o);margin-left:6px;"></i> تصنيفات التصاميم</div>
+      <div class="card-title"><i class="fa-solid fa-image" style="color:var(--o);margin-left:6px;"></i> <span data-i18n="cat.imageTitle">تصنيفات التصاميم</span></div>
       <div id="imgCatsList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
       <div style="display:flex;gap:8px;">
-        <input id="newImgCat" type="text" placeholder="اسم التصنيف الجديد..." style="flex:1;padding:9px 12px;background:#0a0a0a;border:1px solid #222;border-radius:8px;color:#fff;font-family:inherit;">
+        <input id="newImgCat" type="text" data-i18n-ph="cat.newPh" placeholder="اسم التصنيف الجديد..." style="flex:1;padding:9px 12px;background:#0a0a0a;border:1px solid #222;border-radius:8px;color:#fff;font-family:inherit;">
         <button onclick="addCat('image')" class="btn-add" style="padding:9px 16px;"><i class="fa-solid fa-plus"></i></button>
       </div>
     </div>
     <div class="card">
-      <div class="card-title"><i class="fa-brands fa-instagram" style="color:var(--o);margin-left:6px;"></i> تصنيفات الريلز</div>
+      <div class="card-title"><i class="fa-brands fa-instagram" style="color:var(--o);margin-left:6px;"></i> <span data-i18n="cat.videoTitle">تصنيفات الريلز</span></div>
       <div id="vidCatsList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
       <div style="display:flex;gap:8px;">
-        <input id="newVidCat" type="text" placeholder="اسم التصنيف الجديد..." style="flex:1;padding:9px 12px;background:#0a0a0a;border:1px solid #222;border-radius:8px;color:#fff;font-family:inherit;">
+        <input id="newVidCat" type="text" data-i18n-ph="cat.newPh" placeholder="اسم التصنيف الجديد..." style="flex:1;padding:9px 12px;background:#0a0a0a;border:1px solid #222;border-radius:8px;color:#fff;font-family:inherit;">
         <button onclick="addCat('video')" class="btn-add" style="padding:9px 16px;"><i class="fa-solid fa-plus"></i></button>
       </div>
     </div>
   </div>
-  <p style="text-align:center;color:#777;font-size:12px;margin-top:16px;">💡 لو حذفت تصنيف مستخدم في مشاريع، المشاريع هتفضل بالاسم القديم — لازم تعدلها يدوياً</p>
+  <p style="text-align:center;color:#777;font-size:12px;margin-top:16px;"><span data-i18n="cat.warningHint">💡 لو حذفت تصنيف مستخدم في مشاريع، المشاريع هتفضل بالاسم القديم — لازم تعدلها يدوياً</span></p>
 </div>
 
 <!-- DESIGN TAB ═══════════════════════════════════════════════ -->
@@ -808,7 +808,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
     </div>
 
     <div class="card">
-      <div class="card-title"><i class="fa-solid fa-user" style="color:var(--o);margin-left:6px"></i> قسم "عن النفس"</div>
+      <div class="card-title"><i class="fa-solid fa-user" style="color:var(--o);margin-left:6px"></i> <span data-i18n="content.aboutSection">قسم "عن النفس"</span></div>
       <p style="color:var(--g2);font-size:13px;margin-bottom:18px;">اختر طريقة عرض البيانات الشخصية</p>
       <div class="dsn-options">
         <label class="dsn-opt"><input type="radio" name="style_about" value="classic">
@@ -838,7 +838,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 
       <!-- About Photo -->
       <div style="margin-top:24px;border-top:1px solid #222;padding-top:18px;">
-        <div style="font-size:14px;font-weight:700;margin-bottom:12px;color:#fff;"><i class="fa-solid fa-camera" style="color:var(--o);margin-left:6px"></i> الصورة الشخصية</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:12px;color:#fff;"><i class="fa-solid fa-camera" style="color:var(--o);margin-left:6px"></i> <span data-i18n="social.profilePhoto">الصورة الشخصية</span></div>
         <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;">
           <div id="photoPreview" style="width:130px;height:130px;border-radius:50%;background:#0a0a0a;border:1px solid #222;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#444;flex-shrink:0;"><i class="fa-solid fa-user" style="font-size:32px;"></i></div>
           <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:180px;">
@@ -951,10 +951,10 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 <!-- SECTIONS TAB -->
 <div id="tab-sections" style="display:none;">
   <div class="ph"><div><div class="pt" data-i18n="page.sections.title">ترتيب الأقسام</div><div class="ps" data-i18n="page.sections.sub">اسحب لإعادة الترتيب</div></div>
-    <button class="btn-add" onclick="saveSections()"><i class="fa-solid fa-floppy-disk"></i> حفظ</button>
+    <button class="btn-add" onclick="saveSections()"><i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn.save">حفظ</span></button>
   </div>
   <div class="card">
-    <div class="card-title">أقسام الموقع</div>
+    <div class="card-title" data-i18n="sections.cardTitle">أقسام الموقع</div>
     <div class="sec-list" id="secList"></div>
   </div>
 </div>
@@ -965,8 +965,8 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
     <button class="btn-add" onclick="saveNavbar()"><i class="fa-solid fa-floppy-disk"></i> حفظ</button>
   </div>
   <div class="card">
-    <div class="card-title">روابط الـ Navbar</div>
-    <p style="color:var(--g2);font-size:13px;margin-bottom:20px;">فعّل أو أخفِ الروابط — اسحب لإعادة الترتيب — يمكنك تعديل النص</p>
+    <div class="card-title" data-i18n="navbar.cardTitle">روابط الـ Navbar</div>
+    <p style="color:var(--g2);font-size:13px;margin-bottom:20px;"><span data-i18n="navbar.cardDesc">فعّل أو أخفِ الروابط — اسحب لإعادة الترتيب — يمكنك تعديل النص</span></p>
     <div class="sec-list" id="navbarList"></div>
   </div>
 </div>
@@ -1055,7 +1055,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
   </div>
   <div class="card">
     <div class="card-title">الروابط — اللي تحتاجها بس فعّلها وحط اللينك</div>
-    <p style="color:#666;font-size:12px;margin-bottom:14px;">💡 الأيقونات تظهر في الفوتر فقط لو فعّلت الإظهار وحطيت لينك</p>
+    <p style="color:#666;font-size:12px;margin-bottom:14px;"><span data-i18n="social.linksHint2">💡 الأيقونات تظهر في الفوتر فقط لو فعّلت الإظهار وحطيت لينك</span></p>
     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:14px;">
       <div class="fg" style="background:#0a0a0a;border:1px solid #1f1f1f;border-radius:8px;padding:12px;">
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:8px;">
@@ -1203,7 +1203,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
           </div>
         </div>
         <div class="fg" style="margin-top:12px;">
-          <label class="fl">التصنيف</label>
+          <label class="fl" data-i18n="newproj.category">التصنيف</label>
           <select class="fse" id="vimeoCat">
             <option value="Reels">Reels</option>
             <option value="Social Media">Social Media</option>
@@ -1443,7 +1443,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
       </div>
 
       <div class="fg">
-        <label class="fl">عنوان المشروع</label>
+        <label class="fl" data-i18n="newproj.titleField">عنوان المشروع</label>
         <input class="fi" id="bhTitle">
       </div>
 
@@ -1453,7 +1453,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
       </div>
 
       <div class="fg">
-        <label class="fl">الوصف</label>
+        <label class="fl" data-i18n="newproj.description">الوصف</label>
         <textarea class="fta" id="bhDesc" style="min-height:60px;"></textarea>
       </div>
 
@@ -1515,14 +1515,14 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
       <div id="stepGrid" style="display:none;">
         <button type="button" class="back-btn" onclick="goBack('imageLayout')"><i class="fa-solid fa-arrow-right"></i> رجوع</button>
         <div class="frow" style="margin-bottom:12px;">
-          <div class="fg"><label class="fl">عنوان المشروع *</label><input class="fi" id="fTitle" placeholder="اسم المشروع"></div>
+          <div class="fg"><label class="fl"><span data-i18n="newproj.titleField">عنوان المشروع</span> *</label><input class="fi" id="fTitle" placeholder="اسم المشروع"></div>
           <div class="fg"><label class="fl">التصنيف</label>
             <select class="fse" id="fCat" data-cat-type="image"></select>
           </div>
         </div>
         <div class="fg"><label class="fl">وصف</label><textarea class="fta" id="fDesc" style="min-height:55px;" placeholder="وصف المشروع..."></textarea></div>
         <div class="fg">
-          <label class="fl">صورة الغلاف</label>
+          <label class="fl" data-i18n="newproj.cover">صورة الغلاف</label>
           <p style="color:#555;font-size:12px;margin-bottom:8px;">💡 تظهر في كرت المشروع فقط — مش ضمن الصور داخل المشروع</p>
           <label class="ua" for="covIn"><div class="ui"><i class="fa-solid fa-image"></i></div><div class="ut">اسحب أو <span>اختر صورة الغلاف</span></div></label>
           <input type="file" id="covIn" accept="image/*" onchange="handleCover(this)" style="display:none;">
@@ -1885,7 +1885,113 @@ const I18N = {
     // Storage
     'storage.full': 'وصلت للحد الأقصى من المساحة',
     'storage.usage': 'المساحة المستخدمة',
-    // Misc
+// Login error
+    'login.invalidCreds': 'بيانات غير صحيحة',
+    // Analytics extra
+    'an.range1y': 'آخر سنة',
+    'an.uniqueOne': 'زائر فريد',
+    'an.fromMobile': 'من الموبايل',
+    'an.diffCountries': 'دولة مختلفة',
+    'an.dailyVisitors': 'الزوار يومياً',
+    'an.mostViewed': 'أكثر المشاريع مشاهدة',
+    'an.topCountriesIcon': 'أعلى الدول زيارة',
+    'an.devicesTitle': 'الأجهزة',
+    'an.referrerSources': 'مصادر الزيارات',
+    // Project stats labels
+    'stats.total2': 'إجمالي',
+    'stats.images2': 'صور',
+    'stats.designs2': 'تصاميم',
+    'stats.reels2': 'Reels',
+    // Project filters
+    'filter.allBtn': 'الكل',
+    'filter.designsBtn': 'التصاميم',
+    'filter.videosBtn': 'الفيديوهات',
+    // Table headers
+    'th.projectCol': 'المشروع',
+    'th.categoryCol': 'التصنيف',
+    'th.dateCol': 'التاريخ',
+    'th.actionsCol': 'إجراءات',
+    // Reorder
+    'reorder.dragMsg': 'اسحب المشروع لتغيير ترتيبه',
+    'btn.saveOrder': 'حفظ الترتيب',
+    // Categories
+    'cat.imageTitle': 'تصنيفات التصاميم',
+    'cat.videoTitle': 'تصنيفات الريلز',
+    'cat.empty': 'لا توجد تصنيفات بعد',
+    'cat.newPh': 'اسم التصنيف الجديد...',
+    'cat.warningHint': 'لو حذفت تصنيف مستخدم في مشاريع، المشاريع هتفضل بالاسم القديم — لازم تعدلها يدوياً',
+    // Design - subnav
+    'design.themesTab': 'الثيمات',
+    'design.layoutsTab': 'التخطيطات',
+    'design.fontsTab': 'الخطوط',
+    'design.bgTab': 'الخلفية',
+    'design.cursorTab': 'المؤشر',
+    'design.animTab': 'الحركات',
+    'design.saveBtn': 'حفظ التصميم',
+    // Sections
+    'sections.cardTitle': 'أقسام الموقع',
+    'sections.dragHint': '<span data-i18n="sections.dragHint"><span data-i18n="sections.dragHint">اسحب وأفلت لإعادة الترتيب · فعّل/أخفي الأقسام</span></span>',
+    // Navbar
+    'navbar.cardTitle': 'روابط الـ Navbar',
+    'navbar.cardDesc': 'فعّل أو أخفِ الروابط — اسحب لإعادة الترتيب — يمكنك تعديل النص',
+    // Content
+    'content.heroSection': '🏠 الرئيسية (Hero)',
+    'content.aboutSection': '👤 عن النفس',
+    'content.expertiseSection': '🎯 الخدمات',
+    'content.educationSection': '🎓 التعليم',
+    'content.skillsSection': '🛠️ المهارات',
+    'content.toolsSection': '⚙️ الأدوات',
+    'content.experienceSection': '💼 الخبرات',
+    'content.projectsSection': '📁 المشاريع',
+    'content.contactSection': '📧 التواصل',
+    'content.nameAr': 'الاسم (عربي)',
+    'content.nameEn': 'Name (EN)',
+    'content.titleAr': 'التخصص (عربي)',
+    'content.titleEn': 'Title (EN)',
+    'content.btn1Ar': 'زر 1 (عربي)',
+    'content.btn1En': 'Btn 1 (EN)',
+    'content.btn2Ar': 'زر 2 (عربي)',
+    'content.btn2En': 'Btn 2 (EN)',
+    'content.coverHint': 'صورة الخلفية + التخطيط الآن في تبويب التصميم',
+    'content.siteLogo': 'شعار الموقع (يظهر في القائمة العلوية)',
+    'content.uploadLogo': 'رفع شعار',
+    'content.delete': 'حذف',
+    // Social tab
+    'social.profilePhoto': 'الصورة الشخصية',
+    'social.uploadPhoto': 'رفع صورة',
+    'social.linksTitle2': 'الروابط — اللي تحتاجها بس فعّلها وحط اللينك',
+    'social.linksHint2': '💡 الأيقونات تظهر في الفوتر فقط لو فعّلت الإظهار وحطيت لينك',
+    // Users tab
+    'users.tableUsername': 'اسم المستخدم',
+    'users.tableStorage': 'المساحة',
+    'users.tableProjects': 'المشاريع',
+    'users.tableDate': 'تاريخ الإنشاء',
+    'users.tableActions': 'الإجراءات',
+    'users.modalTitle': 'إضافة عميل جديد',
+    'users.modalUsername': 'اسم المستخدم',
+    'users.modalPassword': 'كلمة المرور',
+    'users.modalStorage': 'المساحة المخصصة (MB)',
+    'users.create': 'إنشاء العميل',
+    // Common
+    'misc.viewProject': 'عرض المشروع',
+    'misc.editProject': 'تعديل المشروع',
+    'misc.deleteProject': 'حذف المشروع',
+    'misc.image': 'صورة',
+    'misc.images': 'صور',
+    'misc.video': 'فيديو',
+    'misc.videos': 'فيديوهات',
+    // New project modal
+    'newproj.title': 'مشروع جديد',
+    'newproj.titleField': 'عنوان المشروع',
+    'newproj.titlePh': 'مثال: تصميم هوية بصرية',
+    'newproj.category': 'التصنيف',
+    'newproj.description': 'الوصف',
+    'newproj.descPh': 'وصف مختصر للمشروع...',
+    'newproj.cover': 'صورة الغلاف',
+    'newproj.uploadCover': 'رفع الغلاف',
+    'newproj.coverHint': 'JPG, PNG, WEBP — أقصى 10MB',
+    'newproj.continue': 'إنشاء وفتح المحرر',
+        // Misc
     'misc.loading': 'جاري التحميل...',
     'misc.noResults': 'لا توجد نتائج',
     'misc.required': 'مطلوب',
@@ -2141,7 +2247,113 @@ const I18N = {
     // Storage
     'storage.full': 'Storage limit reached',
     'storage.usage': 'Storage Used',
-    // Misc
+// Login error
+    'login.invalidCreds': 'Invalid credentials',
+    // Analytics extra
+    'an.range1y': 'Last year',
+    'an.uniqueOne': 'Unique visitor',
+    'an.fromMobile': 'From Mobile',
+    'an.diffCountries': 'Different countries',
+    'an.dailyVisitors': 'Daily Visitors',
+    'an.mostViewed': 'Most Viewed Projects',
+    'an.topCountriesIcon': 'Top Countries',
+    'an.devicesTitle': 'Devices',
+    'an.referrerSources': 'Traffic Sources',
+    // Project stats labels
+    'stats.total2': 'Total',
+    'stats.images2': 'Images',
+    'stats.designs2': 'Designs',
+    'stats.reels2': 'Reels',
+    // Project filters
+    'filter.allBtn': 'All',
+    'filter.designsBtn': 'Designs',
+    'filter.videosBtn': 'Videos',
+    // Table headers
+    'th.projectCol': 'Project',
+    'th.categoryCol': 'Category',
+    'th.dateCol': 'Date',
+    'th.actionsCol': 'Actions',
+    // Reorder
+    'reorder.dragMsg': 'Drag a project to change its order',
+    'btn.saveOrder': 'Save Order',
+    // Categories
+    'cat.imageTitle': 'Design Categories',
+    'cat.videoTitle': 'Reel Categories',
+    'cat.empty': 'No categories yet',
+    'cat.newPh': 'New category name...',
+    'cat.warningHint': 'If you delete a category used in projects, projects keep the old name — edit them manually',
+    // Design - subnav
+    'design.themesTab': 'Themes',
+    'design.layoutsTab': 'Layouts',
+    'design.fontsTab': 'Fonts',
+    'design.bgTab': 'Background',
+    'design.cursorTab': 'Cursor',
+    'design.animTab': 'Animations',
+    'design.saveBtn': 'Save Design',
+    // Sections
+    'sections.cardTitle': 'Site Sections',
+    'sections.dragHint': 'Drag to reorder · Show/hide sections',
+    // Navbar
+    'navbar.cardTitle': 'Navbar Links',
+    'navbar.cardDesc': 'Enable/disable links — drag to reorder — edit text',
+    // Content
+    'content.heroSection': '🏠 Hero',
+    'content.aboutSection': '👤 About',
+    'content.expertiseSection': '🎯 Expertise',
+    'content.educationSection': '🎓 Education',
+    'content.skillsSection': '🛠️ Skills',
+    'content.toolsSection': '⚙️ Tools',
+    'content.experienceSection': '💼 Experience',
+    'content.projectsSection': '📁 Projects',
+    'content.contactSection': '📧 Contact',
+    'content.nameAr': 'Name (AR)',
+    'content.nameEn': 'Name (EN)',
+    'content.titleAr': 'Title (AR)',
+    'content.titleEn': 'Title (EN)',
+    'content.btn1Ar': 'Btn 1 (AR)',
+    'content.btn1En': 'Btn 1 (EN)',
+    'content.btn2Ar': 'Btn 2 (AR)',
+    'content.btn2En': 'Btn 2 (EN)',
+    'content.coverHint': 'Cover image + layout now in Design tab',
+    'content.siteLogo': 'Site Logo (appears in top navbar)',
+    'content.uploadLogo': 'Upload Logo',
+    'content.delete': 'Delete',
+    // Social tab
+    'social.profilePhoto': 'Profile Photo',
+    'social.uploadPhoto': 'Upload Photo',
+    'social.linksTitle2': 'Links — enable what you need and add the URL',
+    'social.linksHint2': '💡 Icons appear in footer only if enabled with a URL',
+    // Users tab
+    'users.tableUsername': 'Username',
+    'users.tableStorage': 'Storage',
+    'users.tableProjects': 'Projects',
+    'users.tableDate': 'Created',
+    'users.tableActions': 'Actions',
+    'users.modalTitle': 'Add New Client',
+    'users.modalUsername': 'Username',
+    'users.modalPassword': 'Password',
+    'users.modalStorage': 'Allocated Storage (MB)',
+    'users.create': 'Create Client',
+    // Common
+    'misc.viewProject': 'View Project',
+    'misc.editProject': 'Edit Project',
+    'misc.deleteProject': 'Delete Project',
+    'misc.image': 'image',
+    'misc.images': 'images',
+    'misc.video': 'video',
+    'misc.videos': 'videos',
+    // New project modal
+    'newproj.title': 'New Project',
+    'newproj.titleField': 'Project Title',
+    'newproj.titlePh': 'e.g. Brand Identity Design',
+    'newproj.category': 'Category',
+    'newproj.description': 'Description',
+    'newproj.descPh': 'Brief project description...',
+    'newproj.cover': 'Cover Image',
+    'newproj.uploadCover': 'Upload Cover',
+    'newproj.coverHint': 'JPG, PNG, WEBP — Max 10MB',
+    'newproj.continue': 'Create & Open Editor',
+        // Misc
     'misc.loading': 'Loading...',
     'misc.noResults': 'No results',
     'misc.required': 'Required',
@@ -2224,6 +2436,9 @@ function toggleLang(){
     if(typeof renderTestimonials === 'function') renderTestimonials();
     if(typeof renderProjects === 'function' && document.getElementById('tab-projects')?.style.display !== 'none') renderProjects();
     if(typeof renderCategoriesUI === 'function' && document.getElementById('tab-categories')?.style.display !== 'none') renderCategoriesUI();
+    if(typeof buildContentTabs === 'function' && document.getElementById('tab-content')?.style.display !== 'none') buildContentTabs();
+    if(typeof loadAnalytics === 'function' && document.getElementById('tab-analytics')?.style.display !== 'none') loadAnalytics();
+    if(typeof loadUsers === 'function' && document.getElementById('tab-users')?.style.display !== 'none') loadUsers();
   }catch(e){ console.warn('re-render error:', e); }
   // Re-apply i18n on dynamically rendered content
   setTimeout(() => applyI18n(), 50);
@@ -3002,14 +3217,17 @@ async function saveSections(){
 
 // ══ CONTENT ══
 let ctData={};
-const SEC_LABELS={hero:'الرئيسية',about:'عن النفس',expertise:'الخدمات',education:'التعليم',skills:'المهارات',tools:'الأدوات',experience:'الخبرات',projects:'المشاريع',logos:'العملاء',testimonials:'آراء العملاء',contact:'التواصل'};
+const SEC_LABELS_AR={hero:'الرئيسية',about:'عن النفس',expertise:'الخدمات',education:'التعليم',skills:'المهارات',tools:'الأدوات',experience:'الخبرات',projects:'المشاريع',logos:'العملاء',testimonials:'آراء العملاء',contact:'التواصل'};
+const SEC_LABELS_EN={hero:'Home',about:'About',expertise:'Services',education:'Education',skills:'Skills',tools:'Tools',experience:'Experience',projects:'Projects',logos:'Clients',testimonials:'Testimonials',contact:'Contact'};
+function getSecLabel(s){ return (currentLang==='en' ? SEC_LABELS_EN : SEC_LABELS_AR)[s] || s; }
+const SEC_LABELS = SEC_LABELS_AR; // legacy fallback
 const e=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const v=id=>{const el=document.getElementById(id);return el?el.value.trim():'';};
 
 function loadContent(){ctData=JSON.parse(JSON.stringify(S.content||{}));buildContentTabs();}
 function buildContentTabs(){
   const secs=['hero','about','expertise','education','skills','tools','experience','projects','contact'];
-  document.getElementById('ctabs').innerHTML=secs.map((s,i)=>`<button class="ctab ${i===0?'active':''}" onclick="showCSec('${s}',this)">${SEC_LABELS[s]||s}</button>`).join('');
+  document.getElementById('ctabs').innerHTML=secs.map((s,i)=>`<button class="ctab ${i===0?'active':''}" onclick="showCSec('${s}',this)">${getSecLabel(s)}</button>`).join('');
   document.getElementById('contentSections').innerHTML=secs.map((s,i)=>`<div class="csec ${i===0?'active':''}" id="cs-${s}">${buildCSec(s)}</div>`).join('');
   // Restore hero cover preview + control values
   if(S.hero_cover_url){
