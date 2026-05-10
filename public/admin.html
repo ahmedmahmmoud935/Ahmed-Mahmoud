@@ -35,6 +35,27 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 .sb-footer a{display:flex;align-items:center;gap:10px;color:var(--g2);text-decoration:none;font-size:13px;font-weight:600;transition:color .3s;}
 .sb-footer a:hover{color:var(--o);}
 
+/* LTR mode — sidebar moves to left */
+html[dir="ltr"] #sidebar{right:auto;left:0;border-left:none;border-right:1px solid var(--d4);}
+html[dir="ltr"] .ni{border-right:3px solid transparent;border-left:3px solid transparent;}
+html[dir="ltr"] .ni.active{border-right-color:transparent;border-left-color:var(--o);}
+html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
+
+/* Lang toggle button */
+.lang-toggle-wrap{padding:14px 18px;border-bottom:1px solid var(--d4);}
+.lang-toggle-btn{
+  width:100%;background:linear-gradient(135deg,#1769ff,#0d4cb8);color:#fff;border:none;
+  padding:11px 14px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  box-shadow:0 4px 12px rgba(23,105,255,0.3);transition:all .2s;
+}
+.lang-toggle-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(23,105,255,0.45);}
+.lang-toggle-btn .flag{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:24px;height:18px;background:#fff;border-radius:3px;
+  color:#1769ff;font-weight:900;font-size:10px;letter-spacing:1px;
+}
+
 /* MAIN */
 #adminMain{margin-right:var(--sb);flex:1;padding:32px 38px;min-height:100vh;}
 .ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;flex-wrap:wrap;gap:14px;}
@@ -234,6 +255,9 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
     box-shadow:-4px 0 30px rgba(0,0,0,.5);
   }
   #sidebar.open{transform:translateX(0);}
+  /* LTR: slide from left */
+  html[dir="ltr"] #sidebar{transform:translateX(-110%);box-shadow:4px 0 30px rgba(0,0,0,.5);}
+  html[dir="ltr"] #sidebar.open{transform:translateX(0);}
 
   /* Overlay when sidebar open */
   .sb-overlay{
@@ -466,10 +490,15 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 
 <!-- SIDEBAR -->
 <div id="sidebar">
-  <div class="sb-logo" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-    <div><i class="fa-solid fa-gem"></i> Portfolio Admin</div>
-    <button id="langToggleBtn" onclick="toggleLang()" style="background:#1a1a1a;border:1px solid #333;color:#ccc;padding:6px 12px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;">
-      <i class="fa-solid fa-language"></i> EN
+  <div class="sb-logo"><i class="fa-solid fa-gem"></i> Portfolio Admin</div>
+
+  <!-- Language Toggle (clear & prominent) -->
+  <div class="lang-toggle-wrap">
+    <button id="langToggleBtn" onclick="toggleLang()" class="lang-toggle-btn">
+      <i class="fa-solid fa-globe"></i>
+      <span id="langCurrentLabel">العربية</span>
+      <i class="fa-solid fa-arrow-right-arrow-left" style="font-size:11px;opacity:0.7;"></i>
+      <span class="flag" id="langTargetLabel">EN</span>
     </button>
   </div>
   <nav class="sb-nav">
@@ -641,24 +670,24 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 <div id="tab-design" style="display:none;">
   <div class="ph">
     <div><div class="pt" data-i18n="page.design.title">🎨 التصميم</div><div class="ps" data-i18n="page.design.sub">خصص شكل موقعك بالكامل</div></div>
-    <button class="btn-add" onclick="saveDesign()"><i class="fa-solid fa-floppy-disk"></i> حفظ التصميم</button>
+    <button class="btn-add" onclick="saveDesign()"><i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn.saveDesign">حفظ التصميم</span></button>
   </div>
 
   <!-- Sub-navigation -->
   <div class="design-subnav">
-    <button class="dsn-btn active" onclick="setDsn('layouts',this)"><i class="fa-solid fa-table-layout"></i> التخطيطات</button>
-    <button class="dsn-btn" onclick="setDsn('typo',this)"><i class="fa-solid fa-font"></i> الخطوط</button>
-    <button class="dsn-btn" onclick="setDsn('bg',this)"><i class="fa-solid fa-fill-drip"></i> الخلفية</button>
-    <button class="dsn-btn" onclick="setDsn('cursor',this)"><i class="fa-solid fa-arrow-pointer"></i> المؤشر</button>
-    <button class="dsn-btn" onclick="setDsn('anim',this)"><i class="fa-solid fa-wand-sparkles"></i> الحركات</button>
-    <button class="dsn-btn" onclick="setDsn('themes',this)"><i class="fa-solid fa-shapes"></i> الثيمات</button>
+    <button class="dsn-btn active" onclick="setDsn('layouts',this)"><i class="fa-solid fa-table-layout"></i> <span data-i18n="design.layouts">التخطيطات</span></button>
+    <button class="dsn-btn" onclick="setDsn('typo',this)"><i class="fa-solid fa-font"></i> <span data-i18n="design.fonts">الخطوط</span></button>
+    <button class="dsn-btn" onclick="setDsn('bg',this)"><i class="fa-solid fa-fill-drip"></i> <span data-i18n="design.bg">الخلفية</span></button>
+    <button class="dsn-btn" onclick="setDsn('cursor',this)"><i class="fa-solid fa-arrow-pointer"></i> <span data-i18n="design.cursor">المؤشر</span></button>
+    <button class="dsn-btn" onclick="setDsn('anim',this)"><i class="fa-solid fa-wand-sparkles"></i> <span data-i18n="design.anim">الحركات</span></button>
+    <button class="dsn-btn" onclick="setDsn('themes',this)"><i class="fa-solid fa-shapes"></i> <span data-i18n="design.themes">الثيمات</span></button>
   </div>
 
   <!-- ── THEMES (NEW) ── -->
   <div id="dsn-themes" class="dsn-section" style="display:none;">
     <div class="card">
-      <div class="card-title"><i class="fa-solid fa-shapes" style="color:var(--o);margin-left:6px"></i> الثيمات الجاهزة</div>
-      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;">اختر ثيم احترافي كامل — يغير كل شيء دفعة واحدة. تقدر تخصص أي تفصيلة بعدها</p>
+      <div class="card-title"><i class="fa-solid fa-shapes" style="color:var(--o);margin-left:6px"></i> <span data-i18n="design.themeReady">الثيمات الجاهزة</span></div>
+      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;" data-i18n="design.themeDesc">اختر ثيم احترافي كامل — يغير كل شيء دفعة واحدة. تقدر تخصص أي تفصيلة بعدها</p>
 
       <div class="theme-grid">
         <!-- Default (only option for now) -->
@@ -672,16 +701,16 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
               </div>
             </div>
             <div class="theme-info">
-              <div class="theme-name">⚙️ مخصّص</div>
-              <div class="theme-desc">اختياراتك بنفسك</div>
+              <div class="theme-name" data-i18n="design.themeCustom">⚙️ مخصّص</div>
+              <div class="theme-desc" data-i18n="design.themeCustomDesc">اختياراتك بنفسك</div>
             </div>
           </div></label>
       </div>
 
       <div style="margin-top:24px;background:linear-gradient(135deg,rgba(249,115,22,.12),rgba(249,115,22,.03));border:1px dashed rgba(249,115,22,.3);border-radius:12px;padding:20px;text-align:center;">
         <div style="font-size:34px;margin-bottom:10px;">🚀</div>
-        <div style="font-weight:800;font-size:15px;margin-bottom:6px;color:#fff;">تحديثات قريبة</div>
-        <p style="color:#999;font-size:12.5px;margin:0;line-height:1.7;">ثيمات جاهزة احترافية قادمة بناءً على<br>ملاحظات وآراء عملائنا — ابقَ متابعاً!</p>
+        <div style="font-weight:800;font-size:15px;margin-bottom:6px;color:#fff;" data-i18n="design.upcoming">تحديثات قريبة</div>
+        <p style="color:#999;font-size:12.5px;margin:0;line-height:1.7;" data-i18n="design.upcomingDesc">ثيمات جاهزة احترافية قادمة بناءً على ملاحظات وآراء عملائنا — ابقَ متابعاً!</p>
       </div>
     </div>
   </div>
@@ -862,17 +891,17 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
       <p style="color:var(--g2);font-size:13px;margin-bottom:18px;">اختر تيمة جاهزة بألوان منسقة</p>
       <div class="bg-grid">
         <label class="bg-opt"><input type="radio" name="style_bg_preset" value="dark">
-          <div class="bg-card" style="background:#0a0a0a"><div class="bg-name" style="color:#fff">داكن</div></div></label>
+          <div class="bg-card" style="background:#0a0a0a"><div class="bg-name" style="color:#fff" data-i18n="design.bgDark">داكن</div></div></label>
         <label class="bg-opt"><input type="radio" name="style_bg_preset" value="ocean">
-          <div class="bg-card" style="background:linear-gradient(135deg,#0a1628,#0f1f3d)"><div class="bg-name" style="color:#fff">المحيط</div></div></label>
+          <div class="bg-card" style="background:linear-gradient(135deg,#0a1628,#0f1f3d)"><div class="bg-name" style="color:#fff" data-i18n="design.bgOcean">المحيط</div></div></label>
         <label class="bg-opt"><input type="radio" name="style_bg_preset" value="sunset">
-          <div class="bg-card" style="background:linear-gradient(135deg,#1a0a14,#3a1520)"><div class="bg-name" style="color:#fff5ee">الغروب</div></div></label>
+          <div class="bg-card" style="background:linear-gradient(135deg,#1a0a14,#3a1520)"><div class="bg-name" style="color:#fff5ee" data-i18n="design.bgSunset">الغروب</div></div></label>
         <label class="bg-opt"><input type="radio" name="style_bg_preset" value="forest">
-          <div class="bg-card" style="background:linear-gradient(135deg,#0a1a0f,#0f2a1f)"><div class="bg-name" style="color:#f0fff5">الغابة</div></div></label>
+          <div class="bg-card" style="background:linear-gradient(135deg,#0a1a0f,#0f2a1f)"><div class="bg-name" style="color:#f0fff5" data-i18n="design.bgForest">الغابة</div></div></label>
         <label class="bg-opt"><input type="radio" name="style_bg_preset" value="mono">
-          <div class="bg-card" style="background:linear-gradient(135deg,#1a1a1a,#0a0a0a)"><div class="bg-name" style="color:#fff">رمادي</div></div></label>
+          <div class="bg-card" style="background:linear-gradient(135deg,#1a1a1a,#0a0a0a)"><div class="bg-name" style="color:#fff" data-i18n="design.bgGray">رمادي</div></div></label>
         <label class="bg-opt"><input type="radio" name="style_bg_preset" value="pearl">
-          <div class="bg-card" style="background:#fafaf5"><div class="bg-name" style="color:#1a1a1a">لؤلؤي (فاتح)</div></div></label>
+          <div class="bg-card" style="background:#fafaf5"><div class="bg-name" style="color:#1a1a1a" data-i18n="design.bgPearl">لؤلؤي (فاتح)</div></div></label>
       </div>
     </div>
 
@@ -1004,7 +1033,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
   <div id="testPendingBox" class="card" style="display:none;background:linear-gradient(135deg,rgba(251,191,36,0.1),rgba(251,191,36,0.03));border:1px solid rgba(251,191,36,0.3);margin-bottom:14px;">
     <div style="display:flex;align-items:center;gap:10px;">
       <i class="fa-solid fa-clock" style="color:#fbbf24;font-size:18px;"></i>
-      <div style="flex:1;font-weight:700;font-size:13px;color:#fbbf24;"><span id="testPendingCount">0</span> رأي بانتظار المراجعة</div>
+      <div style="flex:1;font-weight:700;font-size:13px;color:#fbbf24;"><span id="testPendingCount">0</span> <span data-i18n="test.pending">رأي بانتظار المراجعة</span></div>
     </div>
   </div>
 
@@ -1133,7 +1162,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
     </div>
     <div style="padding:0 24px 24px;display:flex;gap:10px;">
       <button class="btn-add" style="flex:1" onclick="doAddUser()"><i class="fa-solid fa-user-plus"></i> إضافة</button>
-      <button onclick="closeAddUserModal()" style="background:#222;border:none;color:#fff;padding:11px 18px;border-radius:8px;cursor:pointer;font-family:'Cairo',sans-serif;">إلغاء</button>
+      <button onclick="closeAddUserModal()" style="background:#222;border:none;color:#fff;padding:11px 18px;border-radius:8px;cursor:pointer;font-family:'Cairo',sans-serif;" data-i18n="btn.cancel">إلغاء</button>
     </div>
   </div>
 </div>
@@ -1185,7 +1214,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
       </div>
     </div>
     <div class="mf">
-      <button class="btn-cancel" onclick="closeVimeoModal()">إلغاء</button>
+      <button class="btn-cancel" onclick="closeVimeoModal()" data-i18n="btn.cancel">إلغاء</button>
       <button class="btn-import" id="btnSaveVimeo" onclick="saveVimeoProject()" style="display:none;">
         <div class="spin" id="spinSaveVimeo" style="display:none;"></div>
         <i class="fa-solid fa-download"></i> إضافة للموقع
@@ -1236,30 +1265,30 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
     <div class="mb">
       <input type="hidden" id="logoEditId">
       <div class="fg">
-        <label class="fl">اسم العميل / الشركة</label>
-        <input class="fi" id="logoName" placeholder="مثال: سندك">
+        <label class="fl" data-i18n="logos.name">اسم العميل / الشركة</label>
+        <input class="fi" id="logoName" data-i18n-ph="logos.name" placeholder="مثال: سندك">
       </div>
       <div class="fg">
-        <label class="fl">رابط الموقع <span style="color:#666;font-size:11px;">(اختياري)</span></label>
+        <label class="fl"><span data-i18n="logos.website">رابط الموقع</span> <span style="color:#666;font-size:11px;" data-i18n="logos.optional">(اختياري)</span></label>
         <input class="fi" id="logoWebsite" placeholder="https://example.com">
       </div>
       <div class="fg">
-        <label class="fl">الشعار <span style="color:#ef4444;">*</span></label>
+        <label class="fl"><span data-i18n="logos.logo">الشعار</span> <span style="color:#ef4444;">*</span></label>
         <div id="logoDropZone" style="border:2px dashed #444;border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;background:#0a0a0a;" onclick="document.getElementById('logoFile').click()">
           <div id="logoPreviewWrap" style="display:none;">
             <img id="logoPreview" src="" style="max-width:100%;max-height:120px;border-radius:6px;">
           </div>
           <div id="logoEmpty">
             <i class="fa-solid fa-cloud-arrow-up" style="font-size:32px;color:var(--o);margin-bottom:10px;"></i>
-            <div style="font-weight:700;font-size:13px;">اضغط لاختيار الشعار</div>
-            <div style="font-size:11px;color:#888;margin-top:4px;">PNG شفاف موصى به · أقصى 2MB</div>
+            <div style="font-weight:700;font-size:13px;" data-i18n="logos.uploadHint">اضغط لاختيار الشعار</div>
+            <div style="font-size:11px;color:#888;margin-top:4px;" data-i18n="logos.uploadFmt">PNG شفاف موصى به · أقصى 2MB</div>
           </div>
         </div>
         <input type="file" id="logoFile" accept="image/*" style="display:none;" onchange="onLogoSelected(this)">
       </div>
     </div>
     <div class="mfo">
-      <button class="btn-cancel" onclick="closeLogoModal()" data-i18n="btn.cancel">إلغاء</button>
+      <button class="btn-cancel" onclick="closeLogoModal()" data-i18n="btn.cancel" data-i18n="btn.cancel">إلغاء</button>
       <button class="btn-import" id="logoSaveBtn" onclick="saveLogo()" style="background:var(--o);">
         <i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn.save">حفظ</span>
       </button>
@@ -1277,21 +1306,21 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
     <div class="mb">
       <input type="hidden" id="testEditId">
       <div class="fg">
-        <label class="fl">الاسم <span style="color:#ef4444;">*</span></label>
-        <input class="fi" id="testName" placeholder="مثال: أحمد محمود" maxlength="100">
+        <label class="fl"><span data-i18n="test.name">الاسم</span> <span style="color:#ef4444;">*</span></label>
+        <input class="fi" id="testName" data-i18n-ph="test.namePh" placeholder="مثال: أحمد محمود" maxlength="100">
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
         <div class="fg">
-          <label class="fl">المسمى الوظيفي</label>
-          <input class="fi" id="testRole" placeholder="مثال: مدير تسويق" maxlength="100">
+          <label class="fl" data-i18n="test.role">المسمى الوظيفي</label>
+          <input class="fi" id="testRole" data-i18n-ph="test.rolePh" placeholder="مثال: مدير تسويق" maxlength="100">
         </div>
         <div class="fg">
-          <label class="fl">الشركة</label>
-          <input class="fi" id="testCompany" placeholder="مثال: سندك" maxlength="100">
+          <label class="fl" data-i18n="test.company">الشركة</label>
+          <input class="fi" id="testCompany" data-i18n-ph="test.companyPh" placeholder="مثال: سندك" maxlength="100">
         </div>
       </div>
       <div class="fg">
-        <label class="fl">التقييم</label>
+        <label class="fl" data-i18n="test.rating">التقييم</label>
         <div id="testRating" style="display:flex;gap:6px;">
           <span class="t-star" data-v="1" style="cursor:pointer;font-size:30px;color:#fbbf24;">★</span>
           <span class="t-star" data-v="2" style="cursor:pointer;font-size:30px;color:#fbbf24;">★</span>
@@ -1301,22 +1330,22 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
         </div>
       </div>
       <div class="fg">
-        <label class="fl">الرأي <span style="color:#ef4444;">*</span></label>
-        <textarea class="fta" id="testContent" style="min-height:100px;" placeholder="رأي العميل..." maxlength="2000"></textarea>
+        <label class="fl"><span data-i18n="test.content">الرأي</span> <span style="color:#ef4444;">*</span></label>
+        <textarea class="fta" id="testContent" style="min-height:100px;" data-i18n-ph="test.contentPh" placeholder="رأي العميل..." maxlength="2000"></textarea>
       </div>
       <div class="fg">
-        <label class="fl">صورة شخصية <span style="color:#666;font-size:11px;">(اختياري)</span></label>
+        <label class="fl"><span data-i18n="test.avatar">صورة شخصية</span> <span style="color:#666;font-size:11px;" data-i18n="logos.optional">(اختياري)</span></label>
         <div id="testAvatarZone" style="display:flex;align-items:center;gap:14px;">
           <div id="testAvatarPreview" style="width:64px;height:64px;border-radius:50%;background:#0a0a0a;border:2px dashed #333;display:flex;align-items:center;justify-content:center;color:#666;cursor:pointer;overflow:hidden;flex-shrink:0;" onclick="document.getElementById('testAvatarFile').click()">
             <i class="fa-solid fa-user" style="font-size:22px;"></i>
           </div>
-          <button type="button" onclick="document.getElementById('testAvatarFile').click()" style="background:transparent;border:1px solid #333;color:#ccc;padding:8px 14px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:12px;">اختر صورة</button>
+          <button type="button" onclick="document.getElementById('testAvatarFile').click()" style="background:transparent;border:1px solid #333;color:#ccc;padding:8px 14px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:12px;" data-i18n="test.chooseAvatar">اختر صورة</button>
         </div>
         <input type="file" id="testAvatarFile" accept="image/*" style="display:none;" onchange="onTestAvatarSelected(this)">
       </div>
     </div>
     <div class="mfo">
-      <button class="btn-cancel" onclick="closeTestModal()" data-i18n="btn.cancel">إلغاء</button>
+      <button class="btn-cancel" onclick="closeTestModal()" data-i18n="btn.cancel" data-i18n="btn.cancel">إلغاء</button>
       <button class="btn-import" id="testSaveBtn" onclick="saveTestimonial()" style="background:var(--o);">
         <i class="fa-solid fa-floppy-disk"></i> حفظ
       </button>
@@ -1337,8 +1366,8 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
         <div style="display:flex;align-items:center;gap:12px;">
           <div style="width:40px;height:40px;background:#22c55e;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;flex-shrink:0;">⚡</div>
           <div>
-            <div style="font-weight:800;font-size:14px;margin-bottom:3px;">3 خطوات بسيطة — يعمل على أي متصفح</div>
-            <div style="font-size:11.5px;color:#888;">انسخ الكود، الصقه، احذف //، اضغط Enter</div>
+            <div style="font-weight:800;font-size:14px;margin-bottom:3px;" data-i18n="bh.heroTitle">3 خطوات بسيطة — يعمل على أي متصفح</div>
+            <div style="font-size:11.5px;color:#888;" data-i18n="bh.heroSub">انسخ الكود، الصقه، احذف //، اضغط Enter</div>
           </div>
         </div>
       </div>
@@ -1348,7 +1377,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
         <div style="display:flex;align-items:flex-start;gap:10px;">
           <div style="font-size:22px;flex-shrink:0;">⚠️</div>
           <div>
-            <div style="font-weight:800;font-size:13.5px;color:#ff6b6b;margin-bottom:6px;">تنبيه هام جداً</div>
+            <div style="font-weight:800;font-size:13.5px;color:#ff6b6b;margin-bottom:6px;" data-i18n="bh.warningTitle">تنبيه هام جداً</div>
             <div style="font-size:12px;color:#ffb3b3;line-height:1.7;">
               بعد ما تلصق الكود في شريط العنوان، <b style="color:#fff;">احذف العلامتين <code style="background:#000;padding:2px 6px;border-radius:4px;color:#fbbf24;font-weight:800;">//</code> الموجودين في بداية الكود</b> ثم اضغط Enter.<br>
               <span style="font-size:11px;color:#999;">(العلامتان دول موجودين عشان المتصفح ميحذفش الكود — لازم تحذفهم قبل التشغيل)</span>
@@ -1363,7 +1392,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
         <li style="counter-increment:step;display:flex;gap:14px;margin-bottom:18px;">
           <div style="flex-shrink:0;width:32px;height:32px;background:#1769ff;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;">1</div>
           <div style="flex:1;padding-top:5px;">
-            <div style="font-weight:700;font-size:14px;color:#fff;margin-bottom:4px;">افتح المشروع على Behance في وضع التعديل</div>
+            <div style="font-weight:700;font-size:14px;color:#fff;margin-bottom:4px;" data-i18n="bh.step1.title">افتح المشروع على Behance في وضع التعديل</div>
             <div style="font-size:12px;color:#999;line-height:1.6;">ادخل المشروع اللي عايز تستورده، ثم اضغط <b style="color:#1769ff;">Edit Project</b> (تعديل المشروع)</div>
           </div>
         </li>
@@ -1371,7 +1400,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
         <li style="counter-increment:step;display:flex;gap:14px;margin-bottom:18px;">
           <div style="flex-shrink:0;width:32px;height:32px;background:#1769ff;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;">2</div>
           <div style="flex:1;padding-top:5px;">
-            <div style="font-weight:700;font-size:14px;color:#fff;margin-bottom:8px;">انسخ الكود من هنا</div>
+            <div style="font-weight:700;font-size:14px;color:#fff;margin-bottom:8px;" data-i18n="bh.step2.title">انسخ الكود من هنا</div>
             <div style="position:relative;background:#000;border:1px solid #2a2a2a;border-radius:8px;padding:14px;">
               <code id="bhCodeText" style="display:block;font-size:10.5px;color:#22c55e;font-family:'SF Mono','Monaco',monospace;word-break:break-all;line-height:1.6;user-select:all;-webkit-user-select:all;cursor:text;padding-inline-end:80px;direction:ltr;text-align:left;"></code>
               <button onclick="copyBhCode()" id="bhCopyBtn" style="position:absolute;top:10px;inset-inline-start:10px;background:#22c55e;color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:700;font-size:12px;font-family:inherit;display:flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(34,197,94,0.3);">
@@ -1384,7 +1413,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
         <li style="counter-increment:step;display:flex;gap:14px;">
           <div style="flex-shrink:0;width:32px;height:32px;background:#1769ff;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;">3</div>
           <div style="flex:1;padding-top:5px;">
-            <div style="font-weight:700;font-size:14px;color:#fff;margin-bottom:6px;">الصق الكود في صفحة Behance</div>
+            <div style="font-weight:700;font-size:14px;color:#fff;margin-bottom:6px;" data-i18n="bh.step3.title">الصق الكود في صفحة Behance</div>
             <div style="font-size:12px;color:#999;line-height:1.7;">
               في صفحة Edit Project، الصق الكود في <b style="color:#fff;">شريط العنوان (URL bar)</b> فوق ↑<br>
               <span style="color:#fbbf24;font-weight:700;">⚠️ احذف <code style="background:#000;padding:1px 5px;border-radius:3px;color:#fff;">//</code> من بداية الكود</span><br>
@@ -1434,7 +1463,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
       </div>
     </div>
     <div class="mfo">
-      <button class="btn-cancel" onclick="closeBhPreview()">إلغاء</button>
+      <button class="btn-cancel" onclick="closeBhPreview()" data-i18n="btn.cancel">إلغاء</button>
       <button class="btn-import" id="btnSaveBh" onclick="saveBhImport()" style="background:#1769ff;">
         <i class="fa-solid fa-download"></i> استيراد المشروع
       </button>
@@ -1580,7 +1609,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 
     </div>
     <div class="mf">
-      <button class="btn-cancel" onclick="closeModal()">إلغاء</button>
+      <button class="btn-cancel" onclick="closeModal()" data-i18n="btn.cancel">إلغاء</button>
       <button class="btn-save" id="saveBtn" onclick="saveProject()" style="display:none;"><i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span></button>
     </div>
   </div>
@@ -1593,7 +1622,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
     <div class="cmt">حذف المشروع</div>
     <div class="cms">هل أنت متأكد؟ لا يمكن التراجع.</div>
     <div class="cmb">
-      <button class="btn-cancel" onclick="document.getElementById('confModal').classList.remove('open')">إلغاء</button>
+      <button class="btn-cancel" onclick="document.getElementById('confModal').classList.remove('open')" data-i18n="btn.cancel">إلغاء</button>
       <button class="btn-del" id="delBtn" onclick="confirmDel()">حذف</button>
     </div>
   </div>
@@ -1608,10 +1637,12 @@ const I18N = {
   ar: {
     // Login
     'login.title': 'لوحة التحكم',
+    'login.titleFull': 'لوحة التحكم الكاملة',
     'login.username': 'اسم المستخدم',
     'login.password': 'كلمة المرور',
     'login.submit': 'دخول',
     'login.welcome': 'مرحباً بعودتك',
+    'login.error': 'بيانات غير صحيحة',
     // Sidebar nav
     'nav.projects': 'المشاريع',
     'nav.analytics': 'الإحصائيات',
@@ -1636,20 +1667,25 @@ const I18N = {
     'btn.newProject': 'مشروع جديد',
     'btn.behance': 'Behance',
     'btn.vimeo': 'Vimeo',
+    'btn.import': 'استيراد',
     // Stats
     'stats.images': 'صور',
     'stats.reels': 'Reels',
     'stats.designs': 'تصاميم',
     'stats.total': 'إجمالي',
+    'stats.totalProjects': 'إجمالي المشاريع',
     // Project filter
     'filter.all': 'الكل',
     'filter.designs': 'التصاميم',
     'filter.videos': 'الفيديوهات',
+    'filter.search': 'بحث في المشاريع...',
     // Table headers
     'th.project': 'المشروع',
     'th.category': 'التصنيف',
     'th.date': 'التاريخ',
     'th.actions': 'إجراءات',
+    'th.title': 'العنوان',
+    'th.media': 'المحتوى',
     // Common buttons
     'btn.save': 'حفظ',
     'btn.cancel': 'إلغاء',
@@ -1660,9 +1696,17 @@ const I18N = {
     'btn.confirm': 'تأكيد',
     'btn.copy': 'نسخ',
     'btn.copied': 'تم النسخ!',
+    'btn.upload': 'رفع',
+    'btn.choose': 'اختر',
+    'btn.remove': 'إزالة',
+    'btn.next': 'التالي',
+    'btn.back': 'رجوع',
+    'btn.preview': 'معاينة',
+    'btn.publish': 'نشر',
+    'btn.draft': 'مسودة',
     // Analytics
-    'page.analytics.title': 'الإحصائيات',
-    'page.analytics.sub': 'تحليل زوار موقعك',
+    'page.analytics.title': '📊 إحصائيات الزوار',
+    'page.analytics.sub': 'شاهد من زار موقعك ومن أين',
     'an.totalVisits': 'إجمالي الزيارات',
     'an.uniqueVisitors': 'زوار فريدون',
     'an.mobilePct': 'نسبة الموبايل',
@@ -1676,16 +1720,24 @@ const I18N = {
     'an.topCountries': 'الدول الأكثر زيارة',
     'an.devices': 'الأجهزة',
     'an.referrers': 'المصادر',
+    'an.noData': 'لا توجد بيانات بعد',
+    'an.viewers': 'مشاهد',
+    'an.visit': 'زيارة',
+    'an.visits': 'زيارات',
     // Reorder
     'page.reorder.title': 'ترتيب المشاريع',
     'page.reorder.sub': 'اسحب لإعادة الترتيب',
+    'reorder.dragHint': 'اسحب وأفلت لإعادة الترتيب',
+    'reorder.saveOrder': 'حفظ الترتيب',
     // Categories
     'page.categories.title': 'التصنيفات',
-    'page.categories.sub': 'إدارة فئات مشاريعك',
+    'page.categories.sub': 'أضف وعدل تصنيفات التصاميم والريلز — هتظهر كفلتر في الموقع',
     'cat.image': 'تصنيفات الصور',
     'cat.video': 'تصنيفات الفيديو',
+    'cat.add': 'إضافة تصنيف',
+    'cat.name': 'اسم التصنيف',
     // Design
-    'page.design.title': 'التصميم',
+    'page.design.title': '🎨 التصميم',
     'page.design.sub': 'خصص شكل موقعك بالكامل',
     'design.themes': 'الثيمات',
     'design.layouts': 'التخطيطات',
@@ -1693,13 +1745,50 @@ const I18N = {
     'design.bg': 'الخلفية',
     'design.cursor': 'المؤشر',
     'design.anim': 'الحركات',
+    'design.colors': 'الألوان',
     'btn.saveDesign': 'حفظ التصميم',
+    'design.themeReady': 'الثيمات الجاهزة',
+    'design.themeDesc': 'اختر ثيم احترافي كامل — يغير كل شيء دفعة واحدة. تقدر تخصص أي تفصيلة بعدها',
+    'design.themeCustom': 'مخصّص',
+    'design.themeCustomDesc': 'اختياراتك بنفسك',
+    'design.upcoming': 'تحديثات قريبة',
+    'design.upcomingDesc': 'ثيمات جاهزة احترافية قادمة بناءً على ملاحظات وآراء عملائنا — ابقَ متابعاً!',
+    'design.bgReady': 'خلفيات جاهزة',
+    'design.bgDesc': 'اختر تيمة جاهزة بألوان منسقة',
+    'design.bgDark': 'داكن',
+    'design.bgOcean': 'المحيط',
+    'design.bgSunset': 'الغروب',
+    'design.bgForest': 'الغابة',
+    'design.bgGray': 'رمادي',
+    'design.bgPearl': 'لؤلؤي (فاتح)',
+    'design.themeColors': 'ألوان التيمة',
+    'design.themeColorsDesc': 'اللون المميز يتحكم في الأزرار، الروابط، والعناصر البصرية',
+    'design.colorAccent': '⭐ اللون المميّز (Accent)',
+    'design.colorText': 'لون النص الأساسي',
+    'design.colorSub': 'لون النص الفرعي',
+    'design.cursorStyle': 'شكل المؤشر',
+    'design.cursorWarn': '⚠️ يظهر فقط على الكمبيوتر — يُعطّل تلقائياً على الموبايل',
+    'design.cursorDefault': 'عادي',
+    'design.cursorDefaultDesc': 'المؤشر الافتراضي',
+    'design.cursorDot': 'نقطة + حلقة',
+    'design.cursorDotDesc': 'عصري وأنيق',
+    'design.animTitle': 'حركات الدخول',
+    'design.animDesc': 'حركة الأقسام عند ظهورها للزائر',
+    'design.animNone': 'بدون حركة',
+    'design.animNoneDesc': 'يظهر مباشرة',
+    'design.animFade': 'ظهور تدريجي',
+    'design.animFadeDesc': 'Fade in بسيط',
+    'design.animFadeUp': 'صعود تدريجي',
+    'design.animFadeUpDesc': 'Fade up (موصى به)',
     // Sections
     'page.sections.title': 'ترتيب الأقسام',
     'page.sections.sub': 'اسحب لإعادة الترتيب',
+    'sections.title': 'أقسام الموقع',
     // Navbar
     'page.navbar.title': 'الشريط العلوي',
     'page.navbar.sub': 'تحكم في الروابط الظاهرة في الـ Navbar',
+    'navbar.title': 'روابط الـ Navbar',
+    'navbar.desc': 'فعّل أو أخفِ الروابط — اسحب لإعادة الترتيب — يمكنك تعديل النص',
     // Content
     'page.content.title': 'تعديل المحتوى',
     'page.content.sub': 'عدّل نصوص وبيانات كل قسم',
@@ -1735,45 +1824,81 @@ const I18N = {
     'test.company': 'الشركة',
     'test.rating': 'التقييم',
     'test.content': 'الرأي',
+    'test.contentPh': 'رأي العميل...',
     'test.avatar': 'صورة شخصية',
     'test.chooseAvatar': 'اختر صورة',
     'test.approve': 'قبول',
     'test.pendingBadge': 'بانتظار المراجعة',
+    'test.namePh': 'مثال: أحمد محمود',
+    'test.rolePh': 'مثال: مدير تسويق',
+    'test.companyPh': 'مثال: شركة سندك',
     // Social
     'page.social.title': 'التواصل الاجتماعي',
     'page.social.sub': 'الصورة الشخصية والروابط',
+    'social.linksTitle': 'الروابط — اللي تحتاجها بس فعّلها وحط اللينك',
+    'social.linksHint': '💡 الأيقونات تظهر في الفوتر فقط لو فعّلت الإظهار وحطيت لينك',
     // Users
     'page.users.title': 'إدارة العملاء',
-    'page.users.sub': 'إنشاء وإدارة حسابات العملاء',
+    'page.users.sub': 'أضف وأدر حسابات العملاء',
     'users.addUser': 'إضافة عميل',
+    'users.username': 'اسم المستخدم',
+    'users.password': 'كلمة المرور',
+    'users.storage': 'المساحة (MB)',
+    'users.created': 'تم الإنشاء',
     // Toasts
     'toast.saved': '✓ تم الحفظ',
     'toast.deleted': '✓ تم الحذف',
+    'toast.copied': '✓ تم النسخ',
     'toast.error': 'خطأ',
     'toast.connectionError': 'خطأ في الاتصال',
+    'toast.saveFailed': 'فشل الحفظ',
+    'toast.deleteFailed': 'فشل الحذف',
+    'toast.fillRequired': '⚠️ من فضلك املأ الحقول المطلوبة',
+    'toast.fileTooLarge': '⚠️ حجم الملف أكبر من المسموح',
+    'toast.imageRequired': '⚠️ اختر صورة',
+    'toast.nameRequired': '⚠️ اكتب الاسم',
+    'toast.contentTooShort': '⚠️ الرأي قصير جداً',
+    'toast.testOpened': '✓ تم تفعيل استقبال الآراء',
+    'toast.testClosed': '✓ تم إيقاف استقبال الآراء',
+    'toast.linkCopied': '✓ تم النسخ — شارك الرابط مع عملائك',
     // Confirms
     'confirm.deleteLogo': 'هل أنت متأكد من حذف هذا الشعار؟',
     'confirm.deleteTest': 'هل أنت متأكد من حذف هذا الرأي؟',
     'confirm.deleteProject': 'هل أنت متأكد من حذف هذا المشروع؟',
+    'confirm.deleteUser': 'هل أنت متأكد من حذف هذا العميل؟ سيتم حذف كل بياناته.',
     // Behance modal
     'bh.title': 'استيراد من Behance',
     'bh.heroTitle': '3 خطوات بسيطة — يعمل على أي متصفح',
     'bh.heroSub': 'انسخ الكود، الصقه، احذف //، اضغط Enter',
     'bh.warningTitle': 'تنبيه هام جداً',
+    'bh.warningDesc': 'بعد ما تلصق الكود في شريط العنوان،',
+    'bh.warningEmph': 'احذف العلامتين // الموجودين في بداية الكود',
+    'bh.warningEnd': 'ثم اضغط Enter.',
+    'bh.warningExtra': '(العلامتان دول موجودين عشان المتصفح ميحذفش الكود — لازم تحذفهم قبل التشغيل)',
     'bh.step1.title': 'افتح المشروع على Behance في وضع التعديل',
     'bh.step1.desc': 'ادخل المشروع اللي عايز تستورده، ثم اضغط Edit Project (تعديل المشروع)',
     'bh.step2.title': 'انسخ الكود من هنا',
     'bh.step3.title': 'الصق الكود في صفحة Behance',
+    'bh.step3.desc': 'في صفحة Edit Project، الصق الكود في شريط العنوان (URL bar) فوق ↑',
+    'bh.step3.warn': '⚠️ احذف // من بداية الكود',
+    'bh.step3.then': 'ثم اضغط Enter — سيفتح موقعك تلقائياً مع المحتوى',
     // Storage
     'storage.full': 'وصلت للحد الأقصى من المساحة',
+    'storage.usage': 'المساحة المستخدمة',
+    // Misc
+    'misc.loading': 'جاري التحميل...',
+    'misc.noResults': 'لا توجد نتائج',
+    'misc.required': 'مطلوب',
   },
   en: {
     // Login
     'login.title': 'Dashboard',
+    'login.titleFull': 'Full Dashboard',
     'login.username': 'Username',
     'login.password': 'Password',
     'login.submit': 'Sign In',
     'login.welcome': 'Welcome back',
+    'login.error': 'Invalid credentials',
     // Sidebar nav
     'nav.projects': 'Projects',
     'nav.analytics': 'Analytics',
@@ -1798,20 +1923,25 @@ const I18N = {
     'btn.newProject': 'New Project',
     'btn.behance': 'Behance',
     'btn.vimeo': 'Vimeo',
+    'btn.import': 'Import',
     // Stats
     'stats.images': 'Images',
     'stats.reels': 'Reels',
     'stats.designs': 'Designs',
     'stats.total': 'Total',
+    'stats.totalProjects': 'Total Projects',
     // Filter
     'filter.all': 'All',
     'filter.designs': 'Designs',
     'filter.videos': 'Videos',
+    'filter.search': 'Search projects...',
     // Table
     'th.project': 'Project',
     'th.category': 'Category',
     'th.date': 'Date',
     'th.actions': 'Actions',
+    'th.title': 'Title',
+    'th.media': 'Media',
     // Buttons
     'btn.save': 'Save',
     'btn.cancel': 'Cancel',
@@ -1822,9 +1952,17 @@ const I18N = {
     'btn.confirm': 'Confirm',
     'btn.copy': 'Copy',
     'btn.copied': 'Copied!',
+    'btn.upload': 'Upload',
+    'btn.choose': 'Choose',
+    'btn.remove': 'Remove',
+    'btn.next': 'Next',
+    'btn.back': 'Back',
+    'btn.preview': 'Preview',
+    'btn.publish': 'Publish',
+    'btn.draft': 'Draft',
     // Analytics
-    'page.analytics.title': 'Analytics',
-    'page.analytics.sub': 'Analyze your site visitors',
+    'page.analytics.title': '📊 Visitor Analytics',
+    'page.analytics.sub': 'See who visits your site and from where',
     'an.totalVisits': 'Total Visits',
     'an.uniqueVisitors': 'Unique Visitors',
     'an.mobilePct': 'Mobile %',
@@ -1838,16 +1976,24 @@ const I18N = {
     'an.topCountries': 'Top Countries',
     'an.devices': 'Devices',
     'an.referrers': 'Referrers',
+    'an.noData': 'No data yet',
+    'an.viewers': 'viewers',
+    'an.visit': 'visit',
+    'an.visits': 'visits',
     // Reorder
     'page.reorder.title': 'Reorder Projects',
     'page.reorder.sub': 'Drag to reorder',
+    'reorder.dragHint': 'Drag and drop to reorder',
+    'reorder.saveOrder': 'Save Order',
     // Categories
     'page.categories.title': 'Categories',
-    'page.categories.sub': 'Manage your project categories',
+    'page.categories.sub': 'Add and edit design and reel categories — they appear as filters on your site',
     'cat.image': 'Image Categories',
     'cat.video': 'Video Categories',
+    'cat.add': 'Add Category',
+    'cat.name': 'Category Name',
     // Design
-    'page.design.title': 'Design',
+    'page.design.title': '🎨 Design',
     'page.design.sub': 'Customize your site appearance',
     'design.themes': 'Themes',
     'design.layouts': 'Layouts',
@@ -1855,13 +2001,50 @@ const I18N = {
     'design.bg': 'Background',
     'design.cursor': 'Cursor',
     'design.anim': 'Animations',
+    'design.colors': 'Colors',
     'btn.saveDesign': 'Save Design',
+    'design.themeReady': 'Ready Themes',
+    'design.themeDesc': 'Choose a complete professional theme — changes everything at once. You can customize details after.',
+    'design.themeCustom': 'Custom',
+    'design.themeCustomDesc': 'Your own choices',
+    'design.upcoming': 'Coming Soon',
+    'design.upcomingDesc': 'Professional themes coming based on customer feedback — stay tuned!',
+    'design.bgReady': 'Ready Backgrounds',
+    'design.bgDesc': 'Choose a coordinated color theme',
+    'design.bgDark': 'Dark',
+    'design.bgOcean': 'Ocean',
+    'design.bgSunset': 'Sunset',
+    'design.bgForest': 'Forest',
+    'design.bgGray': 'Gray',
+    'design.bgPearl': 'Pearl (Light)',
+    'design.themeColors': 'Theme Colors',
+    'design.themeColorsDesc': 'Accent color controls buttons, links, and visual elements',
+    'design.colorAccent': '⭐ Accent Color',
+    'design.colorText': 'Primary Text',
+    'design.colorSub': 'Secondary Text',
+    'design.cursorStyle': 'Cursor Style',
+    'design.cursorWarn': '⚠️ Only on desktop — auto-disabled on mobile',
+    'design.cursorDefault': 'Default',
+    'design.cursorDefaultDesc': 'Default cursor',
+    'design.cursorDot': 'Dot + Ring',
+    'design.cursorDotDesc': 'Modern & elegant',
+    'design.animTitle': 'Entrance Animations',
+    'design.animDesc': 'Section animations when visible to visitor',
+    'design.animNone': 'No Animation',
+    'design.animNoneDesc': 'Appears immediately',
+    'design.animFade': 'Fade In',
+    'design.animFadeDesc': 'Simple fade in',
+    'design.animFadeUp': 'Fade Up',
+    'design.animFadeUpDesc': 'Fade up (recommended)',
     // Sections
     'page.sections.title': 'Sections Order',
     'page.sections.sub': 'Drag to reorder',
+    'sections.title': 'Site Sections',
     // Navbar
     'page.navbar.title': 'Top Navbar',
     'page.navbar.sub': 'Control navbar links',
+    'navbar.title': 'Navbar Links',
+    'navbar.desc': 'Enable/disable links — drag to reorder — edit text',
     // Content
     'page.content.title': 'Edit Content',
     'page.content.sub': 'Edit text and data for each section',
@@ -1897,37 +2080,71 @@ const I18N = {
     'test.company': 'Company',
     'test.rating': 'Rating',
     'test.content': 'Review',
+    'test.contentPh': 'Client review...',
     'test.avatar': 'Profile Photo',
     'test.chooseAvatar': 'Choose Photo',
     'test.approve': 'Approve',
     'test.pendingBadge': 'Pending Review',
+    'test.namePh': 'e.g. Ahmed Mahmoud',
+    'test.rolePh': 'e.g. Marketing Manager',
+    'test.companyPh': 'e.g. Sanadak Co.',
     // Social
     'page.social.title': 'Social Media',
     'page.social.sub': 'Profile photo and links',
+    'social.linksTitle': 'Links — enable what you need and add the URL',
+    'social.linksHint': '💡 Icons appear in footer only if enabled with a URL',
     // Users
     'page.users.title': 'Manage Clients',
     'page.users.sub': 'Create and manage client accounts',
     'users.addUser': 'Add Client',
+    'users.username': 'Username',
+    'users.password': 'Password',
+    'users.storage': 'Storage (MB)',
+    'users.created': 'Created',
     // Toasts
     'toast.saved': '✓ Saved',
     'toast.deleted': '✓ Deleted',
+    'toast.copied': '✓ Copied',
     'toast.error': 'Error',
     'toast.connectionError': 'Connection error',
+    'toast.saveFailed': 'Save failed',
+    'toast.deleteFailed': 'Delete failed',
+    'toast.fillRequired': '⚠️ Please fill required fields',
+    'toast.fileTooLarge': '⚠️ File too large',
+    'toast.imageRequired': '⚠️ Choose an image',
+    'toast.nameRequired': '⚠️ Enter a name',
+    'toast.contentTooShort': '⚠️ Review too short',
+    'toast.testOpened': '✓ Public testimonials enabled',
+    'toast.testClosed': '✓ Public testimonials disabled',
+    'toast.linkCopied': '✓ Copied — share with your clients',
     // Confirms
     'confirm.deleteLogo': 'Are you sure you want to delete this logo?',
     'confirm.deleteTest': 'Are you sure you want to delete this review?',
     'confirm.deleteProject': 'Are you sure you want to delete this project?',
+    'confirm.deleteUser': 'Are you sure? All client data will be deleted.',
     // Behance
     'bh.title': 'Import from Behance',
     'bh.heroTitle': '3 Simple Steps — Works on any browser',
     'bh.heroSub': 'Copy the code, paste it, remove //, press Enter',
     'bh.warningTitle': 'Important Notice',
+    'bh.warningDesc': 'After pasting the code in the URL bar,',
+    'bh.warningEmph': 'remove the // marks at the beginning',
+    'bh.warningEnd': 'then press Enter.',
+    'bh.warningExtra': '(The // marks prevent the browser from stripping the code — you must remove them before running)',
     'bh.step1.title': 'Open the project on Behance in Edit mode',
     'bh.step1.desc': 'Open the project you want to import, then click Edit Project',
     'bh.step2.title': 'Copy the code below',
     'bh.step3.title': 'Paste the code on Behance page',
+    'bh.step3.desc': 'On Edit Project page, paste the code in the URL bar above ↑',
+    'bh.step3.warn': '⚠️ Remove // from start of code',
+    'bh.step3.then': 'Then press Enter — your site will open with the content',
     // Storage
     'storage.full': 'Storage limit reached',
+    'storage.usage': 'Storage Used',
+    // Misc
+    'misc.loading': 'Loading...',
+    'misc.noResults': 'No results',
+    'misc.required': 'Required',
   }
 };
 
@@ -1978,8 +2195,20 @@ function applyI18n(){
     el.setAttribute('title', t(el.getAttribute('data-i18n-title')));
   });
   // Update lang toggle button label
+  const currentLabel = document.getElementById('langCurrentLabel');
+  const targetLabel = document.getElementById('langTargetLabel');
+  if(currentLabel && targetLabel){
+    if(currentLang === 'ar'){
+      currentLabel.textContent = 'العربية';
+      targetLabel.textContent = 'EN';
+    } else {
+      currentLabel.textContent = 'English';
+      targetLabel.textContent = 'AR';
+    }
+  }
+  // Legacy fallback
   const btn = document.getElementById('langToggleBtn');
-  if(btn){
+  if(btn && !currentLabel){
     btn.innerHTML = currentLang === 'ar'
       ? '<i class="fa-solid fa-language"></i> EN'
       : '<i class="fa-solid fa-language"></i> AR';
@@ -1988,10 +2217,16 @@ function applyI18n(){
 
 function toggleLang(){
   setLang(currentLang === 'ar' ? 'en' : 'ar');
-  // Re-render dynamic content
-  if(typeof renderNavbarList === 'function' && document.getElementById('tab-navbar')?.style.display !== 'none') renderNavbarList();
-  if(typeof renderLogos === 'function') renderLogos();
-  if(typeof renderTestimonials === 'function') renderTestimonials();
+  // Re-render dynamic content that uses t() in templates
+  try{
+    if(typeof renderNavbarList === 'function' && document.getElementById('tab-navbar')?.style.display !== 'none') renderNavbarList();
+    if(typeof renderLogos === 'function') renderLogos();
+    if(typeof renderTestimonials === 'function') renderTestimonials();
+    if(typeof renderProjects === 'function' && document.getElementById('tab-projects')?.style.display !== 'none') renderProjects();
+    if(typeof renderCategoriesUI === 'function' && document.getElementById('tab-categories')?.style.display !== 'none') renderCategoriesUI();
+  }catch(e){ console.warn('re-render error:', e); }
+  // Re-apply i18n on dynamically rendered content
+  setTimeout(() => applyI18n(), 50);
 }
 
 // Initialize on load
@@ -2707,7 +2942,7 @@ function askDel(id){deleteId=id;document.getElementById('confModal').classList.a
 async function confirmDel(){
   if(!deleteId)return;
   const btn=document.getElementById('delBtn');btn.textContent='جاري...';btn.disabled=true;
-  try{const r=await fetch(`/api/projects/${deleteId}`,{method:'DELETE',credentials:'include'});if(r.ok){await loadProjects();toast('✓ تم الحذف');}else toast('فشل الحذف');}catch{toast('خطأ');}
+  try{const r=await fetch(`/api/projects/${deleteId}`,{method:'DELETE',credentials:'include'});if(r.ok){await loadProjects();toast(t('toast.deleted'));}else toast('فشل الحذف');}catch{toast('خطأ');}
   document.getElementById('confModal').classList.remove('open');btn.textContent='حذف';btn.disabled=false;deleteId=null;
 }
 
@@ -3233,7 +3468,7 @@ async function saveSocial(){
   });
   d.social_visible = visible;
   try{const r=await fetch('/api/settings',{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
-    if(r.ok){Object.assign(S,d);toast('✓ تم الحفظ');
+    if(r.ok){Object.assign(S,d);toast(t('toast.saved'));
       const warn=document.getElementById('vimeoTokenWarn');if(warn)warn.style.display=d.vimeo_token?'none':'flex';
     }else toast('فشل');}catch{toast('خطأ');}
 }
@@ -3322,10 +3557,10 @@ async function copyBhCode(){
   const btn = document.getElementById('bhCopyBtn');
   try{
     await navigator.clipboard.writeText(code);
-    btn.innerHTML = '<i class="fa-solid fa-check"></i> تم النسخ!';
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> ' + t('btn.copied');
     btn.style.background = '#16a34a';
     setTimeout(()=>{
-      btn.innerHTML = '<i class="fa-solid fa-copy"></i> نسخ';
+      btn.innerHTML = '<i class="fa-solid fa-copy"></i> ' + t('btn.copy');
       btn.style.background = '#22c55e';
     }, 2000);
     toast('✓ تم نسخ الكود — لا تنسى حذف // قبل الضغط على Enter');
@@ -3760,7 +3995,7 @@ function renderLogos(){
       <div style="background:#fff;border-radius:8px;padding:14px;height:90px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
         <img src="${l.logo_url}" alt="${l.name||''}" style="max-width:100%;max-height:60px;object-fit:contain;">
       </div>
-      <div style="font-weight:700;font-size:13px;margin-bottom:4px;">${l.name||'بدون اسم'}</div>
+      <div style="font-weight:700;font-size:13px;margin-bottom:4px;">${l.name||(currentLang==='ar'?'بدون اسم':'No name')}</div>
       ${l.website_url ? `<div style="font-size:10.5px;color:#888;direction:ltr;">${l.website_url.replace(/^https?:\/\//,'').slice(0,30)}</div>` : ''}
       <div style="display:flex;gap:6px;margin-top:10px;">
         <button onclick="editLogo(${l.id})" style="flex:1;background:#1a1a1a;border:1px solid #333;color:#ccc;padding:6px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;"><i class="fa-solid fa-pen"></i></button>
@@ -3773,7 +4008,7 @@ function renderLogos(){
 function openLogoModal(){
   editingLogoId = null;
   logoData = null;
-  document.getElementById('logoModalTitle').textContent = 'إضافة شعار';
+  document.getElementById('logoModalTitle').textContent = t('logos.modal.add');
   document.getElementById('logoEditId').value = '';
   document.getElementById('logoName').value = '';
   document.getElementById('logoWebsite').value = '';
@@ -3790,7 +4025,7 @@ function closeLogoModal(){
 function onLogoSelected(input){
   const f = input.files[0];
   if(!f) return;
-  if(f.size > 2 * 1024 * 1024){ toast('⚠️ حجم الملف أكبر من 2MB'); input.value=''; return; }
+  if(f.size > 2 * 1024 * 1024){ toast(t('toast.fileTooLarge')); input.value=''; return; }
   const reader = new FileReader();
   reader.onload = e => {
     logoData = e.target.result;
@@ -3806,7 +4041,7 @@ function editLogo(id){
   if(!l) return;
   editingLogoId = id;
   logoData = null;
-  document.getElementById('logoModalTitle').textContent = 'تعديل شعار';
+  document.getElementById('logoModalTitle').textContent = t('logos.modal.edit');
   document.getElementById('logoEditId').value = id;
   document.getElementById('logoName').value = l.name || '';
   document.getElementById('logoWebsite').value = l.website_url || '';
@@ -3819,7 +4054,7 @@ function editLogo(id){
 async function saveLogo(){
   const name = document.getElementById('logoName').value.trim();
   const website = document.getElementById('logoWebsite').value.trim();
-  if(!editingLogoId && !logoData){ toast('⚠️ اختر صورة الشعار أولاً'); return; }
+  if(!editingLogoId && !logoData){ toast(t('toast.imageRequired')); return; }
 
   const btn = document.getElementById('logoSaveBtn');
   btn.disabled = true;
@@ -3838,21 +4073,21 @@ async function saveLogo(){
     const d = await r.json();
     if(r.ok){
       closeLogoModal();
-      toast('✓ تم الحفظ');
+      toast(t('toast.saved'));
       await loadLogos();
       await loadStorageInfo();
     } else { toast('⚠️ '+(d.error||'فشل الحفظ'),'error'); }
-  }catch(e){ toast('خطأ في الاتصال','error'); }
+  }catch(e){ toast(t('toast.connectionError'),'error'); }
   btn.disabled = false;
 }
 
 async function deleteLogo(id){
-  if(!confirm('هل أنت متأكد من حذف هذا الشعار؟')) return;
+  if(!confirm(t('confirm.deleteLogo'))) return;
   try{
     const r = await fetch('/api/logos/' + id, {method:'DELETE',credentials:'include'});
-    if(r.ok){ toast('✓ تم الحذف'); await loadLogos(); await loadStorageInfo(); }
+    if(r.ok){ toast(t('toast.deleted')); await loadLogos(); await loadStorageInfo(); }
     else { toast('⚠️ فشل الحذف','error'); }
-  }catch(e){ toast('خطأ','error'); }
+  }catch(e){ toast(t('toast.error'),'error'); }
 }
 
 // ══════════════ TESTIMONIALS ══════════════
@@ -3892,7 +4127,7 @@ function renderTestimonials(){
     const isPending = !t.approved;
     return `
     <div style="background:#0a0a0a;border:1px solid ${isPending?'rgba(251,191,36,0.4)':'#1f1f1f'};border-radius:12px;padding:16px;${isPending?'background:linear-gradient(135deg,rgba(251,191,36,0.05),transparent);':''}">
-      ${isPending ? '<div style="display:inline-block;background:rgba(251,191,36,0.2);color:#fbbf24;font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:10px;">⏳ بانتظار المراجعة</div>' : ''}
+      ${isPending ? '<div style="display:inline-block;background:rgba(251,191,36,0.2);color:#fbbf24;font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:10px;">⏳ ${t('test.pendingBadge')}</div>' : ''}
       <div style="display:flex;gap:12px;margin-bottom:10px;">
         <div style="width:48px;height:48px;border-radius:50%;background:${t.avatar_url?'transparent':'#1a1a1a'};overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#666;font-size:20px;">
           ${t.avatar_url ? `<img src="${t.avatar_url}" style="width:100%;height:100%;object-fit:cover;">` : '<i class="fa-solid fa-user"></i>'}
@@ -3903,7 +4138,7 @@ function renderTestimonials(){
           <div style="color:#fbbf24;font-size:13px;letter-spacing:1px;margin-top:3px;">${stars}</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:4px;">
-          ${isPending ? `<button onclick="approveTest(${t.id})" style="background:#22c55e;color:#fff;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;"><i class="fa-solid fa-check"></i> قبول</button>` : ''}
+          ${isPending ? `<button onclick="approveTest(${t.id})" style="background:#22c55e;color:#fff;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;"><i class="fa-solid fa-check"></i> ${t('test.approve')}</button>` : ''}
           <button onclick="editTest(${t.id})" style="background:#1a1a1a;border:1px solid #333;color:#ccc;padding:5px 10px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;"><i class="fa-solid fa-pen"></i></button>
           <button onclick="deleteTest(${t.id})" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;padding:5px 10px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;"><i class="fa-solid fa-trash"></i></button>
         </div>
@@ -3918,7 +4153,7 @@ function openTestModal(){
   editingTestId = null;
   testAvatarData = null;
   testRating = 5;
-  document.getElementById('testModalTitle').textContent = 'إضافة رأي';
+  document.getElementById('testModalTitle').textContent = t('test.modal.add');
   document.getElementById('testEditId').value = '';
   ['testName','testRole','testCompany','testContent'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('testAvatarPreview').innerHTML = '<i class="fa-solid fa-user" style="font-size:22px;"></i>';
@@ -3944,7 +4179,7 @@ document.addEventListener('click', e => {
 function onTestAvatarSelected(input){
   const f = input.files[0];
   if(!f) return;
-  if(f.size > 2 * 1024 * 1024){ toast('⚠️ حجم الملف أكبر من 2MB'); input.value=''; return; }
+  if(f.size > 2 * 1024 * 1024){ toast(t('toast.fileTooLarge')); input.value=''; return; }
   const reader = new FileReader();
   reader.onload = e => {
     testAvatarData = e.target.result;
@@ -3958,7 +4193,7 @@ function editTest(id){
   if(!t) return;
   editingTestId = id;
   testAvatarData = null;
-  document.getElementById('testModalTitle').textContent = 'تعديل رأي';
+  document.getElementById('testModalTitle').textContent = t('test.modal.edit');
   document.getElementById('testEditId').value = id;
   document.getElementById('testName').value = t.name || '';
   document.getElementById('testRole').value = t.role || '';
@@ -3976,8 +4211,8 @@ function editTest(id){
 async function saveTestimonial(){
   const name = document.getElementById('testName').value.trim();
   const content = document.getElementById('testContent').value.trim();
-  if(!name){ toast('⚠️ اكتب الاسم'); return; }
-  if(content.length < 10){ toast('⚠️ الرأي قصير جداً'); return; }
+  if(!name){ toast(t('toast.nameRequired')); return; }
+  if(content.length < 10){ toast(t('toast.contentTooShort')); return; }
 
   const btn = document.getElementById('testSaveBtn');
   btn.disabled = true;
@@ -4001,11 +4236,11 @@ async function saveTestimonial(){
     const d = await r.json();
     if(r.ok){
       closeTestModal();
-      toast('✓ تم الحفظ');
+      toast(t('toast.saved'));
       await loadTestimonials();
       await loadStorageInfo();
     } else { toast('⚠️ '+(d.error||'فشل'),'error'); }
-  }catch(e){ toast('خطأ','error'); }
+  }catch(e){ toast(t('toast.error'),'error'); }
   btn.disabled = false;
 }
 
@@ -4018,10 +4253,10 @@ async function approveTest(id){
 }
 
 async function deleteTest(id){
-  if(!confirm('هل أنت متأكد من حذف هذا الرأي؟')) return;
+  if(!confirm(t('confirm.deleteTest'))) return;
   try{
     const r = await fetch('/api/testimonials/'+id,{method:'DELETE',credentials:'include'});
-    if(r.ok){ toast('✓ تم الحذف'); await loadTestimonials(); await loadStorageInfo(); }
+    if(r.ok){ toast(t('toast.deleted')); await loadTestimonials(); await loadStorageInfo(); }
   }catch{}
 }
 
@@ -4035,7 +4270,7 @@ async function toggleTestOpen(input){
       toast(isOpen ? '✓ تم تفعيل استقبال الآراء' : '✓ تم إيقاف استقبال الآراء');
       updateTestLinkBox(isOpen);
     }
-  }catch(e){ toast('خطأ في الاتصال','error'); input.checked = !isOpen; }
+  }catch(e){ toast(t('toast.connectionError'),'error'); input.checked = !isOpen; }
 }
 
 function updateTestLinkBox(isOpen){
@@ -4054,9 +4289,9 @@ async function copyTestLink(){
   const btn = document.getElementById('copyTestBtn');
   try{
     await navigator.clipboard.writeText(link);
-    btn.innerHTML = '<i class="fa-solid fa-check"></i> تم النسخ';
-    setTimeout(()=> btn.innerHTML = '<i class="fa-solid fa-copy"></i> نسخ', 2000);
-    toast('✓ تم النسخ — شارك الرابط مع عملائك');
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> ' + t('btn.copied');
+    setTimeout(()=> btn.innerHTML = '<i class="fa-solid fa-copy"></i> ' + t('btn.copy'), 2000);
+    toast(t('toast.linkCopied'));
   }catch{
     toast('⚠️ افتح الرابط يدوياً','error');
   }
