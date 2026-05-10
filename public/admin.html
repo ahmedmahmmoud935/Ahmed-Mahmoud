@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>لوحة التحكم</title>
+<title data-i18n="login.title">لوحة التحكم</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
@@ -697,7 +697,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
               <div class="tp-bar"></div>
               <div class="tp-content">
                 <div class="tp-title">Custom</div>
-                <div class="tp-sub">تخصيص يدوي</div>
+                <div class="tp-sub" data-i18n="design.themeCustomShort">تخصيص يدوي</div>
               </div>
             </div>
             <div class="theme-info">
@@ -718,8 +718,8 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
   <!-- ── LAYOUTS ── -->
   <div id="dsn-layouts" class="dsn-section">
     <div class="card">
-      <div class="card-title"><i class="fa-solid fa-house" style="color:var(--o);margin-left:6px"></i> القسم الرئيسي (Hero)</div>
-      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;">اختر شكل أول قسم يشاهده الزائر</p>
+      <div class="card-title"><i class="fa-solid fa-house" style="color:var(--o);margin-left:6px"></i> <span data-i18n="design.heroTitle">القسم الرئيسي (Hero)</span></div>
+      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;" data-i18n="design.heroDesc">اختر شكل أول قسم يشاهده الزائر</p>
       <div class="dsn-options">
         <label class="dsn-opt"><input type="radio" name="style_hero" value="centered">
           <div class="dsn-card">
@@ -727,7 +727,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
               <div class="phn">Your Name</div><div class="phs">Title</div>
               <div class="phb"><span></span><span></span></div>
             </div>
-            <div class="dsn-name">في المنتصف</div>
+            <div class="dsn-name" data-i18n="design.heroCenter">في المنتصف</div>
           </div></label>
         <label class="dsn-opt"><input type="radio" name="style_hero" value="split">
           <div class="dsn-card">
@@ -735,7 +735,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
               <div class="phl"><div class="phn">Name</div><div class="phs">Title</div><div class="phb"><span></span><span></span></div></div>
               <div class="phr"></div>
             </div>
-            <div class="dsn-name">منقسم</div>
+            <div class="dsn-name" data-i18n="design.heroSplit">منقسم</div>
           </div></label>
         <label class="dsn-opt"><input type="radio" name="style_hero" value="massive">
           <div class="dsn-card">
@@ -743,7 +743,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
               <div class="phn-huge">YOUR</div>
               <div class="phn-huge accent">NAME</div>
             </div>
-            <div class="dsn-name">ضخم (Editorial)</div>
+            <div class="dsn-name" data-i18n="design.heroEditorial">ضخم (Editorial)</div>
           </div></label>
         <label class="dsn-opt"><input type="radio" name="style_hero" value="cover-full">
           <div class="dsn-card">
@@ -751,7 +751,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
               <div class="phcf-bg"></div>
               <div class="phcf-text"><div class="phn-md">Name</div><div class="phs">Title</div></div>
             </div>
-            <div class="dsn-name">صورة كاملة</div>
+            <div class="dsn-name" data-i18n="design.heroFullImage">صورة كاملة</div>
           </div></label>
         <label class="dsn-opt"><input type="radio" name="style_hero" value="minimal">
           <div class="dsn-card">
@@ -760,48 +760,48 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
               <div class="phl-sm"></div>
               <div class="phs-sm">Title</div>
             </div>
-            <div class="dsn-name">بسيط</div>
+            <div class="dsn-name" data-i18n="design.heroSimple">بسيط</div>
           </div></label>
       </div>
 
       <!-- Hero Image Controls -->
       <div style="margin-top:24px;border-top:1px solid #222;padding-top:18px;">
-        <div style="font-size:14px;font-weight:700;margin-bottom:12px;color:#fff;"><i class="fa-solid fa-image" style="color:var(--o);margin-left:6px"></i> صورة الخلفية</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:12px;color:#fff;"><i class="fa-solid fa-image" style="color:var(--o);margin-left:6px"></i> <span data-i18n="design.bgImage">صورة الخلفية</span></div>
         <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;">
           <div id="heroCoverPreview" style="width:240px;height:135px;border-radius:10px;background:#0a0a0a;border:1px solid #222;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#444;flex-shrink:0;position:relative;"><i class="fa-solid fa-image" style="font-size:28px;"></i></div>
           <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:200px;">
-            <label class="ua" for="heroCoverInput" style="cursor:pointer;text-align:center;"><div class="ut" style="padding:14px;"><i class="fa-solid fa-upload" style="margin-left:6px;"></i> رفع صورة جديدة</div></label>
+            <label class="ua" for="heroCoverInput" style="cursor:pointer;text-align:center;"><div class="ut" style="padding:14px;"><i class="fa-solid fa-upload" style="margin-left:6px;"></i> <span data-i18n="design.uploadNewImg">رفع صورة جديدة</span></div></label>
             <input type="file" id="heroCoverInput" accept="image/*" onchange="handleHeroCover(this)" style="display:none;">
-            <button type="button" onclick="removeHeroCover()" style="background:#3a1010;border:1px solid #5a1414;color:#ff6b6b;cursor:pointer;padding:10px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;"><i class="fa-solid fa-trash" style="margin-left:6px;"></i> حذف الصورة</button>
+            <button type="button" onclick="removeHeroCover()" style="background:#3a1010;border:1px solid #5a1414;color:#ff6b6b;cursor:pointer;padding:10px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;"><i class="fa-solid fa-trash" style="margin-left:6px;"></i> <span data-i18n="design.deleteCover">حذف الصورة</span></button>
           </div>
         </div>
         <div class="frow" style="margin-top:14px;">
-          <div class="fg"><label class="fl">طريقة العرض</label>
+          <div class="fg"><label class="fl" data-i18n="design.displayMethod">طريقة العرض</label>
             <select class="fse" id="h_cover_size" onchange="updateHeroPreview()">
-              <option value="cover">ملء الشاشة (Cover)</option>
-              <option value="contain">احتواء كامل (Contain)</option>
-              <option value="100%">حجم طبيعي 100%</option>
-              <option value="120%">تكبير 120%</option>
-              <option value="80%">تصغير 80%</option>
+              <option value="cover" data-i18n="design.displayCover">ملء الشاشة (Cover)</option>
+              <option value="contain" data-i18n="design.displayContain">احتواء كامل (Contain)</option>
+              <option value="100%" data-i18n="design.display100">حجم طبيعي 100%</option>
+              <option value="120%" data-i18n="design.display120">تكبير 120%</option>
+              <option value="80%" data-i18n="design.display80">تصغير 80%</option>
             </select>
           </div>
           <div class="fg">
-            <label class="fl">شدة الطبقة السوداء: <span id="h_overlay_val">55</span>%</label>
+            <label class="fl"><span data-i18n="design.overlayLabel">شدة الطبقة السوداء:</span> <span id="h_overlay_val">55</span>%</label>
             <input type="range" min="0" max="90" step="5" id="h_overlay" oninput="document.getElementById('h_overlay_val').textContent=this.value;updateHeroPreview()" style="width:100%;">
           </div>
         </div>
         <div class="frow">
-          <div class="fg"><label class="fl">الموضع الأفقي: <span id="h_posx_val">50</span>%</label>
+          <div class="fg"><label class="fl"><span data-i18n="design.posXLabel">الموضع الأفقي:</span> <span id="h_posx_val">50</span>%</label>
             <input type="range" min="0" max="100" step="5" id="h_posx" oninput="document.getElementById('h_posx_val').textContent=this.value;updateHeroPreview()" style="width:100%;">
-            <div style="display:flex;justify-content:space-between;font-size:10px;color:#666;margin-top:2px;"><span>يسار</span><span>وسط</span><span>يمين</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:#666;margin-top:2px;"><span data-i18n="design.left">يسار</span><span data-i18n="design.center">وسط</span><span data-i18n="design.right">يمين</span></div>
           </div>
-          <div class="fg"><label class="fl">الموضع العمودي: <span id="h_posy_val">50</span>%</label>
+          <div class="fg"><label class="fl"><span data-i18n="design.posYLabel">الموضع العمودي:</span> <span id="h_posy_val">50</span>%</label>
             <input type="range" min="0" max="100" step="5" id="h_posy" oninput="document.getElementById('h_posy_val').textContent=this.value;updateHeroPreview()" style="width:100%;">
-            <div style="display:flex;justify-content:space-between;font-size:10px;color:#666;margin-top:2px;"><span>أعلى</span><span>وسط</span><span>أسفل</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:#666;margin-top:2px;"><span data-i18n="design.top">أعلى</span><span data-i18n="design.center">وسط</span><span data-i18n="design.bottom">أسفل</span></div>
           </div>
         </div>
         <div class="fg" style="margin-top:8px;">
-          <label class="fl">ارتفاع القسم: <span id="h_height_val">85</span>vh</label>
+          <label class="fl"><span data-i18n="design.heightLabel">ارتفاع القسم:</span> <span id="h_height_val">85</span>vh</label>
           <input type="range" min="50" max="100" step="5" id="h_height" oninput="document.getElementById('h_height_val').textContent=this.value" style="width:100%;">
         </div>
       </div>
@@ -809,7 +809,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 
     <div class="card">
       <div class="card-title"><i class="fa-solid fa-user" style="color:var(--o);margin-left:6px"></i> <span data-i18n="content.aboutSection">قسم "عن النفس"</span></div>
-      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;">اختر طريقة عرض البيانات الشخصية</p>
+      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;" data-i18n="design.aboutDesc">اختر طريقة عرض البيانات الشخصية</p>
       <div class="dsn-options">
         <label class="dsn-opt"><input type="radio" name="style_about" value="classic">
           <div class="dsn-card">
@@ -817,7 +817,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
               <div class="paph"></div>
               <div class="patxt"><div class="pat-line"></div><div class="pat-line"></div><div class="pat-line short"></div></div>
             </div>
-            <div class="dsn-name">كلاسيكي (صورة + نص)</div>
+            <div class="dsn-name" data-i18n="design.aboutClassic">كلاسيكي (صورة + نص)</div>
           </div></label>
         <label class="dsn-opt"><input type="radio" name="style_about" value="visual">
           <div class="dsn-card">
@@ -825,14 +825,14 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
               <div class="paph-big"></div>
               <div class="patxt"><div class="pat-line"></div><div class="pat-line"></div></div>
             </div>
-            <div class="dsn-name">بصري (صورة كبيرة)</div>
+            <div class="dsn-name" data-i18n="design.aboutVisual">بصري (صورة كبيرة)</div>
           </div></label>
         <label class="dsn-opt"><input type="radio" name="style_about" value="simple">
           <div class="dsn-card">
             <div class="dsn-prev prev-about-simple">
               <div class="patxt center"><div class="pat-line center"></div><div class="pat-line"></div><div class="pat-line short center"></div></div>
             </div>
-            <div class="dsn-name">بسيط (نص فقط)</div>
+            <div class="dsn-name" data-i18n="design.aboutSimple">بسيط (نص فقط)</div>
           </div></label>
       </div>
 
@@ -842,9 +842,9 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
         <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;">
           <div id="photoPreview" style="width:130px;height:130px;border-radius:50%;background:#0a0a0a;border:1px solid #222;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#444;flex-shrink:0;"><i class="fa-solid fa-user" style="font-size:32px;"></i></div>
           <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:180px;">
-            <label class="ua" for="photoUpload" style="cursor:pointer;text-align:center;"><div class="ut" style="padding:14px;"><i class="fa-solid fa-upload" style="margin-left:6px;"></i> رفع صورة شخصية</div></label>
+            <label class="ua" for="photoUpload" style="cursor:pointer;text-align:center;"><div class="ut" style="padding:14px;"><i class="fa-solid fa-upload" style="margin-left:6px;"></i> <span data-i18n="design.uploadProfile">رفع صورة شخصية</span></div></label>
             <input type="file" id="photoUpload" accept="image/*" onchange="handlePhotoUpload(this)" style="display:none;">
-            <button type="button" onclick="removePhoto()" style="background:#3a1010;border:1px solid #5a1414;color:#ff6b6b;cursor:pointer;padding:10px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;"><i class="fa-solid fa-trash" style="margin-left:6px;"></i> حذف الصورة</button>
+            <button type="button" onclick="removePhoto()" style="background:#3a1010;border:1px solid #5a1414;color:#ff6b6b;cursor:pointer;padding:10px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;"><i class="fa-solid fa-trash" style="margin-left:6px;"></i> <span data-i18n="design.deletePhoto">حذف الصورة</span></button>
           </div>
         </div>
       </div>
@@ -854,32 +854,32 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
   <!-- ── TYPOGRAPHY ── -->
   <div id="dsn-typo" class="dsn-section" style="display:none;">
     <div class="card">
-      <div class="card-title"><i class="fa-solid fa-font" style="color:var(--o);margin-left:6px"></i> أزواج الخطوط</div>
-      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;">اختر زوج الخطوط (يحمّل الزوج المختار فقط)</p>
+      <div class="card-title"><i class="fa-solid fa-font" style="color:var(--o);margin-left:6px"></i> <span data-i18n="design.fontPairs">أزواج الخطوط</span></div>
+      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;" data-i18n="design.fontPairsDesc">اختر زوج الخطوط (يحمّل الزوج المختار فقط)</p>
       <div class="font-grid">
         <label class="font-opt"><input type="radio" name="style_font" value="default">
-          <div class="font-card"><div class="font-prev" style="font-family:'Cairo';font-weight:800;">اسمي بالعربي</div><div class="font-prev" style="font-family:'Montserrat';font-weight:800;">My Name English</div><div class="font-name">Cairo + Montserrat</div><div class="font-tag">افتراضي</div></div></label>
+          <div class="font-card"><div class="font-prev" style="font-family:'Cairo';font-weight:800;"><span data-i18n="design.fontPreviewAr">اسمي بالعربي</span></div><div class="font-prev" style="font-family:'Montserrat';font-weight:800;">My Name English</div><div class="font-name">Cairo + Montserrat</div><div class="font-tag">افتراضي</div></div></label>
         <label class="font-opt"><input type="radio" name="style_font" value="modern">
-          <div class="font-card"><div class="font-prev" style="font-family:'Tajawal';font-weight:800;">اسمي بالعربي</div><div class="font-prev" style="font-family:'Inter';font-weight:800;">My Name English</div><div class="font-name">Tajawal + Inter</div><div class="font-tag">عصري</div></div></label>
+          <div class="font-card"><div class="font-prev" style="font-family:'Tajawal';font-weight:800;"><span data-i18n="design.fontPreviewAr">اسمي بالعربي</span></div><div class="font-prev" style="font-family:'Inter';font-weight:800;">My Name English</div><div class="font-name">Tajawal + Inter</div><div class="font-tag">عصري</div></div></label>
         <label class="font-opt"><input type="radio" name="style_font" value="editorial">
-          <div class="font-card"><div class="font-prev" style="font-family:'Almarai';font-weight:800;">اسمي بالعربي</div><div class="font-prev" style="font-family:'Playfair Display';font-weight:800;">My Name English</div><div class="font-name">Almarai + Playfair</div><div class="font-tag">صحفي</div></div></label>
+          <div class="font-card"><div class="font-prev" style="font-family:'Almarai';font-weight:800;"><span data-i18n="design.fontPreviewAr">اسمي بالعربي</span></div><div class="font-prev" style="font-family:'Playfair Display';font-weight:800;">My Name English</div><div class="font-name">Almarai + Playfair</div><div class="font-tag">صحفي</div></div></label>
         <label class="font-opt"><input type="radio" name="style_font" value="elegant">
-          <div class="font-card"><div class="font-prev" style="font-family:'Markazi Text';font-weight:600;">اسمي بالعربي</div><div class="font-prev" style="font-family:'Cormorant Garamond';font-weight:600;font-style:italic;">My Name English</div><div class="font-name">Markazi + Cormorant</div><div class="font-tag">أنيق</div></div></label>
+          <div class="font-card"><div class="font-prev" style="font-family:'Markazi Text';font-weight:600;"><span data-i18n="design.fontPreviewAr">اسمي بالعربي</span></div><div class="font-prev" style="font-family:'Cormorant Garamond';font-weight:600;font-style:italic;">My Name English</div><div class="font-name">Markazi + Cormorant</div><div class="font-tag">أنيق</div></div></label>
         <label class="font-opt"><input type="radio" name="style_font" value="bold">
-          <div class="font-card"><div class="font-prev" style="font-family:'Cairo';font-weight:900;">اسمي بالعربي</div><div class="font-prev" style="font-family:'Bebas Neue';">MY NAME ENGLISH</div><div class="font-name">Cairo + Bebas Neue</div><div class="font-tag">قوي</div></div></label>
+          <div class="font-card"><div class="font-prev" style="font-family:'Cairo';font-weight:900;"><span data-i18n="design.fontPreviewAr">اسمي بالعربي</span></div><div class="font-prev" style="font-family:'Bebas Neue';">MY NAME ENGLISH</div><div class="font-name">Cairo + Bebas Neue</div><div class="font-tag">قوي</div></div></label>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title"><i class="fa-solid fa-language" style="color:var(--o);margin-left:6px"></i> اتجاه التخطيط</div>
-      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;">اتجاه الكتابة في الموقع</p>
+      <div class="card-title"><i class="fa-solid fa-language" style="color:var(--o);margin-left:6px"></i> <span data-i18n="design.layoutDirection">اتجاه التخطيط</span></div>
+      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;" data-i18n="design.layoutDirDesc">اتجاه الكتابة في الموقع</p>
       <div class="dsn-options">
         <label class="dsn-opt"><input type="radio" name="style_direction" value="auto">
-          <div class="dsn-card simple"><i class="fa-solid fa-magic-wand-sparkles" style="font-size:26px;color:var(--o)"></i><div class="dsn-name">تلقائي</div><div class="dsn-desc">يتبع اللغة المختارة</div></div></label>
+          <div class="dsn-card simple"><i class="fa-solid fa-magic-wand-sparkles" style="font-size:26px;color:var(--o)"></i><div class="dsn-name" data-i18n="design.dirAuto">تلقائي</div><div class="dsn-desc" data-i18n="design.dirAutoDesc">يتبع اللغة المختارة</div></div></label>
         <label class="dsn-opt"><input type="radio" name="style_direction" value="rtl">
-          <div class="dsn-card simple"><i class="fa-solid fa-arrow-right-long" style="font-size:26px"></i><div class="dsn-name">يمين لليسار</div><div class="dsn-desc">RTL دائماً</div></div></label>
+          <div class="dsn-card simple"><i class="fa-solid fa-arrow-right-long" style="font-size:26px"></i><div class="dsn-name" data-i18n="design.dirRtl">يمين لليسار</div><div class="dsn-desc" data-i18n="design.dirRtlDesc">RTL دائماً</div></div></label>
         <label class="dsn-opt"><input type="radio" name="style_direction" value="ltr">
-          <div class="dsn-card simple"><i class="fa-solid fa-arrow-left-long" style="font-size:26px"></i><div class="dsn-name">يسار لليمين</div><div class="dsn-desc">LTR دائماً</div></div></label>
+          <div class="dsn-card simple"><i class="fa-solid fa-arrow-left-long" style="font-size:26px"></i><div class="dsn-name" data-i18n="design.dirLtr">يسار لليمين</div><div class="dsn-desc" data-i18n="design.dirLtrDesc">LTR دائماً</div></div></label>
       </div>
     </div>
   </div>
@@ -887,8 +887,8 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
   <!-- ── BACKGROUND ── -->
   <div id="dsn-bg" class="dsn-section" style="display:none;">
     <div class="card">
-      <div class="card-title"><i class="fa-solid fa-fill-drip" style="color:var(--o);margin-left:6px"></i> خلفيات جاهزة</div>
-      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;">اختر تيمة جاهزة بألوان منسقة</p>
+      <div class="card-title"><i class="fa-solid fa-fill-drip" style="color:var(--o);margin-left:6px"></i> <span data-i18n="design.bgReadyTitle">خلفيات جاهزة</span></div>
+      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;" data-i18n="design.bgReadyDesc">اختر تيمة جاهزة بألوان منسقة</p>
       <div class="bg-grid">
         <label class="bg-opt"><input type="radio" name="style_bg_preset" value="dark">
           <div class="bg-card" style="background:#0a0a0a"><div class="bg-name" style="color:#fff" data-i18n="design.bgDark">داكن</div></div></label>
@@ -907,12 +907,12 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 
     <!-- THEME COLORS -->
     <div class="card">
-      <div class="card-title"><i class="fa-solid fa-palette" style="color:var(--o);margin-left:6px"></i> ألوان التيمة</div>
-      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;">اللون المميز يتحكم في الأزرار، الروابط، والعناصر البصرية</p>
+      <div class="card-title"><i class="fa-solid fa-palette" style="color:var(--o);margin-left:6px"></i> <span data-i18n="design.themeColorsTitle">ألوان التيمة</span></div>
+      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;" data-i18n="design.themeColorsCardDesc">اللون المميز يتحكم في الأزرار، الروابط، والعناصر البصرية</p>
       <div class="color-grid">
-        <div class="color-item"><span class="color-label">⭐ اللون المميّز (Accent)</span><input type="color" class="color-preview" id="cAccent" value="#F97316" oninput="syncHex('cAccent','hAccent')"><input type="text" class="color-hex" id="hAccent" value="#F97316" oninput="syncColor('hAccent','cAccent')" maxlength="7"></div>
-        <div class="color-item"><span class="color-label">لون النص الأساسي</span><input type="color" class="color-preview" id="cText" value="#FFFFFF" oninput="syncHex('cText','hText')"><input type="text" class="color-hex" id="hText" value="#FFFFFF" oninput="syncColor('hText','cText')" maxlength="7"></div>
-        <div class="color-item"><span class="color-label">لون النص الفرعي</span><input type="color" class="color-preview" id="cSub" value="#999999" oninput="syncHex('cSub','hSub')"><input type="text" class="color-hex" id="hSub" value="#999999" oninput="syncColor('hSub','cSub')" maxlength="7"></div>
+        <div class="color-item"><span class="color-label" data-i18n="design.colorAccentLabel">⭐ اللون المميّز (Accent)</span><input type="color" class="color-preview" id="cAccent" value="#F97316" oninput="syncHex('cAccent','hAccent')"><input type="text" class="color-hex" id="hAccent" value="#F97316" oninput="syncColor('hAccent','cAccent')" maxlength="7"></div>
+        <div class="color-item"><span class="color-label" data-i18n="design.colorTextLabel">لون النص الأساسي</span><input type="color" class="color-preview" id="cText" value="#FFFFFF" oninput="syncHex('cText','hText')"><input type="text" class="color-hex" id="hText" value="#FFFFFF" oninput="syncColor('hText','cText')" maxlength="7"></div>
+        <div class="color-item"><span class="color-label" data-i18n="design.colorSubLabel">لون النص الفرعي</span><input type="color" class="color-preview" id="cSub" value="#999999" oninput="syncHex('cSub','hSub')"><input type="text" class="color-hex" id="hSub" value="#999999" oninput="syncColor('hSub','cSub')" maxlength="7"></div>
       </div>
     </div>
   </div>
@@ -920,13 +920,13 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
   <!-- ── CURSOR ── -->
   <div id="dsn-cursor" class="dsn-section" style="display:none;">
     <div class="card">
-      <div class="card-title"><i class="fa-solid fa-arrow-pointer" style="color:var(--o);margin-left:6px"></i> شكل المؤشر</div>
-      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;">⚠️ يظهر فقط على الكمبيوتر — يُعطّل تلقائياً على الموبايل</p>
+      <div class="card-title"><i class="fa-solid fa-arrow-pointer" style="color:var(--o);margin-left:6px"></i> <span data-i18n="design.cursorTitle">شكل المؤشر</span></div>
+      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;" data-i18n="design.cursorDesktopWarn">⚠️ يظهر فقط على الكمبيوتر — يُعطّل تلقائياً على الموبايل</p>
       <div class="dsn-options">
         <label class="dsn-opt"><input type="radio" name="style_cursor" value="default">
-          <div class="dsn-card simple"><i class="fa-solid fa-arrow-pointer" style="font-size:26px"></i><div class="dsn-name">عادي</div><div class="dsn-desc">المؤشر الافتراضي</div></div></label>
+          <div class="dsn-card simple"><i class="fa-solid fa-arrow-pointer" style="font-size:26px"></i><div class="dsn-name" data-i18n="design.cursorNormal">عادي</div><div class="dsn-desc" data-i18n="design.cursorNormalDesc">المؤشر الافتراضي</div></div></label>
         <label class="dsn-opt"><input type="radio" name="style_cursor" value="dot-ring">
-          <div class="dsn-card simple"><div style="position:relative;width:32px;height:32px"><div style="position:absolute;top:14px;left:14px;width:6px;height:6px;background:var(--o);border-radius:50%"></div><div style="position:absolute;top:4px;left:4px;width:24px;height:24px;border:1.5px solid var(--o);border-radius:50%"></div></div><div class="dsn-name">نقطة + حلقة</div><div class="dsn-desc">عصري وأنيق</div></div></label>
+          <div class="dsn-card simple"><div style="position:relative;width:32px;height:32px"><div style="position:absolute;top:14px;left:14px;width:6px;height:6px;background:var(--o);border-radius:50%"></div><div style="position:absolute;top:4px;left:4px;width:24px;height:24px;border:1.5px solid var(--o);border-radius:50%"></div></div><div class="dsn-name" data-i18n="design.cursorDotRing">نقطة + حلقة</div><div class="dsn-desc" data-i18n="design.cursorDotRingDesc">عصري وأنيق</div></div></label>
       </div>
     </div>
   </div>
@@ -934,15 +934,15 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
   <!-- ── ANIMATIONS ── -->
   <div id="dsn-anim" class="dsn-section" style="display:none;">
     <div class="card">
-      <div class="card-title"><i class="fa-solid fa-wand-sparkles" style="color:var(--o);margin-left:6px"></i> حركات الدخول</div>
-      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;">حركة الأقسام عند ظهورها للزائر</p>
+      <div class="card-title"><i class="fa-solid fa-wand-sparkles" style="color:var(--o);margin-left:6px"></i> <span data-i18n="design.animEnter">حركات الدخول</span></div>
+      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;" data-i18n="design.animEnterDesc">حركة الأقسام عند ظهورها للزائر</p>
       <div class="dsn-options">
         <label class="dsn-opt"><input type="radio" name="style_anim" value="none">
-          <div class="dsn-card simple"><i class="fa-solid fa-ban" style="font-size:24px"></i><div class="dsn-name">بدون حركة</div><div class="dsn-desc">يظهر مباشرة</div></div></label>
+          <div class="dsn-card simple"><i class="fa-solid fa-ban" style="font-size:24px"></i><div class="dsn-name" data-i18n="design.animNoneTitle">بدون حركة</div><div class="dsn-desc" data-i18n="design.animNoneSubtitle">يظهر مباشرة</div></div></label>
         <label class="dsn-opt"><input type="radio" name="style_anim" value="fade">
-          <div class="dsn-card simple"><i class="fa-solid fa-eye" style="font-size:24px;color:var(--o)"></i><div class="dsn-name">ظهور تدريجي</div><div class="dsn-desc">Fade in بسيط</div></div></label>
+          <div class="dsn-card simple"><i class="fa-solid fa-eye" style="font-size:24px;color:var(--o)"></i><div class="dsn-name" data-i18n="design.animFadeTitle">ظهور تدريجي</div><div class="dsn-desc" data-i18n="design.animFadeSubtitle">Fade in بسيط</div></div></label>
         <label class="dsn-opt"><input type="radio" name="style_anim" value="fade-up">
-          <div class="dsn-card simple"><i class="fa-solid fa-arrow-up" style="font-size:24px;color:var(--o)"></i><div class="dsn-name">صعود تدريجي</div><div class="dsn-desc">Fade up (موصى به)</div></div></label>
+          <div class="dsn-card simple"><i class="fa-solid fa-arrow-up" style="font-size:24px;color:var(--o)"></i><div class="dsn-name" data-i18n="design.animFadeUpTitle">صعود تدريجي</div><div class="dsn-desc" data-i18n="design.animFadeUpSubtitle">Fade up (موصى به)</div></div></label>
       </div>
     </div>
   </div>
@@ -962,7 +962,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 <!-- NAVBAR TAB -->
 <div id="tab-navbar" style="display:none;">
   <div class="ph"><div><div class="pt" data-i18n="page.navbar.title">الشريط العلوي</div><div class="ps" data-i18n="page.navbar.sub">تحكم في الروابط الظاهرة في الـ Navbar</div></div>
-    <button class="btn-add" onclick="saveNavbar()"><i class="fa-solid fa-floppy-disk"></i> حفظ</button>
+    <button class="btn-add" onclick="saveNavbar()"><i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn.save">حفظ</span></button>
   </div>
   <div class="card">
     <div class="card-title" data-i18n="navbar.cardTitle">روابط الـ Navbar</div>
@@ -974,7 +974,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 <!-- CONTENT TAB -->
 <div id="tab-content" style="display:none;">
   <div class="ph"><div><div class="pt" data-i18n="page.content.title">تعديل المحتوى</div><div class="ps" data-i18n="page.content.sub">عدّل نصوص وبيانات كل قسم</div></div>
-    <button class="btn-add" onclick="saveContent()"><i class="fa-solid fa-floppy-disk"></i> حفظ</button>
+    <button class="btn-add" onclick="saveContent()"><i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn.save">حفظ</span></button>
   </div>
   <div class="ctabs" id="ctabs"></div>
   <div id="contentSections"></div>
@@ -1023,7 +1023,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
       <div style="display:flex;gap:8px;align-items:center;">
         <code id="testLink" style="flex:1;background:#000;padding:10px 12px;border-radius:6px;font-size:11.5px;color:#22c55e;font-family:monospace;word-break:break-all;direction:ltr;text-align:left;"></code>
         <button onclick="copyTestLink()" id="copyTestBtn" style="background:#22c55e;color:#fff;border:none;padding:10px 16px;border-radius:6px;cursor:pointer;font-weight:700;font-size:12px;font-family:inherit;flex-shrink:0;">
-          <i class="fa-solid fa-copy"></i> نسخ
+          <i class="fa-solid fa-copy"></i> <span data-i18n="btn.copy">نسخ</span>
         </button>
       </div>
     </div>
@@ -1051,10 +1051,10 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 <!-- SOCIAL TAB -->
 <div id="tab-social" style="display:none;">
   <div class="ph"><div><div class="pt" data-i18n="page.social.title">التواصل الاجتماعي</div><div class="ps" data-i18n="page.social.sub">الصورة الشخصية والروابط</div></div>
-    <button class="btn-add" onclick="saveSocial()"><i class="fa-solid fa-floppy-disk"></i> حفظ</button>
+    <button class="btn-add" onclick="saveSocial()"><i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn.save">حفظ</span></button>
   </div>
   <div class="card">
-    <div class="card-title">الروابط — اللي تحتاجها بس فعّلها وحط اللينك</div>
+    <div class="card-title" data-i18n="social.linksCardTitle">الروابط — اللي تحتاجها بس فعّلها وحط اللينك</div>
     <p style="color:#666;font-size:12px;margin-bottom:14px;"><span data-i18n="social.linksHint2">💡 الأيقونات تظهر في الفوتر فقط لو فعّلت الإظهار وحطيت لينك</span></p>
     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:14px;">
       <div class="fg" style="background:#0a0a0a;border:1px solid #1f1f1f;border-radius:8px;padding:12px;">
@@ -1101,27 +1101,27 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
       </div>
     </div>
 
-    <div class="card-title" style="margin-top:24px;"><i class="fa-brands fa-vimeo-v" style="color:#1ab7ea;margin-left:8px;"></i>Vimeo Access Token (للاستيراد)</div>
+    <div class="card-title" style="margin-top:24px;"><i class="fa-brands fa-vimeo-v" style="color:#1ab7ea;margin-left:8px;"></i><span data-i18n="social.vimeoToken">Vimeo Access Token (للاستيراد)</span></div>
     <div class="fg">
       <label class="fl">Personal Access Token</label>
       <input class="fi" id="sVimeoToken" placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" type="password">
       <p style="color:#555;font-size:12px;margin-top:6px;">
-        احصل عليه من: <a href="https://developer.vimeo.com/apps" target="_blank" style="color:#1ab7ea;">developer.vimeo.com/apps</a>
-        ← أنشئ App ← اختر "Personal Access Token" ← Scope: <code style="background:#1a1a1a;padding:2px 6px;border-radius:4px;">public + private + video_files</code>
+        <span data-i18n="social.vimeoTokenGetItFrom">احصل عليه من:</span> <a href="https://developer.vimeo.com/apps" target="_blank" style="color:#1ab7ea;">developer.vimeo.com/apps</a>
+        <span data-i18n="social.vimeoTokenInstSteps">← أنشئ App ← اختر "Personal Access Token" ← Scope:</span> <code style="background:#1a1a1a;padding:2px 6px;border-radius:4px;">public + private + video_files</code>
       </p>
     </div>
 
-    <div class="card-title" style="margin-top:28px;border-top:1px solid var(--d4);padding-top:20px;"><i class="fa-solid fa-lock" style="color:var(--o);margin-left:8px;"></i>تغيير بيانات الدخول</div>
+    <div class="card-title" style="margin-top:28px;border-top:1px solid var(--d4);padding-top:20px;"><i class="fa-solid fa-lock" style="color:var(--o);margin-left:8px;"></i><span data-i18n="social.changeCredsTitle">تغيير بيانات الدخول</span></div>
     <div class="frow" style="margin-bottom:14px;">
-      <div class="fg"><label class="fl">كلمة المرور الحالية *</label><input class="fi" id="sOldPass" type="password" placeholder="••••••••"></div>
-      <div class="fg"><label class="fl">اسم المستخدم الجديد</label><input class="fi" id="sNewUser" placeholder="admin"></div>
+      <div class="fg"><label class="fl"><span data-i18n="social.oldPass">كلمة المرور الحالية</span> *</label><input class="fi" id="sOldPass" type="password" placeholder="••••••••"></div>
+      <div class="fg"><label class="fl" data-i18n="social.newUser">اسم المستخدم الجديد</label><input class="fi" id="sNewUser" placeholder="admin"></div>
     </div>
     <div class="frow" style="margin-bottom:16px;">
-      <div class="fg"><label class="fl">كلمة المرور الجديدة</label><input class="fi" id="sNewPass" type="password" placeholder="6 أحرف على الأقل"></div>
-      <div class="fg"><label class="fl">تأكيد كلمة المرور</label><input class="fi" id="sConfPass" type="password" placeholder="أعد كتابة"></div>
+      <div class="fg"><label class="fl" data-i18n="social.newPass">كلمة المرور الجديدة</label><input class="fi" id="sNewPass" type="password" data-i18n-ph="social.passPh6" placeholder="6 أحرف على الأقل"></div>
+      <div class="fg"><label class="fl" data-i18n="social.confirmPass">تأكيد كلمة المرور</label><input class="fi" id="sConfPass" type="password" data-i18n-ph="social.confirmPh" placeholder="أعد كتابة"></div>
     </div>
     <button onclick="changeCredentials()" style="background:var(--o);color:#fff;border:none;padding:10px 22px;border-radius:8px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;">
-      <i class="fa-solid fa-key"></i> تغيير بيانات الدخول
+      <i class="fa-solid fa-key"></i> <span data-i18n="social.changeCredsBtn">تغيير بيانات الدخول</span>
     </button>
 </div><!-- /card -->
 </div><!-- /tab-social -->
@@ -1129,28 +1129,28 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 <!-- USERS TAB (owner only) -->
 <div id="tab-users" style="display:none;width:100%;min-height:400px;">
   <div style="background:#F97316;color:#fff;padding:20px;border-radius:8px;margin-bottom:20px;text-align:center;font-size:18px;font-weight:bold;">
-    ✅ قسم إدارة العملاء يعمل
+    <span data-i18n="users.section_works">✅ قسم إدارة العملاء يعمل</span>
   </div>
   <div class="ph">
     <div><div class="pt" data-i18n="page.users.title">إدارة العملاء</div><div class="ps" data-i18n="page.users.sub">أضف وأدر حسابات العملاء</div></div>
-    <button class="btn-add" onclick="showAddUserModal()"><i class="fa-solid fa-user-plus"></i> عميل جديد</button>
+    <button class="btn-add" onclick="showAddUserModal()"><i class="fa-solid fa-user-plus"></i> <span data-i18n="users.newClientBtn">عميل جديد</span></button>
   </div>
   <div class="tw" id="usersTable">
     <div class="thead" style="grid-template-columns:1fr 140px 140px 100px">
-      <span>المستخدم</span><span>المساحة المستخدمة</span><span>حد المساحة</span><span>إجراءات</span>
+      <span data-i18n="users.thUser">المستخدم</span><span data-i18n="users.thUsedStorage">المساحة المستخدمة</span><span data-i18n="users.thStorageLimit">حد المساحة</span><span data-i18n="users.thActions">إجراءات</span>
     </div>
-    <div id="usersList"><div class="empty"><i class="fa-solid fa-users"></i><br>جاري التحميل...</div></div>
+    <div id="usersList"><div class="empty"><i class="fa-solid fa-users"></i><br><span data-i18n="users.loading">جاري التحميل...</span></div></div>
   </div>
 </div>
 
 <!-- Add User Modal -->
 <div class="mo" id="addUserModal" style="display:none;">
   <div class="modal" style="max-width:420px;">
-    <div class="mh"><span>إضافة عميل جديد</span><button class="mcl" onclick="closeAddUserModal()">✕</button></div>
+    <div class="mh"><span data-i18n="users.modalAddTitle">إضافة عميل جديد</span><button class="mcl" onclick="closeAddUserModal()">✕</button></div>
     <div class="mb">
-      <div class="fg"><label class="fl">اسم المستخدم</label><input class="fi" id="newUserName" placeholder="username"></div>
-      <div class="fg"><label class="fl">كلمة المرور</label><input class="fi" id="newUserPass" type="password" placeholder="6 أحرف على الأقل"></div>
-      <div class="fg"><label class="fl">حد المساحة (MB)</label>
+      <div class="fg"><label class="fl" data-i18n="np.usernameLabel">اسم المستخدم</label><input class="fi" id="newUserName" placeholder="username"></div>
+      <div class="fg"><label class="fl" data-i18n="np.passwordLabel">كلمة المرور</label><input class="fi" id="newUserPass" type="password" placeholder="6 أحرف على الأقل"></div>
+      <div class="fg"><label class="fl" data-i18n="users.modalStorageLabel">حد المساحة (MB)</label>
         <select class="fse" id="newUserStorage">
           <option value="500">500 MB</option>
           <option value="1024">1 GB</option>
@@ -1161,7 +1161,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
       <div id="addUserErr" style="color:var(--red);font-size:13px;display:none;margin-bottom:8px;"></div>
     </div>
     <div style="padding:0 24px 24px;display:flex;gap:10px;">
-      <button class="btn-add" style="flex:1" onclick="doAddUser()"><i class="fa-solid fa-user-plus"></i> إضافة</button>
+      <button class="btn-add" style="flex:1" onclick="doAddUser()"><i class="fa-solid fa-user-plus"></i> <span data-i18n="users.modalAddBtn">إضافة</span></button>
       <button onclick="closeAddUserModal()" style="background:#222;border:none;color:#fff;padding:11px 18px;border-radius:8px;cursor:pointer;font-family:'Cairo',sans-serif;" data-i18n="btn.cancel">إلغاء</button>
     </div>
   </div>
@@ -1173,18 +1173,18 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 <div class="mo" id="vimeoModal">
   <div class="modal" style="max-width:540px;">
     <div class="mh">
-      <div class="mt"><i class="fa-brands fa-vimeo-v" style="color:#1ab7ea;margin-left:10px;"></i>استيراد من Vimeo</div>
+      <div class="mt"><i class="fa-brands fa-vimeo-v" style="color:#1ab7ea;margin-left:10px;"></i><span data-i18n="vimeo.title">استيراد من Vimeo</span></div>
       <button class="mc" onclick="closeVimeoModal()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="mb">
-      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;">الصق رابط أي فيديو على Vimeo وسيتم جلب بياناته تلقائياً</p>
+      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;" data-i18n="vimeo.desc">الصق رابط أي فيديو على Vimeo وسيتم جلب بياناته تلقائياً</p>
       <div class="fg">
-        <label class="fl">رابط الفيديو</label>
+        <label class="fl" data-i18n="vimeo.urlLabel">رابط الفيديو</label>
         <div style="display:flex;gap:10px;">
           <input class="fi" id="vimeoUrl" placeholder="https://vimeo.com/123456789" style="flex:1;" onkeydown="if(event.key==='Enter')fetchVimeo()">
           <button class="btn-import" onclick="fetchVimeo()" id="btnFetchVimeo" style="flex-shrink:0;">
             <div class="spin" id="spinVimeo" style="display:none;"></div>
-            <span>جلب</span>
+            <span data-i18n="vimeo.fetch">جلب</span>
           </button>
         </div>
       </div>
@@ -1197,8 +1197,8 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
             <div style="font-weight:700;font-size:15px;margin-bottom:6px;" id="vimeoTitle"></div>
             <div style="color:var(--g2);font-size:12px;margin-bottom:10px;" id="vimeoDur"></div>
             <div class="fg" style="margin-bottom:0;">
-              <label class="fl">عنوان المشروع (قابل للتعديل)</label>
-              <input class="fi" id="vimeoFinalTitle" placeholder="عنوان الفيديو">
+              <label class="fl" data-i18n="vimeo.finalTitleLabel">عنوان المشروع (قابل للتعديل)</label>
+              <input class="fi" id="vimeoFinalTitle" data-i18n-ph="vimeo.titlePh" placeholder="عنوان الفيديو">
             </div>
           </div>
         </div>
@@ -1217,7 +1217,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
       <button class="btn-cancel" onclick="closeVimeoModal()" data-i18n="btn.cancel">إلغاء</button>
       <button class="btn-import" id="btnSaveVimeo" onclick="saveVimeoProject()" style="display:none;">
         <div class="spin" id="spinSaveVimeo" style="display:none;"></div>
-        <i class="fa-solid fa-download"></i> إضافة للموقع
+        <i class="fa-solid fa-download"></i> <span data-i18n="vimeo.importToSite">إضافة للموقع</span>
       </button>
     </div>
   </div>
@@ -1232,9 +1232,9 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
       <i class="fa-solid fa-spinner fa-spin"></i>
     </div>
     <!-- Main message -->
-    <div id="glTitle" style="font-size:18px;font-weight:800;color:#fff;margin-bottom:8px;">جاري التحميل...</div>
+    <div id="glTitle" style="font-size:18px;font-weight:800;color:#fff;margin-bottom:8px;" data-i18n="misc.loadingDots">جاري التحميل...</div>
     <!-- Sub message -->
-    <div id="glSub" style="font-size:13px;color:#888;margin-bottom:18px;line-height:1.6;">يرجى الانتظار قليلاً</div>
+    <div id="glSub" style="font-size:13px;color:#888;margin-bottom:18px;line-height:1.6;" data-i18n="misc.pleaseWait">يرجى الانتظار قليلاً</div>
     <!-- Progress bar -->
     <div id="glProgressContainer" style="display:none;background:#0a0a0a;border-radius:4px;height:6px;overflow:hidden;margin-top:14px;">
       <div id="glProgress" style="height:100%;background:linear-gradient(90deg,#1769ff,#22c55e);border-radius:4px;width:0%;transition:width 0.3s ease;"></div>
@@ -1347,7 +1347,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
     <div class="mfo">
       <button class="btn-cancel" onclick="closeTestModal()" data-i18n="btn.cancel" data-i18n="btn.cancel">إلغاء</button>
       <button class="btn-import" id="testSaveBtn" onclick="saveTestimonial()" style="background:var(--o);">
-        <i class="fa-solid fa-floppy-disk"></i> حفظ
+        <i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn.save">حفظ</span>
       </button>
     </div>
   </div>
@@ -1379,8 +1379,8 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
           <div>
             <div style="font-weight:800;font-size:13.5px;color:#ff6b6b;margin-bottom:6px;" data-i18n="bh.warningTitle">تنبيه هام جداً</div>
             <div style="font-size:12px;color:#ffb3b3;line-height:1.7;">
-              بعد ما تلصق الكود في شريط العنوان، <b style="color:#fff;">احذف العلامتين <code style="background:#000;padding:2px 6px;border-radius:4px;color:#fbbf24;font-weight:800;">//</code> الموجودين في بداية الكود</b> ثم اضغط Enter.<br>
-              <span style="font-size:11px;color:#999;">(العلامتان دول موجودين عشان المتصفح ميحذفش الكود — لازم تحذفهم قبل التشغيل)</span>
+              <span data-i18n="bh.warningFull">بعد ما تلصق الكود في شريط العنوان، احذف العلامتين // الموجودين في بداية الكود ثم اضغط Enter.</span><br>
+              <span style="font-size:11px;color:#999;" data-i18n="bh.warningExtraText">(العلامتان دول موجودين عشان المتصفح ميحذفش الكود — لازم تحذفهم قبل التشغيل)</span>
             </div>
           </div>
         </div>
@@ -1393,7 +1393,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
           <div style="flex-shrink:0;width:32px;height:32px;background:#1769ff;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;">1</div>
           <div style="flex:1;padding-top:5px;">
             <div style="font-weight:700;font-size:14px;color:#fff;margin-bottom:4px;" data-i18n="bh.step1.title">افتح المشروع على Behance في وضع التعديل</div>
-            <div style="font-size:12px;color:#999;line-height:1.6;">ادخل المشروع اللي عايز تستورده، ثم اضغط <b style="color:#1769ff;">Edit Project</b> (تعديل المشروع)</div>
+            <div style="font-size:12px;color:#999;line-height:1.6;" data-i18n="bh.step1Desc">ادخل المشروع اللي عايز تستورده، ثم اضغط Edit Project (تعديل المشروع)</div>
           </div>
         </li>
 
@@ -1404,7 +1404,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
             <div style="position:relative;background:#000;border:1px solid #2a2a2a;border-radius:8px;padding:14px;">
               <code id="bhCodeText" style="display:block;font-size:10.5px;color:#22c55e;font-family:'SF Mono','Monaco',monospace;word-break:break-all;line-height:1.6;user-select:all;-webkit-user-select:all;cursor:text;padding-inline-end:80px;direction:ltr;text-align:left;"></code>
               <button onclick="copyBhCode()" id="bhCopyBtn" style="position:absolute;top:10px;inset-inline-start:10px;background:#22c55e;color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:700;font-size:12px;font-family:inherit;display:flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(34,197,94,0.3);">
-                <i class="fa-solid fa-copy"></i> نسخ
+                <i class="fa-solid fa-copy"></i> <span data-i18n="btn.copy">نسخ</span>
               </button>
             </div>
           </div>
@@ -1415,9 +1415,9 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
           <div style="flex:1;padding-top:5px;">
             <div style="font-weight:700;font-size:14px;color:#fff;margin-bottom:6px;" data-i18n="bh.step3.title">الصق الكود في صفحة Behance</div>
             <div style="font-size:12px;color:#999;line-height:1.7;">
-              في صفحة Edit Project، الصق الكود في <b style="color:#fff;">شريط العنوان (URL bar)</b> فوق ↑<br>
-              <span style="color:#fbbf24;font-weight:700;">⚠️ احذف <code style="background:#000;padding:1px 5px;border-radius:3px;color:#fff;">//</code> من بداية الكود</span><br>
-              ثم اضغط <code style="background:#000;padding:1px 5px;border-radius:3px;font-size:11px;color:#fff;">Enter</code> — سيفتح موقعك تلقائياً مع المحتوى
+              <span data-i18n="bh.step3Desc1">في صفحة Edit Project، الصق الكود في شريط العنوان (URL bar) فوق ↑</span><br>
+              <span style="color:#fbbf24;font-weight:700;" data-i18n="bh.step3Desc2">⚠️ احذف // من بداية الكود</span><br>
+              <span data-i18n="bh.step3Desc3">ثم اضغط Enter — سيفتح موقعك تلقائياً مع المحتوى</span>
             </div>
           </div>
         </li>
@@ -1434,12 +1434,12 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 <div class="mo" id="bhPreviewModal">
   <div class="modal" style="max-width:760px;">
     <div class="mh">
-      <div class="mt"><i class="fa-brands fa-behance" style="color:#1769ff;margin-left:10px;"></i>معاينة الاستيراد</div>
+      <div class="mt"><i class="fa-brands fa-behance" style="color:#1769ff;margin-left:10px;"></i><span data-i18n="bh.preview.title">معاينة الاستيراد</span></div>
       <button class="mc" onclick="closeBhPreview()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="mb">
       <div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:12px;margin-bottom:18px;color:#22c55e;font-size:13px;font-weight:700;text-align:center;">
-        <i class="fa-solid fa-check-circle"></i> تم استلام <span id="bhCount">0</span> عنصر من Behance
+        <i class="fa-solid fa-check-circle"></i> <span data-i18n="bh.preview.received">تم استلام</span> <span id="bhCount">0</span> <span data-i18n="bh.preview.itemsFromBehance">عنصر من Behance</span>
       </div>
 
       <div class="fg">
@@ -1448,7 +1448,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
       </div>
 
       <div class="fg">
-        <label class="fl">التصنيف</label>
+        <label class="fl" data-i18n="np.categoryLabel">التصنيف</label>
         <select class="fse" id="bhCategory"></select>
       </div>
 
@@ -1458,80 +1458,80 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
       </div>
 
       <div class="fg">
-        <label class="fl">المحتوى (انقر لاختيار/إلغاء)</label>
+        <label class="fl" data-i18n="bh.preview.contentLabel">المحتوى (انقر لاختيار/إلغاء)</label>
         <div id="bhModulesGrid" class="import-grid"></div>
       </div>
     </div>
     <div class="mfo">
       <button class="btn-cancel" onclick="closeBhPreview()" data-i18n="btn.cancel">إلغاء</button>
       <button class="btn-import" id="btnSaveBh" onclick="saveBhImport()" style="background:#1769ff;">
-        <i class="fa-solid fa-download"></i> استيراد المشروع
+        <i class="fa-solid fa-download"></i> <span data-i18n="bh.preview.importBtn">استيراد المشروع</span>
       </button>
     </div>
   </div>
 </div>
 <div class="mo" id="projModal">
   <div class="modal" style="max-width:620px;">
-    <div class="mh"><div class="mt" id="mTitle">مشروع جديد</div><button class="mc" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="mh"><div class="mt" id="mTitle" data-i18n="np.modalTitle">مشروع جديد</div><button class="mc" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button></div>
     <div class="mb" style="padding:24px 28px;">
       <input type="hidden" id="eId">
 
       <!-- Step 0: Choose type -->
       <div id="stepChoose">
-        <p style="color:var(--g2);font-size:13px;margin-bottom:20px;">اختر نوع المشروع:</p>
+        <p style="color:var(--g2);font-size:13px;margin-bottom:20px;" data-i18n="np.chooseType">اختر نوع المشروع:</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
           <button type="button" onclick="chooseMT('video')" class="type-choice-btn">
             <i class="fa-brands fa-instagram" style="font-size:32px;color:var(--o);display:block;margin-bottom:12px;"></i>
-            <div style="font-weight:700;font-size:15px;margin-bottom:6px;">رفع فيديو / Reel</div>
-            <div style="font-size:12px;color:var(--g2);">YouTube · Vimeo · ملف مباشر</div>
+            <div style="font-weight:700;font-size:15px;margin-bottom:6px;" data-i18n="np.uploadVideo">رفع فيديو / Reel</div>
+            <div style="font-size:12px;color:var(--g2);" data-i18n="np.uploadVideoDesc">YouTube · Vimeo · ملف مباشر</div>
           </button>
           <button type="button" onclick="chooseMT('image')" class="type-choice-btn">
             <i class="fa-solid fa-images" style="font-size:32px;color:var(--o);display:block;margin-bottom:12px;"></i>
-            <div style="font-weight:700;font-size:15px;margin-bottom:6px;">رفع تصميمات</div>
-            <div style="font-size:12px;color:var(--g2);">شبكة Instagram · أو Behance حر</div>
+            <div style="font-weight:700;font-size:15px;margin-bottom:6px;" data-i18n="np.uploadDesigns">رفع تصميمات</div>
+            <div style="font-size:12px;color:var(--g2);" data-i18n="np.uploadDesignsDesc">شبكة Instagram · أو Behance حر</div>
           </button>
         </div>
       </div>
 
       <!-- Step 1A: Image layout choice -->
       <div id="stepImageLayout" style="display:none;">
-        <button type="button" class="back-btn" onclick="goBack()"><i class="fa-solid fa-arrow-right"></i> رجوع</button>
-        <p style="color:var(--g2);font-size:13px;margin-bottom:20px;">اختر طريقة عرض التصاميم:</p>
+        <button type="button" class="back-btn" onclick="goBack()"><i class="fa-solid fa-arrow-right"></i> <span data-i18n="np.back">رجوع</span></button>
+        <p style="color:var(--g2);font-size:13px;margin-bottom:20px;" data-i18n="np.chooseLayout">اختر طريقة عرض التصاميم:</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
           <button type="button" onclick="chooseLayout('grid')" class="type-choice-btn">
             <i class="fa-solid fa-th" style="font-size:28px;color:var(--o);display:block;margin-bottom:10px;"></i>
-            <div style="font-weight:700;font-size:14px;margin-bottom:5px;">شبكة Instagram</div>
-            <div style="font-size:12px;color:var(--g2);">مناسبة للسوشيال ميديا<br>3 أعمدة · مقاس 4:5</div>
+            <div style="font-weight:700;font-size:14px;margin-bottom:5px;" data-i18n="np.instaGrid">شبكة Instagram</div>
+            <div style="font-size:12px;color:var(--g2);" data-i18n="np.instaGridDesc">مناسبة للسوشيال ميديا — 3 أعمدة · مقاس 4:5</div>
           </button>
           <button type="button" onclick="chooseLayout('free')" class="type-choice-btn">
             <i class="fa-brands fa-behance" style="font-size:28px;color:#1769ff;display:block;margin-bottom:10px;"></i>
-            <div style="font-weight:700;font-size:14px;margin-bottom:5px;">Behance حر</div>
-            <div style="font-size:12px;color:var(--g2);">براندنج · مشاريع كاملة<br>صور · نص · فيديو · شبكة</div>
+            <div style="font-weight:700;font-size:14px;margin-bottom:5px;" data-i18n="np.behanceFree">Behance حر</div>
+            <div style="font-size:12px;color:var(--g2);" data-i18n="np.behanceFreeDesc">براندنج · مشاريع كاملة — صور · نص · فيديو · شبكة</div>
           </button>
         </div>
       </div>
 
       <!-- Step Grid: cover separate from gallery -->
       <div id="stepGrid" style="display:none;">
-        <button type="button" class="back-btn" onclick="goBack('imageLayout')"><i class="fa-solid fa-arrow-right"></i> رجوع</button>
+        <button type="button" class="back-btn" onclick="goBack('imageLayout')"><i class="fa-solid fa-arrow-right"></i> <span data-i18n="np.back">رجوع</span></button>
         <div class="frow" style="margin-bottom:12px;">
-          <div class="fg"><label class="fl"><span data-i18n="newproj.titleField">عنوان المشروع</span> *</label><input class="fi" id="fTitle" placeholder="اسم المشروع"></div>
-          <div class="fg"><label class="fl">التصنيف</label>
+          <div class="fg"><label class="fl"><span data-i18n="newproj.titleField">عنوان المشروع</span> *</label><input class="fi" id="fTitle" data-i18n-ph="np.titlePh" placeholder="اسم المشروع"></div>
+          <div class="fg"><label class="fl" data-i18n="np.categoryLabel">التصنيف</label>
             <select class="fse" id="fCat" data-cat-type="image"></select>
           </div>
         </div>
-        <div class="fg"><label class="fl">وصف</label><textarea class="fta" id="fDesc" style="min-height:55px;" placeholder="وصف المشروع..."></textarea></div>
+        <div class="fg"><label class="fl" data-i18n="np.descField">وصف</label><textarea class="fta" id="fDesc" style="min-height:55px;" data-i18n-ph="np.descPh" placeholder="وصف المشروع..."></textarea></div>
         <div class="fg">
           <label class="fl" data-i18n="newproj.cover">صورة الغلاف</label>
-          <p style="color:#555;font-size:12px;margin-bottom:8px;">💡 تظهر في كرت المشروع فقط — مش ضمن الصور داخل المشروع</p>
-          <label class="ua" for="covIn"><div class="ui"><i class="fa-solid fa-image"></i></div><div class="ut">اسحب أو <span>اختر صورة الغلاف</span></div></label>
+          <p style="color:#555;font-size:12px;margin-bottom:8px;" data-i18n="np.coverCardHint">💡 تظهر في كرت المشروع فقط — مش ضمن الصور داخل المشروع</p>
+          <label class="ua" for="covIn"><div class="ui"><i class="fa-solid fa-image"></i></div><div class="ut"><span data-i18n="np.dragOrLabel">اسحب أو</span> <span data-i18n="np.chooseCoverImgWord">اختر صورة الغلاف</span></div></label>
           <input type="file" id="covIn" accept="image/*" onchange="handleCover(this)" style="display:none;">
           <div id="covPrev" style="display:none;margin-top:8px;"><div class="pi sq" style="width:100px;height:125px;position:relative;"><img id="covImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:6px;"><span class="cb" style="position:absolute;bottom:6px;left:6px;background:var(--o);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;">COVER</span><button class="ri" onclick="removeCover()" style="position:absolute;top:6px;right:6px;"><i class="fa-solid fa-xmark"></i></button></div></div>
         </div>
         <div class="fg">
-          <label class="fl">صور المشروع (Instagram 4:5)</label>
-          <p style="color:#555;font-size:12px;margin-bottom:8px;">هذه الصور تظهر داخل صفحة المشروع في شبكة 3 أعمدة</p>
-          <label class="ua" for="galIn"><div class="ui"><i class="fa-solid fa-th"></i></div><div class="ut">اختر أكثر من صورة — <span>اضغط هنا</span></div></label>
+          <label class="fl" data-i18n="np.imagesLabel">صور المشروع (Instagram 4:5)</label>
+          <p style="color:#555;font-size:12px;margin-bottom:8px;" data-i18n="np.coverImagesHint">هذه الصور تظهر داخل صفحة المشروع في شبكة 3 أعمدة</p>
+          <label class="ua" for="galIn"><div class="ui"><i class="fa-solid fa-th"></i></div><div class="ut"><span data-i18n="np.chooseMultiImagesText">اختر أكثر من صورة —</span> <span data-i18n="np.clickHereWord">اضغط هنا</span></div></label>
           <input type="file" id="galIn" accept="image/*" multiple onchange="handleGal(this)" style="display:none;">
           <div class="pg" id="galPrev" style="margin-top:8px;"></div>
         </div>
@@ -1539,21 +1539,21 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 
       <!-- Step Free: create project then open editor -->
       <div id="stepFree" style="display:none;">
-        <button type="button" class="back-btn" onclick="goBack('imageLayout')"><i class="fa-solid fa-arrow-right"></i> رجوع</button>
+        <button type="button" class="back-btn" onclick="goBack('imageLayout')"><i class="fa-solid fa-arrow-right"></i> <span data-i18n="np.back">رجوع</span></button>
         <div style="background:rgba(23,105,255,.08);border:1px solid rgba(23,105,255,.3);border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;color:#ccc;">
           <i class="fa-brands fa-behance" style="color:#1769ff;margin-left:8px;"></i>
-          سيتم إنشاء المشروع ثم فتح <strong>محرر Behance</strong> لإضافة العناصر
+          <span data-i18n="np.willCreateThenOpen">سيتم إنشاء المشروع ثم فتح</span> <strong data-i18n="np.behanceEditorBold">محرر Behance</strong> <span data-i18n="np.toAddElementsAfter">لإضافة العناصر</span>
         </div>
         <div class="frow" style="margin-bottom:12px;">
-          <div class="fg"><label class="fl">عنوان المشروع *</label><input class="fi" id="fTitleFree" placeholder="اسم المشروع"></div>
-          <div class="fg"><label class="fl">التصنيف</label>
+          <div class="fg"><label class="fl"><span data-i18n="np.titleField">عنوان المشروع</span> *</label><input class="fi" id="fTitleFree" placeholder="اسم المشروع"></div>
+          <div class="fg"><label class="fl" data-i18n="np.categoryLabel">التصنيف</label>
             <select class="fse" id="fCatFree" data-cat-type="image"></select>
           </div>
         </div>
-        <div class="fg"><label class="fl">وصف</label><textarea class="fta" id="fDescFree" style="min-height:55px;" placeholder="وصف المشروع..."></textarea></div>
+        <div class="fg"><label class="fl" data-i18n="np.descLabel">وصف</label><textarea class="fta" id="fDescFree" style="min-height:55px;" placeholder="وصف المشروع..."></textarea></div>
         <div class="fg">
-          <label class="fl">صورة الغلاف (اختياري)</label>
-          <label class="ua" for="covInFree"><div class="ui"><i class="fa-solid fa-image"></i></div><div class="ut">اسحب أو <span>اختر صورة</span></div></label>
+          <label class="fl" data-i18n="np.coverOptional">صورة الغلاف (اختياري)</label>
+          <label class="ua" for="covInFree"><div class="ui"><i class="fa-solid fa-image"></i></div><div class="ut"><span data-i18n="np.dragOrLabel">اسحب أو</span> <span data-i18n="np.chooseImageWord">اختر صورة</span></div></label>
           <input type="file" id="covInFree" accept="image/*" onchange="handleCoverFree(this)" style="display:none;">
           <div id="covPrevFree" style="display:none;margin-top:8px;"><div class="pi sq" style="width:80px;height:80px;"><img id="covImgFree" src="" alt=""><span class="cb">COVER</span><button class="ri" onclick="removeCoverFree()"><i class="fa-solid fa-xmark"></i></button></div></div>
         </div>
@@ -1561,24 +1561,24 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 
       <!-- Step Video -->
       <div id="stepVideo" style="display:none;">
-        <button type="button" class="back-btn" onclick="goBack()"><i class="fa-solid fa-arrow-right"></i> رجوع</button>
+        <button type="button" class="back-btn" onclick="goBack()"><i class="fa-solid fa-arrow-right"></i> <span data-i18n="np.back">رجوع</span></button>
         <div class="frow" style="margin-bottom:12px;">
-          <div class="fg"><label class="fl">عنوان الفيديو *</label><input class="fi" id="fTitleVid" placeholder="اسم الفيديو"></div>
-          <div class="fg"><label class="fl">التصنيف</label>
+          <div class="fg"><label class="fl"><span data-i18n="np.videoTitleReq">عنوان الفيديو</span> *</label><input class="fi" id="fTitleVid" data-i18n-ph="np.videoTitlePh" placeholder="اسم الفيديو"></div>
+          <div class="fg"><label class="fl" data-i18n="np.categoryLabel">التصنيف</label>
             <select class="fse" id="fCatVid" data-cat-type="video"></select>
           </div>
         </div>
-        <div class="fg"><label class="fl">وصف</label><textarea class="fta" id="fDescVid" style="min-height:50px;" placeholder="وصف..."></textarea></div>
+        <div class="fg"><label class="fl" data-i18n="np.descLabel">وصف</label><textarea class="fta" id="fDescVid" style="min-height:50px;" data-i18n-ph="np.descPh" placeholder="وصف..."></textarea></div>
         <div class="fg">
-          <label class="fl">صورة الغلاف (Thumbnail)</label>
-          <label class="ua" for="covInVid"><div class="ui"><i class="fa-solid fa-image"></i></div><div class="ut">اختر صورة غلاف</div></label>
+          <label class="fl" data-i18n="np.videoCover">صورة الغلاف (Thumbnail)</label>
+          <label class="ua" for="covInVid"><div class="ui"><i class="fa-solid fa-image"></i></div><div class="ut" data-i18n="np.chooseCoverImg">اختر صورة غلاف</div></label>
           <input type="file" id="covInVid" accept="image/*" onchange="handleCoverVid(this)" style="display:none;">
           <div id="covPrevVid" style="display:none;margin-top:8px;"><div class="pi sq" style="width:80px;height:80px;"><img id="covImgVid" src="" alt=""><span class="cb">COVER</span><button class="ri" onclick="removeCoverVid()"><i class="fa-solid fa-xmark"></i></button></div></div>
         </div>
         <div class="fg">
-          <label class="fl">مصدر الفيديو</label>
+          <label class="fl" data-i18n="np.videoSource">مصدر الفيديو</label>
           <div class="vsrc-tabs" style="margin-bottom:10px;">
-            <button type="button" class="vsrc-btn active" id="vsFile" onclick="setVidSrc('file')"><i class="fa-solid fa-upload"></i> ملف</button>
+            <button type="button" class="vsrc-btn active" id="vsFile" onclick="setVidSrc('file')"><i class="fa-solid fa-upload"></i> <span data-i18n="np.videoFile">ملف</span></button>
             <button type="button" class="vsrc-btn" id="vsYT" onclick="setVidSrc('youtube')"><i class="fa-brands fa-youtube" style="color:#ff0000;"></i> YouTube</button>
             <button type="button" class="vsrc-btn" id="vsVimeo" onclick="setVidSrc('vimeo')"><i class="fa-brands fa-vimeo-v" style="color:#1ab7ea;"></i> Vimeo</button>
             <button type="button" class="vsrc-btn" id="vsEmbed" onclick="setVidSrc('embed')"><i class="fa-solid fa-code"></i> Embed</button>
@@ -1586,21 +1586,21 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
           <div id="vidSrcFile">
             <label class="ua" for="vidIn"><div class="ui"><i class="fa-solid fa-video"></i></div><div class="ut">MP4 / MOV — <span>9:16</span></div></label>
             <input type="file" id="vidIn" accept="video/*" onchange="handleVid(this)" style="display:none;">
-            <div id="vidProg" style="display:none;margin-top:6px;font-size:12px;color:var(--g2);">جاري التحميل...<div class="pb" id="vidPb" style="width:0%"></div></div>
+            <div id="vidProg" style="display:none;margin-top:6px;font-size:12px;color:var(--g2);"><span data-i18n="np.videoUploadingProg">جاري التحميل...</span><div class="pb" id="vidPb" style="width:0%"></div></div>
             <div id="vidPrev" style="display:none;margin-top:8px;"><div class="pi rv" style="width:50px;height:90px;"><video id="vidEl" muted playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video><span class="cb">REEL</span><button class="ri" onclick="removeVid()"><i class="fa-solid fa-xmark"></i></button></div></div>
           </div>
           <div id="vidSrcYoutube" style="display:none;"><div style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:10px;padding:13px;">
-            <label class="fl"><i class="fa-brands fa-youtube" style="color:#ff0000;margin-left:6px;"></i>رابط YouTube</label>
+            <label class="fl"><i class="fa-brands fa-youtube" style="color:#ff0000;margin-left:6px;"></i><span data-i18n="np.youtubeUrlLabel">رابط YouTube</span></label>
             <input class="fi" id="ytUrl" placeholder="https://youtube.com/watch?v=..." oninput="previewEmbed('youtube')" style="margin-bottom:8px;">
             <div id="ytPreview" style="display:none;border-radius:8px;overflow:hidden;aspect-ratio:9/16;max-width:110px;"><iframe id="ytFrame" style="width:100%;height:100%;border:none;" allowfullscreen></iframe></div>
           </div></div>
           <div id="vidSrcVimeo" style="display:none;"><div style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:10px;padding:13px;">
-            <label class="fl"><i class="fa-brands fa-vimeo-v" style="color:#1ab7ea;margin-left:6px;"></i>رابط Vimeo</label>
+            <label class="fl"><i class="fa-brands fa-vimeo-v" style="color:#1ab7ea;margin-left:6px;"></i><span data-i18n="np.vimeoUrlLabel">رابط Vimeo</span></label>
             <input class="fi" id="vimeoUrl" placeholder="https://vimeo.com/123456789" oninput="previewEmbed('vimeo')" style="margin-bottom:8px;">
             <div id="vimeoPreview" style="display:none;border-radius:8px;overflow:hidden;aspect-ratio:9/16;max-width:110px;"><iframe id="vimeoFrame" style="width:100%;height:100%;border:none;" allowfullscreen></iframe></div>
           </div></div>
           <div id="vidSrcEmbed" style="display:none;"><div style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:10px;padding:13px;">
-            <label class="fl"><i class="fa-solid fa-code" style="color:var(--o);margin-left:6px;"></i>كود Embed</label>
+            <label class="fl"><i class="fa-solid fa-code" style="color:var(--o);margin-left:6px;"></i><span data-i18n="np.embedCodeLabel">كود Embed</span></label>
             <textarea class="fta" id="embedCode" placeholder="<iframe ...></iframe>" style="min-height:65px;font-size:12px;font-family:monospace;" oninput="parseEmbedCode()"></textarea>
             <div id="embedPreview" style="display:none;margin-top:8px;border-radius:8px;overflow:hidden;aspect-ratio:9/16;max-width:110px;"></div>
           </div></div>
@@ -1610,7 +1610,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
     </div>
     <div class="mf">
       <button class="btn-cancel" onclick="closeModal()" data-i18n="btn.cancel">إلغاء</button>
-      <button class="btn-save" id="saveBtn" onclick="saveProject()" style="display:none;"><i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span></button>
+      <button class="btn-save" id="saveBtn" onclick="saveProject()" style="display:none;"><i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel" data-i18n="btn.save">حفظ</span></button>
     </div>
   </div>
 </div>
@@ -1619,11 +1619,11 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 <div class="mo" id="confModal">
   <div class="cmo">
     <div class="cmi"><i class="fa-solid fa-triangle-exclamation"></i></div>
-    <div class="cmt">حذف المشروع</div>
-    <div class="cms">هل أنت متأكد؟ لا يمكن التراجع.</div>
+    <div class="cmt" data-i18n="cm.deleteProj">حذف المشروع</div>
+    <div class="cms" data-i18n="cm.deleteProjConfirm">هل أنت متأكد؟ لا يمكن التراجع.</div>
     <div class="cmb">
       <button class="btn-cancel" onclick="document.getElementById('confModal').classList.remove('open')" data-i18n="btn.cancel">إلغاء</button>
-      <button class="btn-del" id="delBtn" onclick="confirmDel()">حذف</button>
+      <button class="btn-del" id="delBtn" onclick="confirmDel()" data-i18n="btn.delete">حذف</button>
     </div>
   </div>
 </div>
@@ -1991,6 +1991,201 @@ const I18N = {
     'newproj.uploadCover': 'رفع الغلاف',
     'newproj.coverHint': 'JPG, PNG, WEBP — أقصى 10MB',
     'newproj.continue': 'إنشاء وفتح المحرر',
+    // Hero section design
+    'design.heroTitle': 'القسم الرئيسي (Hero)',
+    'design.heroDesc': 'اختر شكل أول قسم يشاهده الزائر',
+    'design.heroCenter': 'في المنتصف',
+    'design.heroSplit': 'منقسم',
+    'design.heroEditorial': 'ضخم (Editorial)',
+    'design.heroFullImage': 'صورة كاملة',
+    'design.heroSimple': 'بسيط',
+    'design.bgImage': 'صورة الخلفية',
+    'design.uploadCover': 'رفع الصورة',
+    'design.deleteCover': 'حذف',
+    'design.displayMethod': 'طريقة العرض',
+    'design.displayCover': 'ملء الشاشة (Cover)',
+    'design.displayContain': 'احتواء كامل (Contain)',
+    'design.display100': 'حجم طبيعي 100%',
+    'design.display120': 'تكبير 120%',
+    'design.display80': 'تصغير 80%',
+    'design.overlayIntensity': 'شدة الطبقة السوداء:',
+    'design.posX': 'الموضع الأفقي:',
+    'design.posY': 'الموضع العمودي:',
+    'design.left': 'يسار',
+    'design.center': 'وسط',
+    'design.right': 'يمين',
+    'design.top': 'أعلى',
+    'design.bottom': 'أسفل',
+    'design.heroHeight': 'ارتفاع القسم:',
+    // About layouts
+    'design.aboutDesc': 'اختر طريقة عرض البيانات الشخصية',
+    'design.aboutClassic': 'كلاسيكي (صورة + نص)',
+    'design.aboutVisual': 'بصري (صورة كبيرة)',
+    'design.aboutSimple': 'بسيط (نص فقط)',
+    'design.uploadPhoto': 'رفع الصورة',
+    'design.deletePhoto': 'حذف',
+    // Fonts
+    'design.fontPairs': 'أزواج الخطوط',
+    'design.fontPairsDesc': 'اختر زوج الخطوط (يحمّل الزوج المختار فقط)',
+    'design.fontPreviewAr': 'اسمي بالعربي',
+    'design.fontPreviewEn': 'My Name English',
+    'design.layoutDirection': 'اتجاه التخطيط',
+    'design.layoutDirDesc': 'اتجاه الكتابة في الموقع',
+    'design.dirAuto': 'تلقائي',
+    'design.dirAutoDesc': 'يتبع اللغة',
+    'design.dirRtl': 'يمين لليسار',
+    'design.dirRtlDesc': 'RTL دائماً',
+    'design.dirLtr': 'يسار لليمين',
+    'design.dirLtrDesc': 'LTR دائماً',
+    // Colors
+    'design.themeColorsTitle': 'ألوان التيمة',
+    'design.themeColorsCardDesc': 'اللون المميز يتحكم في الأزرار، الروابط، والعناصر البصرية',
+    'design.colorAccentLabel': '⭐ اللون المميّز (Accent)',
+    'design.colorTextLabel': 'لون النص الأساسي',
+    'design.colorSubLabel': 'لون النص الفرعي',
+    // Cursor
+    'design.cursorTitle': 'شكل المؤشر',
+    'design.cursorDesktopWarn': '⚠️ يظهر فقط على الكمبيوتر — يُعطّل تلقائياً على الموبايل',
+    'design.cursorNormal': 'عادي',
+    'design.cursorNormalDesc': 'المؤشر الافتراضي',
+    'design.cursorDotRing': 'نقطة + حلقة',
+    'design.cursorDotRingDesc': 'عصري وأنيق',
+    // Animations
+    'design.animEnter': 'حركات الدخول',
+    'design.animEnterDesc': 'حركة الأقسام عند ظهورها للزائر',
+    'design.animNoneTitle': 'بدون حركة',
+    'design.animNoneSubtitle': 'يظهر مباشرة',
+    'design.animFadeTitle': 'ظهور تدريجي',
+    'design.animFadeSubtitle': 'Fade in بسيط',
+    'design.animFadeUpTitle': 'صعود تدريجي',
+    'design.animFadeUpSubtitle': 'Fade up (موصى به)',
+    // Backgrounds
+    'design.bgReadyTitle': 'خلفيات جاهزة',
+    'design.bgReadyDesc': 'اختر تيمة جاهزة بألوان منسقة',
+    // Social tab
+    'social.copyBtn': 'نسخ',
+    'social.linksCardTitle': 'الروابط — اللي تحتاجها بس فعّلها وحط اللينك',
+    'social.vimeoToken': 'Vimeo Access Token (للاستيراد)',
+    'social.vimeoTokenDesc': 'احصل عليه من:',
+    'social.vimeoTokenInst': '<span data-i18n="social.vimeoTokenInstSteps">← أنشئ App ← اختر "Personal Access Token" ← Scope:</span>',
+    'social.changeCredsTitle': 'تغيير بيانات الدخول',
+    'social.oldPass': 'كلمة المرور الحالية *',
+    'social.newUser': 'اسم المستخدم الجديد',
+    'social.newPass': 'كلمة المرور الجديدة',
+    'social.confirmPass': 'تأكيد كلمة المرور',
+    'social.passPh6': '6 أحرف على الأقل',
+    'social.confirmPh': 'أعد كتابة',
+    'social.changeCredsBtn': 'تغيير بيانات الدخول',
+    // Users tab
+    'users.section_works': '✅ قسم إدارة العملاء يعمل',
+    'users.newClientBtn': 'عميل جديد',
+    'users.thUser': 'المستخدم',
+    'users.thUsedStorage': 'المساحة المستخدمة',
+    'users.thStorageLimit': 'حد المساحة',
+    'users.thActions': 'إجراءات',
+    'users.loading': 'جاري التحميل...',
+    'users.modalAddTitle': 'إضافة عميل جديد',
+    'users.modalUsernameLabel': 'اسم المستخدم',
+    'users.modalPasswordLabel': 'كلمة المرور',
+    'users.modalStorageLabel': 'حد المساحة (MB)',
+    'users.modalAddBtn': 'إضافة',
+    // Vimeo modal
+    'vimeo.title': 'استيراد من Vimeo',
+    'vimeo.desc': 'الصق رابط أي فيديو على Vimeo وسيتم جلب بياناته تلقائياً',
+    'vimeo.urlLabel': 'رابط الفيديو',
+    'vimeo.fetch': 'جلب',
+    'vimeo.finalTitleLabel': 'عنوان المشروع (قابل للتعديل)',
+    'vimeo.titlePh': 'عنوان الفيديو',
+    'vimeo.importToSite': 'إضافة للموقع',
+    // Loading
+    'misc.loadingDots': 'جاري التحميل...',
+    'misc.pleaseWait': 'يرجى الانتظار قليلاً',
+    // Behance preview
+    'bh.preview.title': 'معاينة الاستيراد',
+    'bh.preview.received': 'تم استلام',
+    'bh.preview.itemsFromBehance': 'عنصر من Behance',
+    'bh.preview.category': 'التصنيف',
+    'bh.preview.contentLabel': 'المحتوى (انقر لاختيار/إلغاء)',
+    'bh.preview.importBtn': 'استيراد المشروع',
+    // New Project Modal
+    'np.modalTitle': 'مشروع جديد',
+    'np.chooseType': 'اختر نوع المشروع:',
+    'np.uploadVideo': 'رفع فيديو / Reel',
+    'np.uploadVideoDesc': 'YouTube · Vimeo · ملف مباشر',
+    'np.uploadDesigns': 'رفع تصميمات',
+    'np.uploadDesignsDesc': 'شبكة Instagram · أو Behance حر',
+    'np.back': 'رجوع',
+    'np.chooseLayout': 'اختر طريقة عرض التصاميم:',
+    'np.instaGrid': 'شبكة Instagram',
+    'np.instaGridDesc': 'مناسبة للسوشيال ميديا 3 أعمدة · مقاس 4:5',
+    'np.behanceFree': 'Behance حر',
+    'np.behanceFreeDesc': 'براندنج · مشاريع كاملة صور · نص · فيديو · شبكة',
+    'np.titleField': 'عنوان المشروع',
+    'np.descField': 'وصف',
+    'np.descPh': 'وصف المشروع...',
+    'np.coverHint': '💡 تظهر في كرت المشروع فقط — مش ضمن الصور داخل المشروع',
+    'np.dragOrChoose': 'اسحب أو',
+    'np.chooseCover': 'اختر صورة الغلاف',
+    'np.chooseImage': 'اختر صورة',
+    'np.imagesLabel': 'صور المشروع (Instagram 4:5)',
+    'np.imagesHint': 'هذه الصور تظهر داخل صفحة المشروع في شبكة 3 أعمدة',
+    'np.chooseMulti': 'اختر أكثر من صورة —',
+    'np.clickHere': 'اضغط هنا',
+    'np.willCreate': 'سيتم إنشاء المشروع ثم فتح',
+    'np.behanceEditor': 'محرر Behance',
+    'np.toAddElements': 'لإضافة العناصر',
+    'np.titlePh': 'اسم المشروع',
+    'np.titleRequired': 'عنوان المشروع *',
+    'np.coverOptional': 'صورة الغلاف (اختياري)',
+    'np.videoTitleReq': 'عنوان الفيديو *',
+    'np.videoTitlePh': 'اسم الفيديو',
+    'np.videoCover': 'صورة الغلاف (Thumbnail)',
+    'np.videoCoverPh': 'اختر صورة غلاف',
+    'np.videoSource': 'مصدر الفيديو',
+    'np.videoFile': 'ملف',
+    'np.videoUploading': 'جاري التحميل...',
+    'np.youtubeUrl': 'رابط YouTube',
+    'np.vimeoUrl': 'رابط Vimeo',
+    'np.embedCode': 'كود Embed',
+    // Save / Confirm Delete
+    'cm.deleteProj': 'حذف المشروع',
+    'cm.deleteProjConfirm': 'هل أنت متأكد؟ لا يمكن التراجع.',
+    'design.uploadNewImg': 'رفع صورة جديدة',
+    'design.uploadProfile': 'رفع صورة شخصية',
+    'design.overlayLabel': 'شدة الطبقة السوداء:',
+    'design.posXLabel': 'الموضع الأفقي:',
+    'design.posYLabel': 'الموضع العمودي:',
+    'design.heightLabel': 'ارتفاع القسم:',
+    'design.themeCustomShort': 'تخصيص يدوي',
+    'social.vimeoTokenGetItFrom': 'احصل عليه من:',
+    'social.vimeoTokenInstSteps': '← أنشئ App ← اختر "Personal Access Token" ← Scope:',
+    'np.usernameLabel': 'اسم المستخدم',
+    'np.passwordLabel': 'كلمة المرور',
+    'np.categoryLabel': 'التصنيف',
+    'np.descLabel': 'وصف',
+    'np.dragOrChooseCover': 'اسحب أو',
+    'np.coverImagesHint': 'هذه الصور تظهر داخل صفحة المشروع في شبكة 3 أعمدة',
+    'np.coverCardHint': '💡 تظهر في كرت المشروع فقط — مش ضمن الصور داخل المشروع',
+    'np.willCreateThenOpen': 'سيتم إنشاء المشروع ثم فتح',
+    'np.behanceEditorBold': 'محرر Behance',
+    'np.toAddElementsAfter': 'لإضافة العناصر',
+    'np.youtubeUrlLabel': 'رابط YouTube',
+    'np.vimeoUrlLabel': 'رابط Vimeo',
+    'np.embedCodeLabel': 'كود Embed',
+    'np.videoUploadingProg': 'جاري التحميل...',
+    'np.chooseCoverImg': 'اختر صورة غلاف',
+    'np.chooseCoverImgWord': 'اختر صورة الغلاف',
+    'np.chooseImageWord': 'اختر صورة',
+    'np.clickHereWord': 'اضغط هنا',
+    'np.dragOrLabel': 'اسحب أو',
+    'np.chooseMultiImagesText': 'اختر أكثر من صورة —',
+    'bh.warningFull': 'بعد ما تلصق الكود في شريط العنوان، احذف العلامتين // الموجودين في بداية الكود ثم اضغط Enter.',
+    'bh.warningExtraText': '(العلامتان دول موجودين عشان المتصفح ميحذفش الكود — لازم تحذفهم قبل التشغيل)',
+    'bh.step1Desc': 'ادخل المشروع اللي عايز تستورده، ثم اضغط Edit Project (تعديل المشروع)',
+    'bh.step3Desc1': 'في صفحة Edit Project، الصق الكود في شريط العنوان (URL bar) فوق ↑',
+    'bh.step3Desc2': '⚠️ احذف // من بداية الكود',
+    'bh.step3Desc3': 'ثم اضغط Enter — سيفتح موقعك تلقائياً مع المحتوى',
+    'bh.copyBtn': 'نسخ',
         // Misc
     'misc.loading': 'جاري التحميل...',
     'misc.noResults': 'لا توجد نتائج',
@@ -2353,6 +2548,201 @@ const I18N = {
     'newproj.uploadCover': 'Upload Cover',
     'newproj.coverHint': 'JPG, PNG, WEBP — Max 10MB',
     'newproj.continue': 'Create & Open Editor',
+    // Hero section design
+    'design.heroTitle': 'Hero Section',
+    'design.heroDesc': 'Choose how your first section appears',
+    'design.heroCenter': 'Centered',
+    'design.heroSplit': 'Split',
+    'design.heroEditorial': 'Big (Editorial)',
+    'design.heroFullImage': 'Full Image',
+    'design.heroSimple': 'Simple',
+    'design.bgImage': 'Background Image',
+    'design.uploadCover': 'Upload Image',
+    'design.deleteCover': 'Delete',
+    'design.displayMethod': 'Display Method',
+    'design.displayCover': 'Fill (Cover)',
+    'design.displayContain': 'Full Contain',
+    'design.display100': 'Natural 100%',
+    'design.display120': 'Zoom 120%',
+    'design.display80': 'Shrink 80%',
+    'design.overlayIntensity': 'Black overlay intensity:',
+    'design.posX': 'Horizontal position:',
+    'design.posY': 'Vertical position:',
+    'design.left': 'Left',
+    'design.center': 'Center',
+    'design.right': 'Right',
+    'design.top': 'Top',
+    'design.bottom': 'Bottom',
+    'design.heroHeight': 'Section height:',
+    // About layouts
+    'design.aboutDesc': 'Choose how to display personal info',
+    'design.aboutClassic': 'Classic (image + text)',
+    'design.aboutVisual': 'Visual (large image)',
+    'design.aboutSimple': 'Simple (text only)',
+    'design.uploadPhoto': 'Upload Photo',
+    'design.deletePhoto': 'Delete',
+    // Fonts
+    'design.fontPairs': 'Font Pairs',
+    'design.fontPairsDesc': 'Choose font pair (loads only selected pair)',
+    'design.fontPreviewAr': 'My name in Arabic',
+    'design.fontPreviewEn': 'My Name English',
+    'design.layoutDirection': 'Layout Direction',
+    'design.layoutDirDesc': 'Site writing direction',
+    'design.dirAuto': 'Auto',
+    'design.dirAutoDesc': 'Follow language',
+    'design.dirRtl': 'Right to Left',
+    'design.dirRtlDesc': 'Always RTL',
+    'design.dirLtr': 'Left to Right',
+    'design.dirLtrDesc': 'Always LTR',
+    // Colors
+    'design.themeColorsTitle': 'Theme Colors',
+    'design.themeColorsCardDesc': 'Accent color controls buttons, links and visual elements',
+    'design.colorAccentLabel': '⭐ Accent Color',
+    'design.colorTextLabel': 'Primary Text Color',
+    'design.colorSubLabel': 'Secondary Text Color',
+    // Cursor
+    'design.cursorTitle': 'Cursor Style',
+    'design.cursorDesktopWarn': '⚠️ Desktop only — auto-disabled on mobile',
+    'design.cursorNormal': 'Default',
+    'design.cursorNormalDesc': 'Default cursor',
+    'design.cursorDotRing': 'Dot + Ring',
+    'design.cursorDotRingDesc': 'Modern & elegant',
+    // Animations
+    'design.animEnter': 'Entrance Animations',
+    'design.animEnterDesc': 'Section animations when visible to visitor',
+    'design.animNoneTitle': 'No Animation',
+    'design.animNoneSubtitle': 'Appears instantly',
+    'design.animFadeTitle': 'Fade In',
+    'design.animFadeSubtitle': 'Simple fade',
+    'design.animFadeUpTitle': 'Fade Up',
+    'design.animFadeUpSubtitle': 'Fade up (recommended)',
+    // Backgrounds
+    'design.bgReadyTitle': 'Ready Backgrounds',
+    'design.bgReadyDesc': 'Choose a theme with coordinated colors',
+    // Social tab
+    'social.copyBtn': 'Copy',
+    'social.linksCardTitle': 'Links — enable what you need and add the URL',
+    'social.vimeoToken': 'Vimeo Access Token (for import)',
+    'social.vimeoTokenDesc': 'Get it from:',
+    'social.vimeoTokenInst': '← Create App ← Choose "Personal Access Token" ← Scope:',
+    'social.changeCredsTitle': 'Change Login Credentials',
+    'social.oldPass': 'Current Password *',
+    'social.newUser': 'New Username',
+    'social.newPass': 'New Password',
+    'social.confirmPass': 'Confirm Password',
+    'social.passPh6': 'At least 6 characters',
+    'social.confirmPh': 'Re-enter',
+    'social.changeCredsBtn': 'Change Credentials',
+    // Users tab
+    'users.section_works': '✅ Client management section works',
+    'users.newClientBtn': 'New Client',
+    'users.thUser': 'User',
+    'users.thUsedStorage': 'Used Storage',
+    'users.thStorageLimit': 'Storage Limit',
+    'users.thActions': 'Actions',
+    'users.loading': 'Loading...',
+    'users.modalAddTitle': 'Add New Client',
+    'users.modalUsernameLabel': 'Username',
+    'users.modalPasswordLabel': 'Password',
+    'users.modalStorageLabel': 'Storage Limit (MB)',
+    'users.modalAddBtn': 'Add',
+    // Vimeo modal
+    'vimeo.title': 'Import from Vimeo',
+    'vimeo.desc': 'Paste any Vimeo video URL and its data will be fetched automatically',
+    'vimeo.urlLabel': 'Video URL',
+    'vimeo.fetch': 'Fetch',
+    'vimeo.finalTitleLabel': 'Project Title (editable)',
+    'vimeo.titlePh': 'Video title',
+    'vimeo.importToSite': 'Add to Site',
+    // Loading
+    'misc.loadingDots': 'Loading...',
+    'misc.pleaseWait': 'Please wait a moment',
+    // Behance preview
+    'bh.preview.title': 'Import Preview',
+    'bh.preview.received': 'Received',
+    'bh.preview.itemsFromBehance': 'items from Behance',
+    'bh.preview.category': 'Category',
+    'bh.preview.contentLabel': 'Content (click to select/deselect)',
+    'bh.preview.importBtn': 'Import Project',
+    // New Project Modal
+    'np.modalTitle': 'New Project',
+    'np.chooseType': 'Choose project type:',
+    'np.uploadVideo': 'Upload Video / Reel',
+    'np.uploadVideoDesc': 'YouTube · Vimeo · Direct file',
+    'np.uploadDesigns': 'Upload Designs',
+    'np.uploadDesignsDesc': 'Instagram grid · Or Behance free',
+    'np.back': 'Back',
+    'np.chooseLayout': 'Choose how to display designs:',
+    'np.instaGrid': 'Instagram Grid',
+    'np.instaGridDesc': 'Perfect for social media 3 columns · 4:5 ratio',
+    'np.behanceFree': 'Behance Free',
+    'np.behanceFreeDesc': 'Branding · Full projects images · text · video · grid',
+    'np.titleField': 'Project Title',
+    'np.descField': 'Description',
+    'np.descPh': 'Project description...',
+    'np.coverHint': '💡 Shown in project card only — not within project images',
+    'np.dragOrChoose': 'Drag or',
+    'np.chooseCover': 'Choose cover image',
+    'np.chooseImage': 'Choose image',
+    'np.imagesLabel': 'Project Images (Instagram 4:5)',
+    'np.imagesHint': 'These images appear inside project page in 3-column grid',
+    'np.chooseMulti': 'Choose multiple images —',
+    'np.clickHere': 'Click here',
+    'np.willCreate': 'Project will be created then opened in',
+    'np.behanceEditor': 'Behance Editor',
+    'np.toAddElements': 'to add elements',
+    'np.titlePh': 'Project name',
+    'np.titleRequired': 'Project Title *',
+    'np.coverOptional': 'Cover Image (optional)',
+    'np.videoTitleReq': 'Video Title *',
+    'np.videoTitlePh': 'Video name',
+    'np.videoCover': 'Cover (Thumbnail)',
+    'np.videoCoverPh': 'Choose cover image',
+    'np.videoSource': 'Video Source',
+    'np.videoFile': 'File',
+    'np.videoUploading': 'Uploading...',
+    'np.youtubeUrl': 'YouTube URL',
+    'np.vimeoUrl': 'Vimeo URL',
+    'np.embedCode': 'Embed code',
+    // Save / Confirm Delete
+    'cm.deleteProj': 'Delete Project',
+    'cm.deleteProjConfirm': 'Are you sure? This cannot be undone.',
+    'design.uploadNewImg': 'Upload New Image',
+    'design.uploadProfile': 'Upload Profile Photo',
+    'design.overlayLabel': 'Black overlay intensity:',
+    'design.posXLabel': 'Horizontal position:',
+    'design.posYLabel': 'Vertical position:',
+    'design.heightLabel': 'Section height:',
+    'design.themeCustomShort': 'Manual customization',
+    'social.vimeoTokenGetItFrom': 'Get it from:',
+    'social.vimeoTokenInstSteps': '← Create App ← Choose "Personal Access Token" ← Scope:',
+    'np.usernameLabel': 'Username',
+    'np.passwordLabel': 'Password',
+    'np.categoryLabel': 'Category',
+    'np.descLabel': 'Description',
+    'np.dragOrChooseCover': 'Drag or',
+    'np.coverImagesHint': 'These images appear inside project page in 3-column grid',
+    'np.coverCardHint': '💡 Shown in project card only — not within project images',
+    'np.willCreateThenOpen': 'Project will be created then opened in',
+    'np.behanceEditorBold': 'Behance Editor',
+    'np.toAddElementsAfter': 'to add elements',
+    'np.youtubeUrlLabel': 'YouTube URL',
+    'np.vimeoUrlLabel': 'Vimeo URL',
+    'np.embedCodeLabel': 'Embed code',
+    'np.videoUploadingProg': 'Uploading...',
+    'np.chooseCoverImg': 'Choose cover image',
+    'np.chooseCoverImgWord': 'Choose cover image',
+    'np.chooseImageWord': 'Choose image',
+    'np.clickHereWord': 'Click here',
+    'np.dragOrLabel': 'Drag or',
+    'np.chooseMultiImagesText': 'Choose multiple images —',
+    'bh.warningFull': 'After pasting the code in the URL bar, remove the // marks at the beginning, then press Enter.',
+    'bh.warningExtraText': '(The // marks prevent the browser from stripping the code — you must remove them before running)',
+    'bh.step1Desc': 'Open the project you want to import, then click Edit Project',
+    'bh.step3Desc1': 'On Edit Project page, paste the code in the URL bar above ↑',
+    'bh.step3Desc2': '⚠️ Remove // from the start of the code',
+    'bh.step3Desc3': 'Then press Enter — your site will open with the content',
+    'bh.copyBtn': 'Copy',
         // Misc
     'misc.loading': 'Loading...',
     'misc.noResults': 'No results',
@@ -3279,7 +3669,7 @@ function showCSec(id,btn){
 function buildCSec(id){
   const c=ctData[id]||{};
   switch(id){
-    case'hero':return`<div class="card"><div class="card-title">الرئيسية (Hero)</div>
+    case'hero':return`<div class="card"><div class="card-title">${getSecLabel('hero')} (Hero)</div>
       <div class="frow"><div class="fg"><label class="fl">الاسم (عربي)</label><input class="fi" id="h_name_ar" value="${e(c.name_ar||'')}"></div><div class="fg"><label class="fl">Name (EN)</label><input class="fi" id="h_name_en" value="${e(c.name_en||'')}"></div></div>
       <div class="frow"><div class="fg"><label class="fl">التخصص (عربي)</label><input class="fi" id="h_title_ar" value="${e(c.title_ar||'')}"></div><div class="fg"><label class="fl">Title (EN)</label><input class="fi" id="h_title_en" value="${e(c.title_en||'')}"></div></div>
       <div class="frow"><div class="fg"><label class="fl">زر 1 (عربي)</label><input class="fi" id="h_btn1_ar" value="${e(c.btn1_ar||'أعمالي')}"></div><div class="fg"><label class="fl">Btn 1 (EN)</label><input class="fi" id="h_btn1_en" value="${e(c.btn1_en||'View Work')}"></div></div>
@@ -3327,7 +3717,7 @@ function buildCSec(id){
       </div>`;
     case'expertise':return buildExpertiseEditor(c);
     case'education':return buildEduEditor(c);
-    case'skills':return`<div class="card"><div class="card-title">المهارات (Skills)</div>
+    case'skills':return`<div class="card"><div class="card-title">${getSecLabel('skills')} (Skills)</div>
       <div class="fg"><label class="fl">المهارات (عربي) — فاصل بفاصلة</label><textarea class="fta" id="sk_ar">${e(c.items_ar||'')}</textarea></div>
       <div class="fg"><label class="fl">Skills (EN) — comma separated</label><textarea class="fta" id="sk_en">${e(c.items_en||'')}</textarea></div>
       </div>`;
@@ -3347,7 +3737,7 @@ function buildCSec(id){
       ${colsRow('video','تابلت','videoT',S.video_cols_tablet||3)}
       ${colsRow('video','لابتوب','videoD',S.video_cols_desktop||4)}
       </div>`;
-    case'contact':return`<div class="card"><div class="card-title">التواصل</div>
+    case'contact':return`<div class="card"><div class="card-title">${getSecLabel('contact')}</div>
       <div class="frow"><div class="fg"><label class="fl">العنوان (عربي)</label><input class="fi" id="co_title_ar" value="${e(c.title_ar||'تواصل معي')}"></div><div class="fg"><label class="fl">Title (EN)</label><input class="fi" id="co_title_en" value="${e(c.title_en||"Let's Work Together")}"></div></div>
       <div class="frow"><div class="fg"><label class="fl">العنوان الفرعي (عربي)</label><input class="fi" id="co_sub_ar" value="${e(c.subtitle_ar||'')}"></div><div class="fg"><label class="fl">Subtitle (EN)</label><input class="fi" id="co_sub_en" value="${e(c.subtitle_en||'')}"></div></div>
       </div>`;
@@ -3358,7 +3748,7 @@ function buildCSec(id){
 // ══ EXPERTISE EDITOR ══
 function buildExpertiseEditor(c){
   let items=[];try{items=JSON.parse(c.items||'[]');}catch{}
-  return`<div class="card"><div class="card-title">الخدمات (Key Expertise)</div>
+  return`<div class="card"><div class="card-title">${getSecLabel('expertise')} (Key Expertise)</div>
     <div class="frow" style="margin-bottom:20px;">
       <div class="fg"><label class="fl">عنوان القسم (عربي)</label><input class="fi" id="exp_sec_title_ar" value="${e(c.title_ar||'خدماتي')}"></div>
       <div class="fg"><label class="fl">Section Title (EN)</label><input class="fi" id="exp_sec_title_en" value="${e(c.title_en||'Key Expertise')}"></div>
@@ -3417,7 +3807,7 @@ function getExpertiseItems(){
 // ══ EDUCATION EDITOR ══
 function buildEduEditor(c){
   let items=[];try{items=JSON.parse(c.items||'[]');}catch{}
-  return`<div class="card"><div class="card-title">التعليم</div>
+  return`<div class="card"><div class="card-title">${getSecLabel('education')}</div>
     <div class="dlist" id="eduList">${items.map((it,i)=>eduItem(it,i)).join('')}</div>
     <button class="add-btn" onclick="addEdu()"><i class="fa-solid fa-plus"></i> إضافة</button>
   </div>`;
@@ -3435,7 +3825,7 @@ function getEduItems(){const items=[];document.querySelectorAll('[id^="edu-"]').
 // ══ TOOLS EDITOR ══
 function buildToolsEditor(c){
   let items=[];try{items=JSON.parse(c.items||'[]');}catch{}
-  return`<div class="card"><div class="card-title">الأدوات والبرامج</div>
+  return`<div class="card"><div class="card-title">${getSecLabel('tools')}</div>
     <div class="dlist" id="toolList">${items.map((it,i)=>toolItem(it,i)).join('')}</div>
     <button class="add-btn" onclick="addTool()"><i class="fa-solid fa-plus"></i> إضافة أداة</button>
   </div>`;
@@ -3463,7 +3853,7 @@ function getToolItems(){const items=[];document.querySelectorAll('[id^="tool-"]'
 // ══ EXPERIENCE EDITOR ══
 function buildExpEditor(c){
   let items=[];try{items=JSON.parse(c.items||'[]');}catch{}
-  return`<div class="card"><div class="card-title">الخبرات العملية</div>
+  return`<div class="card"><div class="card-title">${getSecLabel('experience')}</div>
     <div class="dlist" id="expList">${items.map((it,i)=>expItem(it,i)).join('')}</div>
     <button class="add-btn" onclick="addExp()"><i class="fa-solid fa-plus"></i> إضافة خبرة</button>
   </div>`;
