@@ -4113,7 +4113,7 @@ async function loadTestimonials(){
 function renderTestimonials(){
   const grid = document.getElementById('testGrid');
   const empty = document.getElementById('testEmpty');
-  const pendingCount = TESTIMONIALS.filter(t => !t.approved).length;
+  const pendingCount = TESTIMONIALS.filter(tm => !tm.approved).length;
   document.getElementById('testPendingBox').style.display = pendingCount > 0 ? 'block' : 'none';
   document.getElementById('testPendingCount').textContent = pendingCount;
   if(!TESTIMONIALS.length){
@@ -4122,28 +4122,28 @@ function renderTestimonials(){
     return;
   }
   empty.style.display = 'none';
-  grid.innerHTML = TESTIMONIALS.map(t => {
-    const stars = '★'.repeat(t.rating) + '☆'.repeat(5-t.rating);
-    const isPending = !t.approved;
+  grid.innerHTML = TESTIMONIALS.map(tm => {
+    const stars = '★'.repeat(tm.rating) + '☆'.repeat(5-tm.rating);
+    const isPending = !tm.approved;
     return `
     <div style="background:#0a0a0a;border:1px solid ${isPending?'rgba(251,191,36,0.4)':'#1f1f1f'};border-radius:12px;padding:16px;${isPending?'background:linear-gradient(135deg,rgba(251,191,36,0.05),transparent);':''}">
-      ${isPending ? '<div style="display:inline-block;background:rgba(251,191,36,0.2);color:#fbbf24;font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:10px;">⏳ ${t('test.pendingBadge')}</div>' : ''}
+      ${isPending ? `<div style="display:inline-block;background:rgba(251,191,36,0.2);color:#fbbf24;font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:10px;">⏳ ${t('test.pendingBadge')}</div>` : ''}
       <div style="display:flex;gap:12px;margin-bottom:10px;">
-        <div style="width:48px;height:48px;border-radius:50%;background:${t.avatar_url?'transparent':'#1a1a1a'};overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#666;font-size:20px;">
-          ${t.avatar_url ? `<img src="${t.avatar_url}" style="width:100%;height:100%;object-fit:cover;">` : '<i class="fa-solid fa-user"></i>'}
+        <div style="width:48px;height:48px;border-radius:50%;background:${tm.avatar_url?'transparent':'#1a1a1a'};overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#666;font-size:20px;">
+          ${tm.avatar_url ? `<img src="${tm.avatar_url}" style="width:100%;height:100%;object-fit:cover;">` : '<i class="fa-solid fa-user"></i>'}
         </div>
         <div style="flex:1;">
-          <div style="font-weight:700;font-size:14px;">${t.name}</div>
-          <div style="font-size:11.5px;color:#888;">${[t.role,t.company].filter(Boolean).join(' · ')||'—'}</div>
+          <div style="font-weight:700;font-size:14px;">${tm.name}</div>
+          <div style="font-size:11.5px;color:#888;">${[tm.role,tm.company].filter(Boolean).join(' · ')||'—'}</div>
           <div style="color:#fbbf24;font-size:13px;letter-spacing:1px;margin-top:3px;">${stars}</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:4px;">
-          ${isPending ? `<button onclick="approveTest(${t.id})" style="background:#22c55e;color:#fff;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;"><i class="fa-solid fa-check"></i> ${t('test.approve')}</button>` : ''}
-          <button onclick="editTest(${t.id})" style="background:#1a1a1a;border:1px solid #333;color:#ccc;padding:5px 10px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;"><i class="fa-solid fa-pen"></i></button>
-          <button onclick="deleteTest(${t.id})" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;padding:5px 10px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;"><i class="fa-solid fa-trash"></i></button>
+          ${isPending ? `<button onclick="approveTest(${tm.id})" style="background:#22c55e;color:#fff;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;"><i class="fa-solid fa-check"></i> ${t('test.approve')}</button>` : ''}
+          <button onclick="editTest(${tm.id})" style="background:#1a1a1a;border:1px solid #333;color:#ccc;padding:5px 10px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;"><i class="fa-solid fa-pen"></i></button>
+          <button onclick="deleteTest(${tm.id})" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;padding:5px 10px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;"><i class="fa-solid fa-trash"></i></button>
         </div>
       </div>
-      <p style="color:#ccc;font-size:13px;line-height:1.7;margin:0;">"${t.content}"</p>
+      <p style="color:#ccc;font-size:13px;line-height:1.7;margin:0;">"${tm.content}"</p>
     </div>
     `;
   }).join('');
