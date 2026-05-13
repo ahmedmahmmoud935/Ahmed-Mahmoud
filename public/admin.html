@@ -1578,10 +1578,8 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
         <div class="fg">
           <label class="fl" data-i18n="np.videoSource">مصدر الفيديو</label>
           <div class="vsrc-tabs" style="margin-bottom:10px;">
-            <button type="button" class="vsrc-btn active" id="vsFile" onclick="setVidSrc('file')"><i class="fa-solid fa-upload"></i> <span data-i18n="np.videoFile">ملف</span></button>
-            <button type="button" class="vsrc-btn" id="vsYT" onclick="setVidSrc('youtube')"><i class="fa-brands fa-youtube" style="color:#ff0000;"></i> YouTube</button>
-            <button type="button" class="vsrc-btn" id="vsVimeo" onclick="setVidSrc('vimeo')"><i class="fa-brands fa-vimeo-v" style="color:#1ab7ea;"></i> Vimeo</button>
-            <button type="button" class="vsrc-btn" id="vsEmbed" onclick="setVidSrc('embed')"><i class="fa-solid fa-code"></i> Embed</button>
+            <button type="button" class="vsrc-btn active" id="vsFile" onclick="setVidSrc('file')"><i class="fa-solid fa-upload"></i> <span data-i18n="np.videoFile">رفع ملف</span></button>
+            <button type="button" class="vsrc-btn" id="vsLink" onclick="setVidSrc('link')"><i class="fa-solid fa-link"></i> <span data-i18n="np.videoLink">رابط من أي موقع</span></button>
           </div>
           <div id="vidSrcFile">
             <label class="ua" for="vidIn"><div class="ui"><i class="fa-solid fa-video"></i></div><div class="ut">MP4 / MOV — <span>9:16</span></div></label>
@@ -1589,21 +1587,27 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
             <div id="vidProg" style="display:none;margin-top:6px;font-size:12px;color:var(--g2);"><span data-i18n="np.videoUploadingProg">جاري التحميل...</span><div class="pb" id="vidPb" style="width:0%"></div></div>
             <div id="vidPrev" style="display:none;margin-top:8px;"><div class="pi rv" style="width:50px;height:90px;"><video id="vidEl" muted playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video><span class="cb">REEL</span><button class="ri" onclick="removeVid()"><i class="fa-solid fa-xmark"></i></button></div></div>
           </div>
-          <div id="vidSrcYoutube" style="display:none;"><div style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:10px;padding:13px;">
-            <label class="fl"><i class="fa-brands fa-youtube" style="color:#ff0000;margin-left:6px;"></i><span data-i18n="np.youtubeUrlLabel">رابط YouTube</span></label>
-            <input class="fi" id="ytUrl" placeholder="https://youtube.com/watch?v=..." oninput="previewEmbed('youtube')" style="margin-bottom:8px;">
-            <div id="ytPreview" style="display:none;border-radius:8px;overflow:hidden;aspect-ratio:9/16;max-width:110px;"><iframe id="ytFrame" style="width:100%;height:100%;border:none;" allowfullscreen></iframe></div>
-          </div></div>
-          <div id="vidSrcVimeo" style="display:none;"><div style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:10px;padding:13px;">
-            <label class="fl"><i class="fa-brands fa-vimeo-v" style="color:#1ab7ea;margin-left:6px;"></i><span data-i18n="np.vimeoUrlLabel">رابط Vimeo</span></label>
-            <input class="fi" id="vimeoUrl" placeholder="https://vimeo.com/123456789" oninput="previewEmbed('vimeo')" style="margin-bottom:8px;">
-            <div id="vimeoPreview" style="display:none;border-radius:8px;overflow:hidden;aspect-ratio:9/16;max-width:110px;"><iframe id="vimeoFrame" style="width:100%;height:100%;border:none;" allowfullscreen></iframe></div>
-          </div></div>
-          <div id="vidSrcEmbed" style="display:none;"><div style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:10px;padding:13px;">
-            <label class="fl"><i class="fa-solid fa-code" style="color:var(--o);margin-left:6px;"></i><span data-i18n="np.embedCodeLabel">كود Embed</span></label>
-            <textarea class="fta" id="embedCode" placeholder="<iframe ...></iframe>" style="min-height:65px;font-size:12px;font-family:monospace;" oninput="parseEmbedCode()"></textarea>
-            <div id="embedPreview" style="display:none;margin-top:8px;border-radius:8px;overflow:hidden;aspect-ratio:9/16;max-width:110px;"></div>
-          </div></div>
+          <div id="vidSrcLink" style="display:none;">
+            <div style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:10px;padding:13px;">
+              <label class="fl"><i class="fa-solid fa-link" style="color:var(--o);margin-left:6px;"></i><span data-i18n="np.linkAnywhere">الصق رابط من أي موقع</span></label>
+              <input class="fi" id="universalVidUrl" placeholder="https://..." oninput="detectVideoLink()" style="margin-bottom:8px;font-family:monospace;font-size:12px;direction:ltr;text-align:left;">
+
+              <div id="linkDetectStatus" style="display:none;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;margin-bottom:10px;"></div>
+
+              <div style="font-size:10.5px;color:#666;line-height:1.7;margin-top:8px;">
+                <span data-i18n="np.linkSupported">يدعم:</span>
+                <span style="color:#ff0000;">YouTube</span> ·
+                <span style="color:#1ab7ea;">Vimeo</span> ·
+                <span style="color:#ff0050;">TikTok</span> ·
+                <span style="color:#e1306c;">Instagram</span> ·
+                <span style="color:#1da1f2;">Twitter/X</span> ·
+                <span style="color:#0a66c2;">LinkedIn</span> ·
+                <span style="color:#888;" data-i18n="np.linkAnyOther">أي موقع آخر</span>
+              </div>
+
+              <div id="universalPreview" style="display:none;margin-top:10px;border-radius:8px;overflow:hidden;background:#000;"></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -2142,7 +2146,14 @@ const I18N = {
     'np.videoCover': 'صورة الغلاف (Thumbnail)',
     'np.videoCoverPh': 'اختر صورة غلاف',
     'np.videoSource': 'مصدر الفيديو',
-    'np.videoFile': 'ملف',
+    'np.videoFile': 'رفع ملف',
+    'np.videoLink': 'رابط من أي موقع',
+    'np.linkAnywhere': 'الصق رابط من أي موقع',
+    'np.linkSupported': 'يدعم:',
+    'np.linkAnyOther': 'أي موقع آخر',
+    'np.linkDetected': 'تم اكتشاف',
+    'np.linkUnknown': 'موقع غير معروف — سيتم محاولة العرض كما هو',
+    'np.linkInvalid': 'الرابط غير صالح',
     'np.videoUploading': 'جاري التحميل...',
     'np.youtubeUrl': 'رابط YouTube',
     'np.vimeoUrl': 'رابط Vimeo',
@@ -2699,7 +2710,14 @@ const I18N = {
     'np.videoCover': 'Cover (Thumbnail)',
     'np.videoCoverPh': 'Choose cover image',
     'np.videoSource': 'Video Source',
-    'np.videoFile': 'File',
+    'np.videoFile': 'Upload File',
+    'np.videoLink': 'Link from any site',
+    'np.linkAnywhere': 'Paste link from any site',
+    'np.linkSupported': 'Supports:',
+    'np.linkAnyOther': 'any other site',
+    'np.linkDetected': 'Detected',
+    'np.linkUnknown': 'Unknown site — will try to embed as-is',
+    'np.linkInvalid': 'Invalid URL',
     'np.videoUploading': 'Uploading...',
     'np.youtubeUrl': 'YouTube URL',
     'np.vimeoUrl': 'Vimeo URL',
@@ -3379,10 +3397,25 @@ function openEdit(id){
     document.getElementById('fTitleVid').value=p.title;document.getElementById('fDescVid').value=p.description||'';
     setCategorySafe('fCatVid',p.category);
     if(p.coverImage){document.getElementById('covImgVid').src=p.coverImage;document.getElementById('covPrevVid').style.display='block';}
-    if(p.videoUrl){const isYT=p.videoUrl.includes('youtube.com/embed');const isV=p.videoUrl.includes('player.vimeo.com');
-      if(isYT){setVidSrc('youtube');document.getElementById('ytFrame').src=p.videoUrl;document.getElementById('ytPreview').style.display='block';embedUrl=p.videoUrl;}
-      else if(isV){setVidSrc('vimeo');document.getElementById('vimeoFrame').src=p.videoUrl;document.getElementById('vimeoPreview').style.display='block';embedUrl=p.videoUrl;}
-      else{setVidSrc('file');document.getElementById('vidEl').src=p.videoUrl;document.getElementById('vidPrev').style.display='block';}}
+    if(p.videoUrl){
+      // Check if it's an uploaded file (local /uploads/) or external URL
+      const isLocalFile = p.videoUrl.startsWith('/uploads/') || p.videoUrl.startsWith('uploads/');
+      if(isLocalFile){
+        setVidSrc('file');
+        document.getElementById('vidEl').src=p.videoUrl;
+        document.getElementById('vidPrev').style.display='block';
+      } else {
+        // External URL — switch to link mode and populate
+        setVidSrc('link');
+        const inp = document.getElementById('universalVidUrl');
+        if(inp){
+          inp.value = p.videoUrl;
+          detectVideoLink();
+          // If detection didn't find anything but URL is valid, still set embedUrl
+          if(!embedUrl) embedUrl = p.videoUrl;
+        }
+      }
+    }
     else setVidSrc('file');
     showStep('video');
   } else if(p.projectType==='free'){
@@ -3475,19 +3508,153 @@ function rmNew(i){galNew.splice(i,1);renderGal();}
 
 function setVidSrc(src){
   curVidSrc=src;
-  ['file','youtube','vimeo','embed'].forEach(s=>{
-    const k=s.charAt(0).toUpperCase()+s.slice(1);
-    const btn=document.getElementById('vs'+k);const div=document.getElementById('vidSrc'+k);
-    if(btn)btn.classList.toggle('active',s===src);if(div)div.style.display=s===src?'block':'none';
-  });
+  // New simplified: only 'file' or 'link'
+  const fileBtn=document.getElementById('vsFile');
+  const linkBtn=document.getElementById('vsLink');
+  const fileDiv=document.getElementById('vidSrcFile');
+  const linkDiv=document.getElementById('vidSrcLink');
+  if(fileBtn) fileBtn.classList.toggle('active', src==='file');
+  if(linkBtn) linkBtn.classList.toggle('active', src==='link');
+  if(fileDiv) fileDiv.style.display = src==='file' ? 'block' : 'none';
+  if(linkDiv) linkDiv.style.display = src==='link' ? 'block' : 'none';
 }
-function getYTId(url){const m=url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);return m?m[1]:null;}
-function getVimeoId(url){const m=url.match(/vimeo\.com\/(?:video\/)?(\d+)/);return m?m[1]:null;}
-function previewEmbed(type){
-  if(type==='youtube'){const id=getYTId(document.getElementById('ytUrl').value.trim());if(id){const url=`https://www.youtube.com/embed/${id}`;document.getElementById('ytFrame').src=url;document.getElementById('ytPreview').style.display='block';embedUrl=url;}}
-  else{const id=getVimeoId(document.getElementById('vimeoUrl').value.trim());if(id){const url=`https://player.vimeo.com/video/${id}?portrait=0&byline=0&title=0`;document.getElementById('vimeoFrame').src=url;document.getElementById('vimeoPreview').style.display='block';embedUrl=url;}}
+
+// Universal video link detection
+const VIDEO_PATTERNS = [
+  {name:'YouTube', icon:'fa-brands fa-youtube', color:'#ff0000',
+   patterns:[
+     /(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+   ],
+   embed: id => `https://www.youtube.com/embed/${id}`,
+   getId: m => m[1]
+  },
+  {name:'Vimeo', icon:'fa-brands fa-vimeo-v', color:'#1ab7ea',
+   patterns:[ /vimeo\.com\/(?:video\/|channels\/[^\/]+\/|groups\/[^\/]+\/videos\/)?(\d+)/ ],
+   embed: id => `https://player.vimeo.com/video/${id}?portrait=0&byline=0&title=0`,
+   getId: m => m[1]
+  },
+  {name:'TikTok', icon:'fa-brands fa-tiktok', color:'#ff0050',
+   patterns:[
+     /tiktok\.com\/@[^\/]+\/video\/(\d+)/,
+     /vm\.tiktok\.com\/([a-zA-Z0-9]+)/,
+   ],
+   embed: id => `https://www.tiktok.com/embed/v2/${id}`,
+   getId: m => m[1]
+  },
+  {name:'Instagram', icon:'fa-brands fa-instagram', color:'#e1306c',
+   patterns:[
+     /instagram\.com\/(?:p|reel|tv)\/([a-zA-Z0-9_-]+)/,
+   ],
+   embed: id => `https://www.instagram.com/p/${id}/embed`,
+   getId: m => m[1]
+  },
+  {name:'Twitter/X', icon:'fa-brands fa-x-twitter', color:'#1da1f2',
+   patterns:[
+     /(?:twitter|x)\.com\/[^\/]+\/status\/(\d+)/,
+   ],
+   embed: id => `https://twitframe.com/show?url=https://twitter.com/i/status/${id}`,
+   getId: m => m[1]
+  },
+  {name:'LinkedIn', icon:'fa-brands fa-linkedin', color:'#0a66c2',
+   patterns:[
+     /linkedin\.com\/(?:posts|feed\/update)\/[^\/]+activity[^0-9]*(\d+)/i,
+     /linkedin\.com\/embed\/feed\/update\/urn:li:activity:(\d+)/i,
+   ],
+   embed: id => `https://www.linkedin.com/embed/feed/update/urn:li:activity:${id}`,
+   getId: m => m[1]
+  },
+  {name:'Facebook', icon:'fa-brands fa-facebook', color:'#1877f2',
+   patterns:[
+     /facebook\.com\/(?:[^\/]+\/videos\/|watch\/?\?v=)(\d+)/,
+     /fb\.watch\/([a-zA-Z0-9_-]+)/,
+   ],
+   embed: id => `https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Fvideo.php%3Fv%3D${id}&show_text=0&autoplay=0`,
+   getId: m => m[1]
+  },
+  {name:'Direct File', icon:'fa-solid fa-file-video', color:'#22c55e',
+   patterns:[ /\.(mp4|webm|ogg|mov|m4v)(\?|$)/i ],
+   embed: url => url, // direct video URL
+   getId: (_, url) => url,
+   isDirectFile: true
+  },
+];
+
+function detectVideoSource(url){
+  if(!url) return null;
+  for(const provider of VIDEO_PATTERNS){
+    for(const pattern of provider.patterns){
+      const match = url.match(pattern);
+      if(match){
+        const id = provider.getId(match, url);
+        return {
+          provider: provider.name,
+          icon: provider.icon,
+          color: provider.color,
+          id: id,
+          embedUrl: provider.embed(id),
+          isDirectFile: provider.isDirectFile || false,
+          originalUrl: url
+        };
+      }
+    }
+  }
+  return null;
 }
-function parseEmbedCode(){const code=document.getElementById('embedCode').value.trim();const m=code.match(/src=["\']([^"\']+)["\']/i);if(m){embedUrl=m[1];const prev=document.getElementById('embedPreview');prev.style.display='block';prev.innerHTML=`<iframe src="${embedUrl}" style="width:100%;height:100%;border:none;" allowfullscreen></iframe>`;}}
+
+function detectVideoLink(){
+  const url = (document.getElementById('universalVidUrl').value || '').trim();
+  const status = document.getElementById('linkDetectStatus');
+  const preview = document.getElementById('universalPreview');
+
+  if(!url){
+    status.style.display = 'none';
+    preview.style.display = 'none';
+    embedUrl = '';
+    return;
+  }
+
+  const detected = detectVideoSource(url);
+
+  if(detected){
+    // Success indicator
+    status.style.display = 'flex';
+    status.style.background = `${detected.color}20`;
+    status.style.border = `1px solid ${detected.color}40`;
+    status.style.color = detected.color;
+    const detectedLabel = (typeof t==='function'?t('np.linkDetected'):'تم اكتشاف');
+    status.innerHTML = `<i class="${detected.icon}"></i> <span>${detectedLabel} ${detected.provider}</span>`;
+
+    // Preview
+    embedUrl = detected.embedUrl;
+    preview.style.display = 'block';
+    if(detected.isDirectFile){
+      preview.innerHTML = `<video src="${detected.embedUrl}" controls style="width:100%;max-width:200px;aspect-ratio:9/16;object-fit:cover;display:block;"></video>`;
+    } else {
+      preview.innerHTML = `<div style="aspect-ratio:9/16;max-width:120px;"><iframe src="${detected.embedUrl}" style="width:100%;height:100%;border:none;" allowfullscreen></iframe></div>`;
+    }
+  } else {
+    // Try as plain URL (might still be valid embed)
+    if(url.startsWith('http://') || url.startsWith('https://')){
+      status.style.display = 'flex';
+      status.style.background = 'rgba(251,191,36,0.15)';
+      status.style.border = '1px solid rgba(251,191,36,0.3)';
+      status.style.color = '#fbbf24';
+      const unknownLabel = (typeof t==='function'?t('np.linkUnknown'):'موقع غير معروف — سيتم محاولة العرض كما هو');
+      status.innerHTML = `<i class="fa-solid fa-circle-question"></i> <span>${unknownLabel}</span>`;
+      embedUrl = url;
+      preview.style.display = 'none';
+    } else {
+      status.style.display = 'flex';
+      status.style.background = 'rgba(239,68,68,0.15)';
+      status.style.border = '1px solid rgba(239,68,68,0.3)';
+      status.style.color = '#ef4444';
+      const invalidLabel = (typeof t==='function'?t('np.linkInvalid'):'الرابط غير صالح');
+      status.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> <span>${invalidLabel}</span>`;
+      embedUrl = '';
+      preview.style.display = 'none';
+    }
+  }
+}
 
 async function saveProject(){
   const btn=document.getElementById('saveBtn');btn.innerHTML='<div class="spin"></div> جاري الحفظ...';btn.disabled=true;
@@ -3496,9 +3663,21 @@ async function saveProject(){
   if(curStep==='video'){
     const title=v('fTitleVid');if(!title){toast('⚠️ أدخل عنوان الفيديو');btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span>';btn.disabled=false;return;}
     let fe='';
-    if(curVidSrc==='youtube'){const id=getYTId(document.getElementById('ytUrl').value.trim());if(id)fe=`https://www.youtube.com/embed/${id}`;else if(embedUrl)fe=embedUrl;}
-    else if(curVidSrc==='vimeo'){const id=getVimeoId(document.getElementById('vimeoUrl').value.trim());if(id)fe=`https://player.vimeo.com/video/${id}?portrait=0&byline=0&title=0`;else if(embedUrl)fe=embedUrl;}
-    else if(curVidSrc==='embed'){const code=document.getElementById('embedCode').value.trim();const m=code.match(/src=["\']([^"\']+)["\']/i);if(m)fe=m[1];else if(embedUrl)fe=embedUrl;}
+    if(curVidSrc==='link'){
+      // Universal link - use detected embed URL
+      const inputUrl = (document.getElementById('universalVidUrl').value || '').trim();
+      if(!inputUrl){toast('⚠️ الصق رابط الفيديو');btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span>';btn.disabled=false;return;}
+      const detected = detectVideoSource(inputUrl);
+      if(detected){
+        fe = detected.embedUrl;
+      } else if(inputUrl.startsWith('http')){
+        // Unknown URL - use as-is
+        fe = inputUrl;
+      } else {
+        toast('⚠️ الرابط غير صالح');
+        btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span>';btn.disabled=false;return;
+      }
+    }
     else if(curVidSrc==='file'&&!vidData&&!vidExist){toast('⚠️ ارفع ملف الفيديو');btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span>';btn.disabled=false;return;}
     body={title,category:document.getElementById('fCatVid').value,description:v('fDescVid'),mediaType:'video',keepImages:[],images:[]};
     if(covDataVid)body.coverImage=covDataVid;else if(!covExist)body.coverImage=null;

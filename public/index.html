@@ -2176,7 +2176,28 @@ function closeProjectPage(){
   window.scrollTo({top:_scrollY,behavior:'instant'});
 }
 
-function isEmbed(url){return url&&(url.includes('youtube.com/embed')||url.includes('player.vimeo.com'));}
+function isEmbed(url){
+  if(!url) return false;
+  // Detect any embed URL by common patterns
+  const embedPatterns = [
+    'youtube.com/embed',
+    'player.vimeo.com',
+    'tiktok.com/embed',
+    'instagram.com/p/',  // Instagram embeds use /p/X/embed
+    'instagram.com/reel/',
+    'twitframe.com',
+    'twitter.com/i/status',
+    'x.com/i/status',
+    'linkedin.com/embed',
+    'facebook.com/plugins',
+    'fb.watch',
+    'dailymotion.com/embed',
+    'wistia.com/medias',
+    'loom.com/embed',
+    'streamable.com',
+  ];
+  return embedPatterns.some(p => url.includes(p));
+}
 
 function openLb(i){lbIdx=i;renderLb();document.getElementById('lightbox').classList.add('active');document.body.style.overflow='hidden';}
 function renderLb(){
