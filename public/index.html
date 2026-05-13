@@ -1609,6 +1609,10 @@ function renderProjects(){
   if(currentCategory && currentCategory!=='all'){
     list=list.filter(p=>p.category===currentCategory);
   }
+  // Videos: newest first (Instagram-style). Images keep sort_order.
+  if(currentFilter==='video'){
+    list = [...list].sort((a,b) => (b.id||0) - (a.id||0));
+  }
   grid.className='projects-grid mode-'+currentFilter;
   grid.style.maxWidth='';
 
@@ -1938,29 +1942,52 @@ function renderReel(){
     // Desktop OR mobile after first play: load iframe with autoplay
     if(isEmbed(p.videoUrl)){
       const url = p.videoUrl;
+      const isInstagram = url.includes('instagram.com');
+      const isTikTok = url.includes('tiktok.com');
       // Instagram, TikTok, LinkedIn, X embeds don't support autoplay params — use as-is
-      const noParamEmbed = url.includes('instagram.com') || url.includes('tiktok.com') ||
+      const noParamEmbed = isInstagram || isTikTok ||
                           url.includes('linkedin.com') || url.includes('twitframe') ||
                           url.includes('twitter.com') || url.includes('x.com/i/');
+
+      // Special handling for Instagram: scale & clip to hide IG chrome (header/comments)
+      if(isInstagram){
+        // Create a wrapper that crops the IG embed to show only the media
+        const wrapper = document.createElement('div');
+        wrapper.style.cssText = 'position:relative;width:100%;height:100%;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center;';
+
+        const inner = document.createElement('div');
+        // Instagram embed total height is ~830px; media is roughly 60% of that. We scale up and crop.
+        inner.style.cssText = 'position:relative;width:min(100%,500px);aspect-ratio:9/16;overflow:hidden;border-radius:12px;';
+
+        const frame=document.createElement('iframe');
+        frame.src = url;
+        frame.allowFullscreen=true;
+        frame.allow='autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write';
+        // The trick: oversize the iframe + offset upward to hide the IG header and comments
+        // IG embed dimensions are fixed; we scale the iframe to fill the wrapper as a portrait video
+        frame.style.cssText='position:absolute;top:-54px;left:0;width:100%;height:calc(100% + 230px);border:none;display:block;background:#000;';
+
+        inner.appendChild(frame);
+        wrapper.appendChild(inner);
+        cont.appendChild(wrapper);
+        return;
+      }
+
       const frame=document.createElement('iframe');
       if(noParamEmbed){
-        // Use embed URL as-is, just add basic iframe permissions
         frame.src = url;
       } else {
         let baseUrl=url.split('?')[0];
         const existing=url.includes('?')?url.split('?')[1]:'';
         const params=new URLSearchParams(existing);
         params.set('autoplay','1');
-        // On mobile after first play: unmuted. Desktop: respects reelMuted.
         const wantMuted = isMobile ? false : reelMuted;
         params.set('muted', wantMuted?'1':'0');
         params.set('playsinline','1');
-        // Vimeo-specific
         if(baseUrl.includes('player.vimeo')){
           params.set('title','0');params.set('byline','0');params.set('portrait','0');
           params.set('api','1');
         }
-        // YouTube-specific
         if(baseUrl.includes('youtube.com')){
           params.set('enablejsapi','1');
           params.set('mute', wantMuted?'1':'0');

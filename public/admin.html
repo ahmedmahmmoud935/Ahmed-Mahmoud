@@ -605,6 +605,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
   <div class="ph">
     <div><div class="pt" data-i18n="page.projects.title">المشاريع</div><div class="ps" data-i18n="page.projects.sub">إدارة أعمالك ومشاريعك</div></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn-vimeo" onclick="openQuickVideoImport()" style="border-color:var(--o);color:var(--o);"><i class="fa-solid fa-link" style="font-size:14px;"></i> <span data-i18n="btn.videoFromLink">فيديو من رابط</span></button>
       <button class="btn-vimeo" onclick="openBehanceImport()" style="border-color:#1769ff;color:#1769ff;"><i class="fa-brands fa-behance" style="font-size:15px;"></i> Behance</button>
       <button class="btn-add" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> <span data-i18n="btn.newProject">مشروع جديد</span></button>
     </div>
@@ -1588,8 +1589,8 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
           </div>
           <div id="vidSrcLink" style="display:none;">
             <div style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:10px;padding:13px;">
-              <label class="fl"><i class="fa-solid fa-link" style="color:var(--o);margin-left:6px;"></i><span data-i18n="np.linkAnywhere">الصق رابط من أي موقع</span></label>
-              <input class="fi" id="universalVidUrl" placeholder="https://..." oninput="detectVideoLink()" style="margin-bottom:8px;font-family:monospace;font-size:12px;direction:ltr;text-align:left;">
+              <label class="fl"><i class="fa-solid fa-link" style="color:var(--o);margin-left:6px;"></i><span data-i18n="np.linkAnywhere">الصق رابط من أي موقع أو كود Embed</span></label>
+              <textarea class="fi" id="universalVidUrl" placeholder="https://...  أو  <iframe src=&quot;...&quot;></iframe>" oninput="detectVideoLink()" style="margin-bottom:8px;font-family:monospace;font-size:12px;direction:ltr;text-align:left;min-height:60px;resize:vertical;"></textarea>
 
               <div id="linkDetectStatus" style="display:none;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;margin-bottom:10px;"></div>
 
@@ -1601,6 +1602,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
                 <span style="color:#e1306c;">Instagram</span> ·
                 <span style="color:#1da1f2;">Twitter/X</span> ·
                 <span style="color:#0a66c2;">LinkedIn</span> ·
+                <span style="color:var(--o);">&lt;iframe&gt;</span> ·
                 <span style="color:#888;" data-i18n="np.linkAnyOther">أي موقع آخر</span>
               </div>
 
@@ -2202,6 +2204,9 @@ const I18N = {
     'toast.linkInvalidToast': '⚠️ الرابط غير صالح',
     'toast.uploadVideoFile': '⚠️ ارفع ملف الفيديو',
     'toast.projectTitleRequired': '⚠️ أدخل عنوان المشروع',
+    'btn.videoFromLink': 'فيديو من رابط',
+    'np.embedDetected': 'تم اكتشاف كود Embed',
+    'np.coverFetched': 'تم جلب الكفر',
     // Misc
     'misc.loading': 'جاري التحميل...',
     'misc.noResults': 'لا توجد نتائج',
@@ -2772,6 +2777,9 @@ const I18N = {
     'toast.linkInvalidToast': '⚠️ Invalid URL',
     'toast.uploadVideoFile': '⚠️ Upload video file',
     'toast.projectTitleRequired': '⚠️ Enter project title',
+    'btn.videoFromLink': 'Video from URL',
+    'np.embedDetected': 'Embed code detected',
+    'np.coverFetched': 'Cover fetched',
     // Misc
     'misc.loading': 'Loading...',
     'misc.noResults': 'No results',
@@ -3323,7 +3331,24 @@ function toggleSidebar(force){
 // ══ PROJECTS ══
 async function loadProjects(){
   try{projects=await fetch('/api/projects',{credentials:'include'}).then(r=>r.json());}catch{projects=[];}
+  // Sort by id DESC (newest first) for admin display
+  projects.sort((a,b) => (b.id||0) - (a.id||0));
   renderTable();
+}
+
+// Format date: "2026-05-14" -> "14 May 2026" (EN) or "14 مايو 2026" (AR)
+function formatProjectDate(dateStr){
+  if(!dateStr) return '';
+  try{
+    const d = new Date(dateStr);
+    if(isNaN(d.getTime())) return dateStr;
+    const day = d.getDate();
+    const year = d.getFullYear();
+    const monthsAr = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+    const monthsEn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const months = currentLang === 'en' ? monthsEn : monthsAr;
+    return `${day} ${months[d.getMonth()]} ${year}`;
+  }catch{ return dateStr; }
 }
 let projFilter='all';
 function setProjFilter(f){
@@ -3355,7 +3380,7 @@ function renderTable(){
       <div><div class="rtitle">${p.mediaType==='video'?'<i class="fa-brands fa-instagram" style="color:var(--o);font-size:11px;margin-left:5px;"></i>':''}${p.title}</div>
         <div class="rmeta">${(p.images||[]).length} صورة${p.videoUrl?' · فيديو ✓':''}${p.projectType==='free'?' · <span style="color:#3b82f6;font-size:10px;">Behance</span>':''}</div></div>
       <div><span class="rcat">${p.category}</span></div>
-      <div style="color:var(--g2);font-size:13px;">${p.date||'-'}</div>
+      <div style="color:var(--g2);font-size:13px;">${formatProjectDate(p.date)||'-'}</div>
       <div class="ra">
         ${p.mediaType!=='video'?`<a href="/admin/editor/${p.id}" class="be" style="display:flex;align-items:center;justify-content:center;" title="محرر المشروع"><i class="fa-brands fa-behance" style="font-size:11px;"></i></a>`:''}
         <button class="be" onclick="openEdit(${p.id})" title="تعديل"><i class="fa-solid fa-pen"></i></button>
@@ -3390,10 +3415,23 @@ function openAddModal(){
   document.getElementById('mTitle').textContent='مشروع جديد';
   document.getElementById('eId').value='';
   covData=null;covExist=false;vidData=null;vidExist=false;galNew=[];galKeep=[];covDataFree=null;covDataVid=null;embedUrl='';
-  ['fTitle','fDesc','fTitleFree','fDescFree','fTitleVid','fDescVid','ytUrl','vimeoUrl','embedCode'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  ['covPrev','covPrevFree','covPrevVid','vidPrev','ytPreview','vimeoPreview','embedPreview'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  ['fTitle','fDesc','fTitleFree','fDescFree','fTitleVid','fDescVid','universalVidUrl'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['covPrev','covPrevFree','covPrevVid','vidPrev','universalPreview','linkDetectStatus'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
   document.getElementById('galPrev').innerHTML='';
   setVidSrc('file');showStep('choose');
+  document.getElementById('projModal').classList.add('open');
+}
+
+// Quick shortcut: skip "choose type" and go straight to video-from-link
+function openQuickVideoImport(){
+  document.getElementById('mTitle').textContent = (typeof t==='function'?t('btn.videoFromLink'):'فيديو من رابط');
+  document.getElementById('eId').value='';
+  covData=null;covExist=false;vidData=null;vidExist=false;galNew=[];galKeep=[];covDataFree=null;covDataVid=null;embedUrl='';lastDetectedThumbnail='';
+  ['fTitle','fDesc','fTitleFree','fDescFree','fTitleVid','fDescVid','universalVidUrl'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['covPrev','covPrevFree','covPrevVid','vidPrev','universalPreview','linkDetectStatus'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  document.getElementById('galPrev').innerHTML='';
+  setVidSrc('link'); // Default to link mode
+  showStep('video'); // Go straight to video step
   document.getElementById('projModal').classList.add('open');
 }
 
@@ -3556,7 +3594,7 @@ const VIDEO_PATTERNS = [
    patterns:[
      /instagram\.com\/(?:p|reel|tv)\/([a-zA-Z0-9_-]+)/,
    ],
-   embed: id => `https://www.instagram.com/p/${id}/embed/captioned/`,
+   embed: id => `https://www.instagram.com/p/${id}/embed/`,
    getId: m => m[1]
   },
   {name:'Twitter/X', icon:'fa-brands fa-x-twitter', color:'#1da1f2',
@@ -3612,6 +3650,9 @@ function detectVideoSource(url){
   return null;
 }
 
+let lastDetectedThumbnail = ''; // store auto-fetched thumbnail
+let detectDebounceTimer = null;
+
 function detectVideoLink(){
   const url = (document.getElementById('universalVidUrl').value || '').trim();
   const status = document.getElementById('linkDetectStatus');
@@ -3621,6 +3662,21 @@ function detectVideoLink(){
     status.style.display = 'none';
     preview.style.display = 'none';
     embedUrl = '';
+    lastDetectedThumbnail = '';
+    return;
+  }
+
+  // Check if user pasted full <iframe ...> embed code
+  const iframeMatch = url.match(/<iframe[^>]+src=["']([^"']+)["']/i);
+  if(iframeMatch){
+    embedUrl = iframeMatch[1];
+    status.style.display = 'flex';
+    status.style.background = 'rgba(34,197,94,0.15)';
+    status.style.border = '1px solid rgba(34,197,94,0.3)';
+    status.style.color = '#22c55e';
+    status.innerHTML = `<i class="fa-solid fa-code"></i> <span>${(typeof t==='function'?t('np.embedDetected'):'تم اكتشاف كود Embed')}</span>`;
+    preview.style.display = 'block';
+    preview.innerHTML = `<div style="aspect-ratio:9/16;max-width:120px;"><iframe src="${embedUrl}" style="width:100%;height:100%;border:none;" allowfullscreen></iframe></div>`;
     return;
   }
 
@@ -3633,7 +3689,7 @@ function detectVideoLink(){
     status.style.border = `1px solid ${detected.color}40`;
     status.style.color = detected.color;
     const detectedLabel = (typeof t==='function'?t('np.linkDetected'):'تم اكتشاف');
-    status.innerHTML = `<i class="${detected.icon}"></i> <span>${detectedLabel} ${detected.provider}</span>`;
+    status.innerHTML = `<i class="${detected.icon}"></i> <span>${detectedLabel} ${detected.provider}</span> <span style="font-size:10.5px;color:#888;margin-${currentLang==='ar'?'right':'left'}:auto;">⏳ جلب الكفر...</span>`;
 
     // Preview
     embedUrl = detected.embedUrl;
@@ -3643,6 +3699,10 @@ function detectVideoLink(){
     } else {
       preview.innerHTML = `<div style="aspect-ratio:9/16;max-width:120px;"><iframe src="${detected.embedUrl}" style="width:100%;height:100%;border:none;" allowfullscreen></iframe></div>`;
     }
+
+    // Auto-fetch thumbnail (debounced)
+    clearTimeout(detectDebounceTimer);
+    detectDebounceTimer = setTimeout(()=>fetchVideoThumbnail(url, detected), 800);
   } else {
     // Try as plain URL (might still be valid embed)
     if(url.startsWith('http://') || url.startsWith('https://')){
@@ -3664,6 +3724,35 @@ function detectVideoLink(){
       embedUrl = '';
       preview.style.display = 'none';
     }
+  }
+}
+
+async function fetchVideoThumbnail(url, detected){
+  try{
+    const r = await fetch('/api/video/thumbnail', {
+      method:'POST', credentials:'include',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({url})
+    });
+    const d = await r.json();
+    if(d.thumbnail){
+      lastDetectedThumbnail = d.thumbnail;
+      const status = document.getElementById('linkDetectStatus');
+      const detectedLabel = (typeof t==='function'?t('np.linkDetected'):'تم اكتشاف');
+      status.innerHTML = `<i class="${detected.icon}"></i> <span>${detectedLabel} ${detected.provider}</span> <span style="font-size:10.5px;color:#22c55e;margin-${currentLang==='ar'?'right':'left'}:auto;">✓ ${(typeof t==='function'?t('np.coverFetched'):'تم جلب الكفر')}</span>`;
+
+      // If no cover image is set yet, auto-use the fetched one
+      const covImgVid = document.getElementById('covImgVid');
+      const covPrevVid = document.getElementById('covPrevVid');
+      // Only set if user hasn't uploaded their own
+      if(covPrevVid && covPrevVid.style.display==='none'){
+        covImgVid.src = d.thumbnail;
+        covPrevVid.style.display = 'block';
+        covDataVid = d.thumbnail; // mark as data for save
+      }
+    }
+  }catch(e){
+    console.warn('thumbnail fetch failed', e);
   }
 }
 
