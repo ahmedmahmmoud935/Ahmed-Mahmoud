@@ -605,7 +605,6 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
   <div class="ph">
     <div><div class="pt" data-i18n="page.projects.title">المشاريع</div><div class="ps" data-i18n="page.projects.sub">إدارة أعمالك ومشاريعك</div></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="btn-vimeo" onclick="openVimeoImport()"><i class="fa-brands fa-vimeo-v" style="color:#1ab7ea;font-size:15px;"></i> Vimeo</button>
       <button class="btn-vimeo" onclick="openBehanceImport()" style="border-color:#1769ff;color:#1769ff;"><i class="fa-brands fa-behance" style="font-size:15px;"></i> Behance</button>
       <button class="btn-add" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> <span data-i18n="btn.newProject">مشروع جديد</span></button>
     </div>
@@ -613,13 +612,13 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
   <div class="stats">
     <div class="sc"><div class="si"><i class="fa-solid fa-folder-open"></i></div><div class="sn" id="stTotal">0</div><div class="sl-stat" data-i18n="stats.total2">إجمالي</div></div>
     <div class="sc"><div class="si"><i class="fa-solid fa-image"></i></div><div class="sn" id="stImg">0</div><div class="sl-stat" data-i18n="stats.designs2">تصاميم</div></div>
-    <div class="sc"><div class="si"><i class="fa-brands fa-instagram"></i></div><div class="sn" id="stReel">0</div><div class="sl-stat" data-i18n="stats.reels2">Reels</div></div>
+    <div class="sc"><div class="si"><i class="fa-solid fa-video"></i></div><div class="sn" id="stReel">0</div><div class="sl-stat" data-i18n="stats.videos">فيديوهات</div></div>
     <div class="sc"><div class="si"><i class="fa-solid fa-images"></i></div><div class="sn" id="stFiles">0</div><div class="sl-stat" data-i18n="stats.images2">صور</div></div>
   </div>
   <div class="proj-filter-tabs">
     <button class="pft-btn active" id="pftAll" onclick="setProjFilter('all')"><i class="fa-solid fa-layer-group"></i> <span data-i18n="filter.allBtn">الكل</span></button>
     <button class="pft-btn" id="pftImg" onclick="setProjFilter('image')"><i class="fa-solid fa-image"></i> <span data-i18n="filter.designsBtn">التصاميم</span></button>
-    <button class="pft-btn" id="pftVid" onclick="setProjFilter('video')"><i class="fa-brands fa-instagram"></i> <span data-i18n="filter.videosBtn">الفيديوهات</span></button>
+    <button class="pft-btn" id="pftVid" onclick="setProjFilter('video')"><i class="fa-solid fa-video"></i> <span data-i18n="filter.videosBtn">الفيديوهات</span></button>
   </div>
   <div class="tw">
     <div class="thead"><div></div><div data-i18n="th.projectCol">المشروع</div><div data-i18n="th.categoryCol">التصنيف</div><div data-i18n="th.dateCol">التاريخ</div><div data-i18n="th.actionsCol">إجراءات</div></div>
@@ -1906,6 +1905,7 @@ const I18N = {
     'stats.images2': 'صور',
     'stats.designs2': 'تصاميم',
     'stats.reels2': 'Reels',
+    'stats.videos': 'فيديوهات',
     // Project filters
     'filter.allBtn': 'الكل',
     'filter.designsBtn': 'التصاميم',
@@ -2197,7 +2197,12 @@ const I18N = {
     'bh.step3Desc2': '⚠️ احذف // من بداية الكود',
     'bh.step3Desc3': 'ثم اضغط Enter — سيفتح موقعك تلقائياً مع المحتوى',
     'bh.copyBtn': 'نسخ',
-        // Misc
+        'toast.videoTitleRequired': '⚠️ أدخل عنوان الفيديو',
+    'toast.pasteVideoLink': '⚠️ الصق رابط الفيديو',
+    'toast.linkInvalidToast': '⚠️ الرابط غير صالح',
+    'toast.uploadVideoFile': '⚠️ ارفع ملف الفيديو',
+    'toast.projectTitleRequired': '⚠️ أدخل عنوان المشروع',
+    // Misc
     'misc.loading': 'جاري التحميل...',
     'misc.noResults': 'لا توجد نتائج',
     'misc.required': 'مطلوب',
@@ -2470,6 +2475,7 @@ const I18N = {
     'stats.images2': 'Images',
     'stats.designs2': 'Designs',
     'stats.reels2': 'Reels',
+    'stats.videos': 'Videos',
     // Project filters
     'filter.allBtn': 'All',
     'filter.designsBtn': 'Designs',
@@ -2761,7 +2767,12 @@ const I18N = {
     'bh.step3Desc2': '⚠️ Remove // from the start of the code',
     'bh.step3Desc3': 'Then press Enter — your site will open with the content',
     'bh.copyBtn': 'Copy',
-        // Misc
+        'toast.videoTitleRequired': '⚠️ Enter video title',
+    'toast.pasteVideoLink': '⚠️ Paste video URL',
+    'toast.linkInvalidToast': '⚠️ Invalid URL',
+    'toast.uploadVideoFile': '⚠️ Upload video file',
+    'toast.projectTitleRequired': '⚠️ Enter project title',
+    // Misc
     'misc.loading': 'Loading...',
     'misc.noResults': 'No results',
     'misc.required': 'Required',
@@ -3545,7 +3556,7 @@ const VIDEO_PATTERNS = [
    patterns:[
      /instagram\.com\/(?:p|reel|tv)\/([a-zA-Z0-9_-]+)/,
    ],
-   embed: id => `https://www.instagram.com/p/${id}/embed`,
+   embed: id => `https://www.instagram.com/p/${id}/embed/captioned/`,
    getId: m => m[1]
   },
   {name:'Twitter/X', icon:'fa-brands fa-x-twitter', color:'#1da1f2',
@@ -3661,12 +3672,12 @@ async function saveProject(){
   const eid=document.getElementById('eId').value;const isEdit=!!eid;
   let body={};
   if(curStep==='video'){
-    const title=v('fTitleVid');if(!title){toast('⚠️ أدخل عنوان الفيديو');btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span>';btn.disabled=false;return;}
+    const title=v('fTitleVid');if(!title){toast(t('toast.videoTitleRequired'));btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span>';btn.disabled=false;return;}
     let fe='';
     if(curVidSrc==='link'){
       // Universal link - use detected embed URL
       const inputUrl = (document.getElementById('universalVidUrl').value || '').trim();
-      if(!inputUrl){toast('⚠️ الصق رابط الفيديو');btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span>';btn.disabled=false;return;}
+      if(!inputUrl){toast(t('toast.pasteVideoLink'));btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span>';btn.disabled=false;return;}
       const detected = detectVideoSource(inputUrl);
       if(detected){
         fe = detected.embedUrl;
@@ -3674,20 +3685,20 @@ async function saveProject(){
         // Unknown URL - use as-is
         fe = inputUrl;
       } else {
-        toast('⚠️ الرابط غير صالح');
+        toast(t('toast.linkInvalidToast'));
         btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span>';btn.disabled=false;return;
       }
     }
-    else if(curVidSrc==='file'&&!vidData&&!vidExist){toast('⚠️ ارفع ملف الفيديو');btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span>';btn.disabled=false;return;}
+    else if(curVidSrc==='file'&&!vidData&&!vidExist){toast(t('toast.uploadVideoFile'));btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span>';btn.disabled=false;return;}
     body={title,category:document.getElementById('fCatVid').value,description:v('fDescVid'),mediaType:'video',keepImages:[],images:[]};
     if(covDataVid)body.coverImage=covDataVid;else if(!covExist)body.coverImage=null;
     if(fe)body.embedUrl=fe;else if(vidData)body.videoData=vidData;
   } else if(curStep==='free'){
-    const title=v('fTitleFree');if(!title){toast('⚠️ أدخل عنوان المشروع');btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span>';btn.disabled=false;return;}
+    const title=v('fTitleFree');if(!title){toast(t('toast.projectTitleRequired'));btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span>';btn.disabled=false;return;}
     body={title,category:document.getElementById('fCatFree').value,description:v('fDescFree'),mediaType:'image',keepImages:[],images:[],projectType:'free'};
     if(covDataFree)body.coverImage=covDataFree;
   } else {
-    const title=v('fTitle');if(!title){toast('⚠️ أدخل عنوان المشروع');btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span>';btn.disabled=false;return;}
+    const title=v('fTitle');if(!title){toast(t('toast.projectTitleRequired'));btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ</span>';btn.disabled=false;return;}
     // GRID: cover is SEPARATE from gallery
     body={title,category:document.getElementById('fCat').value,description:v('fDesc'),mediaType:'image',keepImages:galKeep,images:galNew,projectType:'grid'};
     // Cover handling: preserve existing unless explicitly changed

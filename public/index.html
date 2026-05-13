@@ -1499,7 +1499,7 @@ function buildProjects(c,a){
     <div class="sh"><h2>${a?(c.title_ar||'أعمال مختارة'):(c.title_en||'Selected Work')}</h2><p>${a?(c.subtitle_ar||''):(c.subtitle_en||'')}</p><div class="sl"></div></div>
     <div class="filter-tabs">
       <button class="filter-tab active" id="tabImage" onclick="filterProjects('image',this)"><i class="fa-solid fa-image" style="margin-left:6px;"></i>${t('designs')}</button>
-      <button class="filter-tab" id="tabVideo" onclick="filterProjects('video',this)"><i class="fa-brands fa-instagram" style="margin-left:6px;"></i>${t('reels')}</button>
+      <button class="filter-tab" id="tabVideo" onclick="filterProjects('video',this)"><i class="fa-solid fa-video" style="margin-left:6px;"></i>${t('reels')}</button>
     </div>
     <div class="cat-filter-tabs" id="catFilterTabs"></div>
     <div class="projects-grid mode-image ${modeClass}" id="projectsGrid" data-layout="${layout}"></div>
@@ -1634,10 +1634,23 @@ function renderProjects(){
     const loading = idx < 8 ? 'eager' : 'lazy';
     const fetchPri = idx < 4 ? 'high' : 'auto';
     if(currentFilter==='video'){
-      // video card — no cover shown, just gradient bg + play icon
+      // Detect video provider for fallback placeholder
+      const url = p.videoUrl || '';
+      let providerIcon = 'fa-brands fa-instagram';
+      let providerColor = '#444';
+      let providerName = '';
+      if(url.includes('youtube.com')){ providerIcon='fa-brands fa-youtube'; providerColor='#ff0000'; providerName='YouTube'; }
+      else if(url.includes('vimeo.com')){ providerIcon='fa-brands fa-vimeo-v'; providerColor='#1ab7ea'; providerName='Vimeo'; }
+      else if(url.includes('tiktok.com')){ providerIcon='fa-brands fa-tiktok'; providerColor='#ff0050'; providerName='TikTok'; }
+      else if(url.includes('instagram.com')){ providerIcon='fa-brands fa-instagram'; providerColor='#e1306c'; providerName='Instagram'; }
+      else if(url.includes('twitter.com')||url.includes('x.com')||url.includes('twitframe')){ providerIcon='fa-brands fa-x-twitter'; providerColor='#1da1f2'; providerName='Twitter/X'; }
+      else if(url.includes('linkedin.com')){ providerIcon='fa-brands fa-linkedin'; providerColor='#0a66c2'; providerName='LinkedIn'; }
+      else if(url.includes('facebook.com')||url.includes('fb.watch')){ providerIcon='fa-brands fa-facebook'; providerColor='#1877f2'; providerName='Facebook'; }
+
+      // video card — show cover or smart placeholder
       const thumb=p.coverImage
         ?`<div class="vid-thumb"><img src="${p.coverImage}" alt="${p.title}" loading="${loading}" fetchpriority="${fetchPri}" decoding="async" onload="if(this.naturalWidth>this.naturalHeight)this.closest('.project-card').classList.add('horizontal')"></div>`
-        :`<div class="vid-thumb" style="position:absolute;inset:0;background:linear-gradient(135deg,#1a1a1a,#2a2a2a);display:flex;align-items:center;justify-content:center;"><i class="fa-brands fa-instagram" style="font-size:28px;color:#333;"></i></div>`;
+        :`<div class="vid-thumb" style="position:absolute;inset:0;background:linear-gradient(135deg,#0f0f0f,#1f1f1f);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;"><i class="${providerIcon}" style="font-size:42px;color:${providerColor};opacity:0.8;"></i>${providerName?`<div style="font-size:11px;color:#666;font-weight:600;text-transform:uppercase;letter-spacing:1px;">${providerName}</div>`:''}</div>`;
       return`<div class="project-card" onclick="openVideoLightbox(${ri})">
         ${thumb}
         <div class="vid-play-btn"><div class="vid-play-circle"><i class="fa-solid fa-play"></i></div></div>
@@ -1924,28 +1937,38 @@ function renderReel(){
     }
     // Desktop OR mobile after first play: load iframe with autoplay
     if(isEmbed(p.videoUrl)){
-      let baseUrl=p.videoUrl.split('?')[0];
-      const existing=p.videoUrl.includes('?')?p.videoUrl.split('?')[1]:'';
-      const params=new URLSearchParams(existing);
-      params.set('autoplay','1');
-      // On mobile after first play: unmuted. Desktop: respects reelMuted.
-      const wantMuted = isMobile ? false : reelMuted;
-      params.set('muted', wantMuted?'1':'0');
-      params.set('playsinline','1');
-      // Vimeo-specific
-      if(baseUrl.includes('player.vimeo')){
-        params.set('title','0');params.set('byline','0');params.set('portrait','0');
-        params.set('api','1');
-      }
-      // YouTube-specific
-      if(baseUrl.includes('youtube.com')){
-        params.set('enablejsapi','1');
-        params.set('mute', wantMuted?'1':'0');
-      }
+      const url = p.videoUrl;
+      // Instagram, TikTok, LinkedIn, X embeds don't support autoplay params — use as-is
+      const noParamEmbed = url.includes('instagram.com') || url.includes('tiktok.com') ||
+                          url.includes('linkedin.com') || url.includes('twitframe') ||
+                          url.includes('twitter.com') || url.includes('x.com/i/');
       const frame=document.createElement('iframe');
-      frame.src=baseUrl+'?'+params.toString();
+      if(noParamEmbed){
+        // Use embed URL as-is, just add basic iframe permissions
+        frame.src = url;
+      } else {
+        let baseUrl=url.split('?')[0];
+        const existing=url.includes('?')?url.split('?')[1]:'';
+        const params=new URLSearchParams(existing);
+        params.set('autoplay','1');
+        // On mobile after first play: unmuted. Desktop: respects reelMuted.
+        const wantMuted = isMobile ? false : reelMuted;
+        params.set('muted', wantMuted?'1':'0');
+        params.set('playsinline','1');
+        // Vimeo-specific
+        if(baseUrl.includes('player.vimeo')){
+          params.set('title','0');params.set('byline','0');params.set('portrait','0');
+          params.set('api','1');
+        }
+        // YouTube-specific
+        if(baseUrl.includes('youtube.com')){
+          params.set('enablejsapi','1');
+          params.set('mute', wantMuted?'1':'0');
+        }
+        frame.src=baseUrl+'?'+params.toString();
+      }
       frame.allowFullscreen=true;
-      frame.allow='autoplay; fullscreen; encrypted-media; picture-in-picture';
+      frame.allow='autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write';
       frame.style.cssText='width:100%;height:100%;border:none;display:block;';
       cont.appendChild(frame);
     } else {
