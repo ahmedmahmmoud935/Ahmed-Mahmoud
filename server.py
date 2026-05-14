@@ -1,7 +1,7 @@
 import os, sqlite3, json, secrets, uuid, re, base64, time, shutil, threading
 from datetime import datetime, timedelta
 from collections import defaultdict, deque
-from flask import Flask, request, jsonify, session, send_from_directory, abort, redirect
+from flask import Flask, request, jsonify, session, send_from_directory, abort, redirect, send_file
 from flask_cors import CORS
 from functools import wraps
 
@@ -1973,101 +1973,6 @@ def bookmarklet_get(import_id):
 
 # ══════════════ CLIENT LOGOS ══════════════
 
-# ── User management (owner manages clients via admin panel) ──
-@app.route('/api/users', methods=['GET'])
-@owner_required
-def list_users():
-    db = get_db()
-    users = db.execute("SELECT id,username,storage_limit_mb,storage_used_mb,is_owner,created_at FROM users ORDER BY id").fetchall()
-    return jsonify([dict(u) for u in users])
-
-@app.route('/api/users', methods=['POST'])
-@owner_required
-def create_user_acct():
-    d = request.get_json() or {}
-    username = (d.get('username') or '').strip()
-    password = (d.get('password') or '').strip()
-    limit_mb = int(d.get('storage_limit_mb', 500))
-    if not username or not password:
-        return jsonify({'error': 'اسم المستخدم وكلمة المرور مطلوبان'}), 400
-    if len(password) < 6:
-        return jsonify({'error': 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'}), 400
-    db = get_db()
-    if db.execute("SELECT id FROM users WHERE username=?", (username,)).fetchone():
-        return jsonify({'error': 'اسم المستخدم موجود بالفعل'}), 400
-    cur = db.execute("INSERT INTO users(username,password,storage_limit_mb,is_owner) VALUES(?,?,?,0)",
-                     (username, password, limit_mb))
-    db.commit()
-    new_id = cur.lastrowid
-    default_settings(new_id, db)
-    return jsonify({'ok': True, 'id': new_id, 'username': username}), 201
-
-@app.route('/api/users/<int:uid_>', methods=['DELETE'])
-@owner_required
-def delete_user_acct(uid_):
-    db = get_db()
-    user = db.execute("SELECT * FROM users WHERE id=?", (uid_,)).fetchone()
-    if not user: return jsonify({'error': 'المستخدم غير موجود'}), 404
-    if user['is_owner']: return jsonify({'error': 'لا يمكن حذف المالك'}), 400
-    for p in db.execute("SELECT cover_url,video_url FROM projects WHERE user_id=?", (uid_,)).fetchall():
-        delete_file(p['cover_url'], uid_); delete_file(p['video_url'], uid_)
-    for img in db.execute("SELECT pi.url FROM project_images pi JOIN projects p ON pi.project_id=p.id WHERE p.user_id=?", (uid_,)).fetchall():
-        delete_file(img['url'], uid_)
-    db.execute("DELETE FROM projects WHERE user_id=?", (uid_,))
-    db.execute("DELETE FROM settings WHERE user_id=?", (uid_,))
-    db.execute("DELETE FROM client_logos WHERE user_id=?", (uid_,))
-    db.execute("DELETE FROM testimonials WHERE user_id=?", (uid_,))
-    db.execute("DELETE FROM domains WHERE user_id=?", (uid_,))
-    db.execute("DELETE FROM users WHERE id=?", (uid_,))
-    db.commit()
-    return jsonify({'ok': True})
-
-@app.route('/api/users/<int:uid_>/password', methods=['PUT'])
-@owner_required
-def change_user_pw(uid_):
-    d = request.get_json() or {}
-    new_pass = (d.get('password') or '').strip()
-    if len(new_pass) < 6:
-        return jsonify({'error': 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'}), 400
-    db = get_db()
-    db.execute("UPDATE users SET password=? WHERE id=?", (new_pass, uid_))
-    db.commit()
-    return jsonify({'ok': True})
-
-@app.route('/api/users/<int:uid_>/storage', methods=['PUT'])
-@owner_required
-def update_user_storage_limit(uid_):
-    d = request.get_json() or {}
-    limit_mb = int(d.get('storage_limit_mb', 500))
-    db = get_db()
-    db.execute("UPDATE users SET storage_limit_mb=? WHERE id=?", (limit_mb, uid_))
-    db.commit()
-    return jsonify({'ok': True})
-
-@app.route('/api/users/<int:uid_>/domain', methods=['GET'])
-@owner_required
-def get_user_domain(uid_):
-    db = get_db()
-    row = db.execute("SELECT domain FROM domains WHERE user_id=?", (uid_,)).fetchone()
-    return jsonify({'domain': row['domain'] if row else ''})
-
-@app.route('/api/users/<int:uid_>/domain', methods=['PUT'])
-@owner_required
-def set_user_domain(uid_):
-    d = request.get_json() or {}
-    domain = (d.get('domain') or '').strip().lower()
-    db = get_db()
-    if not domain:
-        db.execute("DELETE FROM domains WHERE user_id=?", (uid_,))
-        db.commit()
-        return jsonify({'ok': True, 'domain': ''})
-    existing = db.execute("SELECT user_id FROM domains WHERE domain=?", (domain,)).fetchone()
-    if existing and existing['user_id'] != uid_:
-        return jsonify({'error': 'هذا الدومين مستخدم بالفعل'}), 400
-    db.execute("INSERT OR REPLACE INTO domains(user_id,domain) VALUES(?,?)", (uid_, domain))
-    db.commit()
-    return jsonify({'ok': True, 'domain': domain})
-
 @app.route('/api/users/by-username/<username>', methods=['GET'])
 def get_user_by_username(username):
     """Public — get user_id from username (used by testimonial form)."""
@@ -2391,6 +2296,25 @@ def resolve_user():
     return jsonify({'user_id': owner['id'] if owner else 1})
 
 # ── STATIC ROUTES ──
+
+# ── DATABASE BACKUP (protected) ──
+# Download a full copy of the database. Protected by a secret key.
+# Usage: https://yoursite.onrender.com/api/db-backup?key=YOUR_SECRET
+# The secret comes from the BACKUP_KEY env var (set it in Render dashboard).
+@app.route('/api/db-backup')
+def db_backup_download():
+    secret = os.environ.get('BACKUP_KEY', '')
+    given  = request.args.get('key', '')
+    # Require a non-empty secret AND an exact match
+    if not secret or given != secret:
+        return jsonify({'error': 'Unauthorized'}), 403
+    if not os.path.exists(DB_PATH):
+        return jsonify({'error': 'Database not found'}), 404
+    stamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    return send_file(DB_PATH, as_attachment=True,
+                     download_name=f'portfolio_backup_{stamp}.db',
+                     mimetype='application/octet-stream')
+
 @app.route('/uploads/<path:filename>')
 def uploaded_file(filename):
     r = send_from_directory(UPLOAD_DIR, filename)
