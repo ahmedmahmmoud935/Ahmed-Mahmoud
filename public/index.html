@@ -758,6 +758,35 @@ body[data-theme="corporate"] .tool-card{border-radius:8px;background:var(--bg2);
 /* PROJECTS — Masonry-ish */
 .projects-grid.mode-masonry{column-count:3;column-gap:14px;}
 .projects-grid.mode-masonry .pj-card{break-inside:avoid;margin-bottom:14px;display:inline-block;width:100%;}
+
+/* ── FREE GRID (Vimeo-style masonry video grid) ── */
+.projects-grid.mode-freegrid{display:block;}
+.fg-card{break-inside:avoid;margin-bottom:14px;cursor:pointer;display:inline-block;width:100%;}
+.fg-thumb{position:relative;width:100%;overflow:hidden;border-radius:8px;background:#111;}
+.fg-thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;}
+.fg-card:hover .fg-thumb img{transform:scale(1.04);}
+.fg-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.15);opacity:0;transition:opacity .3s;}
+.fg-card:hover .fg-play{opacity:1;}
+.fg-play i{width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.92);color:#000;display:flex;align-items:center;justify-content:center;font-size:18px;padding-left:3px;}
+.fg-meta{padding:8px 2px 0;}
+.fg-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.fg-date{font-size:11px;color:var(--sub);}
+@media(max-width:600px){
+  .projects-grid.mode-freegrid{column-count:1 !important;}
+}
+
+/* ── BEFORE / AFTER public slider ── */
+.ba-public{position:relative;width:100%;aspect-ratio:4/3;overflow:hidden;border-radius:10px;margin-bottom:4px;user-select:none;background:#000;cursor:ew-resize;}
+.ba-pub-after{position:absolute;inset:0;}
+.ba-pub-after img{width:100%;height:100%;object-fit:cover;display:block;}
+.ba-pub-before{position:absolute;top:0;left:0;height:100%;width:50%;overflow:hidden;border-right:3px solid #fff;z-index:2;}
+.ba-pub-before img{height:100%;object-fit:cover;display:block;}
+.ba-pub-handle{position:absolute;top:0;bottom:0;left:50%;width:44px;transform:translateX(-50%);z-index:3;cursor:ew-resize;display:flex;align-items:center;justify-content:center;}
+.ba-pub-handle::before{content:'';position:absolute;top:0;bottom:0;width:3px;background:#fff;left:50%;transform:translateX(-50%);}
+.ba-pub-circle{width:40px;height:40px;background:#fff;color:#a855f7;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 2px 12px rgba(0,0,0,.5);position:relative;z-index:1;}
+.ba-pub-tag{position:absolute;top:12px;font-size:11px;font-weight:700;padding:5px 12px;border-radius:14px;background:rgba(0,0,0,.65);color:#fff;backdrop-filter:blur(4px);z-index:4;}
+.ba-pub-tagL{left:12px;}
+.ba-pub-tagR{right:12px;}
 @media(max-width:900px){.projects-grid.mode-masonry{column-count:2;}}
 @media(max-width:560px){.projects-grid.mode-masonry{column-count:1;}}
 
@@ -1217,6 +1246,8 @@ function buildPage(){
   document.getElementById('mainPage').innerHTML=secs.map(s=>buildSec(s,ct,a)).join('')+buildFooter(a);
   document.getElementById('pgFooter').innerHTML=footerInner(a);
   document.getElementById('pgBackLabel').textContent=a?'رجوع':'Back';
+  // Default to first visible project tab (set by buildProjects)
+  if(window._defaultProjFilter) currentFilter = window._defaultProjFilter;
   applyLang();renderCategoryFilter();renderProjects();
 }
 
@@ -1491,15 +1522,60 @@ function buildExp(c,a){
   return`<section id="experience" class="sw"><div class="sh"><h2>${title}</h2><div class="sl"></div></div><div class="exp-list">${items.map(it=>`<div class="exp-card"><div class="exp-header"><div class="exp-company">${a?(it.company_ar||it.company_en):(it.company_en||'')}</div><div class="exp-period">${it.years||''}</div></div><div class="exp-role">${a?(it.role_ar||it.role_en):(it.role_en||'')}</div></div>`).join('')}</div></section>`;
 }
 
+function getProjTabsConfig(){
+  // Returns proj_tabs with safe defaults
+  const def = {
+    designs: {visible:true, label_ar:'التصاميم', label_en:'Designs', icon:'fa-solid fa-image'},
+    reels:   {visible:true, label_ar:'الريلز',   label_en:'Reels',   icon:'fa-solid fa-film'},
+    videos:  {visible:true, label_ar:'الفيديوهات',label_en:'Videos', icon:'fa-solid fa-video'},
+  };
+  const saved = (S && S.proj_tabs) ? S.proj_tabs : {};
+  return {
+    designs: {...def.designs, ...(saved.designs||{})},
+    reels:   {...def.reels,   ...(saved.reels||{})},
+    videos:  {...def.videos,  ...(saved.videos||{})},
+  };
+}
+
+// Classify a project: 'image' | 'reel' | 'freegrid'
+function projKind(p){
+  if(p.mediaType!=='video') return 'image';
+  return (p.videoKind==='freegrid') ? 'freegrid' : 'reel';
+}
+
 function buildProjects(c,a){
-  // Projects layout: grid (default) / masonry / list
   const layout = effLayout('style_projects', 'grid');
   const modeClass = layout === 'masonry' ? 'mode-masonry' : (layout === 'list' ? 'mode-list' : '');
+  const tabs = getProjTabsConfig();
+  const lang = a ? 'ar' : 'en';
+
+  // Build only the visible tabs, with custom labels + icons
+  const tabDefs = [
+    {key:'designs', filter:'image',    cfg:tabs.designs},
+    {key:'reels',   filter:'reel',     cfg:tabs.reels},
+    {key:'videos',  filter:'freegrid', cfg:tabs.videos},
+  ].filter(td => td.cfg.visible);
+
+  // If nothing visible, fallback to designs
+  if(!tabDefs.length) tabDefs.push({key:'designs', filter:'image', cfg:tabs.designs});
+
+  // Pick the first visible tab as default
+  const firstFilter = tabDefs[0].filter;
+  window._defaultProjFilter = firstFilter;
+
+  const tabsHtml = tabDefs.map((td,i)=>{
+    const label = lang==='ar' ? td.cfg.label_ar : td.cfg.label_en;
+    const idMap = {image:'tabImage', reel:'tabReel', freegrid:'tabVideo'};
+    return `<button class="filter-tab ${i===0?'active':''}" id="${idMap[td.filter]}" onclick="filterProjects('${td.filter}',this)"><i class="${td.cfg.icon}" style="margin-left:6px;"></i>${label}</button>`;
+  }).join('');
+
+  // If only ONE tab visible, hide the filter bar entirely (cleaner)
+  const filterBarStyle = tabDefs.length <= 1 ? 'style="display:none;"' : '';
+
   return`<section id="projects" class="sw alt">
     <div class="sh"><h2>${a?(c.title_ar||'أعمال مختارة'):(c.title_en||'Selected Work')}</h2><p>${a?(c.subtitle_ar||''):(c.subtitle_en||'')}</p><div class="sl"></div></div>
-    <div class="filter-tabs">
-      <button class="filter-tab active" id="tabImage" onclick="filterProjects('image',this)"><i class="fa-solid fa-image" style="margin-left:6px;"></i>${t('designs')}</button>
-      <button class="filter-tab" id="tabVideo" onclick="filterProjects('video',this)"><i class="fa-solid fa-video" style="margin-left:6px;"></i>${t('reels')}</button>
+    <div class="filter-tabs" ${filterBarStyle}>
+      ${tabsHtml}
     </div>
     <div class="cat-filter-tabs" id="catFilterTabs"></div>
     <div class="projects-grid mode-image ${modeClass}" id="projectsGrid" data-layout="${layout}"></div>
@@ -1564,23 +1640,26 @@ function filterByCategory(cat,btn){
   renderProjects();
 }
 
+// Get projects matching the current filter (image / reel / freegrid)
+function projectsForFilter(filter){
+  return PROJECTS.filter(p => projKind(p) === filter);
+}
+
 // Render category buttons based on what's available in the current filter type
 function renderCategoryFilter(){
   const wrap=document.getElementById('catFilterTabs');
   if(!wrap) return;
-  // Get unique categories from projects matching current type
-  const list=PROJECTS.filter(p=>currentFilter==='video'?p.mediaType==='video':p.mediaType!=='video');
-  // Combine: admin-defined cats (if available) + actual project cats (in case some are legacy)
-  const adminCats = currentFilter==='video' ? (S.video_categories||[]) : (S.image_categories||[]);
+  const list = projectsForFilter(currentFilter);
+  // reels + freegrid both use video_categories; image uses image_categories
+  const isVideoType = (currentFilter==='reel' || currentFilter==='freegrid');
+  const adminCats = isVideoType ? (S.video_categories||[]) : (S.image_categories||[]);
   const projectCats = list.map(p=>p.category).filter(Boolean);
-  // Only include admin categories that have at least one project, plus any legacy categories
   const usedCats = new Set(projectCats);
   const orderedCats = [
-    ...adminCats.filter(c=>usedCats.has(c)),         // admin order, only used ones
-    ...projectCats.filter(c=>!adminCats.includes(c)) // legacy ones not in admin list
+    ...adminCats.filter(c=>usedCats.has(c)),
+    ...projectCats.filter(c=>!adminCats.includes(c))
   ];
   const cats = [...new Set(orderedCats)];
-  // No need to show filter if there's only one (or no) category
   if(cats.length<=1){ wrap.innerHTML=''; return; }
   const labelAll = LANG==='ar' ? 'الكل' : 'All';
   wrap.innerHTML = `
@@ -1595,7 +1674,12 @@ function getColsSetting(type){
     if(w<=600) return parseInt(S.image_cols_mobile)||2;
     if(w<=1024) return parseInt(S.image_cols_tablet)||3;
     return parseInt(S.image_cols_desktop||S.image_cols)||4;
+  } else if(type==='freegrid'){
+    // Free grid (masonry) — fewer columns since ratios vary
+    if(w<=600) return parseInt(S.freegrid_cols_mobile)||1;
+    return parseInt(S.freegrid_cols_desktop)||2;
   } else {
+    // reel
     if(w<=600) return parseInt(S.video_cols_mobile)||2;
     if(w<=1024) return parseInt(S.video_cols_tablet)||3;
     return parseInt(S.video_cols_desktop||S.video_cols)||4;
@@ -1604,56 +1688,81 @@ function getColsSetting(type){
 
 function renderProjects(){
   const grid=document.getElementById('projectsGrid');if(!grid)return;
-  let list=PROJECTS.filter(p=>currentFilter==='video'?p.mediaType==='video':p.mediaType!=='video');
+  let list = projectsForFilter(currentFilter);
   // Apply category filter
   if(currentCategory && currentCategory!=='all'){
     list=list.filter(p=>p.category===currentCategory);
   }
-  // Videos: newest first (Instagram-style). Images keep sort_order.
-  if(currentFilter==='video'){
+  // Videos (reel + freegrid): newest first. Images keep sort_order.
+  if(currentFilter==='reel' || currentFilter==='freegrid'){
     list = [...list].sort((a,b) => (b.id||0) - (a.id||0));
   }
-  grid.className='projects-grid mode-'+currentFilter;
+
+  // Set grid mode class
+  let modeClass = 'mode-image';
+  if(currentFilter==='reel') modeClass='mode-video';
+  else if(currentFilter==='freegrid') modeClass='mode-freegrid';
+  // Preserve any layout class (masonry/list) from projects layout setting
+  const layoutClass = grid.getAttribute('data-layout')==='masonry' ? 'mode-masonry'
+                    : grid.getAttribute('data-layout')==='list' ? 'mode-list' : '';
+  grid.className='projects-grid '+modeClass+(layoutClass&&currentFilter==='image'?' '+layoutClass:'');
   grid.style.maxWidth='';
+  grid.style.gridTemplateColumns='';
+  grid.style.columnCount='';
 
   if(!list.length){
-    grid.style.gridTemplateColumns='';
     grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:70px 20px;color:#444;"><i class="fa-solid fa-images" style="font-size:44px;margin-bottom:14px;display:block;"></i><p>${t('noProjects')}</p></div>`;
     return;
   }
 
   const cols=getColsSetting(currentFilter);
-  if(currentFilter==='image'){
-    grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
-    grid.style.maxWidth='1300px';
-  } else {
-    grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
+
+  // ── FREE GRID (masonry — Vimeo style) ──
+  if(currentFilter==='freegrid'){
     grid.style.maxWidth='1200px';
+    grid.style.columnCount=cols;
+    grid.style.columnGap='14px';
+    grid.style.display='block';
+    grid.innerHTML=list.map((p)=>{
+      const ri=PROJECTS.indexOf(p);
+      const ar=(p.aspectRatio||'16:9').replace(':','/');
+      const url=p.videoUrl||'';
+      let provIcon='fa-solid fa-video', provColor='#444', provName='';
+      if(url.includes('youtube.com')||url.includes('youtu.be')){provIcon='fa-brands fa-youtube';provColor='#ff0000';provName='YouTube';}
+      else if(url.includes('vimeo.com')){provIcon='fa-brands fa-vimeo-v';provColor='#1ab7ea';provName='Vimeo';}
+      else if(isEmbed(url)){provIcon='fa-solid fa-film';provColor='#888';provName='Video';}
+      const thumb=p.coverImage
+        ?`<img src="${p.coverImage}" alt="${p.title}" loading="lazy" decoding="async" style="width:100%;display:block;">`
+        :`<div style="width:100%;aspect-ratio:${ar};background:linear-gradient(135deg,#0f0f0f,#1f1f1f);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;"><i class="${provIcon}" style="font-size:38px;color:${provColor};opacity:0.8;"></i>${provName?`<div style="font-size:10px;color:#666;font-weight:600;text-transform:uppercase;letter-spacing:1px;">${provName}</div>`:''}</div>`;
+      return`<div class="fg-card" onclick="openVideoLightbox(${ri})">
+        <div class="fg-thumb" style="aspect-ratio:${ar};">
+          ${thumb}
+          <div class="fg-play"><i class="fa-solid fa-play"></i></div>
+        </div>
+        <div class="fg-meta">
+          <div class="fg-title">${p.title}</div>
+          <div class="fg-date">${p.category||''}</div>
+        </div>
+      </div>`;
+    }).join('');
+    return;
   }
 
-  grid.innerHTML=list.map((p,idx)=>{
-    const ri=PROJECTS.indexOf(p);
-    // Eager-load first 8 cards (covers above-the-fold on most screens)
-    // Beyond that, lazy-load with high distance threshold so Safari prefetches
-    const loading = idx < 8 ? 'eager' : 'lazy';
-    const fetchPri = idx < 4 ? 'high' : 'auto';
-    if(currentFilter==='video'){
-      // Detect video provider for fallback placeholder
+  // ── REEL GRID (uniform 9:16) ──
+  if(currentFilter==='reel'){
+    grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
+    grid.style.maxWidth='1200px';
+    grid.innerHTML=list.map((p,idx)=>{
+      const ri=PROJECTS.indexOf(p);
+      const loading = idx < 8 ? 'eager' : 'lazy';
+      const fetchPri = idx < 4 ? 'high' : 'auto';
       const url = p.videoUrl || '';
-      let providerIcon = 'fa-brands fa-instagram';
-      let providerColor = '#444';
-      let providerName = '';
-      if(url.includes('youtube.com')){ providerIcon='fa-brands fa-youtube'; providerColor='#ff0000'; providerName='YouTube'; }
+      let providerIcon = 'fa-solid fa-video', providerColor = '#444', providerName = '';
+      if(url.includes('youtube.com')||url.includes('youtu.be')){ providerIcon='fa-brands fa-youtube'; providerColor='#ff0000'; providerName='YouTube'; }
       else if(url.includes('vimeo.com')){ providerIcon='fa-brands fa-vimeo-v'; providerColor='#1ab7ea'; providerName='Vimeo'; }
-      else if(url.includes('tiktok.com')){ providerIcon='fa-brands fa-tiktok'; providerColor='#ff0050'; providerName='TikTok'; }
-      else if(url.includes('instagram.com')){ providerIcon='fa-brands fa-instagram'; providerColor='#e1306c'; providerName='Instagram'; }
-      else if(url.includes('twitter.com')||url.includes('x.com')||url.includes('twitframe')){ providerIcon='fa-brands fa-x-twitter'; providerColor='#1da1f2'; providerName='Twitter/X'; }
-      else if(url.includes('linkedin.com')){ providerIcon='fa-brands fa-linkedin'; providerColor='#0a66c2'; providerName='LinkedIn'; }
-      else if(url.includes('facebook.com')||url.includes('fb.watch')){ providerIcon='fa-brands fa-facebook'; providerColor='#1877f2'; providerName='Facebook'; }
-
-      // video card — show cover or smart placeholder
+      else if(isEmbed(url)){ providerIcon='fa-solid fa-film'; providerColor='#888'; providerName='Video'; }
       const thumb=p.coverImage
-        ?`<div class="vid-thumb"><img src="${p.coverImage}" alt="${p.title}" loading="${loading}" fetchpriority="${fetchPri}" decoding="async" onload="if(this.naturalWidth>this.naturalHeight)this.closest('.project-card').classList.add('horizontal')"></div>`
+        ?`<div class="vid-thumb"><img src="${p.coverImage}" alt="${p.title}" loading="${loading}" fetchpriority="${fetchPri}" decoding="async"></div>`
         :`<div class="vid-thumb" style="position:absolute;inset:0;background:linear-gradient(135deg,#0f0f0f,#1f1f1f);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;"><i class="${providerIcon}" style="font-size:42px;color:${providerColor};opacity:0.8;"></i>${providerName?`<div style="font-size:11px;color:#666;font-weight:600;text-transform:uppercase;letter-spacing:1px;">${providerName}</div>`:''}</div>`;
       return`<div class="project-card" onclick="openVideoLightbox(${ri})">
         ${thumb}
@@ -1661,8 +1770,17 @@ function renderProjects(){
         <i class="fa-solid fa-film vid-reel-badge"></i>
         <div class="project-overlay"><div class="p-title">${p.title}</div><div class="p-cat">${p.category}</div></div>
       </div>`;
-    }
-    // image card — uniform aspect ratio (4:3 Behance-style)
+    }).join('');
+    return;
+  }
+
+  // ── IMAGE GRID (designs — Behance style) ──
+  grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
+  grid.style.maxWidth='1300px';
+  grid.innerHTML=list.map((p,idx)=>{
+    const ri=PROJECTS.indexOf(p);
+    const loading = idx < 8 ? 'eager' : 'lazy';
+    const fetchPri = idx < 4 ? 'high' : 'auto';
     const imgs=p.images||[];
     const thumbSrc=p.coverImage||imgs[0]||'';
     const th=thumbSrc?`<img src="${thumbSrc}" alt="${p.title}" loading="${loading}" fetchpriority="${fetchPri}" decoding="async">`:`<div class="proj-ph"><i class="fa-solid fa-image"></i></div>`;
@@ -1671,8 +1789,7 @@ function renderProjects(){
     </div>`;
   }).join('');
 
-  // Safari-specific: pre-warm image cache by creating offscreen Image objects
-  // This stops the flicker when toggling filters quickly
+  // Safari image cache pre-warm
   if(!window._imgCacheWarm){
     window._imgCacheWarm = new Set();
     setTimeout(()=>{
@@ -1942,58 +2059,24 @@ function renderReel(){
     // Desktop OR mobile after first play: load iframe with autoplay
     if(isEmbed(p.videoUrl)){
       const url = p.videoUrl;
-      const isInstagram = url.includes('instagram.com');
-      const isTikTok = url.includes('tiktok.com');
-      // Instagram, TikTok, LinkedIn, X embeds don't support autoplay params — use as-is
-      const noParamEmbed = isInstagram || isTikTok ||
-                          url.includes('linkedin.com') || url.includes('twitframe') ||
-                          url.includes('twitter.com') || url.includes('x.com/i/');
-
-      // Special handling for Instagram: scale & clip to hide IG chrome (header/comments)
-      if(isInstagram){
-        // Create a wrapper that crops the IG embed to show only the media
-        const wrapper = document.createElement('div');
-        wrapper.style.cssText = 'position:relative;width:100%;height:100%;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center;';
-
-        const inner = document.createElement('div');
-        // Instagram embed total height is ~830px; media is roughly 60% of that. We scale up and crop.
-        inner.style.cssText = 'position:relative;width:min(100%,500px);aspect-ratio:9/16;overflow:hidden;border-radius:12px;';
-
-        const frame=document.createElement('iframe');
-        frame.src = url;
-        frame.allowFullscreen=true;
-        frame.allow='autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write';
-        // The trick: oversize the iframe + offset upward to hide the IG header and comments
-        // IG embed dimensions are fixed; we scale the iframe to fill the wrapper as a portrait video
-        frame.style.cssText='position:absolute;top:-54px;left:0;width:100%;height:calc(100% + 230px);border:none;display:block;background:#000;';
-
-        inner.appendChild(frame);
-        wrapper.appendChild(inner);
-        cont.appendChild(wrapper);
-        return;
-      }
 
       const frame=document.createElement('iframe');
-      if(noParamEmbed){
-        frame.src = url;
-      } else {
-        let baseUrl=url.split('?')[0];
-        const existing=url.includes('?')?url.split('?')[1]:'';
-        const params=new URLSearchParams(existing);
-        params.set('autoplay','1');
-        const wantMuted = isMobile ? false : reelMuted;
-        params.set('muted', wantMuted?'1':'0');
-        params.set('playsinline','1');
-        if(baseUrl.includes('player.vimeo')){
-          params.set('title','0');params.set('byline','0');params.set('portrait','0');
-          params.set('api','1');
-        }
-        if(baseUrl.includes('youtube.com')){
-          params.set('enablejsapi','1');
-          params.set('mute', wantMuted?'1':'0');
-        }
-        frame.src=baseUrl+'?'+params.toString();
+      let baseUrl=url.split('?')[0];
+      const existing=url.includes('?')?url.split('?')[1]:'';
+      const params=new URLSearchParams(existing);
+      params.set('autoplay','1');
+      const wantMuted = isMobile ? false : reelMuted;
+      params.set('muted', wantMuted?'1':'0');
+      params.set('playsinline','1');
+      if(baseUrl.includes('player.vimeo')){
+        params.set('title','0');params.set('byline','0');params.set('portrait','0');
+        params.set('api','1');
       }
+      if(baseUrl.includes('youtube.com')){
+        params.set('enablejsapi','1');
+        params.set('mute', wantMuted?'1':'0');
+      }
+      frame.src=baseUrl+'?'+params.toString();
       frame.allowFullscreen=true;
       frame.allow='autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write';
       frame.style.cssText='width:100%;height:100%;border:none;display:block;';
@@ -2009,7 +2092,7 @@ function renderReel(){
   } else if(p.coverImage){
     cont.innerHTML=`<img src="${p.coverImage}" style="width:100%;height:100%;object-fit:contain;display:block;">`;
   } else {
-    cont.innerHTML=`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#444;font-size:48px;"><i class="fa-brands fa-instagram"></i></div>`;
+    cont.innerHTML=`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#444;font-size:48px;"><i class="fa-solid fa-video"></i></div>`;
   }
   // Auto-unmute subsequent reels if user unmuted before (desktop)
   if(userHasUnmuted) reelMuted=false;
@@ -2094,6 +2177,7 @@ function openProject(idx){
     PROJECT_MODS = mods;
     if(mods.length){
       pgImages.innerHTML=renderModules(mods);
+      setTimeout(initPublicBASliders, 50);
       currentGallery=[];
       mods.forEach(mod=>{
         if(mod.type==='image'&&mod.src) currentGallery.push({type:'image',src:mod.src});
@@ -2194,8 +2278,56 @@ function renderModules(mods){
     if(type==='separator' || type==='sep'){
       return `<div style="height:1px;background:linear-gradient(to left,transparent,#2a2a2a,transparent);margin:32px 0;"></div>`;
     }
+    // Before/After slider
+    if(type==='beforeafter'){
+      if(!mod.before || !mod.after) return '';
+      const baId='ba-'+Math.random().toString(36).slice(2,9);
+      const lblBefore=(mod.labelBefore||'قبل').replace(/"/g,'&quot;');
+      const lblAfter=(mod.labelAfter||'بعد').replace(/"/g,'&quot;');
+      return `<div class="ba-public" id="${baId}" data-ba="1">
+        <div class="ba-pub-after"><img src="${mod.after}" alt="" loading="lazy"></div>
+        <div class="ba-pub-before"><img src="${mod.before}" alt="" loading="lazy"></div>
+        <div class="ba-pub-handle"><div class="ba-pub-circle"><i class="fa-solid fa-left-right"></i></div></div>
+        <span class="ba-pub-tag ba-pub-tagL">${lblBefore}</span>
+        <span class="ba-pub-tag ba-pub-tagR">${lblAfter}</span>
+      </div>`;
+    }
     return '';
   }).join('');
+}
+
+// Initialize before/after sliders on the public project page
+function initPublicBASliders(){
+  document.querySelectorAll('.ba-public[data-ba="1"]').forEach(box=>{
+    if(box._init) return;
+    box._init=true;
+    const before=box.querySelector('.ba-pub-before');
+    const beforeImg=before.querySelector('img');
+    const handle=box.querySelector('.ba-pub-handle');
+    const fixWidth=()=>{ if(beforeImg) beforeImg.style.width=box.offsetWidth+'px'; };
+    // Wait for images to load so dimensions are correct
+    if(beforeImg.complete) fixWidth();
+    else beforeImg.onload=fixWidth;
+    window.addEventListener('resize',fixWidth);
+    let dragging=false;
+    const move=(clientX)=>{
+      const r=box.getBoundingClientRect();
+      let pct=((clientX-r.left)/r.width)*100;
+      pct=Math.max(0,Math.min(100,pct));
+      before.style.width=pct+'%';
+      handle.style.left=pct+'%';
+    };
+    const down=e=>{dragging=true;e.preventDefault();};
+    const up=()=>{dragging=false;};
+    const mv=e=>{ if(!dragging)return; const x=e.touches?e.touches[0].clientX:e.clientX; move(x); };
+    handle.addEventListener('mousedown',down);
+    handle.addEventListener('touchstart',down,{passive:false});
+    window.addEventListener('mouseup',up);
+    window.addEventListener('touchend',up);
+    window.addEventListener('mousemove',mv);
+    window.addEventListener('touchmove',mv,{passive:false});
+    box.addEventListener('click',e=>{ if(handle.contains(e.target))return; move(e.clientX); });
+  });
 }
 
 function openLbByMod(modIdx){
@@ -2228,25 +2360,13 @@ function closeProjectPage(){
 
 function isEmbed(url){
   if(!url) return false;
-  // Detect any embed URL by common patterns
-  const embedPatterns = [
-    'youtube.com/embed',
-    'player.vimeo.com',
-    'tiktok.com/embed',
-    'instagram.com/p/',  // Instagram embeds use /p/X/embed
-    'instagram.com/reel/',
-    'twitframe.com',
-    'twitter.com/i/status',
-    'x.com/i/status',
-    'linkedin.com/embed',
-    'facebook.com/plugins',
-    'fb.watch',
-    'dailymotion.com/embed',
-    'wistia.com/medias',
-    'loom.com/embed',
-    'streamable.com',
-  ];
-  return embedPatterns.some(p => url.includes(p));
+  // A URL is an "embed" (iframe) if it's NOT a locally-uploaded file.
+  // Local uploads start with /uploads/ — everything else external = embed.
+  if(url.startsWith('/uploads/') || url.startsWith('uploads/')) return false;
+  // Direct video file URLs should use <video>, not <iframe>
+  if(/\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(url)) return false;
+  // Anything else that's a full http(s) URL → treat as embed iframe
+  return url.startsWith('http://') || url.startsWith('https://');
 }
 
 function openLb(i){lbIdx=i;renderLb();document.getElementById('lightbox').classList.add('active');document.body.style.overflow='hidden';}

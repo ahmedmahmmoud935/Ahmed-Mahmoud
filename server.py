@@ -169,6 +169,15 @@ def _default_settings_for_user(user_id, db):
         ('colors',   DEFAULT_COLORS),
         ('sections', DEFAULT_SECTIONS),
         ('content',  DEFAULT_CONTENT),
+        # ── Project section tabs (Designs / Reels / Videos) ──
+        # Each tab: visible toggle + custom label (ar/en) + icon class
+        ('proj_tabs', json.dumps({
+            'designs': {'visible': True,  'label_ar': 'التصاميم', 'label_en': 'Designs', 'icon': 'fa-solid fa-image'},
+            'reels':   {'visible': True,  'label_ar': 'الريلز',   'label_en': 'Reels',   'icon': 'fa-solid fa-film'},
+            'videos':  {'visible': True,  'label_ar': 'الفيديوهات','label_en': 'Videos',  'icon': 'fa-solid fa-video'},
+        })),
+        # Free-grid (masonry) video columns
+        ('freegrid_cols_mobile','1'), ('freegrid_cols_desktop','2'),
     ]
     for k, v in defaults:
         db.execute(
@@ -234,7 +243,9 @@ def init_db():
                 sort_order   INTEGER DEFAULT 0,
                 created_at   TEXT DEFAULT (datetime('now')),
                 project_type TEXT DEFAULT 'grid',
-                modules      TEXT DEFAULT '[]'
+                modules      TEXT DEFAULT '[]',
+                aspect_ratio TEXT DEFAULT '9:16',
+                video_kind   TEXT DEFAULT 'reel'
             );
             CREATE TABLE IF NOT EXISTS project_images (
                 id         INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -252,7 +263,8 @@ def init_db():
             db.commit()
 
         # Migrate other missing columns in projects
-        for col, defval in [('project_type',"'grid'"), ('modules',"'[]'")]:
+        for col, defval in [('project_type',"'grid'"), ('modules',"'[]'"),
+                            ('aspect_ratio',"'9:16'"), ('video_kind',"'reel'")]:
             if col not in proj_cols:
                 try:
                     db.execute(f'ALTER TABLE projects ADD COLUMN {col} TEXT DEFAULT {defval}')
@@ -301,9 +313,10 @@ def init_db():
         ''')
         db.commit()
 
-        # ── Ensure owner has all default settings ──
-        _default_settings_for_user(owner_id, db)
-        _default_settings_for_user(owner_id, db)
+        # ── Ensure ALL users have all default settings (new keys get added via INSERT OR IGNORE) ──
+        all_uids = [r['id'] for r in db.execute('SELECT id FROM users').fetchall()]
+        for _uid in all_uids:
+            _default_settings_for_user(_uid, db)
 
 init_db()
 
@@ -676,12 +689,18 @@ def project_to_dict(row, db):
     try: mods = json.loads(row['modules'] or '[]')
     except: pass
     mods = _migrate_modules_base64(mods, row['id'], db, row['user_id'])
+    # Safe access to newer columns (may not exist on very old rows)
+    def _col(name, default):
+        try: return row[name] or default
+        except: return default
     return {
         'id': row['id'], 'title': row['title'], 'category': row['category'],
         'description': row['description'] or '', 'mediaType': row['media_type'],
         'coverImage': row['cover_url'], 'videoUrl': row['video_url'],
         'images': [r['url'] for r in imgs], 'date': row['created_at'][:10],
         'projectType': row['project_type'] or 'grid',
+        'aspectRatio': _col('aspect_ratio', '9:16'),
+        'videoKind': _col('video_kind', 'reel'),
         'modules': mods
     }
 
@@ -830,10 +849,14 @@ def create_project():
     # New projects appear first - sort_order = MAX+1
     max_sort = db.execute('SELECT COALESCE(MAX(sort_order), 0) AS m FROM projects WHERE user_id=?', (uid,)).fetchone()
     next_sort = (max_sort['m'] if max_sort else 0) + 1
+    # Video metadata: aspect ratio + kind (reel = 9:16 regular grid, freegrid = masonry)
+    aspect_ratio = d.get('aspectRatio', '9:16')
+    video_kind   = d.get('videoKind', 'reel')
     cur = db.execute(
-        'INSERT INTO projects(user_id,title,category,description,media_type,cover_url,video_url,project_type,sort_order) VALUES(?,?,?,?,?,?,?,?,?)',
+        'INSERT INTO projects(user_id,title,category,description,media_type,cover_url,video_url,project_type,sort_order,aspect_ratio,video_kind) VALUES(?,?,?,?,?,?,?,?,?,?,?)',
         (uid, title, d.get('category','Social Media'), d.get('description',''),
-         d.get('mediaType','image'), cover_url, video_url, d.get('projectType','grid'), next_sort)
+         d.get('mediaType','image'), cover_url, video_url, d.get('projectType','grid'), next_sort,
+         aspect_ratio, video_kind)
     )
     pid = cur.lastrowid
     for i, img in enumerate(d.get('images',[])):
@@ -898,6 +921,10 @@ def update_project(pid):
     )
     if 'projectType' in d:
         db.execute('UPDATE projects SET project_type=? WHERE id=?', (d['projectType'], pid))
+    if 'aspectRatio' in d:
+        db.execute('UPDATE projects SET aspect_ratio=? WHERE id=?', (d['aspectRatio'], pid))
+    if 'videoKind' in d:
+        db.execute('UPDATE projects SET video_kind=? WHERE id=?', (d['videoKind'], pid))
 
     keep     = d.get('keepImages') or []
     new_imgs = d.get('images') or []
