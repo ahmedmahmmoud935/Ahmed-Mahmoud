@@ -83,8 +83,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 .proj-filter-tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
 .pft-btn{display:flex;align-items:center;gap:8px;padding:9px 18px;border-radius:9px;border:1px solid var(--d4);background:transparent;color:var(--g2);font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
 .pft-btn:hover{border-color:var(--g2);color:var(--w);}
-.pft-btn.active{background:var(--o);border-color:var(--o);color:#fff;}
-.pft-btn i{font-size:13px;}
+
 .trow:last-child{border-bottom:none;}.trow:hover{background:rgba(255,255,255,.02);}
 .rth{width:44px;height:44px;border-radius:8px;object-fit:cover;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#444;font-size:15px;overflow:hidden;}
 .rth img{width:100%;height:100%;object-fit:cover;}
@@ -649,22 +648,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
     <div class="sc"><div class="si"><i class="fa-solid fa-film"></i></div><div class="sn" id="stReel">0</div><div class="sl-stat" data-i18n="stats.reels2">ريلز</div></div>
     <div class="sc"><div class="si"><i class="fa-solid fa-video"></i></div><div class="sn" id="stVideos">0</div><div class="sl-stat" data-i18n="stats.videos">فيديوهات</div></div>
   </div>
-  <div class="proj-filter-tabs">
-    <button class="pft-btn active" id="pftAll" onclick="setProjFilter('all')"><i class="fa-solid fa-layer-group"></i> <span data-i18n="filter.allBtn">الكل</span></button>
-    <button class="pft-btn" id="pftImg" onclick="setProjFilter('image')"><i class="fa-solid fa-image"></i> <span data-i18n="filter.designsBtn">التصاميم</span></button>
-    <button class="pft-btn" id="pftReel" onclick="setProjFilter('reel')"><i class="fa-solid fa-film"></i> <span data-i18n="filter.reelsBtn">الريلز</span></button>
-    <button class="pft-btn" id="pftVid" onclick="setProjFilter('freegrid')"><i class="fa-solid fa-video"></i> <span data-i18n="filter.videosBtn">الفيديوهات</span></button>
-  </div>
-  <div class="tw">
-    <div class="thead"><div></div><div data-i18n="th.projectCol">المشروع</div><div data-i18n="th.categoryCol">التصنيف</div><div data-i18n="th.dateCol">التاريخ</div><div data-i18n="th.actionsCol">إجراءات</div></div>
-    <div id="tBody"><div class="empty"><div class="spin"></div></div></div>
-  </div>
-  <div id="reorderHint" style="display:none;margin-top:12px;padding:10px 14px;background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.3);border-radius:8px;font-size:12px;color:var(--o);display:none;align-items:center;gap:10px;">
-    <i class="fa-solid fa-circle-info"></i>
-    <span style="flex:1;" data-i18n="reorder.unsaved">تم تغيير الترتيب — احفظ التغييرات</span>
-    <button class="btn-add" onclick="saveReorder()" style="padding:6px 14px;font-size:12px;"><i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn.saveOrder">حفظ الترتيب</span></button>
-  </div>
-</div>
+
 
 <!-- CATEGORIES TAB -->
 <div id="tab-categories" style="display:none;">
@@ -1941,6 +1925,9 @@ const I18N = {
     'toast.orderSaved': '✓ تم حفظ الترتيب',
     'toast.orderFailed': 'فشل حفظ الترتيب',
     'reorder.unsaved': 'تم تغيير الترتيب — احفظ التغييرات',
+    'reorder.hint': 'اسحب أي مشروع لتغيير ترتيبه — يتحفظ تلقائياً',
+    'reorder.saving': 'جاري الحفظ...',
+    'reorder.saved': 'تم حفظ الترتيب',
     'toast.fillRequired': '⚠️ من فضلك املأ الحقول المطلوبة',
     'toast.fileTooLarge': '⚠️ حجم الملف أكبر من المسموح',
     'toast.imageRequired': '⚠️ اختر صورة',
@@ -2541,6 +2528,9 @@ const I18N = {
     'toast.orderSaved': '✓ Order saved',
     'toast.orderFailed': 'Failed to save order',
     'reorder.unsaved': 'Order changed — save your changes',
+    'reorder.hint': 'Drag any project to reorder — saves automatically',
+    'reorder.saving': 'Saving...',
+    'reorder.saved': 'Order saved',
     'toast.fillRequired': '⚠️ Please fill required fields',
     'toast.fileTooLarge': '⚠️ File too large',
     'toast.imageRequired': '⚠️ Choose an image',
@@ -3505,101 +3495,140 @@ function renderTable(){
   const reels = projects.filter(p=>projKind(p)==='reel');
   const freegrids = projects.filter(p=>projKind(p)==='freegrid');
   const imgs = projects.filter(p=>projKind(p)==='image');
-  document.getElementById('stTotal').textContent=projects.length;
-  document.getElementById('stImg').textContent=imgs.length;
+  const elT=document.getElementById('stTotal'); if(elT) elT.textContent=projects.length;
+  const elI=document.getElementById('stImg'); if(elI) elI.textContent=imgs.length;
   const stReel=document.getElementById('stReel'); if(stReel) stReel.textContent=reels.length;
   const stVideos=document.getElementById('stVideos'); if(stVideos) stVideos.textContent=freegrids.length;
-  const body=document.getElementById('tBody');
-  // filter by kind
+
+  const grid=document.getElementById('projGrid');
+  if(!grid) return;
   const filtered = projFilter==='all'
     ? projects
     : projects.filter(p => projKind(p)===projFilter);
+
+  // Reorder bar: only show when a single tab is active (drag works per-tab)
+  const reorderBar=document.getElementById('reorderBar');
+  if(reorderBar) reorderBar.style.display = (projFilter==='all') ? 'none' : 'flex';
+
   if(!filtered.length){
     const msgKey = projFilter==='reel' ? 'empty.reels'
                  : projFilter==='freegrid' ? 'empty.videos'
                  : projFilter==='image' ? 'empty.designs'
                  : 'empty.projects';
     const msg = (typeof t==='function') ? t(msgKey) : 'لا توجد عناصر';
-    body.innerHTML=`<div class="empty"><i class="fa-solid fa-folder-open"></i><p>${msg}</p></div>`;return;
+    grid.innerHTML=`<div class="empty" style="grid-column:1/-1;"><i class="fa-solid fa-folder-open"></i><p>${msg}</p></div>`;
+    return;
   }
-  body.innerHTML=filtered.map((p,idx)=>{
+
+  const draggable = (projFilter!=='all'); // drag enabled only inside a single tab
+  grid.innerHTML=filtered.map(p=>{
     const kind = projKind(p);
-    const kindIcon = kind==='reel' ? '<i class="fa-solid fa-film" style="color:var(--o);font-size:11px;margin-left:5px;"></i>'
-                   : kind==='freegrid' ? `<i class="fa-solid fa-video" style="color:#3b82f6;font-size:11px;margin-left:5px;"></i>`
-                   : '';
-    const thumbIcon = kind==='image' ? 'image' : 'play-circle';
-    const arBadge = kind==='freegrid' && p.aspectRatio ? ` · <span style="color:#3b82f6;font-size:10px;">${p.aspectRatio}</span>` : '';
+    const kindIcon = kind==='reel' ? '<i class="fa-solid fa-film"></i>'
+                   : kind==='freegrid' ? '<i class="fa-solid fa-video"></i>'
+                   : '<i class="fa-solid fa-image"></i>';
+    const thumbIcon = kind==='image' ? 'fa-image' : 'fa-play';
+    const thumb = p.coverImage
+      ? `<img src="${p.coverImage}" alt="" loading="lazy">`
+      : `<div class="pg-ph"><i class="fa-solid ${thumbIcon}"></i></div>`;
+    const metaParts = [];
+    if((p.images||[]).length) metaParts.push((p.images.length)+' '+(typeof t==='function'?t('misc.images'):'صور'));
+    if(kind==='freegrid' && p.aspectRatio) metaParts.push(p.aspectRatio);
+    if(p.projectType==='free') metaParts.push('Behance');
+    metaParts.push(formatProjectDate(p.date)||'');
+    const meta = metaParts.filter(Boolean).join(' · ');
+    const dragAttrs = draggable
+      ? `draggable="true" ondragstart="roDragStart(event,'${p.id}')" ondragover="roDragOver(event,'${p.id}')" ondrop="roDrop(event,'${p.id}')" ondragend="roDragEnd()" ondragleave="roDragLeave(event)"`
+      : '';
     return `
-    <div class="trow" draggable="true" data-pid="${p.id}"
-      ondragstart="roDragStart(event,'${p.id}')" ondragover="roDragOver(event,'${p.id}')"
-      ondrop="roDrop(event,'${p.id}')" ondragend="roDragEnd()">
-      <div class="rth" style="display:flex;align-items:center;gap:6px;">
-        <i class="fa-solid fa-grip-vertical" style="color:#444;font-size:12px;cursor:grab;" title="اسحب لإعادة الترتيب"></i>
-        ${p.coverImage?`<img src="${p.coverImage}" alt="">`:`<i class="fa-solid fa-${thumbIcon}"></i>`}
+    <div class="pg-card" data-pid="${p.id}" ${dragAttrs} style="${draggable?'':'cursor:default;'}">
+      <div class="pg-thumb">
+        ${thumb}
+        <div class="pg-kind k-${kind}">${kindIcon}</div>
+        ${draggable?'<div class="pg-grip"><i class="fa-solid fa-up-down-left-right"></i></div>':''}
       </div>
-      <div><div class="rtitle">${kindIcon}${p.title}</div>
-        <div class="rmeta">${(p.images||[]).length?((p.images||[]).length+' '+(typeof t==='function'?t('misc.images'):'صور')):''}${p.videoUrl?' · فيديو ✓':''}${arBadge}${p.projectType==='free'?' · <span style="color:#3b82f6;font-size:10px;">Behance</span>':''}</div></div>
-      <div><span class="rcat">${p.category}</span></div>
-      <div style="color:var(--g2);font-size:13px;">${formatProjectDate(p.date)||'-'}</div>
-      <div class="ra">
-        ${p.mediaType!=='video'?`<a href="/admin/editor/${p.id}" class="be" style="display:flex;align-items:center;justify-content:center;" title="محرر المشروع"><i class="fa-brands fa-behance" style="font-size:11px;"></i></a>`:''}
-        <button class="be" onclick="openEdit(${p.id})" title="تعديل"><i class="fa-solid fa-pen"></i></button>
-        <button class="bd" onclick="askDel(${p.id})" title="حذف"><i class="fa-solid fa-trash"></i></button>
+      <div class="pg-body">
+        <div class="pg-title">${p.title}</div>
+        <div class="pg-meta">${meta}</div>
+      </div>
+      <div class="pg-actions">
+        ${p.mediaType!=='video'?`<a href="/admin/editor/${p.id}" title="محرر المشروع"><i class="fa-brands fa-behance"></i></a>`:''}
+        <button onclick="openEdit(${p.id})" title="تعديل"><i class="fa-solid fa-pen"></i></button>
+        <button class="pg-del" onclick="askDel(${p.id})" title="حذف"><i class="fa-solid fa-trash"></i></button>
       </div>
     </div>`;
   }).join('');
 }
 
-// ══ DRAG & DROP REORDER (inside projects table) ══
-let _roDragId=null, _roChanged=false;
+// ══ DRAG & DROP REORDER — works PER-TAB (image / reel / freegrid) ══
+let _roDragId=null, _roSaveTimer=null;
+
 function roDragStart(e,id){
   _roDragId=String(id);
   e.dataTransfer.effectAllowed='move';
-  setTimeout(()=>{
-    const el=document.querySelector(`#tBody [data-pid="${id}"]`);
-    if(el)el.classList.add('dragging');
-  },0);
+  try{ e.dataTransfer.setData('text/plain', _roDragId); }catch(_){}
+  const el=document.querySelector(`#projGrid [data-pid="${id}"]`);
+  if(el) setTimeout(()=>el.classList.add('dragging'),0);
 }
 function roDragOver(e,id){
-  e.preventDefault();e.dataTransfer.dropEffect='move';
-  document.querySelectorAll('#tBody .trow').forEach(el=>{
-    el.classList.toggle('drag-over',el.dataset.pid===String(id)&&el.dataset.pid!==_roDragId);
-  });
+  e.preventDefault();
+  e.dataTransfer.dropEffect='move';
+  if(String(id)===_roDragId) return;
+  const el=document.querySelector(`#projGrid [data-pid="${id}"]`);
+  if(el) el.classList.add('drag-over');
+}
+function roDragLeave(e){
+  const card=e.currentTarget;
+  if(card) card.classList.remove('drag-over');
 }
 function roDrop(e,id){
   e.preventDefault();
   const toId=String(id);
-  if(!_roDragId||_roDragId===toId)return;
-  // Reorder within the FULL projects array (not just filtered view)
+  document.querySelectorAll('#projGrid .pg-card').forEach(el=>el.classList.remove('drag-over'));
+  if(!_roDragId || _roDragId===toId) return;
+
+  // Move within the FULL projects array, but only between items of the SAME kind.
   const fromIdx=projects.findIndex(p=>String(p.id)===_roDragId);
   const toIdx  =projects.findIndex(p=>String(p.id)===toId);
-  if(fromIdx<0||toIdx<0)return;
+  if(fromIdx<0 || toIdx<0) return;
+  if(projKind(projects[fromIdx])!==projKind(projects[toIdx])) return;
+
   const [moved]=projects.splice(fromIdx,1);
-  projects.splice(toIdx,0,moved);
+  const newToIdx=projects.findIndex(p=>String(p.id)===toId);
+  projects.splice(newToIdx,0,moved);
+
   _roDragId=null;
-  _roChanged=true;
   renderTable();
-  // Show the save hint
-  const hint=document.getElementById('reorderHint');
-  if(hint) hint.style.display='flex';
+  autoSaveOrder();
 }
 function roDragEnd(){
   _roDragId=null;
-  document.querySelectorAll('#tBody .trow').forEach(el=>el.classList.remove('dragging','drag-over'));
+  document.querySelectorAll('#projGrid .pg-card').forEach(el=>el.classList.remove('dragging','drag-over'));
 }
-async function saveReorder(){
-  // Save the order of ALL projects (full array, current display order)
-  const ids=projects.map(p=>p.id);
-  try{
-    const r=await fetch('/api/projects/reorder',{method:'PUT',credentials:'include',
-      headers:{'Content-Type':'application/json'},body:JSON.stringify({ids})});
-    if(r.ok){
-      _roChanged=false;
-      const hint=document.getElementById('reorderHint');
-      if(hint) hint.style.display='none';
-      toast(typeof t==='function'?t('toast.orderSaved'):'✓ تم حفظ الترتيب');
-    } else toast(typeof t==='function'?t('toast.orderFailed'):'فشل حفظ الترتيب','error');
-  }catch{toast(typeof t==='function'?t('toast.connectionError'):'خطأ في الاتصال','error');}
+
+// Auto-save the FULL project order (debounced slightly to batch quick drags)
+function autoSaveOrder(){
+  clearTimeout(_roSaveTimer);
+  const saving=document.getElementById('reorderSaving');
+  const saved=document.getElementById('reorderSaved');
+  if(saving) saving.style.display='inline';
+  if(saved) saved.style.display='none';
+  _roSaveTimer=setTimeout(async()=>{
+    const ids=projects.map(p=>p.id);
+    try{
+      const r=await fetch('/api/projects/reorder',{method:'PUT',credentials:'include',
+        headers:{'Content-Type':'application/json'},body:JSON.stringify({ids})});
+      if(r.ok){
+        if(saving) saving.style.display='none';
+        if(saved){ saved.style.display='inline'; setTimeout(()=>{saved.style.display='none';},2500); }
+      } else {
+        if(saving) saving.style.display='none';
+        toast(typeof t==='function'?t('toast.orderFailed'):'فشل حفظ الترتيب','error');
+      }
+    }catch{
+      if(saving) saving.style.display='none';
+      toast(typeof t==='function'?t('toast.connectionError'):'خطأ في الاتصال','error');
+    }
+  }, 400);
 }
 
 // ══ PROJECT TABS MANAGER (visibility + label + icon) ══

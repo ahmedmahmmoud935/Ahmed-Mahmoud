@@ -911,11 +911,22 @@ def delete_project(pid):
 @app.route('/api/projects/reorder', methods=['PUT'])
 @login_required
 def reorder_projects():
-    user_id = uid(); ids = request.get_json().get('ids', [])
+    user_id = uid()
+    data = request.get_json(silent=True) or {}
+    ids = data.get('ids', [])
+    if not isinstance(ids, list) or not ids:
+        return jsonify({'error': 'ids must be a non-empty list'}), 400
     db = get_db()
+    # First id gets the highest sort_order so it appears first (GET uses ORDER BY sort_order DESC)
+    n = len(ids)
     for i, pid in enumerate(ids):
-        db.execute('UPDATE projects SET sort_order=? WHERE id=? AND user_id=?', (len(ids)-i, pid, user_id))
-    db.commit(); return jsonify({'ok':True})
+        try:
+            db.execute('UPDATE projects SET sort_order=? WHERE id=? AND user_id=?',
+                       (n - i, int(pid), user_id))
+        except (ValueError, TypeError):
+            continue
+    db.commit()
+    return jsonify({'ok': True, 'count': n})
 
 @app.route('/api/projects/<int:pid>/modules', methods=['GET'])
 @login_required
