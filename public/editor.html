@@ -48,6 +48,23 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
 .img-prev-actions{position:absolute;bottom:8px;right:8px;}
 .img-prev-btn{background:rgba(0,0,0,.75);color:#fff;border:none;padding:6px 12px;border-radius:6px;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;position:relative;}
 .img-prev-btn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+
+/* Before/After editor block */
+.ba-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.ba-upload{padding:30px 12px;}
+.ba-slot{position:relative;border-radius:8px;overflow:hidden;background:var(--d3);}
+.ba-slot img{width:100%;display:block;}
+.ba-slot-actions{position:absolute;bottom:6px;right:6px;}
+.ba-tag{position:absolute;top:6px;left:6px;background:rgba(168,85,247,.9);color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:12px;}
+.ba-preview{position:relative;margin-top:12px;border-radius:8px;overflow:hidden;user-select:none;aspect-ratio:4/3;background:#000;}
+.ba-pImg{position:absolute;top:0;left:0;height:100%;overflow:hidden;}
+.ba-pAfter{width:100%;}
+.ba-pAfter img{width:100%;height:100%;object-fit:cover;display:block;}
+.ba-pBefore{width:50%;border-right:2px solid #fff;z-index:2;}
+.ba-pBefore img{height:100%;object-fit:cover;display:block;}
+.ba-handle{position:absolute;top:0;bottom:0;left:50%;width:36px;transform:translateX(-50%);z-index:3;cursor:ew-resize;display:flex;align-items:center;justify-content:center;}
+.ba-handle::before{content:'';position:absolute;top:0;bottom:0;width:2px;background:#fff;left:50%;transform:translateX(-50%);}
+.ba-handle i{width:30px;height:30px;background:#fff;color:#a855f7;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,.4);position:relative;z-index:1;}
 .grid-layouts{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
 .gl-btn{padding:6px 10px;border:1px solid var(--d4);border-radius:6px;background:transparent;color:var(--g2);cursor:pointer;font-size:11px;font-family:'Cairo',sans-serif;font-weight:600;}
 .gl-btn.active{border-color:var(--o);color:var(--o);background:rgba(249,115,22,.08);}
@@ -119,6 +136,7 @@ body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-heigh
       <button class="sb-btn" onclick="addMod('grid')"><i class="fa-solid fa-grip" style="color:#3b82f6;"></i> شبكة صور</button>
       <button class="sb-btn" onclick="addMod('text')"><i class="fa-solid fa-font" style="color:#22c55e;"></i> نص / عنوان</button>
       <button class="sb-btn" onclick="addMod('video')"><i class="fa-brands fa-youtube" style="color:#ff0000;"></i> فيديو</button>
+      <button class="sb-btn" onclick="addMod('beforeafter')"><i class="fa-solid fa-left-right" style="color:#a855f7;"></i> قبل / بعد</button>
       <button class="sb-btn" onclick="addMod('sep')"><i class="fa-solid fa-minus" style="color:#555;"></i> فاصل</button>
     </div>
     <div class="sb-section">
@@ -237,7 +255,7 @@ function setType(t,doRender=true){
   if(doRender)render();
 }
 
-function render(){ pType==='grid'?renderGrid():renderFree(); }
+function render(){ pType==='grid'?renderGrid():renderFree(); setTimeout(initBASliders,30); }
 
 function showEmpty(msg){
   const cv=document.getElementById('canvas');
@@ -316,6 +334,7 @@ function buildMod(m,i){
   else if(m.type==='grid') body=bGrid(m,i);
   else if(m.type==='text') body=bText(m,i);
   else if(m.type==='video') body=bVideo(m,i);
+  else if(m.type==='beforeafter') body=bBeforeAfter(m,i);
   else if(m.type==='sep') body=`<div class="mod-body"><div class="sep-line"></div><p style="color:#555;font-size:12px;text-align:center;">فاصل</p></div>`;
   return `<div class="mod-card">${tb}${body}</div>`;
 }
@@ -421,9 +440,84 @@ function parseUrl(i,val,type){
 }
 function parseCode(i,code){ modules[i].rawCode=code; const m=code.match(/src=["']([^"']+)["']/i); if(m)modules[i].embedUrl=m[1]; }
 
+/* Before / After slider */
+function bBeforeAfter(m,i){
+  const beforeBox = m.before
+    ? `<div class="ba-slot">
+         <img src="${m.before}" alt="before">
+         <div class="ba-slot-actions"><label class="img-prev-btn"><i class="fa-solid fa-arrow-rotate-right"></i> استبدال<input type="file" accept="image/*" onchange="baUpload(event,${i},'before')"></label></div>
+         <span class="ba-tag">قبل</span>
+       </div>`
+    : `<div class="upload-zone ba-upload"><input type="file" accept="image/*" onchange="baUpload(event,${i},'before')"><i class="fa-solid fa-image"></i><p>صورة "قبل"</p></div>`;
+  const afterBox = m.after
+    ? `<div class="ba-slot">
+         <img src="${m.after}" alt="after">
+         <div class="ba-slot-actions"><label class="img-prev-btn"><i class="fa-solid fa-arrow-rotate-right"></i> استبدال<input type="file" accept="image/*" onchange="baUpload(event,${i},'after')"></label></div>
+         <span class="ba-tag">بعد</span>
+       </div>`
+    : `<div class="upload-zone ba-upload"><input type="file" accept="image/*" onchange="baUpload(event,${i},'after')"><i class="fa-solid fa-image"></i><p>صورة "بعد"</p></div>`;
+  // Live preview slider (only when both images present)
+  let preview='';
+  if(m.before && m.after){
+    preview = `<div class="ba-preview" id="baPrev${i}">
+      <div class="ba-pImg ba-pAfter"><img src="${m.after}" alt=""></div>
+      <div class="ba-pImg ba-pBefore" id="baPB${i}"><img src="${m.before}" alt="" id="baPBimg${i}"></div>
+      <div class="ba-handle" id="baH${i}"><i class="fa-solid fa-left-right"></i></div>
+    </div>
+    <p style="color:#555;font-size:11px;text-align:center;margin-top:6px;">معاينة — اسحب الخط للمقارنة</p>`;
+  }
+  return `<div class="mod-body">
+    <div class="ba-grid">${beforeBox}${afterBox}</div>
+    <div class="frow" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
+      <div><label style="font-size:11px;color:#888;display:block;margin-bottom:3px;">نص "قبل"</label>
+        <input class="emb-input" value="${(m.labelBefore||'قبل').replace(/"/g,'&quot;')}" oninput="modules[${i}].labelBefore=this.value" placeholder="قبل"></div>
+      <div><label style="font-size:11px;color:#888;display:block;margin-bottom:3px;">نص "بعد"</label>
+        <input class="emb-input" value="${(m.labelAfter||'بعد').replace(/"/g,'&quot;')}" oninput="modules[${i}].labelAfter=this.value" placeholder="بعد"></div>
+    </div>
+    ${preview}
+  </div>`;
+}
+function baUpload(ev,i,which){
+  const f=ev.target.files[0]; if(!f)return;
+  readF(f,data=>{ modules[i][which]=data; render(); initBASliders(); });
+}
+// Initialize all before/after preview sliders (drag handle)
+function initBASliders(){
+  document.querySelectorAll('[id^="baPrev"]').forEach(prev=>{
+    const idx=prev.id.replace('baPrev','');
+    const before=document.getElementById('baPB'+idx);
+    const beforeImg=document.getElementById('baPBimg'+idx);
+    const handle=document.getElementById('baH'+idx);
+    if(!before||!handle||prev._baInit)return;
+    prev._baInit=true;
+    // Make the "before" image take the FULL preview width so cropping works correctly
+    const fixWidth=()=>{ if(beforeImg) beforeImg.style.width=prev.offsetWidth+'px'; };
+    fixWidth();
+    window.addEventListener('resize',fixWidth);
+    let dragging=false;
+    const move=(clientX)=>{
+      const r=prev.getBoundingClientRect();
+      let pct=((clientX-r.left)/r.width)*100;
+      pct=Math.max(0,Math.min(100,pct));
+      before.style.width=pct+'%';
+      handle.style.left=pct+'%';
+    };
+    const down=e=>{dragging=true;e.preventDefault();};
+    const up=()=>{dragging=false;};
+    const mv=e=>{ if(!dragging)return; const x=e.touches?e.touches[0].clientX:e.clientX; move(x); };
+    handle.addEventListener('mousedown',down);
+    handle.addEventListener('touchstart',down,{passive:false});
+    window.addEventListener('mouseup',up);
+    window.addEventListener('touchend',up);
+    window.addEventListener('mousemove',mv);
+    window.addEventListener('touchmove',mv,{passive:false});
+    prev.addEventListener('click',e=>{ if(e.target===handle||handle.contains(e.target))return; move(e.clientX); });
+  });
+}
+
 /* Module actions */
 function addMod(type){
-  const def={image:{type:'image',src:''},grid:{type:'grid',items:[]},text:{type:'text',textType:'p',value:''},video:{type:'video',embedType:'youtube',embedUrl:'',rawUrl:''},sep:{type:'sep'}};
+  const def={image:{type:'image',src:''},grid:{type:'grid',items:[]},text:{type:'text',textType:'p',value:''},video:{type:'video',embedType:'youtube',embedUrl:'',rawUrl:''},beforeafter:{type:'beforeafter',before:'',after:'',labelBefore:'قبل',labelAfter:'بعد'},sep:{type:'sep'}};
   modules.push({...def[type]}); render();
   setTimeout(()=>window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}),80);
 }
