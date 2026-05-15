@@ -717,10 +717,22 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
   </div>
 
   <div class="proj-filter-tabs">
-    <button class="pft-btn active" id="pftAll" onclick="setProjFilter('all')"><i class="fa-solid fa-layer-group"></i> <span data-i18n="filter.allBtn">الكل</span></button>
-    <button class="pft-btn" id="pftImg" onclick="setProjFilter('image')"><i class="fa-solid fa-image"></i> <span data-i18n="filter.designsBtn">التصاميم</span></button>
+    <button class="pft-btn active" id="pftImg" onclick="setProjFilter('image')"><i class="fa-solid fa-image"></i> <span data-i18n="filter.designsBtn">التصاميم</span></button>
     <button class="pft-btn" id="pftReel" onclick="setProjFilter('reel')"><i class="fa-solid fa-film"></i> <span data-i18n="filter.reelsBtn">الريلز</span></button>
     <button class="pft-btn" id="pftVid" onclick="setProjFilter('freegrid')"><i class="fa-solid fa-video"></i> <span data-i18n="filter.videosBtn">الفيديوهات</span></button>
+  </div>
+  <div id="colsBar" style="display:none;background:rgba(255,255,255,.03);border:1px solid #222;border-radius:10px;padding:12px 18px;margin-bottom:12px;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+      <i class="fa-solid fa-table-columns" style="color:var(--o);font-size:12px;"></i>
+      <span style="font-size:12px;font-weight:700;color:var(--g2);">عدد العناصر في الصف</span>
+      <span id="colsBarSaved" style="margin-right:auto;font-size:11px;color:#22c55e;display:none;"><i class="fa-solid fa-circle-check"></i> تم الحفظ</span>
+    </div>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center;">
+      <div style="display:flex;align-items:center;gap:8px;"><i class="fa-solid fa-mobile-screen" style="color:#555;font-size:13px;" title="موبايل"></i><input type="range" id="cbM" min="1" max="4" value="2" oninput="document.getElementById('cbMV').textContent=this.value;autoSaveCols()" style="-webkit-appearance:none;width:110px;height:4px;border-radius:2px;background:#2a2a2a;outline:none;cursor:pointer;"><span id="cbMV" style="color:var(--o);font-weight:700;font-size:15px;min-width:16px;">2</span></div>
+      <div style="display:flex;align-items:center;gap:8px;"><i class="fa-solid fa-tablet-screen-button" style="color:#555;font-size:13px;" title="تابلت"></i><input type="range" id="cbT" min="1" max="5" value="3" oninput="document.getElementById('cbTV').textContent=this.value;autoSaveCols()" style="-webkit-appearance:none;width:110px;height:4px;border-radius:2px;background:#2a2a2a;outline:none;cursor:pointer;"><span id="cbTV" style="color:var(--o);font-weight:700;font-size:15px;min-width:16px;">3</span></div>
+      <div style="display:flex;align-items:center;gap:8px;"><i class="fa-solid fa-desktop" style="color:#555;font-size:13px;" title="كمبيوتر"></i><input type="range" id="cbD" min="1" max="6" value="4" oninput="document.getElementById('cbDV').textContent=this.value;autoSaveCols()" style="-webkit-appearance:none;width:110px;height:4px;border-radius:2px;background:#2a2a2a;outline:none;cursor:pointer;"><span id="cbDV" style="color:var(--o);font-weight:700;font-size:15px;min-width:16px;">4</span></div>
+    </div>
+    <style>#cbM::-webkit-slider-thumb,#cbT::-webkit-slider-thumb,#cbD::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--o);cursor:pointer;}</style>
   </div>
   <div id="reorderBar" style="display:none;align-items:center;gap:8px;margin-bottom:12px;padding:8px 14px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);border-radius:8px;font-size:12px;color:#22c55e;">
     <i class="fa-solid fa-arrows-up-down-left-right"></i>
@@ -3125,6 +3137,7 @@ document.getElementById('lp').addEventListener('keydown',e=>{if(e.key==='Enter')
 async function initApp(){
   try{S=await fetch('/api/settings',{credentials:'include'}).then(r=>r.json());}catch{S={};}
   await loadProjects();
+  updateColsBar(projFilter);
   loadColors();loadSections();loadContent();loadSocial();
   // Populate category dropdowns once settings are loaded
   refreshCategoryDropdowns();
@@ -3556,15 +3569,50 @@ function formatProjectDate(dateStr){
     return `${day} ${months[d.getMonth()]} ${year}`;
   }catch{ return dateStr; }
 }
-let projFilter='all';
+let projFilter='image';
 function setProjFilter(f){
   projFilter=f;
-  ['pftAll','pftImg','pftReel','pftVid'].forEach(id=>{
+  ['pftImg','pftReel','pftVid'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.classList.remove('active');
   });
-  const map={all:'pftAll',image:'pftImg',reel:'pftReel',freegrid:'pftVid'};
+  const map={image:'pftImg',reel:'pftReel',freegrid:'pftVid'};
   const btn=document.getElementById(map[f]); if(btn) btn.classList.add('active');
+  updateColsBar(f);
   renderTable();
+}
+
+function updateColsBar(f){
+  const bar=document.getElementById('colsBar'); if(!bar) return;
+  bar.style.display=f?'block':'none';
+  let mVal,tVal,dVal;
+  if(f==='image'){mVal=parseInt(S.image_cols_mobile)||2;tVal=parseInt(S.image_cols_tablet)||3;dVal=parseInt(S.image_cols_desktop)||4;}
+  else if(f==='reel'){mVal=parseInt(S.video_cols_mobile)||2;tVal=parseInt(S.video_cols_tablet)||3;dVal=parseInt(S.video_cols_desktop)||4;}
+  else if(f==='freegrid'){mVal=parseInt(S.freegrid_cols_mobile)||1;tVal=parseInt(S.freegrid_cols_tablet)||2;dVal=parseInt(S.freegrid_cols_desktop)||2;}
+  else{bar.style.display='none';return;}
+  const m=document.getElementById('cbM'),t=document.getElementById('cbT'),d=document.getElementById('cbD');
+  if(m){m.value=mVal;document.getElementById('cbMV').textContent=mVal;}
+  if(t){t.value=tVal;document.getElementById('cbTV').textContent=tVal;}
+  if(d){d.value=dVal;document.getElementById('cbDV').textContent=dVal;}
+}
+
+let _colsSaveTimer=null;
+async function autoSaveCols(){
+  clearTimeout(_colsSaveTimer);
+  _colsSaveTimer=setTimeout(async()=>{
+    const f=projFilter;
+    const m=document.getElementById('cbM'),t=document.getElementById('cbT'),d=document.getElementById('cbD');
+    if(!m||!t||!d) return;
+    let payload={};
+    if(f==='image') payload={image_cols_mobile:m.value,image_cols_tablet:t.value,image_cols_desktop:d.value};
+    else if(f==='reel') payload={video_cols_mobile:m.value,video_cols_tablet:t.value,video_cols_desktop:d.value};
+    else if(f==='freegrid') payload={freegrid_cols_mobile:m.value,freegrid_cols_tablet:t.value,freegrid_cols_desktop:d.value};
+    Object.assign(S,payload);
+    try{
+      await fetch('/api/settings',{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+      const sv=document.getElementById('colsBarSaved');
+      if(sv){sv.style.display='inline';setTimeout(()=>sv.style.display='none',2000);}
+    }catch{}
+  },500);
 }
 
 // Classify a project into: 'image' | 'reel' | 'freegrid'
@@ -3588,9 +3636,8 @@ function renderTable(){
     ? projects
     : projects.filter(p => projKind(p)===projFilter);
 
-  // Reorder bar: only show when a single tab is active (drag works per-tab)
   const reorderBar=document.getElementById('reorderBar');
-  if(reorderBar) reorderBar.style.display = (projFilter==='all') ? 'none' : 'flex';
+  if(reorderBar) reorderBar.style.display='flex';
 
   // Apply grid mode class — matches public site layout exactly
   // image/designs → mode-image (3 cols, 4:3)
@@ -3613,8 +3660,7 @@ function renderTable(){
     return;
   }
 
-  // Drag enabled only inside a single tab — not in "all" view
-  const draggable = (projFilter!=='all');
+  const draggable = true;
 
   grid.innerHTML=filtered.map(p=>{
     const kind = projKind(p);
@@ -4491,16 +4537,7 @@ function buildCSec(id){
     case'projects':return`<div class="card"><div class="card-title">قسم المشاريع</div>
       <div class="frow"><div class="fg"><label class="fl">العنوان (عربي)</label><input class="fi" id="pj_title_ar" value="${e(c.title_ar||'أعمال مختارة')}"></div><div class="fg"><label class="fl">Title (EN)</label><input class="fi" id="pj_title_en" value="${e(c.title_en||'Selected Work')}"></div></div>
       <div class="frow"><div class="fg"><label class="fl">العنوان الفرعي (عربي)</label><input class="fi" id="pj_sub_ar" value="${e(c.subtitle_ar||'')}"></div><div class="fg"><label class="fl">Subtitle (EN)</label><input class="fi" id="pj_sub_en" value="${e(c.subtitle_en||'')}"></div></div>
-
-      <div class="card-title" style="margin-top:20px;font-size:13px;">🖼️ عدد التصاميم في كل صف</div>
-      ${colsRow('image','موبايل','imageM',S.image_cols_mobile||2)}
-      ${colsRow('image','تابلت','imageT',S.image_cols_tablet||3)}
-      ${colsRow('image','لابتوب','imageD',S.image_cols_desktop||4)}
-
-      <div class="card-title" style="margin-top:20px;font-size:13px;">🎬 عدد الريلز في كل صف</div>
-      ${colsRow('video','موبايل','videoM',S.video_cols_mobile||2)}
-      ${colsRow('video','تابلت','videoT',S.video_cols_tablet||3)}
-      ${colsRow('video','لابتوب','videoD',S.video_cols_desktop||4)}
+      <p style="color:#555;font-size:12px;margin-top:14px;"><i class="fa-solid fa-circle-info" style="margin-left:4px;"></i>عدد الأعمدة يتحكم فيه مباشرة من لوحة المشاريع</p>
       </div>`;
     case'contact':return`<div class="card"><div class="card-title">${getSecLabel('contact')}</div>
       <div class="frow"><div class="fg"><label class="fl">العنوان (عربي)</label><input class="fi" id="co_title_ar" value="${e(c.title_ar||'تواصل معي')}"></div><div class="fg"><label class="fl">Title (EN)</label><input class="fi" id="co_title_en" value="${e(c.title_en||"Let's Work Together")}"></div></div>

@@ -1677,8 +1677,8 @@ function getColsSetting(type){
     if(w<=1024) return parseInt(S.image_cols_tablet)||3;
     return parseInt(S.image_cols_desktop||S.image_cols)||4;
   } else if(type==='freegrid'){
-    // Free grid (masonry) — fewer columns since ratios vary
     if(w<=600) return parseInt(S.freegrid_cols_mobile)||1;
+    if(w<=1024) return parseInt(S.freegrid_cols_tablet)||2;
     return parseInt(S.freegrid_cols_desktop)||2;
   } else {
     // reel
@@ -1695,8 +1695,8 @@ function renderProjects(){
   if(currentCategory && currentCategory!=='all'){
     list=list.filter(p=>p.category===currentCategory);
   }
-  // Videos (reel + freegrid): newest first. Images keep sort_order.
-  if(currentFilter==='reel' || currentFilter==='freegrid'){
+  // Reels: newest first. Freegrid + images respect drag sort_order.
+  if(currentFilter==='reel'){
     list = [...list].sort((a,b) => (b.id||0) - (a.id||0));
   }
 
