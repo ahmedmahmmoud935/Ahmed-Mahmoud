@@ -1131,6 +1131,57 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
   </div>
 </div>
 
+<!-- ACHIEVEMENTS SECTION (inside logos tab) -->
+<div style="margin-top:24px;">
+  <div class="ph" style="margin-bottom:14px;">
+    <div><div class="pt" style="font-size:16px;">📊 الإحصائيات والإنجازات</div><div class="ps">أرقام تظهر على موقعك — عدد المشاريع، العملاء، سنوات الخبرة...</div></div>
+    <button class="btn-add" onclick="openAchModal()"><i class="fa-solid fa-plus"></i> إضافة إحصائية</button>
+  </div>
+  <div class="card">
+    <div id="achGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;"></div>
+    <div id="achEmpty" style="text-align:center;padding:40px 20px;color:#666;display:none;">
+      <i class="fa-solid fa-chart-bar" style="font-size:36px;color:#333;margin-bottom:12px;"></i>
+      <div style="font-size:13px;">لا توجد إحصائيات بعد</div>
+      <div style="font-size:11px;color:#888;margin-top:4px;">اضغط "إضافة إحصائية" لإضافة أرقامك</div>
+    </div>
+  </div>
+</div>
+
+<!-- Achievement Modal -->
+<div id="achModal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeAchModal()">
+  <div class="modal-box" style="max-width:440px;">
+    <div class="modal-header"><span id="achModalTitle">إضافة إحصائية</span><button class="modal-close" onclick="closeAchModal()">✕</button></div>
+    <div style="padding:20px;">
+      <input type="hidden" id="achId">
+      <div class="form-group" style="margin-bottom:16px;">
+        <label class="form-label">أيقونة <span style="color:#888;font-size:11px;">(اختياري)</span></label>
+        <input type="file" id="achIconFile" accept="image/*" style="display:none" onchange="previewAchIcon(this)">
+        <div style="display:flex;align-items:center;gap:12px;margin-top:6px;">
+          <div id="achIconPreview" style="width:52px;height:52px;border-radius:10px;background:#1a1a1a;border:1px dashed #333;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;flex-shrink:0;" onclick="document.getElementById('achIconFile').click()">
+            <i class="fa-solid fa-image" style="color:#555;font-size:18px;"></i>
+          </div>
+          <div>
+            <button onclick="document.getElementById('achIconFile').click()" style="background:#1a1a1a;border:1px solid #333;color:#aaa;padding:7px 14px;border-radius:7px;cursor:pointer;font-size:12px;font-family:inherit;">اختر صورة</button>
+            <button id="achIconRemoveBtn" onclick="removeAchIcon()" style="display:none;background:none;border:1px solid #333;color:#888;padding:7px 10px;border-radius:7px;cursor:pointer;font-size:12px;margin-right:6px;font-family:inherit;">إزالة</button>
+          </div>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:16px;">
+        <label class="form-label">العنوان <span style="color:#ef4444;">*</span></label>
+        <input type="text" id="achTitle" class="form-input" placeholder="مثال: مشاريع منجزة" maxlength="60">
+      </div>
+      <div class="form-group" style="margin-bottom:20px;">
+        <label class="form-label">الرقم / القيمة <span style="color:#ef4444;">*</span></label>
+        <input type="text" id="achValue" class="form-input" placeholder="مثال: +50" maxlength="20">
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn-add" style="flex:1;" onclick="saveAchievement()"><i class="fa-solid fa-floppy-disk"></i> حفظ</button>
+        <button onclick="closeAchModal()" style="flex:1;background:#1a1a1a;border:1px solid #333;color:#aaa;padding:10px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;">إلغاء</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- TESTIMONIALS TAB -->
 <div id="tab-testimonials" style="display:none;">
   <div class="ph">
@@ -3162,7 +3213,7 @@ function setTab(tab,el){
   if(tab==='design')loadDesign();
   if(tab==='analytics')loadAnalytics();
   if(tab==='users')loadUsers();
-  if(tab==='logos')loadLogos();
+  if(tab==='logos'){loadLogos();loadAchievements();}
   if(tab==='testimonials')loadTestimonials();
   if(window.innerWidth<=900)toggleSidebar(false);
 }
@@ -5416,6 +5467,112 @@ window.addEventListener('DOMContentLoaded', () => { setTimeout(checkBehanceImpor
 // ══════════════ CLIENT LOGOS ══════════════
 let LOGOS = [];
 let editingLogoId = null;
+/* ── ACHIEVEMENTS ── */
+let ACHIEVEMENTS = [];
+let _achIconBase64 = null;
+let _achEditId = null;
+
+async function loadAchievements(){
+  try{
+    const r = await fetch('/api/achievements',{credentials:'include'});
+    const d = await r.json();
+    ACHIEVEMENTS = d.achievements || [];
+    renderAchievements();
+  }catch(e){ ACHIEVEMENTS=[]; renderAchievements(); }
+}
+
+function renderAchievements(){
+  const grid = document.getElementById('achGrid');
+  const empty = document.getElementById('achEmpty');
+  if(!grid) return;
+  if(!ACHIEVEMENTS.length){ grid.innerHTML=''; if(empty) empty.style.display='block'; return; }
+  if(empty) empty.style.display='none';
+  grid.innerHTML = ACHIEVEMENTS.map(a=>`
+    <div style="background:#111;border:1px solid #222;border-radius:12px;padding:20px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;position:relative;">
+      <button onclick="deleteAchievement(${a.id})" style="position:absolute;top:8px;inset-inline-end:8px;background:none;border:none;color:#555;cursor:pointer;font-size:14px;padding:4px 6px;border-radius:4px;" title="حذف"><i class="fa-solid fa-trash-can"></i></button>
+      <button onclick="openAchModal(${a.id})" style="position:absolute;top:8px;inset-inline-start:8px;background:none;border:none;color:#555;cursor:pointer;font-size:14px;padding:4px 6px;border-radius:4px;" title="تعديل"><i class="fa-solid fa-pen"></i></button>
+      ${a.icon_url ? `<img src="${a.icon_url}" style="width:44px;height:44px;object-fit:contain;border-radius:8px;">` : `<div style="width:44px;height:44px;background:#1a1a1a;border-radius:8px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-chart-bar" style="color:#555;font-size:18px;"></i></div>`}
+      <div style="font-size:22px;font-weight:900;color:var(--o);">${a.value}</div>
+      <div style="font-size:13px;color:#aaa;font-weight:600;">${a.title}</div>
+    </div>`).join('');
+}
+
+function openAchModal(id){
+  _achEditId = id || null;
+  _achIconBase64 = null;
+  document.getElementById('achId').value = id || '';
+  document.getElementById('achModalTitle').textContent = id ? 'تعديل إحصائية' : 'إضافة إحصائية';
+  const iconPreview = document.getElementById('achIconPreview');
+  const removeBtn = document.getElementById('achIconRemoveBtn');
+  if(id){
+    const a = ACHIEVEMENTS.find(x=>x.id===id);
+    document.getElementById('achTitle').value = a?.title || '';
+    document.getElementById('achValue').value = a?.value || '';
+    if(a?.icon_url){
+      iconPreview.innerHTML = `<img src="${a.icon_url}" style="width:100%;height:100%;object-fit:cover;">`;
+      if(removeBtn) removeBtn.style.display='inline-block';
+    } else {
+      iconPreview.innerHTML = `<i class="fa-solid fa-image" style="color:#555;font-size:18px;"></i>`;
+      if(removeBtn) removeBtn.style.display='none';
+    }
+  } else {
+    document.getElementById('achTitle').value = '';
+    document.getElementById('achValue').value = '';
+    iconPreview.innerHTML = `<i class="fa-solid fa-image" style="color:#555;font-size:18px;"></i>`;
+    if(removeBtn) removeBtn.style.display='none';
+  }
+  document.getElementById('achIconFile').value = '';
+  document.getElementById('achModal').style.display='flex';
+}
+
+function closeAchModal(){ document.getElementById('achModal').style.display='none'; }
+
+function previewAchIcon(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    _achIconBase64 = e.target.result;
+    document.getElementById('achIconPreview').innerHTML = `<img src="${_achIconBase64}" style="width:100%;height:100%;object-fit:cover;">`;
+    const rb = document.getElementById('achIconRemoveBtn');
+    if(rb) rb.style.display='inline-block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeAchIcon(){
+  _achIconBase64 = 'remove';
+  document.getElementById('achIconPreview').innerHTML = `<i class="fa-solid fa-image" style="color:#555;font-size:18px;"></i>`;
+  const rb = document.getElementById('achIconRemoveBtn');
+  if(rb) rb.style.display='none';
+}
+
+async function saveAchievement(){
+  const title = document.getElementById('achTitle').value.trim();
+  const value = document.getElementById('achValue').value.trim();
+  if(!title || !value){ showToast('اكتب العنوان والرقم','error'); return; }
+  const id = _achEditId;
+  const body = { title, value };
+  if(_achIconBase64 && _achIconBase64 !== 'remove') body.icon = _achIconBase64;
+  if(_achIconBase64 === 'remove') body.icon = '';
+  try{
+    const url = id ? `/api/achievements/${id}` : '/api/achievements';
+    const r = await fetch(url,{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify(body)});
+    if(r.ok){ closeAchModal(); await loadAchievements(); showToast('تم الحفظ'); }
+    else showToast('فشل الحفظ','error');
+  }catch{ showToast('خطأ في الاتصال','error'); }
+}
+
+async function deleteAchievement(id){
+  if(!confirm('حذف هذه الإحصائية؟')) return;
+  try{
+    const r = await fetch(`/api/achievements/${id}`,{method:'DELETE',credentials:'include'});
+    if(r.ok){ await loadAchievements(); showToast('تم الحذف'); }
+    else showToast('فشل الحذف','error');
+  }catch{ showToast('خطأ في الاتصال','error'); }
+}
+
+/* ── END ACHIEVEMENTS ── */
 let logoData = null;
 
 async function loadLogos(){

@@ -233,6 +233,16 @@ def init_db():
                 created_at   TEXT DEFAULT (datetime('now'))
             );
             CREATE INDEX IF NOT EXISTS idx_test_user ON testimonials(user_id, approved, sort_order);
+
+            CREATE TABLE IF NOT EXISTS achievements (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id    INTEGER NOT NULL,
+                icon_url   TEXT DEFAULT '',
+                title      TEXT DEFAULT '',
+                value      TEXT DEFAULT '0',
+                sort_order INTEGER DEFAULT 0
+            );
+            CREATE INDEX IF NOT EXISTS idx_ach_user ON achievements(user_id, sort_order);
         ''')
 
         # settings table with user_id
@@ -2157,7 +2167,6 @@ def submit_testimonial():
     try: user_id = int(user_id)
     except: return jsonify({'error':'مستخدم غير صالح'}), 400
 
-    # Check if user accepts public submissions
     db = get_db()
     s = db.execute(
         "SELECT value FROM settings WHERE user_id=? AND key='testimonials_open'", (user_id,)
@@ -2176,16 +2185,114 @@ def submit_testimonial():
     rating = int(d.get('rating', 5))
     rating = max(1, min(5, rating))
 
+    # Optional photo upload
+    avatar_url = ''
+    photo_data = (d.get('photo') or '').strip()
+    if photo_data and photo_data.startswith('data:image'):
+        saved = save_dataurl(photo_data, user_id)
+        if saved and saved != '__STORAGE_LIMIT__':
+            avatar_url = saved
+
     sort_order = (db.execute(
         "SELECT COALESCE(MAX(sort_order),0) FROM testimonials WHERE user_id=?", (user_id,)
     ).fetchone()[0] or 0) + 1
     db.execute(
-        "INSERT INTO testimonials(user_id,name,role,company,content,rating,source,approved,sort_order) "
-        "VALUES(?,?,?,?,?,?,?,0,?)",
-        (user_id, name, role, company, content, rating, 'public', sort_order)
+        "INSERT INTO testimonials(user_id,name,role,company,content,rating,source,approved,sort_order,avatar_url) "
+        "VALUES(?,?,?,?,?,?,?,0,?,?)",
+        (user_id, name, role, company, content, rating, 'public', sort_order, avatar_url)
     )
     db.commit()
-    return jsonify({'ok':True,'message':'شكراً! سيتم مراجعة رأيك قبل النشر.'})
+
+    # Build portfolio URL for thank-you button
+    site_row = db.execute(
+        "SELECT value FROM settings WHERE user_id=? AND key='portfolio_site_url'", (user_id,)
+    ).fetchone()
+    portfolio_url = (site_row['value'].strip() if site_row and site_row['value'] else '')
+    if not portfolio_url:
+        user_row = db.execute("SELECT username FROM users WHERE id=?", (user_id,)).fetchone()
+        if user_row:
+            scheme = 'https' if request.is_secure else 'http'
+            portfolio_url = f"{scheme}://{request.host}/{user_row['username']}"
+
+    return jsonify({'ok': True, 'portfolio_url': portfolio_url})
+
+@app.route('/api/achievements', methods=['GET'])
+@login_required
+def get_achievements():
+    db = get_db()
+    rows = db.execute(
+        "SELECT id, icon_url, title, value, sort_order FROM achievements WHERE user_id=? ORDER BY sort_order, id",
+        (uid(),)
+    ).fetchall()
+    return jsonify({'achievements': [dict(r) for r in rows]})
+
+@app.route('/api/achievements', methods=['POST'])
+@login_required
+def add_achievement():
+    d = request.get_json() or {}
+    title = (d.get('title') or '').strip()[:100]
+    value = (d.get('value') or '0').strip()[:50]
+    icon_url = ''
+    if d.get('icon'):
+        saved = save_dataurl(d['icon'], uid())
+        if saved and saved != '__STORAGE_LIMIT__':
+            icon_url = saved
+    db = get_db()
+    sort_order = (db.execute(
+        "SELECT COALESCE(MAX(sort_order),0) FROM achievements WHERE user_id=?", (uid(),)
+    ).fetchone()[0] or 0) + 1
+    cur = db.execute(
+        "INSERT INTO achievements(user_id, icon_url, title, value, sort_order) VALUES(?,?,?,?,?)",
+        (uid(), icon_url, title, value, sort_order)
+    )
+    db.commit()
+    return jsonify({'ok': True, 'id': cur.lastrowid, 'icon_url': icon_url})
+
+@app.route('/api/achievements/<int:aid>', methods=['PUT'])
+@login_required
+def update_achievement(aid):
+    d = request.get_json() or {}
+    db = get_db()
+    row = db.execute("SELECT user_id, icon_url FROM achievements WHERE id=?", (aid,)).fetchone()
+    if not row or row['user_id'] != uid(): return jsonify({'error': 'غير موجود'}), 404
+    title = (d.get('title') or '').strip()[:100]
+    value = (d.get('value') or '0').strip()[:50]
+    icon_url = row['icon_url']
+    if d.get('icon'):
+        saved = save_dataurl(d['icon'], uid())
+        if saved and saved != '__STORAGE_LIMIT__':
+            delete_file(icon_url, uid())
+            icon_url = saved
+    db.execute(
+        "UPDATE achievements SET title=?, value=?, icon_url=? WHERE id=? AND user_id=?",
+        (title, value, icon_url, aid, uid())
+    )
+    db.commit()
+    return jsonify({'ok': True, 'icon_url': icon_url})
+
+@app.route('/api/achievements/<int:aid>', methods=['DELETE'])
+@login_required
+def delete_achievement(aid):
+    db = get_db()
+    row = db.execute("SELECT user_id, icon_url FROM achievements WHERE id=?", (aid,)).fetchone()
+    if not row or row['user_id'] != uid(): return jsonify({'error': 'غير موجود'}), 404
+    delete_file(row['icon_url'], uid())
+    db.execute("DELETE FROM achievements WHERE id=? AND user_id=?", (aid, uid()))
+    db.commit()
+    return jsonify({'ok': True})
+
+@app.route('/api/achievements/public', methods=['GET'])
+def get_achievements_public():
+    user_id = request.args.get('user_id')
+    if not user_id: return jsonify({'achievements': []})
+    try: user_id = int(user_id)
+    except: return jsonify({'achievements': []})
+    db = get_db()
+    rows = db.execute(
+        "SELECT icon_url, title, value FROM achievements WHERE user_id=? ORDER BY sort_order, id",
+        (user_id,)
+    ).fetchall()
+    return jsonify({'achievements': [dict(r) for r in rows]})
 
 @app.route('/api/testimonials/<int:tid>', methods=['PUT'])
 @login_required
