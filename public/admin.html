@@ -108,6 +108,8 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 .pg-card .pg-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#333;font-size:32px;background:linear-gradient(135deg,#0f0f0f,#1f1f1f);min-height:140px;}
 .pg-card.dragging{opacity:.35;transform:scale(.95);}
 .pg-card.drag-over{box-shadow:0 0 0 3px var(--o);transform:scale(1.03);}
+/* Disable pointer events on card children while dragging — prevents drop from misfiring */
+#projGrid.dragging-active .pg-card > *{pointer-events:none !important;}
 
 /* Bottom overlay — title + category (always visible like Behance) */
 .pg-overlay{position:absolute;left:0;right:0;bottom:0;padding:10px 12px;background:linear-gradient(to top,rgba(0,0,0,.88),rgba(0,0,0,.45) 60%,transparent);pointer-events:none;}
@@ -3702,8 +3704,12 @@ function roDragStart(e,id){
   _roDragId=String(id);
   e.dataTransfer.effectAllowed='move';
   try{ e.dataTransfer.setData('text/plain', _roDragId); }catch(_){}
-  const el=document.querySelector(`#projGrid [data-pid="${id}"]`);
-  if(el) setTimeout(()=>el.classList.add('dragging'),0);
+  const grid=document.getElementById('projGrid');
+  setTimeout(()=>{
+    if(grid) grid.classList.add('dragging-active');
+    const el=grid&&grid.querySelector(`[data-pid="${id}"]`);
+    if(el) el.classList.add('dragging');
+  },0);
 }
 function roDragOver(e,id){
   e.preventDefault();
@@ -3714,7 +3720,8 @@ function roDragOver(e,id){
 }
 function roDragLeave(e){
   const card=e.currentTarget;
-  if(card) card.classList.remove('drag-over');
+  // Only remove class when truly leaving the card, not moving to a child element
+  if(card && !card.contains(e.relatedTarget)) card.classList.remove('drag-over');
 }
 function roDrop(e,id){
   e.preventDefault();
@@ -3745,6 +3752,8 @@ function roDrop(e,id){
 }
 function roDragEnd(){
   _roDragId=null;
+  const grid=document.getElementById('projGrid');
+  if(grid) grid.classList.remove('dragging-active');
   document.querySelectorAll('#projGrid .pg-card').forEach(el=>el.classList.remove('dragging','drag-over'));
 }
 

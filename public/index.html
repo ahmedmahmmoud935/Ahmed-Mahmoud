@@ -1733,7 +1733,7 @@ function renderProjects(){
       return c;
     });
     const colH=new Array(cols).fill(0);
-    list.forEach(p=>{
+    list.forEach((p,idx)=>{
       const ri=PROJECTS.indexOf(p);
       const arStr=p.aspectRatio||'16:9';
       const [aw,ah]=arStr.split(':').map(Number);
@@ -1751,9 +1751,8 @@ function renderProjects(){
       card.className='fg-card';
       card.setAttribute('onclick',`openVideoLightbox(${ri})`);
       card.innerHTML=`<div class="fg-thumb" style="aspect-ratio:${ar};">${thumb}<div class="fg-play"><i class="fa-solid fa-play"></i></div></div><div class="fg-meta"><div class="fg-title">${p.title}</div><div class="fg-date">${p.category||''}</div></div>`;
-      // Place in shortest column
-      const minH=Math.min(...colH);
-      const ci=colH.indexOf(minH);
+      // Round-robin: item idx → column (idx % cols), matches dashboard reading order
+      const ci=idx%cols;
       colEls[ci].appendChild(card);
       colH[ci]+=(1/arNum)+0.15;
     });
