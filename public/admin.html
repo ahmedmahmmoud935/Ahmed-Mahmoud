@@ -1739,7 +1739,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
           <div id="vidSrcVimeo" style="display:none;">
             <div style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:10px;padding:13px;">
               <label class="fl"><i class="fa-brands fa-vimeo-v" style="color:#1ab7ea;margin-left:6px;"></i><span data-i18n="np.vimeoUrlLabel">رابط Vimeo</span></label>
-              <input class="fi" id="vimeoUrl" placeholder="https://vimeo.com/123456789" oninput="detectVideoLink('vimeo')" style="margin-bottom:8px;font-family:monospace;font-size:12px;direction:ltr;text-align:left;">
+              <input class="fi" id="projVimeoUrl" placeholder="https://vimeo.com/123456789" oninput="detectVideoLink('vimeo')" style="margin-bottom:8px;font-family:monospace;font-size:12px;direction:ltr;text-align:left;">
               <div id="vimeoDetectStatus" style="display:none;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;margin-bottom:10px;"></div>
               <div id="vimeoPreview" style="display:none;border-radius:8px;overflow:hidden;aspect-ratio:9/16;max-width:120px;"></div>
             </div>
@@ -3906,7 +3906,7 @@ function openAddModal(){
   document.getElementById('mTitle').textContent='مشروع جديد';
   document.getElementById('eId').value='';
   covData=null;covExist=false;vidData=null;vidExist=false;galNew=[];galKeep=[];covDataFree=null;covDataVid=null;embedUrl='';lastDetectedThumbnail='';
-  ['fTitle','fDesc','fTitleFree','fDescFree','fTitleVid','fDescVid','ytUrl','vimeoUrl','embedCode'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['fTitle','fDesc','fTitleFree','fDescFree','fTitleVid','fDescVid','ytUrl','projVimeoUrl','embedCode'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   ['covPrev','covPrevFree','covPrevVid','vidPrev','ytPreview','vimeoPreview','embedPreview','ytDetectStatus','vimeoDetectStatus','embedDetectStatus'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
   document.getElementById('galPrev').innerHTML='';
   setVidSrc('file');setVideoKind('reel');setAspectRatio('16:9');showStep('choose');
@@ -3918,7 +3918,7 @@ function openQuickVideoImport(){
   document.getElementById('mTitle').textContent = (typeof t==='function'?t('btn.videoFromLink'):'فيديو من رابط');
   document.getElementById('eId').value='';
   covData=null;covExist=false;vidData=null;vidExist=false;galNew=[];galKeep=[];covDataFree=null;covDataVid=null;embedUrl='';lastDetectedThumbnail='';
-  ['fTitle','fDesc','fTitleFree','fDescFree','fTitleVid','fDescVid','ytUrl','vimeoUrl','embedCode'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['fTitle','fDesc','fTitleFree','fDescFree','fTitleVid','fDescVid','ytUrl','projVimeoUrl','embedCode'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   ['covPrev','covPrevFree','covPrevVid','vidPrev','ytPreview','vimeoPreview','embedPreview','ytDetectStatus','vimeoDetectStatus','embedDetectStatus'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
   document.getElementById('galPrev').innerHTML='';
   setVidSrc('youtube');setVideoKind('reel');setAspectRatio('16:9');
@@ -3953,7 +3953,7 @@ function openEdit(id){
         if(inp){ inp.value=vurl; embedUrl=vurl; detectVideoLink('youtube'); }
       } else if(vurl.includes('vimeo.com')){
         setVidSrc('vimeo');
-        const inp=document.getElementById('vimeoUrl');
+        const inp=document.getElementById('projVimeoUrl');
         if(inp){ inp.value=vurl; embedUrl=vurl; detectVideoLink('vimeo'); }
       } else {
         // Any other embed URL → embed tab
@@ -4119,7 +4119,7 @@ let detectDebounceTimer = null;
 // Map each tab to its input + status + preview element IDs
 const VID_TAB_ELEMENTS = {
   youtube: {input:'ytUrl',      status:'ytDetectStatus',    preview:'ytPreview'},
-  vimeo:   {input:'vimeoUrl',   status:'vimeoDetectStatus', preview:'vimeoPreview'},
+  vimeo:   {input:'projVimeoUrl', status:'vimeoDetectStatus', preview:'vimeoPreview'},
   embed:   {input:'embedCode',  status:'embedDetectStatus', preview:'embedPreview'},
 };
 
@@ -4246,7 +4246,7 @@ async function saveProject(){
       else{ toast(t('np.notYoutube')); resetBtn(); return; }
     }
     else if(curVidSrc==='vimeo'){
-      const raw=(document.getElementById('vimeoUrl').value||'').trim();
+      const raw=(document.getElementById('projVimeoUrl').value||'').trim();
       if(!raw){toast(t('toast.pasteVideoLink'));resetBtn();return;}
       const detected=detectVideoSource(raw);
       if(detected && detected.provider==='Vimeo'){ fe=detected.embedUrl; }
