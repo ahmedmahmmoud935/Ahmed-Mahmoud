@@ -3676,7 +3676,6 @@ function roDrop(e,id){
   document.querySelectorAll('#projGrid .pg-card').forEach(el=>el.classList.remove('drag-over'));
   if(!_roDragId || _roDragId===toId) return;
 
-  // Move within the FULL projects array, but only between items of the SAME kind.
   const fromIdx=projects.findIndex(p=>String(p.id)===_roDragId);
   const toIdx  =projects.findIndex(p=>String(p.id)===toId);
   if(fromIdx<0 || toIdx<0) return;
@@ -3686,8 +3685,16 @@ function roDrop(e,id){
   const newToIdx=projects.findIndex(p=>String(p.id)===toId);
   projects.splice(newToIdx,0,moved);
 
+  // DOM swap — no full re-render, keeps drag smooth
+  const grid=document.getElementById('projGrid');
+  const fromEl=grid.querySelector(`[data-pid="${_roDragId}"]`);
+  const toEl  =grid.querySelector(`[data-pid="${toId}"]`);
+  if(fromEl && toEl){
+    toEl.parentNode.insertBefore(fromEl, toEl);
+    fromEl.classList.remove('dragging');
+  }
+
   _roDragId=null;
-  renderTable();
   autoSaveOrder();
 }
 function roDragEnd(){

@@ -1724,30 +1724,41 @@ function renderProjects(){
     return;
   }
 
-  // ── FREE GRID (masonry — Vimeo style) ──
+  // ── FREE GRID (JS masonry — Vimeo style, shortest-column placement) ──
   if(currentFilter==='freegrid'){
-    grid.innerHTML=list.map((p)=>{
+    grid.style.cssText='max-width:1200px;display:flex;gap:14px;align-items:flex-start;';
+    const colEls=Array.from({length:cols},()=>{
+      const c=document.createElement('div');
+      c.style.cssText='flex:1;display:flex;flex-direction:column;gap:14px;min-width:0;';
+      return c;
+    });
+    const colH=new Array(cols).fill(0);
+    list.forEach(p=>{
       const ri=PROJECTS.indexOf(p);
-      const ar=(p.aspectRatio||'16:9').replace(':','/');
+      const arStr=p.aspectRatio||'16:9';
+      const [aw,ah]=arStr.split(':').map(Number);
+      const arNum=aw/ah;
+      const ar=arStr.replace(':','/');
       const url=p.videoUrl||'';
-      let provIcon='fa-solid fa-video', provColor='#444', provName='';
+      let provIcon='fa-solid fa-video',provColor='#444',provName='';
       if(url.includes('youtube.com')||url.includes('youtu.be')){provIcon='fa-brands fa-youtube';provColor='#ff0000';provName='YouTube';}
       else if(url.includes('vimeo.com')){provIcon='fa-brands fa-vimeo-v';provColor='#1ab7ea';provName='Vimeo';}
       else if(isEmbed(url)){provIcon='fa-solid fa-film';provColor='#888';provName='Video';}
       const thumb=p.coverImage
         ?`<img src="${p.coverImage}" alt="${p.title}" loading="lazy" decoding="async" style="width:100%;display:block;">`
         :`<div style="width:100%;aspect-ratio:${ar};background:linear-gradient(135deg,#0f0f0f,#1f1f1f);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;"><i class="${provIcon}" style="font-size:38px;color:${provColor};opacity:0.8;"></i>${provName?`<div style="font-size:10px;color:#666;font-weight:600;text-transform:uppercase;letter-spacing:1px;">${provName}</div>`:''}</div>`;
-      return`<div class="fg-card" onclick="openVideoLightbox(${ri})">
-        <div class="fg-thumb" style="aspect-ratio:${ar};">
-          ${thumb}
-          <div class="fg-play"><i class="fa-solid fa-play"></i></div>
-        </div>
-        <div class="fg-meta">
-          <div class="fg-title">${p.title}</div>
-          <div class="fg-date">${p.category||''}</div>
-        </div>
-      </div>`;
-    }).join('');
+      const card=document.createElement('div');
+      card.className='fg-card';
+      card.setAttribute('onclick',`openVideoLightbox(${ri})`);
+      card.innerHTML=`<div class="fg-thumb" style="aspect-ratio:${ar};">${thumb}<div class="fg-play"><i class="fa-solid fa-play"></i></div></div><div class="fg-meta"><div class="fg-title">${p.title}</div><div class="fg-date">${p.category||''}</div></div>`;
+      // Place in shortest column
+      const minH=Math.min(...colH);
+      const ci=colH.indexOf(minH);
+      colEls[ci].appendChild(card);
+      colH[ci]+=(1/arNum)+0.15;
+    });
+    grid.innerHTML='';
+    colEls.forEach(c=>grid.appendChild(c));
     return;
   }
 
