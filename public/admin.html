@@ -83,6 +83,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 .proj-filter-tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
 .pft-btn{display:flex;align-items:center;gap:8px;padding:9px 18px;border-radius:9px;border:1px solid var(--d4);background:transparent;color:var(--g2);font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
 .pft-btn:hover{border-color:var(--g2);color:var(--w);}
+.pft-btn.active{background:var(--o);border-color:var(--o);color:#fff;}
 
 /* ── Projects grid (admin) — mirrors the public site layout ── */
 .proj-grid{display:grid;gap:14px;max-width:1300px;margin:0 auto;}
@@ -92,9 +93,10 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 /* Mode: video/reel — 4 columns, 9:16 (matches site) */
 .proj-grid.mode-video{grid-template-columns:repeat(4,1fr);max-width:1100px;}
 .proj-grid.mode-video .pg-card{aspect-ratio:9/16;}
-/* Mode: freegrid — masonry 3 columns (matches site) */
-.proj-grid.mode-masonry{display:block;column-count:3;column-gap:14px;max-width:1200px;}
-.proj-grid.mode-masonry .pg-card{break-inside:avoid;margin-bottom:14px;display:inline-block;width:100%;aspect-ratio:auto;}
+/* Mode: freegrid — 16:9 uniform grid (matches site) */
+.proj-grid.mode-freegrid{grid-template-columns:repeat(3,1fr);max-width:1200px;}
+.proj-grid.mode-freegrid .pg-card{aspect-ratio:16/9;}
+.proj-grid.mode-freegrid .pg-card img{width:100%;height:100%;object-fit:cover;}
 /* Mode: all — uniform 4:3 in 3 columns */
 .proj-grid.mode-all{grid-template-columns:repeat(3,1fr);}
 .proj-grid.mode-all .pg-card{aspect-ratio:4/3;}
@@ -138,14 +140,13 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
   .proj-grid.mode-image{grid-template-columns:repeat(3,1fr);gap:12px;}
   .proj-grid.mode-video{grid-template-columns:repeat(3,1fr);gap:12px;}
   .proj-grid.mode-all{grid-template-columns:repeat(3,1fr);gap:12px;}
-  .proj-grid.mode-masonry{column-count:2;}
+  .proj-grid.mode-freegrid{grid-template-columns:repeat(2,1fr);}
 }
 @media(max-width:700px){
   .proj-grid.mode-image{grid-template-columns:repeat(2,1fr);gap:10px;}
   .proj-grid.mode-video{grid-template-columns:repeat(2,1fr);gap:10px;}
   .proj-grid.mode-all{grid-template-columns:repeat(2,1fr);gap:10px;}
-  .proj-grid.mode-masonry{column-count:2;column-gap:10px;}
-  .proj-grid.mode-masonry .pg-card{margin-bottom:10px;}
+  .proj-grid.mode-freegrid{grid-template-columns:repeat(1,1fr);}
   .pg-title{font-size:12px;}
   .pg-cat{font-size:10px;}
   .pg-actions{opacity:1;}
@@ -1682,32 +1683,11 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
             <button type="button" class="vkind-btn" id="vkFree" onclick="setVideoKind('freegrid')">
               <i class="fa-solid fa-table-cells" style="font-size:18px;"></i>
               <div style="font-weight:700;font-size:13px;margin-top:4px;" data-i18n="np.kindFree">فيديو (شبكة حرة)</div>
-              <div style="font-size:10px;color:#888;margin-top:2px;" data-i18n="np.kindFreeDesc">أي مقاس — شبكة متداخلة</div>
+              <div style="font-size:10px;color:#888;margin-top:2px;" data-i18n="np.kindFreeDesc">16:9 أفقي — شبكة منتظمة</div>
             </button>
           </div>
         </div>
 
-        <!-- Aspect ratio: only shown for Free Grid -->
-        <div class="fg" id="aspectRatioRow" style="display:none;">
-          <label class="fl" data-i18n="np.aspectLabel">مقاس الفيديو</label>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-            <button type="button" class="aspect-btn" id="ar916" onclick="setAspectRatio('9:16')">
-              <div style="width:18px;height:32px;border:2px solid currentColor;border-radius:3px;margin:0 auto 5px;"></div>
-              <div style="font-size:11px;font-weight:700;">9:16</div>
-              <div style="font-size:9px;color:#888;" data-i18n="np.arPortrait">عمودي</div>
-            </button>
-            <button type="button" class="aspect-btn active" id="ar169" onclick="setAspectRatio('16:9')">
-              <div style="width:32px;height:18px;border:2px solid currentColor;border-radius:3px;margin:7px auto 5px;"></div>
-              <div style="font-size:11px;font-weight:700;">16:9</div>
-              <div style="font-size:9px;color:#888;" data-i18n="np.arLandscape">أفقي</div>
-            </button>
-            <button type="button" class="aspect-btn" id="ar11" onclick="setAspectRatio('1:1')">
-              <div style="width:24px;height:24px;border:2px solid currentColor;border-radius:3px;margin:4px auto 5px;"></div>
-              <div style="font-size:11px;font-weight:700;">1:1</div>
-              <div style="font-size:9px;color:#888;" data-i18n="np.arSquare">مربع</div>
-            </button>
-          </div>
-        </div>
 
         <div class="frow" style="margin-bottom:12px;">
           <div class="fg"><label class="fl"><span data-i18n="np.videoTitleReq">عنوان الفيديو</span> *</label><input class="fi" id="fTitleVid" data-i18n-ph="np.videoTitlePh" placeholder="اسم الفيديو"></div>
@@ -3649,7 +3629,7 @@ function renderTable(){
   let modeClass = 'mode-all';
   if(projFilter==='image') modeClass = 'mode-image';
   else if(projFilter==='reel') modeClass = 'mode-video';
-  else if(projFilter==='freegrid') modeClass = 'mode-masonry';
+  else if(projFilter==='freegrid') modeClass = 'mode-freegrid';
   grid.className = 'proj-grid ' + modeClass;
 
   if(!filtered.length){
@@ -3920,11 +3900,8 @@ function setVideoKind(kind){
   curVideoKind = kind;
   document.getElementById('vkReel').classList.toggle('active', kind==='reel');
   document.getElementById('vkFree').classList.toggle('active', kind==='freegrid');
-  // Aspect ratio selector only matters for free grid
-  const arRow = document.getElementById('aspectRatioRow');
-  if(arRow) arRow.style.display = kind==='freegrid' ? 'block' : 'none';
-  // Reels are always 9:16
-  if(kind==='reel') curAspectRatio = '9:16';
+  // Aspect ratio no longer needed — reels always 9:16, freegrid always 16:9
+  curAspectRatio = kind==='reel' ? '9:16' : '16:9';
 }
 
 function setAspectRatio(ratio){
