@@ -9,6 +9,13 @@
 <link rel="shortcut icon" id="dynFaviconShortcut" href="/favicon.png">
 <link rel="apple-touch-icon" id="dynFaviconApple" href="/favicon.png">
 <title id="pageTitle">Portfolio</title>
+<meta name="description" id="metaDesc" content="Portfolio">
+<meta property="og:title" id="ogTitle" content="Portfolio">
+<meta property="og:description" id="ogDesc" content="Portfolio">
+<meta property="og:type" content="profile">
+<meta property="og:url" id="ogUrl" content="">
+<meta name="twitter:card" content="summary">
+<script type="application/ld+json" id="schemaLD">{}</script>
 
 <!-- Preconnect to external origins (start TCP/TLS handshake early) -->
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
@@ -1102,9 +1109,45 @@ async function boot(){
     window._ACHIEVEMENTS = ach.achievements || [];
   }catch(e){S={};PROJECTS=[];window._LOGOS=[];window._TESTIMONIALS=[];window._ACHIEVEMENTS=[];}
   applyColors();applyStyle();applyLang();buildPage();setupAnimations();
+  injectSEO();
   trackPageView();
 }
 boot();
+
+function injectSEO(){
+  try{
+    const ct=S.content||{};const a=ar();
+    const hero=ct.hero||{};
+    const about=ct.about||{};
+    const name=(a?(hero.name_ar||''):(hero.name_en||''))||'Portfolio';
+    const role=(a?(hero.role_ar||''):(hero.role_en||''));
+    const bio=(a?(about.bio_ar||''):(about.bio_en||''));
+    const desc=role?(role+(bio?(' — '+bio.slice(0,120)):'')):bio.slice(0,150);
+    const url=location.href;
+    const avatar=S.avatar_url||'';
+    // meta tags
+    const set=(id,v)=>{const el=document.getElementById(id);if(el)el.setAttribute(el.tagName==='META'?'content':'href',v);};
+    document.title=name;
+    set('metaDesc',desc||name);
+    set('ogTitle',name);
+    set('ogDesc',desc||name);
+    set('ogUrl',url);
+    // JSON-LD Person schema
+    const schema={
+      '@context':'https://schema.org',
+      '@type':'Person',
+      'name':name,
+      'url':url,
+    };
+    if(role) schema.jobTitle=role;
+    if(bio)  schema.description=bio.slice(0,300);
+    if(avatar&&avatar.startsWith('http')) schema.image=avatar;
+    const skills=(ct.skills?.items||[]);
+    if(skills.length) schema.knowsAbout=skills.map(s=>s.name_ar||s.name_en||s.name).filter(Boolean);
+    const ldEl=document.getElementById('schemaLD');
+    if(ldEl) ldEl.textContent=JSON.stringify(schema);
+  }catch(e){}
+}
 
 // ══════════════ ANALYTICS TRACKING ══════════════
 function getVisitorId(){

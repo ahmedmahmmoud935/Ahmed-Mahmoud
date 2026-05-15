@@ -2470,6 +2470,65 @@ def editor_page(pid):
 def user_portfolio(username):
     return send_from_directory(app.static_folder, 'index.html')
 
+# ── AGENT-READY FILES ──
+
+@app.route('/robots.txt')
+def robots_txt():
+    host = request.host_url.rstrip('/')
+    body = f"""User-agent: *
+Allow: /
+
+Sitemap: {host}/sitemap.xml
+Sitemap: {host}/llms.txt
+"""
+    return Response(body, mimetype='text/plain')
+
+@app.route('/llms.txt')
+def llms_txt():
+    """llms.txt — emerging standard so AI agents can discover & understand the site."""
+    db = get_db()
+    host = request.host_url.rstrip('/')
+    users = db.execute(
+        "SELECT u.username, s_name.value as name, s_bio.value as bio "
+        "FROM users u "
+        "LEFT JOIN settings s_name ON s_name.user_id=u.id AND s_name.key='name' "
+        "LEFT JOIN settings s_bio  ON s_bio.user_id=u.id  AND s_bio.key='bio' "
+        "WHERE u.username IS NOT NULL ORDER BY u.id"
+    ).fetchall()
+    lines = [
+        "# Portfolio Builder — AI Agent Discovery File",
+        "# Format: llms.txt v1 (https://llmstxt.org)",
+        "",
+        "## About",
+        "A multi-tenant portfolio builder. Each user has their own portfolio page.",
+        "",
+        "## Portfolios",
+    ]
+    for u in users:
+        name = u['name'] or u['username']
+        bio  = u['bio'] or ''
+        lines.append(f"- [{name}]({host}/u/{u['username']}): {bio}".strip(': '))
+    lines += [
+        "",
+        "## API",
+        f"Public settings: {host}/api/settings?username=<username>",
+        f"Public projects: {host}/api/projects?username=<username>",
+        f"Public testimonials: {host}/api/testimonials?username=<username>",
+    ]
+    return Response('\n'.join(lines), mimetype='text/plain')
+
+@app.route('/sitemap.xml')
+def sitemap_xml():
+    db = get_db()
+    host = request.host_url.rstrip('/')
+    usernames = db.execute("SELECT username FROM users WHERE username IS NOT NULL").fetchall()
+    urls = [f"  <url><loc>{host}/u/{u['username']}</loc><changefreq>weekly</changefreq></url>"
+            for u in usernames]
+    body = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    body += '\n'.join(urls)
+    body += '\n</urlset>'
+    return Response(body, mimetype='application/xml')
+
 @app.route('/', defaults={'path':''})
 @app.route('/<path:path>')
 def serve(path):
