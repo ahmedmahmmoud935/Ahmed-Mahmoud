@@ -84,6 +84,73 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 .pft-btn{display:flex;align-items:center;gap:8px;padding:9px 18px;border-radius:9px;border:1px solid var(--d4);background:transparent;color:var(--g2);font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
 .pft-btn:hover{border-color:var(--g2);color:var(--w);}
 
+/* ── Projects grid (admin) — mirrors the public site layout ── */
+.proj-grid{display:grid;gap:14px;max-width:1300px;margin:0 auto;}
+/* Mode: image (designs) — 3 columns, 4:3 (matches site) */
+.proj-grid.mode-image{grid-template-columns:repeat(3,1fr);}
+.proj-grid.mode-image .pg-card{aspect-ratio:4/3;}
+/* Mode: video/reel — 4 columns, 9:16 (matches site) */
+.proj-grid.mode-video{grid-template-columns:repeat(4,1fr);max-width:1100px;}
+.proj-grid.mode-video .pg-card{aspect-ratio:9/16;}
+/* Mode: freegrid — masonry 3 columns (matches site) */
+.proj-grid.mode-masonry{display:block;column-count:3;column-gap:14px;max-width:1200px;}
+.proj-grid.mode-masonry .pg-card{break-inside:avoid;margin-bottom:14px;display:inline-block;width:100%;aspect-ratio:auto;}
+/* Mode: all — uniform 4:3 in 3 columns */
+.proj-grid.mode-all{grid-template-columns:repeat(3,1fr);}
+.proj-grid.mode-all .pg-card{aspect-ratio:4/3;}
+
+/* Card itself — clean image tile (like Behance) */
+.pg-card{position:relative;border-radius:8px;overflow:hidden;background:#0d0d0d;cursor:grab;transition:transform .2s,box-shadow .2s,opacity .15s;}
+.pg-card:active{cursor:grabbing;}
+.pg-card.no-drag{cursor:pointer;}
+.pg-card img{width:100%;height:100%;object-fit:cover;display:block;}
+.proj-grid.mode-masonry .pg-card img{height:auto;}
+.pg-card .pg-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#333;font-size:32px;background:linear-gradient(135deg,#0f0f0f,#1f1f1f);min-height:140px;}
+.pg-card.dragging{opacity:.35;transform:scale(.95);}
+.pg-card.drag-over{box-shadow:0 0 0 3px var(--o);transform:scale(1.03);}
+
+/* Bottom overlay — title + category (always visible like Behance) */
+.pg-overlay{position:absolute;left:0;right:0;bottom:0;padding:10px 12px;background:linear-gradient(to top,rgba(0,0,0,.88),rgba(0,0,0,.45) 60%,transparent);pointer-events:none;}
+.pg-title{font-size:13px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;}
+.pg-cat{font-size:11px;color:#ccc;text-shadow:0 1px 2px rgba(0,0,0,.7);}
+
+/* Action buttons (top-right, show on hover) */
+.pg-actions{position:absolute;top:8px;right:8px;display:flex;gap:5px;opacity:0;transition:opacity .2s;}
+.pg-card:hover .pg-actions{opacity:1;}
+.pg-actions a,.pg-actions button{width:30px;height:30px;border-radius:6px;border:none;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;text-decoration:none;transition:background .15s;}
+.pg-actions a:hover,.pg-actions button:hover{background:var(--o);}
+.pg-actions .pg-del:hover{background:#ef4444;}
+
+/* Kind badge (top-left) */
+.pg-kind{position:absolute;top:8px;left:8px;width:26px;height:26px;border-radius:6px;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;}
+.pg-kind.k-reel{color:#f97316;}
+.pg-kind.k-freegrid{color:#3b82f6;}
+
+/* Drag grip hint (center, shown on hover) */
+.pg-grip{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;}
+.pg-card:hover .pg-grip{opacity:1;}
+.pg-card.dragging .pg-grip,.pg-card.no-drag .pg-grip{display:none;}
+
+/* Responsive (match site breakpoints) */
+@media(max-width:1100px){
+  .proj-grid.mode-image{grid-template-columns:repeat(3,1fr);gap:12px;}
+  .proj-grid.mode-video{grid-template-columns:repeat(3,1fr);gap:12px;}
+  .proj-grid.mode-all{grid-template-columns:repeat(3,1fr);gap:12px;}
+  .proj-grid.mode-masonry{column-count:2;}
+}
+@media(max-width:700px){
+  .proj-grid.mode-image{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .proj-grid.mode-video{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .proj-grid.mode-all{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .proj-grid.mode-masonry{column-count:2;column-gap:10px;}
+  .proj-grid.mode-masonry .pg-card{margin-bottom:10px;}
+  .pg-title{font-size:12px;}
+  .pg-cat{font-size:10px;}
+  .pg-actions{opacity:1;}
+  .pg-actions a,.pg-actions button{width:28px;height:28px;font-size:10px;}
+  .pg-grip{display:none;}
+}
+
 .trow:last-child{border-bottom:none;}.trow:hover{background:rgba(255,255,255,.02);}
 .rth{width:44px;height:44px;border-radius:8px;object-fit:cover;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#444;font-size:15px;overflow:hidden;}
 .rth img{width:100%;height:100%;object-fit:cover;}
@@ -3525,50 +3592,58 @@ function renderTable(){
   const reorderBar=document.getElementById('reorderBar');
   if(reorderBar) reorderBar.style.display = (projFilter==='all') ? 'none' : 'flex';
 
+  // Apply grid mode class — matches public site layout exactly
+  // image/designs → mode-image (3 cols, 4:3)
+  // reel → mode-video (4 cols, 9:16)
+  // freegrid → mode-masonry (3-col masonry)
+  // all → mode-all (uniform 4:3)
+  let modeClass = 'mode-all';
+  if(projFilter==='image') modeClass = 'mode-image';
+  else if(projFilter==='reel') modeClass = 'mode-video';
+  else if(projFilter==='freegrid') modeClass = 'mode-masonry';
+  grid.className = 'proj-grid ' + modeClass;
+
   if(!filtered.length){
     const msgKey = projFilter==='reel' ? 'empty.reels'
                  : projFilter==='freegrid' ? 'empty.videos'
                  : projFilter==='image' ? 'empty.designs'
                  : 'empty.projects';
     const msg = (typeof t==='function') ? t(msgKey) : 'لا توجد عناصر';
-    grid.innerHTML=`<div class="empty" style="grid-column:1/-1;"><i class="fa-solid fa-folder-open"></i><p>${msg}</p></div>`;
+    grid.innerHTML=`<div class="empty" style="grid-column:1/-1;padding:60px 20px;"><i class="fa-solid fa-folder-open"></i><p>${msg}</p></div>`;
     return;
   }
 
-  const draggable = (projFilter!=='all'); // drag enabled only inside a single tab
+  // Drag enabled only inside a single tab — not in "all" view
+  const draggable = (projFilter!=='all');
+
   grid.innerHTML=filtered.map(p=>{
     const kind = projKind(p);
     const kindIcon = kind==='reel' ? '<i class="fa-solid fa-film"></i>'
                    : kind==='freegrid' ? '<i class="fa-solid fa-video"></i>'
                    : '<i class="fa-solid fa-image"></i>';
     const thumbIcon = kind==='image' ? 'fa-image' : 'fa-play';
-    const thumb = p.coverImage
-      ? `<img src="${p.coverImage}" alt="" loading="lazy">`
+    // Thumbnail: cover image, or fallback to first project image, or placeholder
+    const imgs = p.images || [];
+    const thumbSrc = p.coverImage || imgs[0] || '';
+    const thumb = thumbSrc
+      ? `<img src="${thumbSrc}" alt="${(p.title||'').replace(/"/g,'&quot;')}" loading="lazy" decoding="async">`
       : `<div class="pg-ph"><i class="fa-solid ${thumbIcon}"></i></div>`;
-    const metaParts = [];
-    if((p.images||[]).length) metaParts.push((p.images.length)+' '+(typeof t==='function'?t('misc.images'):'صور'));
-    if(kind==='freegrid' && p.aspectRatio) metaParts.push(p.aspectRatio);
-    if(p.projectType==='free') metaParts.push('Behance');
-    metaParts.push(formatProjectDate(p.date)||'');
-    const meta = metaParts.filter(Boolean).join(' · ');
     const dragAttrs = draggable
       ? `draggable="true" ondragstart="roDragStart(event,'${p.id}')" ondragover="roDragOver(event,'${p.id}')" ondrop="roDrop(event,'${p.id}')" ondragend="roDragEnd()" ondragleave="roDragLeave(event)"`
       : '';
-    return `
-    <div class="pg-card" data-pid="${p.id}" ${dragAttrs} style="${draggable?'':'cursor:default;'}">
-      <div class="pg-thumb">
-        ${thumb}
-        <div class="pg-kind k-${kind}">${kindIcon}</div>
-        ${draggable?'<div class="pg-grip"><i class="fa-solid fa-up-down-left-right"></i></div>':''}
-      </div>
-      <div class="pg-body">
-        <div class="pg-title">${p.title}</div>
-        <div class="pg-meta">${meta}</div>
-      </div>
+    const cls = draggable ? 'pg-card' : 'pg-card no-drag';
+    return `<div class="${cls}" data-pid="${p.id}" ${dragAttrs}>
+      ${thumb}
+      <div class="pg-kind k-${kind}">${kindIcon}</div>
+      ${draggable?'<div class="pg-grip"><i class="fa-solid fa-up-down-left-right"></i></div>':''}
       <div class="pg-actions">
-        ${p.mediaType!=='video'?`<a href="/admin/editor/${p.id}" title="محرر المشروع"><i class="fa-brands fa-behance"></i></a>`:''}
-        <button onclick="openEdit(${p.id})" title="تعديل"><i class="fa-solid fa-pen"></i></button>
-        <button class="pg-del" onclick="askDel(${p.id})" title="حذف"><i class="fa-solid fa-trash"></i></button>
+        ${p.mediaType!=='video'?`<a href="/admin/editor/${p.id}" title="محرر المشروع" onclick="event.stopPropagation()"><i class="fa-brands fa-behance"></i></a>`:''}
+        <button onclick="event.stopPropagation();openEdit(${p.id})" title="تعديل"><i class="fa-solid fa-pen"></i></button>
+        <button class="pg-del" onclick="event.stopPropagation();askDel(${p.id})" title="حذف"><i class="fa-solid fa-trash"></i></button>
+      </div>
+      <div class="pg-overlay">
+        <div class="pg-title">${p.title||''}</div>
+        <div class="pg-cat">${p.category||''}</div>
       </div>
     </div>`;
   }).join('');

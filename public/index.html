@@ -127,15 +127,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
 /* ── PROJECTS GRID ── */
 .projects-grid{display:grid;gap:3px;max-width:900px;margin:0 auto;}
 /* Image mode: Behance-style uniform grid — all cards same size, image fits via object-fit:cover */
-.projects-grid.mode-image{grid-template-columns:repeat(3,1fr);gap:14px;max-width:1300px;}
-.projects-grid.mode-image .project-card{aspect-ratio:4/3;border-radius:8px;}
+.projects-grid.mode-image{grid-template-columns:repeat(3,1fr);gap:14px;max-width:1300px;align-items:start;}
+.projects-grid.mode-image .project-card{aspect-ratio:4/3;border-radius:8px;width:100%;}
 .projects-grid.mode-video{align-items:start;max-width:1100px;grid-template-columns:repeat(4,1fr);}
 /* Default video card aspect: vertical reel */
-.projects-grid.mode-video .project-card{aspect-ratio:9/16;}
+.projects-grid.mode-video .project-card{aspect-ratio:9/16;width:100%;}
 /* Horizontal video card (when cover image is wider than tall) */
 .projects-grid.mode-video .project-card.horizontal{aspect-ratio:4/5;}
-.project-card{position:relative;overflow:hidden;cursor:pointer;background:#111;transform:translateZ(0);-webkit-transform:translateZ(0);backface-visibility:hidden;-webkit-backface-visibility:hidden;}
-.projects-grid.mode-image .project-card img{width:100%;height:100%;object-fit:cover;}
+.project-card{position:relative;overflow:hidden;cursor:pointer;background:#111;transform:translateZ(0);-webkit-transform:translateZ(0);backface-visibility:hidden;-webkit-backface-visibility:hidden;min-height:1px;}
+/* Safety: ensure cards never collapse — applies even if mode-* class missing */
+.projects-grid .project-card{min-height:120px;}
+.projects-grid.mode-image .project-card img,.projects-grid.mode-video .project-card img{width:100%;height:100%;object-fit:cover;}
 .projects-grid .project-card img{display:block;}
 
 /* Reel nav buttons */
@@ -1698,6 +1700,9 @@ function renderProjects(){
     list = [...list].sort((a,b) => (b.id||0) - (a.id||0));
   }
 
+  // Compute cols BEFORE clearing styles to avoid flash of unstyled grid
+  const cols=getColsSetting(currentFilter);
+
   // Set grid mode class
   let modeClass = 'mode-image';
   if(currentFilter==='reel') modeClass='mode-video';
@@ -1705,24 +1710,22 @@ function renderProjects(){
   // Preserve any layout class (masonry/list) from projects layout setting
   const layoutClass = grid.getAttribute('data-layout')==='masonry' ? 'mode-masonry'
                     : grid.getAttribute('data-layout')==='list' ? 'mode-list' : '';
+
+  // Apply class + new inline styles together — no clearing-then-setting flash
   grid.className='projects-grid '+modeClass+(layoutClass&&currentFilter==='image'?' '+layoutClass:'');
-  grid.style.maxWidth='';
-  grid.style.gridTemplateColumns='';
-  grid.style.columnCount='';
+  if(currentFilter==='freegrid'){
+    grid.style.cssText='max-width:1200px;column-count:'+cols+';column-gap:14px;display:block;';
+  } else {
+    grid.style.cssText='grid-template-columns:repeat('+cols+',1fr);max-width:'+(currentFilter==='reel'?'1100px':'1300px')+';';
+  }
 
   if(!list.length){
     grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:70px 20px;color:#444;"><i class="fa-solid fa-images" style="font-size:44px;margin-bottom:14px;display:block;"></i><p>${t('noProjects')}</p></div>`;
     return;
   }
 
-  const cols=getColsSetting(currentFilter);
-
   // ── FREE GRID (masonry — Vimeo style) ──
   if(currentFilter==='freegrid'){
-    grid.style.maxWidth='1200px';
-    grid.style.columnCount=cols;
-    grid.style.columnGap='14px';
-    grid.style.display='block';
     grid.innerHTML=list.map((p)=>{
       const ri=PROJECTS.indexOf(p);
       const ar=(p.aspectRatio||'16:9').replace(':','/');
@@ -1750,8 +1753,6 @@ function renderProjects(){
 
   // ── REEL GRID (uniform 9:16) ──
   if(currentFilter==='reel'){
-    grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
-    grid.style.maxWidth='1200px';
     grid.innerHTML=list.map((p,idx)=>{
       const ri=PROJECTS.indexOf(p);
       const loading = idx < 8 ? 'eager' : 'lazy';
@@ -1775,8 +1776,6 @@ function renderProjects(){
   }
 
   // ── IMAGE GRID (designs — Behance style) ──
-  grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
-  grid.style.maxWidth='1300px';
   grid.innerHTML=list.map((p,idx)=>{
     const ri=PROJECTS.indexOf(p);
     const loading = idx < 8 ? 'eager' : 'lazy';
