@@ -1470,7 +1470,7 @@ function buildAchievements(a){
     <div class="ach-card">
       ${ac.icon_url ? `<div class="ach-icon"><img src="${ac.icon_url}" alt="${ac.title}"></div>` : `<div class="ach-icon ach-icon-ph"><i class="fa-solid fa-chart-bar"></i></div>`}
       <div class="ach-value">${ac.value}</div>
-      <div class="ach-label">${ac.title}</div>
+      <div class="ach-label">${(!a && ac.title_en) ? ac.title_en : ac.title}</div>
     </div>`).join('');
   return `<section id="achievements" class="sw"><div class="sh"><h2>${title}</h2><div class="sl"></div></div>
     <div class="ach-grid">${items}</div></section>`;

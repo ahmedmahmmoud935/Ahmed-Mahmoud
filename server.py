@@ -265,6 +265,12 @@ def init_db():
             ''')
         db.commit()
 
+        # migrations for achievements
+        ach_cols = [r[1] for r in db.execute("PRAGMA table_info(achievements)").fetchall()]
+        if 'title_en' not in ach_cols:
+            try: db.execute("ALTER TABLE achievements ADD COLUMN title_en TEXT DEFAULT ''"); db.commit()
+            except: pass
+
         # migrations for projects
         p_cols = [r[1] for r in db.execute("PRAGMA table_info(projects)").fetchall()]
         for col, defval in [('user_id','1'),('project_type',"'grid'"),('modules',"'[]'"),
@@ -2221,7 +2227,7 @@ def submit_testimonial():
 def get_achievements():
     db = get_db()
     rows = db.execute(
-        "SELECT id, icon_url, title, value, sort_order FROM achievements WHERE user_id=? ORDER BY sort_order, id",
+        "SELECT id, icon_url, title, title_en, value, sort_order FROM achievements WHERE user_id=? ORDER BY sort_order, id",
         (uid(),)
     ).fetchall()
     return jsonify({'achievements': [dict(r) for r in rows]})
@@ -2231,10 +2237,11 @@ def get_achievements():
 def add_achievement():
     d = request.get_json() or {}
     title = (d.get('title') or '').strip()[:100]
+    title_en = (d.get('title_en') or '').strip()[:100]
     value = (d.get('value') or '0').strip()[:50]
     icon_url = ''
     if d.get('icon'):
-        saved = save_dataurl(d['icon'], uid())
+        saved = save_dataurl(d['icon'], ALLOWED_IMG, uid())
         if saved and saved != '__STORAGE_LIMIT__':
             icon_url = saved
     db = get_db()
@@ -2242,8 +2249,8 @@ def add_achievement():
         "SELECT COALESCE(MAX(sort_order),0) FROM achievements WHERE user_id=?", (uid(),)
     ).fetchone()[0] or 0) + 1
     cur = db.execute(
-        "INSERT INTO achievements(user_id, icon_url, title, value, sort_order) VALUES(?,?,?,?,?)",
-        (uid(), icon_url, title, value, sort_order)
+        "INSERT INTO achievements(user_id, icon_url, title, title_en, value, sort_order) VALUES(?,?,?,?,?,?)",
+        (uid(), icon_url, title, title_en, value, sort_order)
     )
     db.commit()
     return jsonify({'ok': True, 'id': cur.lastrowid, 'icon_url': icon_url})
@@ -2256,16 +2263,20 @@ def update_achievement(aid):
     row = db.execute("SELECT user_id, icon_url FROM achievements WHERE id=?", (aid,)).fetchone()
     if not row or row['user_id'] != uid(): return jsonify({'error': 'غير موجود'}), 404
     title = (d.get('title') or '').strip()[:100]
+    title_en = (d.get('title_en') or '').strip()[:100]
     value = (d.get('value') or '0').strip()[:50]
     icon_url = row['icon_url']
     if d.get('icon'):
-        saved = save_dataurl(d['icon'], uid())
+        saved = save_dataurl(d['icon'], ALLOWED_IMG, uid())
         if saved and saved != '__STORAGE_LIMIT__':
             delete_file(icon_url, uid())
             icon_url = saved
+    elif 'icon' in d and d['icon'] == '':
+        delete_file(icon_url, uid())
+        icon_url = ''
     db.execute(
-        "UPDATE achievements SET title=?, value=?, icon_url=? WHERE id=? AND user_id=?",
-        (title, value, icon_url, aid, uid())
+        "UPDATE achievements SET title=?, title_en=?, value=?, icon_url=? WHERE id=? AND user_id=?",
+        (title, title_en, value, icon_url, aid, uid())
     )
     db.commit()
     return jsonify({'ok': True, 'icon_url': icon_url})
@@ -2289,7 +2300,7 @@ def get_achievements_public():
     except: return jsonify({'achievements': []})
     db = get_db()
     rows = db.execute(
-        "SELECT icon_url, title, value FROM achievements WHERE user_id=? ORDER BY sort_order, id",
+        "SELECT icon_url, title, title_en, value FROM achievements WHERE user_id=? ORDER BY sort_order, id",
         (user_id,)
     ).fetchall()
     return jsonify({'achievements': [dict(r) for r in rows]})
