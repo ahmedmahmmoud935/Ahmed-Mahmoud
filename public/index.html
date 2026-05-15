@@ -819,39 +819,91 @@ body[data-theme="aurora"] .nav-bar{
   border-bottom:1px solid rgba(167,139,250,.15);
 }
 
-/* ── Aurora Layout Classes ────────────────────────── */
+/* ══════════════════════════════════════════════════
+   AURORA LAYOUT — Full UI/UX redesign
+   ══════════════════════════════════════════════════ */
 @keyframes au-spin{to{transform:rotate(360deg)}}
-/* Hero */
-.hero-aurora{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;}
-.hero-aurora::before{content:'';position:absolute;width:200%;height:200%;top:-50%;left:-50%;background:conic-gradient(from 0deg at 50% 50%,transparent,rgba(167,139,250,.18) 60deg,transparent 120deg,rgba(167,139,250,.12) 180deg,transparent 240deg,rgba(167,139,250,.18) 300deg,transparent);animation:au-spin 18s linear infinite;}
-.hero-aurora::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 70% at 50% 50%,transparent 20%,var(--bg) 70%);}
-.hero-aurora-content{position:relative;z-index:2;padding:40px 20px;}
-.hero-aurora .hero-name{font-size:clamp(3rem,10vw,8rem);font-weight:900;line-height:1;margin-bottom:20px;}
-.hero-aurora .hero-sub{font-size:clamp(1rem,2.5vw,1.4rem);color:var(--sub);margin-bottom:40px;letter-spacing:2px;}
-/* About */
-.about-aurora{display:grid;grid-template-columns:auto 1fr;gap:60px;align-items:center;max-width:900px;margin:0 auto;}
-.about-aurora-img-wrap{position:relative;display:flex;align-items:center;justify-content:center;width:240px;height:240px;flex-shrink:0;}
-.about-aurora-img-wrap::before{content:'';position:absolute;inset:-4px;border-radius:50%;background:conic-gradient(var(--accent),transparent 40%,var(--accent) 60%,transparent);animation:au-spin 4s linear infinite;}
-.about-aurora-img-wrap img{width:240px;height:240px;border-radius:50%;object-fit:cover;position:relative;z-index:1;border:4px solid var(--bg);}
-.about-aurora-ph{width:240px;height:240px;border-radius:50%;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:64px;color:var(--sub);position:relative;z-index:1;border:4px solid var(--bg);}
-/* Skills */
-.skills-aurora{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:14px;}
-.skill-aurora-card{background:var(--bg2);border:1px solid rgba(167,139,250,.2);border-radius:12px;padding:20px 16px;text-align:center;font-size:14px;font-weight:600;transition:all .3s ease;}
-.skill-aurora-card:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 8px 24px rgba(167,139,250,.25);}
-/* Experience */
-.exp-aurora{position:relative;padding-inline-start:48px;max-width:700px;margin:0 auto;}
-.exp-aurora::before{content:'';position:absolute;inset-inline-start:10px;top:8px;bottom:0;width:2px;background:linear-gradient(to bottom,var(--accent),transparent);}
-.exp-aurora-item{position:relative;margin-bottom:32px;padding:24px;background:var(--bg2);border-radius:12px;border:1px solid rgba(167,139,250,.15);transition:border-color .3s;}
-.exp-aurora-item:hover{border-color:var(--accent);}
-.exp-aurora-item::before{content:'';position:absolute;inset-inline-start:-42px;top:28px;width:14px;height:14px;border-radius:50%;background:var(--accent);box-shadow:0 0 14px var(--accent);}
-.exp-aurora-period{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:1px;margin-bottom:6px;text-transform:uppercase;}
-.exp-aurora-company{font-size:18px;font-weight:800;margin-bottom:4px;}
-.exp-aurora-role{color:var(--sub);font-size:14px;}
-/* Contact */
-.contact-aurora-wrap{max-width:640px;margin:0 auto;background:rgba(255,255,255,.04);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(167,139,250,.2);border-radius:20px;padding:40px;}
-@media(max-width:768px){
-  .about-aurora{grid-template-columns:1fr;justify-items:center;gap:32px;text-align:center;}
-  .exp-aurora{padding-inline-start:32px;}
+@keyframes au-orb{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-20px) scale(1.05)}66%{transform:translate(-20px,15px) scale(.95)}}
+@keyframes au-line-in{from{width:0}to{width:60px}}
+
+/* ─── HERO: Oversized type + ambient orbs ─── */
+.hero-aurora{position:relative;overflow:hidden;display:flex;align-items:center;padding:0 8%;background:var(--bg);}
+.au-orb{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0;}
+.au-orb-1{width:600px;height:600px;background:radial-gradient(circle,rgba(167,139,250,.22),transparent 70%);top:-150px;right:-100px;animation:au-orb 12s ease-in-out infinite;}
+.au-orb-2{width:400px;height:400px;background:radial-gradient(circle,rgba(240,171,252,.14),transparent 70%);bottom:-80px;left:15%;animation:au-orb 9s ease-in-out infinite reverse;}
+.au-orb-3{width:300px;height:300px;background:radial-gradient(circle,rgba(124,58,237,.1),transparent 70%);top:30%;left:-60px;animation:au-orb 14s ease-in-out infinite 3s;}
+.hero-aurora-inner{position:relative;z-index:2;max-width:860px;}
+.hero-aurora-badge{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--accent);font-weight:600;border:1px solid rgba(167,139,250,.35);padding:7px 18px;border-radius:50px;margin-bottom:36px;}
+.hero-aurora-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);animation:au-glow 2s ease-in-out infinite;}
+.hero-aurora .hero-name{font-size:clamp(3.5rem,9vw,9.5rem);font-weight:900;line-height:.88;letter-spacing:-4px;margin-bottom:44px;}
+.hero-aurora-actions{display:flex;align-items:center;gap:28px;flex-wrap:wrap;}
+.au-btn-fill{display:inline-flex;align-items:center;gap:10px;background:var(--accent);color:#fff;padding:15px 32px;border-radius:50px;font-weight:700;font-size:14px;text-decoration:none;letter-spacing:.5px;transition:all .35s;position:relative;overflow:hidden;}
+.au-btn-fill::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,.15);transform:translateX(-100%);transition:transform .4s;}
+.au-btn-fill:hover::before{transform:translateX(0);}
+.au-btn-fill:hover{box-shadow:0 16px 36px rgba(167,139,250,.45);transform:translateY(-2px);}
+.au-btn-fill .au-arrow{transition:transform .3s;}
+.au-btn-fill:hover .au-arrow{transform:translateX(5px);}
+.au-btn-ghost{color:var(--text);text-decoration:none;font-size:14px;font-weight:600;letter-spacing:.5px;position:relative;padding-bottom:3px;}
+.au-btn-ghost::after{content:'';position:absolute;bottom:0;inset-inline-start:0;width:0;height:1px;background:var(--accent);transition:width .35s;}
+.au-btn-ghost:hover{color:var(--accent);}
+.au-btn-ghost:hover::after{width:100%;}
+.hero-aurora-ghost{position:absolute;bottom:-8%;inset-inline-end:-2%;font-size:clamp(10rem,30vw,30rem);font-weight:900;color:rgba(167,139,250,.04);user-select:none;pointer-events:none;line-height:1;letter-spacing:-10px;z-index:1;}
+
+/* ─── ABOUT: Editorial grid with portrait ─── */
+.about-aurora{display:grid;grid-template-columns:1fr 380px;gap:80px;align-items:center;max-width:1100px;margin:0 auto;}
+.about-aurora-num{font-size:clamp(5rem,14vw,11rem);font-weight:900;color:rgba(167,139,250,.06);line-height:1;letter-spacing:-6px;margin-bottom:-36px;user-select:none;}
+.about-aurora-label{font-size:11px;letter-spacing:5px;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:22px;position:relative;}
+.about-aurora-portrait{position:relative;}
+.about-aurora-portrait-frame{position:relative;border-radius:24px;overflow:hidden;aspect-ratio:3/4;box-shadow:0 40px 80px rgba(0,0,0,.45);}
+.about-aurora-portrait-frame::before{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.3) 0%,transparent 50%);z-index:1;pointer-events:none;}
+.about-aurora-portrait-frame::after{content:'';position:absolute;inset:0;border-radius:24px;border:1px solid rgba(167,139,250,.25);pointer-events:none;z-index:2;}
+.about-aurora-portrait-frame img{width:100%;height:100%;object-fit:cover;object-position:center top;}
+.about-aurora-portrait-ph{width:100%;height:100%;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:80px;color:rgba(167,139,250,.2);}
+.about-aurora-accent{position:absolute;width:120px;height:120px;border-radius:50%;border:1px solid rgba(167,139,250,.3);inset-inline-end:-20px;bottom:-20px;animation:au-spin 20s linear infinite;}
+.about-aurora-accent::before{content:'';position:absolute;inset:10px;border-radius:50%;border:1px solid rgba(167,139,250,.15);}
+
+/* ─── SKILLS: Large-type list with reveal ─── */
+.skills-aurora{max-width:900px;margin:0 auto;}
+.skill-aurora-item{display:grid;grid-template-columns:52px 1fr auto;align-items:center;padding:22px 0;border-bottom:1px solid rgba(255,255,255,.055);cursor:default;transition:padding .3s;}
+.skill-aurora-item:hover{padding-inline-start:18px;}
+.skill-aurora-item:hover .skill-aurora-text{color:var(--accent);}
+.skill-aurora-item:hover .skill-aurora-bar{width:50px;}
+.skill-aurora-idx{font-size:11px;color:var(--accent);font-weight:700;opacity:.7;letter-spacing:1px;}
+.skill-aurora-text{font-size:clamp(1.1rem,2.8vw,1.65rem);font-weight:700;transition:color .3s;}
+.skill-aurora-bar{width:0;height:1px;background:var(--accent);transition:width .45s;display:block;align-self:center;}
+
+/* ─── EXPERIENCE: Glowing timeline ─── */
+.exp-aurora{position:relative;padding-inline-start:52px;max-width:720px;margin:0 auto;}
+.exp-aurora::before{content:'';position:absolute;inset-inline-start:12px;top:12px;bottom:0;width:1px;background:linear-gradient(to bottom,var(--accent),rgba(167,139,250,.1));}
+.exp-aurora-item{position:relative;margin-bottom:36px;padding:28px 32px;background:linear-gradient(135deg,var(--bg2),rgba(167,139,250,.03));border-radius:16px;border:1px solid rgba(167,139,250,.12);transition:all .35s;}
+.exp-aurora-item:hover{border-color:rgba(167,139,250,.35);transform:translateX(6px);box-shadow:0 12px 40px rgba(167,139,250,.12);}
+.exp-aurora-item::before{content:'';position:absolute;inset-inline-start:-44px;top:32px;width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(167,139,250,.15),0 0 16px var(--accent);}
+.exp-aurora-period{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:2px;margin-bottom:8px;text-transform:uppercase;}
+.exp-aurora-company{font-size:19px;font-weight:800;margin-bottom:5px;}
+.exp-aurora-role{color:var(--sub);font-size:14px;line-height:1.5;}
+
+/* ─── CONTACT: Open, underline inputs ─── */
+.contact-aurora-wrap{max-width:680px;margin:0 auto;}
+.contact-aurora-wrap .form-group input,
+.contact-aurora-wrap .form-group textarea{background:transparent!important;border:none!important;border-bottom:1px solid rgba(255,255,255,.1)!important;border-radius:0!important;padding:18px 0!important;font-size:16px!important;color:var(--text);transition:border-color .3s!important;}
+.contact-aurora-wrap .form-group input:focus,
+.contact-aurora-wrap .form-group textarea:focus{box-shadow:none!important;border-bottom-color:var(--accent)!important;}
+.contact-aurora-wrap .form-group input::placeholder,
+.contact-aurora-wrap .form-group textarea::placeholder{color:rgba(255,255,255,.25);}
+.contact-aurora-wrap .btn-submit{background:transparent!important;border:1px solid var(--accent)!important;color:var(--accent)!important;border-radius:0!important;font-size:12px!important;letter-spacing:4px!important;text-transform:uppercase!important;font-weight:700!important;padding:16px 44px!important;transition:all .35s!important;width:auto!important;}
+.contact-aurora-wrap .btn-submit:hover{background:var(--accent)!important;color:#fff!important;}
+
+@media(max-width:900px){
+  .about-aurora{grid-template-columns:1fr;gap:48px;}
+  .about-aurora-portrait-frame{aspect-ratio:4/3;max-width:480px;}
+}
+@media(max-width:640px){
+  .hero-aurora{padding:0 6%;min-height:100svh;}
+  .hero-aurora-ghost{display:none;}
+  .au-orb-2,.au-orb-3{display:none;}
+  .skill-aurora-item{grid-template-columns:44px 1fr;}
+  .skill-aurora-bar{display:none;}
+  .exp-aurora{padding-inline-start:36px;}
 }
 
 /* ═══════════════ ADDITIONAL LAYOUTS ═══════════════ */
@@ -1527,11 +1579,18 @@ function buildHero(c,a){
 
   if(layout === 'aurora'){
     return `<section id="hero" class="hero-aurora" style="min-height:${heroH}vh;">
-      <div class="hero-aurora-content">
-        <div class="hero-name"><span class="first">${f}</span> <span class="last">${l}</span></div>
-        <div class="hero-sub">${title}</div>
-        <div class="hero-btns"><a href="#projects" class="btn-primary">${b1}</a><a href="#contact" class="btn-outline">${b2}</a></div>
+      <div class="au-orb au-orb-1"></div>
+      <div class="au-orb au-orb-2"></div>
+      <div class="au-orb au-orb-3"></div>
+      <div class="hero-aurora-inner">
+        <div class="hero-aurora-badge">${title||'Portfolio'}</div>
+        <div class="hero-name"><span class="first">${f}</span>${l?` <span class="last">${l}</span>`:''}</div>
+        <div class="hero-aurora-actions">
+          <a href="#projects" class="au-btn-fill">${b1} <span class="au-arrow">→</span></a>
+          <a href="#contact" class="au-btn-ghost">${b2}</a>
+        </div>
       </div>
+      <div class="hero-aurora-ghost" aria-hidden="true">${f}</div>
     </section>`;
   }
 
@@ -1572,15 +1631,19 @@ function buildAbout(c,a){
   }
 
   if(layout === 'aurora'){
-    const imgHtml = S.photo_url
-      ? `<div class="about-aurora-img-wrap"><img src="${S.photo_url}" alt="photo"></div>`
-      : `<div class="about-aurora-img-wrap"><div class="about-aurora-ph"><i class="fa-solid fa-user"></i></div></div>`;
+    const portraitInner = S.photo_url
+      ? `<img src="${S.photo_url}" alt="photo">`
+      : `<div class="about-aurora-portrait-ph"><i class="fa-solid fa-user"></i></div>`;
     return `<section id="about" class="sw"><div class="about-aurora">
-      ${imgHtml}
-      <div>
-        <h2 class="section-title">${titleTxt}</h2>
+      <div class="about-aurora-left">
+        <div class="about-aurora-num">01</div>
+        <div class="about-aurora-label">${titleTxt}</div>
         <p class="about-text">${text}</p>
         <div class="tags-row">${tagsHtml}</div>
+      </div>
+      <div class="about-aurora-portrait">
+        <div class="about-aurora-portrait-frame">${portraitInner}</div>
+        <div class="about-aurora-accent"></div>
       </div>
     </div></section>`;
   }
@@ -1628,7 +1691,12 @@ function buildSkills(c,a){
 
   if(layout === 'aurora'){
     return `<section id="skills" class="sw"><div class="sh"><h2>${title}</h2><div class="sl"></div></div>
-      <div class="skills-aurora">${chips.map(ch=>`<div class="skill-aurora-card">${ch.trim()}</div>`).join('')}</div></section>`;
+      <div class="skills-aurora">${chips.map((ch,i)=>`
+        <div class="skill-aurora-item">
+          <span class="skill-aurora-idx">${String(i+1).padStart(2,'0')}</span>
+          <span class="skill-aurora-text">${ch.trim()}</span>
+          <span class="skill-aurora-bar"></span>
+        </div>`).join('')}</div></section>`;
   }
 
   // Default: tags/chips
