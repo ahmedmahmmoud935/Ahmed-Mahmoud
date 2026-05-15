@@ -562,8 +562,26 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 .theme-creative .theme-preview{background:linear-gradient(135deg,#0a0a0a,#1f0a05);}
 .theme-cinema .theme-preview .tp-content::before{content:'';position:absolute;inset:-50px -20px 0 -20px;background:linear-gradient(to top,rgba(0,0,0,.8),transparent);z-index:-1;}
 @keyframes adm-au-bg{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-.theme-aurora .theme-preview{background:linear-gradient(135deg,#0d0d1a,#1a0d2e,#0d1a2e);animation:adm-au-bg 4s ease infinite;background-size:200% 200%;}
-.theme-aurora .theme-preview .tp-title{background:linear-gradient(90deg,#fff,#a78bfa,#f0abfc);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+/* ── Theme Switcher ── */
+.theme-switcher{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.tsw-card{cursor:pointer;border:2px solid #222;border-radius:14px;overflow:hidden;transition:all .25s;background:#0e0e0e;user-select:none;}
+.tsw-card.active{border-color:var(--o);box-shadow:0 8px 28px rgba(249,115,22,.2);}
+.tsw-card:hover:not(.active){border-color:#444;transform:translateY(-2px);}
+.tsw-preview{height:120px;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:14px;overflow:hidden;}
+.tsw-preview-default{background:repeating-linear-gradient(45deg,#0a0a0a,#0a0a0a 10px,#0e0e0e 10px,#0e0e0e 20px);}
+.tsw-preview-aurora{background:linear-gradient(135deg,#0d0d1a,#1a0d2e,#0d1a2e);background-size:200% 200%;animation:adm-au-bg 4s ease infinite;}
+.tsw-bar{position:absolute;top:0;left:0;right:0;height:24px;background:rgba(255,255,255,.04);}
+.tsw-bar::before{content:'';position:absolute;top:8px;inset-inline-start:12px;width:30px;height:8px;background:rgba(255,255,255,.2);border-radius:2px;}
+.tsw-bar::after{content:'';position:absolute;top:8px;inset-inline-end:12px;width:60px;height:8px;background:rgba(255,255,255,.15);border-radius:2px;}
+.tsw-content{position:relative;z-index:1;}
+.tsw-title{font-size:20px;font-weight:900;color:#fff;line-height:1;}
+.tsw-preview-aurora .tsw-title{background:linear-gradient(90deg,#fff,#a78bfa,#f0abfc);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.tsw-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:3px;}
+.tsw-info{padding:14px 16px;}
+.tsw-name{font-size:14px;font-weight:800;color:#fff;margin-bottom:4px;}
+.tsw-desc{font-size:12px;color:#888;line-height:1.5;}
+.tsw-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;}
+.tsw-tags span{background:rgba(255,255,255,.05);color:#aaa;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;}
 </style>
 </head>
 <body>
@@ -784,58 +802,49 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
     <button class="btn-add" onclick="saveDesign()"><i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn.saveDesign">حفظ التصميم</span></button>
   </div>
 
-  <!-- Sub-navigation -->
-  <div class="design-subnav">
-    <button class="dsn-btn active" onclick="setDsn('layouts',this)"><i class="fa-solid fa-table-layout"></i> <span data-i18n="design.layouts">التخطيطات</span></button>
+  <!-- Theme Switcher ─────────────────────────────── -->
+  <div class="theme-switcher">
+    <!-- Default -->
+    <div class="tsw-card active" id="tsw-default" onclick="switchDesignTheme('default',true)">
+      <input type="radio" name="style_theme" value="default" checked style="display:none">
+      <div class="tsw-preview tsw-preview-default">
+        <div class="tsw-bar"></div>
+        <div class="tsw-content">
+          <div class="tsw-title">Custom</div>
+          <div class="tsw-sub">مخصّص بالكامل</div>
+        </div>
+      </div>
+      <div class="tsw-info">
+        <div class="tsw-name">⚙️ الثيم الأساسي</div>
+        <div class="tsw-desc">تحكم كامل في كل التفاصيل — تخطيطات، خطوط، ألوان</div>
+        <div class="tsw-tags"><span>تخطيطات</span><span>خطوط</span><span>ألوان</span><span>حركات</span></div>
+      </div>
+    </div>
+    <!-- Aurora -->
+    <div class="tsw-card" id="tsw-aurora" onclick="switchDesignTheme('aurora',true)">
+      <input type="radio" name="style_theme" value="aurora" style="display:none">
+      <div class="tsw-preview tsw-preview-aurora">
+        <div class="tsw-bar"></div>
+        <div class="tsw-content">
+          <div class="tsw-title">Aurora</div>
+          <div class="tsw-sub">تصميم مختلف كلياً</div>
+        </div>
+      </div>
+      <div class="tsw-info">
+        <div class="tsw-name">✨ أورورا</div>
+        <div class="tsw-desc">تصميم مختلف كلياً — hero، about، skills، تايم لاين</div>
+        <div class="tsw-tags"><span>أنيميشن</span><span>جلاس</span><span>توهج</span><span>تايم لاين</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contextual Sub-navigation -->
+  <div class="design-subnav" id="design-subnav">
+    <button class="dsn-btn active" id="dsnbtn-layouts" onclick="setDsn('layouts',this)"><i class="fa-solid fa-table-layout"></i> <span data-i18n="design.layouts">التخطيطات</span></button>
     <button class="dsn-btn" onclick="setDsn('typo',this)"><i class="fa-solid fa-font"></i> <span data-i18n="design.fonts">الخطوط</span></button>
     <button class="dsn-btn" onclick="setDsn('bg',this)"><i class="fa-solid fa-fill-drip"></i> <span data-i18n="design.bg">الخلفية</span></button>
     <button class="dsn-btn" onclick="setDsn('cursor',this)"><i class="fa-solid fa-arrow-pointer"></i> <span data-i18n="design.cursor">المؤشر</span></button>
     <button class="dsn-btn" onclick="setDsn('anim',this)"><i class="fa-solid fa-wand-sparkles"></i> <span data-i18n="design.anim">الحركات</span></button>
-    <button class="dsn-btn" onclick="setDsn('themes',this)"><i class="fa-solid fa-shapes"></i> <span data-i18n="design.themes">الثيمات</span></button>
-  </div>
-
-  <!-- ── THEMES (NEW) ── -->
-  <div id="dsn-themes" class="dsn-section" style="display:none;">
-    <div class="card">
-      <div class="card-title"><i class="fa-solid fa-shapes" style="color:var(--o);margin-left:6px"></i> <span data-i18n="design.themeReady">الثيمات الجاهزة</span></div>
-      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;" data-i18n="design.themeDesc">اختر ثيم احترافي كامل — يغير كل شيء دفعة واحدة. تقدر تخصص أي تفصيلة بعدها</p>
-
-      <div class="theme-grid">
-        <!-- Default (only option for now) -->
-        <label class="theme-opt"><input type="radio" name="style_theme" value="default" checked>
-          <div class="theme-card theme-default">
-            <div class="theme-preview">
-              <div class="tp-bar"></div>
-              <div class="tp-content">
-                <div class="tp-title">Custom</div>
-                <div class="tp-sub" data-i18n="design.themeCustomShort">تخصيص يدوي</div>
-              </div>
-            </div>
-            <div class="theme-info">
-              <div class="theme-name" data-i18n="design.themeCustom">⚙️ مخصّص</div>
-              <div class="theme-desc" data-i18n="design.themeCustomDesc">اختياراتك بنفسك</div>
-            </div>
-          </div></label>
-      </div>
-
-        <!-- Aurora theme card -->
-        <label class="theme-opt"><input type="radio" name="style_theme" value="aurora">
-          <div class="theme-card theme-aurora">
-            <div class="theme-preview">
-              <div class="tp-bar"></div>
-              <div class="tp-content">
-                <div class="tp-title">Aurora</div>
-                <div class="tp-sub">انيميشن — تأثيرات</div>
-              </div>
-            </div>
-            <div class="theme-info">
-              <div class="theme-name">✨ أورورا</div>
-              <div class="theme-desc">أنيميشن ناعم وتأثيرات بصرية تشد الانتباه</div>
-              <div class="theme-tags"><span>أنيميشن</span><span>جلاس</span><span>توهج</span></div>
-            </div>
-          </div></label>
-      </div>
-    </div>
   </div>
 
   <!-- ── LAYOUTS ── -->
@@ -3291,12 +3300,37 @@ function renderDailyChart(daily){
 }
 
 function setDsn(sec, btn){
-  document.querySelectorAll('.dsn-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  ['themes','layouts','typo','bg','cursor','anim'].forEach(s=>{
+  document.querySelectorAll('#design-subnav .dsn-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  ['layouts','typo','bg','cursor','anim'].forEach(s=>{
     const el=document.getElementById('dsn-'+s);
     if(el) el.style.display = s===sec ? 'block' : 'none';
   });
+}
+
+function switchDesignTheme(themeId, isUserAction){
+  if(isUserAction){
+    ['style_hero','style_about','style_font','style_bg_preset','style_anim','colors'].forEach(k=>{
+      if(typeof S!=='undefined') S['_custom_'+k]=false;
+    });
+  }
+  // Update hidden radio
+  const radio=document.querySelector(`input[name="style_theme"][value="${themeId}"]`);
+  if(radio) radio.checked=true;
+  // Highlight active card
+  document.querySelectorAll('.tsw-card').forEach(c=>c.classList.remove('active'));
+  const card=document.getElementById('tsw-'+themeId);
+  if(card) card.classList.add('active');
+  // Layouts tab: Aurora has fixed layouts so hide it
+  const layoutsBtn=document.getElementById('dsnbtn-layouts');
+  const isAurora=(themeId==='aurora');
+  if(layoutsBtn) layoutsBtn.style.display=isAurora?'none':'';
+  // Switch to default section for this theme
+  const defaultSec=isAurora?'typo':'layouts';
+  const defaultBtn=isAurora
+    ? document.querySelector('#design-subnav .dsn-btn:not([style*="none"])')
+    : layoutsBtn;
+  if(defaultBtn) setDsn(defaultSec, defaultBtn);
 }
 
 function loadDesign(){
@@ -3307,6 +3341,7 @@ function loadDesign(){
     if(r) r.checked = true;
   };
   setRadio('style_theme',     S.style_theme,     'default');
+  switchDesignTheme(S.style_theme || 'default');
   setRadio('style_hero',      S.style_hero,      'centered');
   setRadio('style_about',     S.style_about,     'classic');
   setRadio('style_font',      S.style_font,      'default');

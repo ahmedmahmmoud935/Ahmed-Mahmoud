@@ -819,6 +819,41 @@ body[data-theme="aurora"] .nav-bar{
   border-bottom:1px solid rgba(167,139,250,.15);
 }
 
+/* ── Aurora Layout Classes ────────────────────────── */
+@keyframes au-spin{to{transform:rotate(360deg)}}
+/* Hero */
+.hero-aurora{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;}
+.hero-aurora::before{content:'';position:absolute;width:200%;height:200%;top:-50%;left:-50%;background:conic-gradient(from 0deg at 50% 50%,transparent,rgba(167,139,250,.18) 60deg,transparent 120deg,rgba(167,139,250,.12) 180deg,transparent 240deg,rgba(167,139,250,.18) 300deg,transparent);animation:au-spin 18s linear infinite;}
+.hero-aurora::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 70% at 50% 50%,transparent 20%,var(--bg) 70%);}
+.hero-aurora-content{position:relative;z-index:2;padding:40px 20px;}
+.hero-aurora .hero-name{font-size:clamp(3rem,10vw,8rem);font-weight:900;line-height:1;margin-bottom:20px;}
+.hero-aurora .hero-sub{font-size:clamp(1rem,2.5vw,1.4rem);color:var(--sub);margin-bottom:40px;letter-spacing:2px;}
+/* About */
+.about-aurora{display:grid;grid-template-columns:auto 1fr;gap:60px;align-items:center;max-width:900px;margin:0 auto;}
+.about-aurora-img-wrap{position:relative;display:flex;align-items:center;justify-content:center;width:240px;height:240px;flex-shrink:0;}
+.about-aurora-img-wrap::before{content:'';position:absolute;inset:-4px;border-radius:50%;background:conic-gradient(var(--accent),transparent 40%,var(--accent) 60%,transparent);animation:au-spin 4s linear infinite;}
+.about-aurora-img-wrap img{width:240px;height:240px;border-radius:50%;object-fit:cover;position:relative;z-index:1;border:4px solid var(--bg);}
+.about-aurora-ph{width:240px;height:240px;border-radius:50%;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:64px;color:var(--sub);position:relative;z-index:1;border:4px solid var(--bg);}
+/* Skills */
+.skills-aurora{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:14px;}
+.skill-aurora-card{background:var(--bg2);border:1px solid rgba(167,139,250,.2);border-radius:12px;padding:20px 16px;text-align:center;font-size:14px;font-weight:600;transition:all .3s ease;}
+.skill-aurora-card:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 8px 24px rgba(167,139,250,.25);}
+/* Experience */
+.exp-aurora{position:relative;padding-inline-start:48px;max-width:700px;margin:0 auto;}
+.exp-aurora::before{content:'';position:absolute;inset-inline-start:10px;top:8px;bottom:0;width:2px;background:linear-gradient(to bottom,var(--accent),transparent);}
+.exp-aurora-item{position:relative;margin-bottom:32px;padding:24px;background:var(--bg2);border-radius:12px;border:1px solid rgba(167,139,250,.15);transition:border-color .3s;}
+.exp-aurora-item:hover{border-color:var(--accent);}
+.exp-aurora-item::before{content:'';position:absolute;inset-inline-start:-42px;top:28px;width:14px;height:14px;border-radius:50%;background:var(--accent);box-shadow:0 0 14px var(--accent);}
+.exp-aurora-period{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:1px;margin-bottom:6px;text-transform:uppercase;}
+.exp-aurora-company{font-size:18px;font-weight:800;margin-bottom:4px;}
+.exp-aurora-role{color:var(--sub);font-size:14px;}
+/* Contact */
+.contact-aurora-wrap{max-width:640px;margin:0 auto;background:rgba(255,255,255,.04);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(167,139,250,.2);border-radius:20px;padding:40px;}
+@media(max-width:768px){
+  .about-aurora{grid-template-columns:1fr;justify-items:center;gap:32px;text-align:center;}
+  .exp-aurora{padding-inline-start:32px;}
+}
+
 /* ═══════════════ ADDITIONAL LAYOUTS ═══════════════ */
 
 /* SKILLS — Bars layout */
@@ -1150,9 +1185,14 @@ const THEMES = {
     accent:          '#3B82F6',
   },
 
-  // 6. Aurora — Animations & eye-catching effects
+  // 6. Aurora — Full custom layout with animations
   aurora: {
-    accent: '#a78bfa',
+    style_hero:    'aurora',
+    style_about:   'aurora',
+    style_skills:  'aurora',
+    style_exp:     'aurora',
+    style_contact: 'aurora',
+    accent:        '#a78bfa',
   },
 };
 
@@ -1485,6 +1525,16 @@ function buildHero(c,a){
     </section>`;
   }
 
+  if(layout === 'aurora'){
+    return `<section id="hero" class="hero-aurora" style="min-height:${heroH}vh;">
+      <div class="hero-aurora-content">
+        <div class="hero-name"><span class="first">${f}</span> <span class="last">${l}</span></div>
+        <div class="hero-sub">${title}</div>
+        <div class="hero-btns"><a href="#projects" class="btn-primary">${b1}</a><a href="#contact" class="btn-outline">${b2}</a></div>
+      </div>
+    </section>`;
+  }
+
   // DEFAULT: centered (original)
   return`<section id="hero" ${heroBg}>${overlayHtml}
     <div class="hero-name" style="position:relative;z-index:1;"><span class="first">${f}</span> <span class="last">${l}</span></div>
@@ -1513,6 +1563,20 @@ function buildAbout(c,a){
   if(layout === 'visual'){
     return `<section id="about" class="sw"><div class="about-visual">
       <div class="about-visual-img">${photoHtml}</div>
+      <div>
+        <h2 class="section-title">${titleTxt}</h2>
+        <p class="about-text">${text}</p>
+        <div class="tags-row">${tagsHtml}</div>
+      </div>
+    </div></section>`;
+  }
+
+  if(layout === 'aurora'){
+    const imgHtml = S.photo_url
+      ? `<div class="about-aurora-img-wrap"><img src="${S.photo_url}" alt="photo"></div>`
+      : `<div class="about-aurora-img-wrap"><div class="about-aurora-ph"><i class="fa-solid fa-user"></i></div></div>`;
+    return `<section id="about" class="sw"><div class="about-aurora">
+      ${imgHtml}
       <div>
         <h2 class="section-title">${titleTxt}</h2>
         <p class="about-text">${text}</p>
@@ -1562,6 +1626,11 @@ function buildSkills(c,a){
       <div class="skills-inline">${html}</div></section>`;
   }
 
+  if(layout === 'aurora'){
+    return `<section id="skills" class="sw"><div class="sh"><h2>${title}</h2><div class="sl"></div></div>
+      <div class="skills-aurora">${chips.map(ch=>`<div class="skill-aurora-card">${ch.trim()}</div>`).join('')}</div></section>`;
+  }
+
   // Default: tags/chips
   return`<section id="skills" class="sw"><div class="sh"><h2>${title}</h2><div class="sl"></div></div><div class="skills-grid">${chips.map(ch=>`<div class="skill-chip">${ch.trim()}</div>`).join('')}</div></section>`;
 }
@@ -1603,6 +1672,16 @@ function buildExp(c,a){
           <div class="exp-tl-period">${it.years||''}</div>
           <div class="exp-tl-company">${a?(it.company_ar||it.company_en):(it.company_en||'')}</div>
           <div class="exp-tl-role">${a?(it.role_ar||it.role_en):(it.role_en||'')}</div>
+        </div>`).join('')}</div></section>`;
+  }
+
+  if(layout === 'aurora'){
+    return `<section id="experience" class="sw"><div class="sh"><h2>${title}</h2><div class="sl"></div></div>
+      <div class="exp-aurora">${items.map(it=>`
+        <div class="exp-aurora-item">
+          <div class="exp-aurora-period">${it.years||''}</div>
+          <div class="exp-aurora-company">${a?(it.company_ar||it.company_en):(it.company_en||'')}</div>
+          <div class="exp-aurora-role">${a?(it.role_ar||it.role_en):(it.role_en||'')}</div>
         </div>`).join('')}</div></section>`;
   }
 
@@ -1691,6 +1770,12 @@ function buildContact(c,a){
         </div>
         <div>${formHtml}</div>
       </div></section>`;
+  }
+
+  if(layout === 'aurora'){
+    return `<section id="contact" class="sw"><div class="sh"><h2>${title}</h2><div class="sl"></div></div>
+      <p class="contact-sub">${subtitle}</p>
+      <div class="contact-aurora-wrap">${formHtml}</div></section>`;
   }
 
   return`<section id="contact" class="sw"><div class="sh"><h2>${title}</h2><div class="sl"></div></div><p class="contact-sub">${subtitle}</p>${formHtml}</section>`;
