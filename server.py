@@ -2218,7 +2218,7 @@ def submit_testimonial():
         user_row = db.execute("SELECT username FROM users WHERE id=?", (user_id,)).fetchone()
         if user_row:
             scheme = 'https' if request.is_secure else 'http'
-            portfolio_url = f"{scheme}://{request.host}/{user_row['username']}"
+            portfolio_url = f"{scheme}://{request.host}/u/{user_row['username']}"
 
     return jsonify({'ok': True, 'portfolio_url': portfolio_url})
 

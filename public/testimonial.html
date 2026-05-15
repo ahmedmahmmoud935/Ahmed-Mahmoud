@@ -29,13 +29,19 @@ body{
 }
 .avatar-ring:hover{border-color:#F97316;}
 .avatar-ring img{width:100%;height:100%;object-fit:cover;display:none;border-radius:50%;}
-.avatar-ring .av-placeholder{display:flex;flex-direction:column;align-items:center;gap:4px;color:#555;pointer-events:none;}
-.avatar-ring .av-placeholder i{font-size:26px;}
-.avatar-ring .av-placeholder span{font-size:10px;font-weight:700;letter-spacing:.5px;}
-.avatar-ring:hover .av-placeholder{color:#F97316;}
+.avatar-ring .av-placeholder{display:flex;flex-direction:column;align-items:center;gap:6px;color:#444;pointer-events:none;}
+.avatar-ring .av-placeholder .av-person{font-size:38px;line-height:1;margin-top:6px;}
+.avatar-ring .av-placeholder .av-cam{
+  position:absolute;bottom:0;left:0;right:0;
+  background:rgba(0,0,0,.55);padding:6px 0 8px;
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  font-size:11px;color:#aaa;font-weight:700;letter-spacing:.3px;
+}
+.avatar-ring .av-placeholder .av-cam i{font-size:11px;}
+.avatar-ring:hover .av-placeholder .av-cam{color:#F97316;}
 .avatar-edit-badge{
   position:absolute;bottom:4px;inset-inline-end:4px;
-  width:26px;height:26px;border-radius:50%;
+  width:24px;height:24px;border-radius:50%;
   background:#F97316;border:2px solid #0f0f0f;
   display:flex;align-items:center;justify-content:center;
   font-size:10px;color:#fff;pointer-events:none;
@@ -94,8 +100,8 @@ textarea{min-height:110px;resize:vertical;line-height:1.7;}
       <div class="avatar-ring" id="avatarRing" onclick="document.getElementById('fPhoto').click()">
         <img id="avatarImg" src="" alt="">
         <div class="av-placeholder" id="avatarPlaceholder">
-          <i class="fa-solid fa-camera"></i>
-          <span>صورتك</span>
+          <i class="fa-solid fa-circle-user av-person"></i>
+          <div class="av-cam"><i class="fa-solid fa-camera"></i> صورتك</div>
         </div>
         <div class="avatar-edit-badge"><i class="fa-solid fa-plus"></i></div>
       </div>
