@@ -2195,7 +2195,7 @@ def submit_testimonial():
     avatar_url = ''
     photo_data = (d.get('photo') or '').strip()
     if photo_data and photo_data.startswith('data:image'):
-        saved = save_dataurl(photo_data, user_id)
+        saved = save_dataurl(photo_data, ALLOWED_IMG, user_id)
         if saved and saved != '__STORAGE_LIMIT__':
             avatar_url = saved
 

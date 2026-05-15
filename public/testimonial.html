@@ -15,49 +15,71 @@ body{
   display:flex;align-items:center;justify-content:center;
   padding:20px;
 }
-.container{width:100%;max-width:600px;background:#0f0f0f;border:1px solid #1f1f1f;border-radius:20px;padding:40px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
-.header{text-align:center;margin-bottom:32px;}
-.header-icon{width:64px;height:64px;background:linear-gradient(135deg,#F97316,#ea580c);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px;}
-h1{font-size:24px;font-weight:800;margin-bottom:8px;}
-.sub{color:#888;font-size:14px;line-height:1.7;}
-.fg{margin-bottom:18px;}
-label{display:block;font-size:13px;font-weight:700;margin-bottom:8px;color:#ccc;}
+.container{width:100%;max-width:560px;background:#0f0f0f;border:1px solid #1f1f1f;border-radius:24px;padding:40px 36px 36px;box-shadow:0 24px 64px rgba(0,0,0,.6);}
+
+/* Avatar upload area at top */
+.avatar-zone{display:flex;flex-direction:column;align-items:center;margin-bottom:28px;}
+.avatar-ring{
+  position:relative;width:100px;height:100px;cursor:pointer;
+  border-radius:50%;background:#141414;
+  border:2px solid #2a2a2a;
+  transition:border-color .25s;
+  overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+.avatar-ring:hover{border-color:#F97316;}
+.avatar-ring img{width:100%;height:100%;object-fit:cover;display:none;border-radius:50%;}
+.avatar-ring .av-placeholder{display:flex;flex-direction:column;align-items:center;gap:4px;color:#555;pointer-events:none;}
+.avatar-ring .av-placeholder i{font-size:26px;}
+.avatar-ring .av-placeholder span{font-size:10px;font-weight:700;letter-spacing:.5px;}
+.avatar-ring:hover .av-placeholder{color:#F97316;}
+.avatar-edit-badge{
+  position:absolute;bottom:4px;inset-inline-end:4px;
+  width:26px;height:26px;border-radius:50%;
+  background:#F97316;border:2px solid #0f0f0f;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;color:#fff;pointer-events:none;
+}
+.avatar-remove{
+  margin-top:8px;background:none;border:none;
+  color:#666;font-size:11px;cursor:pointer;font-family:inherit;
+  display:none;transition:color .2s;
+}
+.avatar-remove:hover{color:#ef4444;}
+
+/* Header */
+.header{text-align:center;margin-bottom:28px;}
+h1{font-size:22px;font-weight:800;margin-bottom:6px;}
+.sub{color:#888;font-size:13px;line-height:1.7;}
+
+.fg{margin-bottom:16px;}
+label{display:block;font-size:12px;font-weight:700;margin-bottom:7px;color:#bbb;text-transform:uppercase;letter-spacing:.4px;}
 .req{color:#ef4444;}
-input,textarea{width:100%;background:#0a0a0a;border:1px solid #2a2a2a;color:#fff;padding:12px 14px;border-radius:10px;font-family:inherit;font-size:14px;outline:none;transition:border-color .2s;}
+input,textarea{width:100%;background:#0a0a0a;border:1px solid #252525;color:#fff;padding:11px 14px;border-radius:10px;font-family:inherit;font-size:14px;outline:none;transition:border-color .2s;}
 input:focus,textarea:focus{border-color:#F97316;}
-textarea{min-height:120px;resize:vertical;line-height:1.7;}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.rating{display:flex;gap:6px;margin-top:6px;justify-content:center;}
-.star{cursor:pointer;font-size:32px;color:#333;transition:all .15s;}
+textarea{min-height:110px;resize:vertical;line-height:1.7;}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.rating{display:flex;gap:6px;margin-top:4px;justify-content:center;}
+.star{cursor:pointer;font-size:30px;color:#333;transition:all .15s;}
 .star.active{color:#fbbf24;transform:scale(1.1);}
 .star:hover{color:#fbbf24;}
-/* Photo upload */
-.photo-drop{border:2px dashed #2a2a2a;border-radius:12px;padding:22px;text-align:center;cursor:pointer;transition:all .25s;position:relative;}
-.photo-drop:hover{border-color:#F97316;background:rgba(249,115,22,.04);}
-.photo-drop-inner{display:flex;flex-direction:column;align-items:center;gap:8px;color:#666;}
-.photo-drop-inner i{font-size:26px;}
-.photo-drop-inner span{font-size:13px;}
-.photo-drop-inner small{font-size:11px;color:#444;}
-.photo-preview-wrap{display:flex;align-items:center;gap:14px;}
-.photo-circle{width:70px;height:70px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid #F97316;}
-.photo-circle img{width:100%;height:100%;object-fit:cover;}
-.photo-name{font-size:13px;color:#ccc;flex:1;word-break:break-all;}
-.photo-remove{background:none;border:1px solid #444;color:#aaa;padding:5px 10px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit;transition:all .2s;}
-.photo-remove:hover{border-color:#ef4444;color:#ef4444;}
+.optional{color:#555;font-size:10px;font-weight:400;margin-inline-start:5px;text-transform:none;}
+
 /* Buttons */
-.btn{width:100%;background:linear-gradient(135deg,#F97316,#ea580c);color:#fff;border:none;padding:15px;border-radius:12px;font-family:inherit;font-weight:800;font-size:15px;cursor:pointer;margin-top:10px;box-shadow:0 4px 14px rgba(249,115,22,.3);transition:all .2s;}
-.btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(249,115,22,.4);}
+.btn{width:100%;background:linear-gradient(135deg,#F97316,#ea580c);color:#fff;border:none;padding:14px;border-radius:12px;font-family:inherit;font-weight:800;font-size:15px;cursor:pointer;margin-top:8px;box-shadow:0 4px 16px rgba(249,115,22,.3);transition:all .2s;}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(249,115,22,.42);}
 .btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
 .btn-visit{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1px solid rgba(255,255,255,.15);color:#fff;padding:12px 24px;border-radius:10px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;text-decoration:none;transition:all .25s;margin-top:20px;}
 .btn-visit:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.3);}
+
 /* Error & success */
-.error-msg{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5;padding:12px;border-radius:8px;font-size:13px;margin-bottom:18px;display:none;}
-.optional{color:#666;font-size:11px;font-weight:400;margin-inline-start:6px;}
+.error-msg{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5;padding:11px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none;}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;margin-inline-end:8px;}
 @keyframes sp{to{transform:rotate(360deg);}}
 .success{text-align:center;padding:40px 20px;display:none;}
 .success-icon{width:80px;height:80px;background:#22c55e;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;}
-@media(max-width:520px){.container{padding:30px 20px;}.row{grid-template-columns:1fr;}}
+.divider{height:1px;background:#1a1a1a;margin:20px 0;}
+@media(max-width:480px){.container{padding:28px 18px 24px;}.row{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -65,8 +87,24 @@ textarea{min-height:120px;resize:vertical;line-height:1.7;}
 
   <!-- Form -->
   <div id="formView">
+
+    <!-- Avatar at top -->
+    <div class="avatar-zone">
+      <input type="file" id="fPhoto" accept="image/*" style="display:none" onchange="handlePhoto(this)">
+      <div class="avatar-ring" id="avatarRing" onclick="document.getElementById('fPhoto').click()">
+        <img id="avatarImg" src="" alt="">
+        <div class="av-placeholder" id="avatarPlaceholder">
+          <i class="fa-solid fa-camera"></i>
+          <span>صورتك</span>
+        </div>
+        <div class="avatar-edit-badge"><i class="fa-solid fa-plus"></i></div>
+      </div>
+      <button class="avatar-remove" id="avatarRemoveBtn" onclick="removePhoto()">
+        <i class="fa-solid fa-xmark"></i> إزالة الصورة
+      </button>
+    </div>
+
     <div class="header">
-      <div class="header-icon">⭐</div>
       <h1>شاركنا رأيك</h1>
       <p class="sub">رأيك يهمنا — اكتب تجربتك معنا في كلمات بسيطة</p>
     </div>
@@ -105,24 +143,6 @@ textarea{min-height:120px;resize:vertical;line-height:1.7;}
       <textarea id="fContent" placeholder="اكتب رأيك بصراحة... ما الذي أعجبك في تجربتك؟" maxlength="2000"></textarea>
     </div>
 
-    <!-- Optional photo -->
-    <div class="fg">
-      <label>صورتك الشخصية <span class="optional">(اختياري)</span></label>
-      <input type="file" id="fPhoto" accept="image/*" style="display:none" onchange="handlePhoto(this)">
-      <div class="photo-drop" id="photoDrop" onclick="document.getElementById('fPhoto').click()">
-        <div class="photo-drop-inner" id="photoPlaceholder">
-          <i class="fa-solid fa-camera"></i>
-          <span>اضغط لإضافة صورة</span>
-          <small>PNG، JPG — حد أقصى 5 ميجا</small>
-        </div>
-        <div class="photo-preview-wrap" id="photoPreview" style="display:none">
-          <div class="photo-circle"><img id="photoImg" src="" alt=""></div>
-          <span class="photo-name" id="photoFileName"></span>
-          <button class="photo-remove" onclick="removePhoto(event)"><i class="fa-solid fa-xmark"></i> إزالة</button>
-        </div>
-      </div>
-    </div>
-
     <button class="btn" id="submitBtn" onclick="submitForm()">
       <span id="btnText"><i class="fa-solid fa-paper-plane" style="margin-inline-end:8px;"></i>إرسال الرأي</span>
     </button>
@@ -145,7 +165,7 @@ textarea{min-height:120px;resize:vertical;line-height:1.7;}
 
 </div>
 <script>
-const USERNAME = location.pathname.split('/').pop();
+const USERNAME = location.pathname.split('/').filter(Boolean).pop();
 let rating = 5;
 let photoBase64 = null;
 
@@ -175,20 +195,24 @@ function handlePhoto(input){
   const reader = new FileReader();
   reader.onload = e => {
     photoBase64 = e.target.result;
-    document.getElementById('photoImg').src = photoBase64;
-    document.getElementById('photoFileName').textContent = file.name;
-    document.getElementById('photoPlaceholder').style.display = 'none';
-    document.getElementById('photoPreview').style.display = 'flex';
+    const img = document.getElementById('avatarImg');
+    img.src = photoBase64;
+    img.style.display = 'block';
+    document.getElementById('avatarPlaceholder').style.display = 'none';
+    document.getElementById('avatarRemoveBtn').style.display = 'inline-block';
+    document.getElementById('avatarRing').style.borderColor = '#F97316';
   };
   reader.readAsDataURL(file);
 }
 
-function removePhoto(e){
-  e.stopPropagation();
+function removePhoto(){
   photoBase64 = null;
   document.getElementById('fPhoto').value = '';
-  document.getElementById('photoPlaceholder').style.display = 'flex';
-  document.getElementById('photoPreview').style.display = 'none';
+  const img = document.getElementById('avatarImg');
+  img.src = ''; img.style.display = 'none';
+  document.getElementById('avatarPlaceholder').style.display = 'flex';
+  document.getElementById('avatarRemoveBtn').style.display = 'none';
+  document.getElementById('avatarRing').style.borderColor = '';
 }
 
 function showError(msg){
@@ -196,6 +220,11 @@ function showError(msg){
   el.textContent = '⚠️ ' + msg;
   el.style.display = 'block';
   setTimeout(() => el.style.display = 'none', 5000);
+}
+
+function resetBtn(){
+  document.getElementById('submitBtn').disabled = false;
+  document.getElementById('btnText').innerHTML = '<i class="fa-solid fa-paper-plane" style="margin-inline-end:8px;"></i>إرسال الرأي';
 }
 
 async function submitForm(){
@@ -210,12 +239,7 @@ async function submitForm(){
 
   try{
     const userRes = await fetch('/api/users/by-username/' + encodeURIComponent(USERNAME));
-    if(!userRes.ok){
-      showError('المستخدم غير موجود');
-      btn.disabled = false;
-      document.getElementById('btnText').innerHTML = '<i class="fa-solid fa-paper-plane" style="margin-inline-end:8px;"></i>إرسال الرأي';
-      return;
-    }
+    if(!userRes.ok){ showError('المستخدم غير موجود'); resetBtn(); return; }
     const userData = await userRes.json();
 
     const r = await fetch('/api/testimonials/submit', {
@@ -240,13 +264,11 @@ async function submitForm(){
       }
     } else {
       showError(d.error || 'فشل الإرسال');
-      btn.disabled = false;
-      document.getElementById('btnText').innerHTML = '<i class="fa-solid fa-paper-plane" style="margin-inline-end:8px;"></i>إرسال الرأي';
+      resetBtn();
     }
   }catch(e){
-    showError('خطأ في الاتصال');
-    btn.disabled = false;
-    document.getElementById('btnText').innerHTML = '<i class="fa-solid fa-paper-plane" style="margin-inline-end:8px;"></i>إرسال الرأي';
+    showError('خطأ في الاتصال — تأكد من الاتصال بالإنترنت');
+    resetBtn();
   }
 }
 </script>
