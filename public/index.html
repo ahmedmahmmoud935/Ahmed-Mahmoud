@@ -727,6 +727,98 @@ body[data-theme="corporate"] .nav-bar{border-bottom:1px solid var(--border);back
 /* Corporate — Tools */
 body[data-theme="corporate"] .tool-card{border-radius:8px;background:var(--bg2);}
 
+/* ─────────────────────────────────────────────────────
+   ⑥ AURORA — Animations & eye-catching effects
+   ───────────────────────────────────────────────────── */
+@keyframes au-gradient{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes au-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@keyframes au-glow{0%,100%{filter:drop-shadow(0 0 8px var(--accent))}50%{filter:drop-shadow(0 0 24px var(--accent))}}
+@keyframes au-shimmer{0%{left:-100%}100%{left:200%}}
+@keyframes au-border{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+
+/* Hero name — animated gradient text */
+body[data-theme="aurora"] .hero-name{
+  background:linear-gradient(90deg,var(--text) 0%,var(--accent) 40%,#f0abfc 70%,var(--text) 100%);
+  background-size:200% auto;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:au-gradient 5s ease infinite;
+}
+
+/* Section titles — gradient text */
+body[data-theme="aurora"] .sh h2,
+body[data-theme="aurora"] .section-title{
+  background:linear-gradient(90deg,var(--text),var(--accent));
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  display:inline-block;
+}
+
+/* Images — gentle float */
+body[data-theme="aurora"] .hero-split-img img,
+body[data-theme="aurora"] .about-visual-img img{
+  animation:au-float 6s ease-in-out infinite;
+}
+
+/* Primary button — glow pulse + shimmer */
+body[data-theme="aurora"] .btn-primary{
+  border-radius:50px;
+  position:relative;overflow:hidden;
+  animation:au-glow 3s ease-in-out infinite;
+}
+body[data-theme="aurora"] .btn-primary::before{
+  content:'';
+  position:absolute;top:0;width:50%;height:100%;
+  background:linear-gradient(120deg,transparent,rgba(255,255,255,.3),transparent);
+  animation:au-shimmer 2.5s linear infinite;
+}
+body[data-theme="aurora"] .btn-outline{border-radius:50px;}
+
+/* Project cards — lift + glow border on hover */
+body[data-theme="aurora"] .project-card{
+  transition:transform .4s cubic-bezier(.25,.46,.45,.94),filter .4s ease;
+  position:relative;
+}
+body[data-theme="aurora"] .project-card:hover{
+  transform:translateY(-8px) scale(1.02);
+  filter:brightness(1.08);
+}
+body[data-theme="aurora"] .project-card::after{
+  content:'';
+  position:absolute;inset:0;
+  border:2px solid transparent;
+  border-radius:inherit;
+  transition:border-color .4s;
+  pointer-events:none;
+}
+body[data-theme="aurora"] .project-card:hover::after{border-color:var(--accent);}
+
+/* Skill chips — lift + glow */
+body[data-theme="aurora"] .skill-chip{transition:all .3s ease;}
+body[data-theme="aurora"] .skill-chip:hover{
+  transform:translateY(-4px);
+  filter:drop-shadow(0 4px 12px var(--accent));
+}
+
+/* Expertise cards — slide + glow border */
+body[data-theme="aurora"] .exp-card-service{
+  overflow:hidden;
+  transition:transform .3s ease, border-color .3s ease, box-shadow .3s ease;
+}
+body[data-theme="aurora"] .exp-card-service:hover{
+  transform:translateX(-4px);
+  border-color:var(--accent) !important;
+  box-shadow:0 8px 28px rgba(167,139,250,.2);
+}
+
+/* Nav — glassmorphism */
+body[data-theme="aurora"] .nav-bar{
+  background:rgba(10,10,20,.6) !important;
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid rgba(167,139,250,.15);
+}
+
 /* ═══════════════ ADDITIONAL LAYOUTS ═══════════════ */
 
 /* SKILLS — Bars layout */
@@ -1056,6 +1148,11 @@ const THEMES = {
     style_projects:  'grid',
     style_contact:   'split',
     accent:          '#3B82F6',
+  },
+
+  // 6. Aurora — Animations & eye-catching effects
+  aurora: {
+    accent: '#a78bfa',
   },
 };
 

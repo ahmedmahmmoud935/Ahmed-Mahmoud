@@ -561,6 +561,9 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 .theme-editorial .theme-preview{background:linear-gradient(135deg,#0a0a0a,#1a1410);}
 .theme-creative .theme-preview{background:linear-gradient(135deg,#0a0a0a,#1f0a05);}
 .theme-cinema .theme-preview .tp-content::before{content:'';position:absolute;inset:-50px -20px 0 -20px;background:linear-gradient(to top,rgba(0,0,0,.8),transparent);z-index:-1;}
+@keyframes adm-au-bg{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.theme-aurora .theme-preview{background:linear-gradient(135deg,#0d0d1a,#1a0d2e,#0d1a2e);animation:adm-au-bg 4s ease infinite;background-size:200% 200%;}
+.theme-aurora .theme-preview .tp-title{background:linear-gradient(90deg,#fff,#a78bfa,#f0abfc);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
 </style>
 </head>
 <body>
@@ -815,10 +818,22 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
           </div></label>
       </div>
 
-      <div style="margin-top:24px;background:linear-gradient(135deg,rgba(249,115,22,.12),rgba(249,115,22,.03));border:1px dashed rgba(249,115,22,.3);border-radius:12px;padding:20px;text-align:center;">
-        <div style="font-size:34px;margin-bottom:10px;">🚀</div>
-        <div style="font-weight:800;font-size:15px;margin-bottom:6px;color:#fff;" data-i18n="design.upcoming">تحديثات قريبة</div>
-        <p style="color:#999;font-size:12.5px;margin:0;line-height:1.7;" data-i18n="design.upcomingDesc">ثيمات جاهزة احترافية قادمة بناءً على ملاحظات وآراء عملائنا — ابقَ متابعاً!</p>
+        <!-- Aurora theme card -->
+        <label class="theme-opt"><input type="radio" name="style_theme" value="aurora">
+          <div class="theme-card theme-aurora">
+            <div class="theme-preview">
+              <div class="tp-bar"></div>
+              <div class="tp-content">
+                <div class="tp-title">Aurora</div>
+                <div class="tp-sub">انيميشن — تأثيرات</div>
+              </div>
+            </div>
+            <div class="theme-info">
+              <div class="theme-name">✨ أورورا</div>
+              <div class="theme-desc">أنيميشن ناعم وتأثيرات بصرية تشد الانتباه</div>
+              <div class="theme-tags"><span>أنيميشن</span><span>جلاس</span><span>توهج</span></div>
+            </div>
+          </div></label>
       </div>
     </div>
   </div>
