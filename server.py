@@ -1,7 +1,7 @@
 import os, sqlite3, json, secrets, uuid, re, base64, time, shutil, threading
 from datetime import datetime, timedelta
 from collections import defaultdict, deque
-from flask import Flask, request, jsonify, session, send_from_directory, abort, redirect, send_file
+from flask import Flask, request, jsonify, session, send_from_directory, abort, redirect, send_file, Response
 from flask_cors import CORS
 from functools import wraps
 
@@ -2468,24 +2468,34 @@ def editor_page(pid):
 @app.route('/u/<username>')
 @app.route('/u/<username>/')
 def user_portfolio(username):
+    # Markdown negotiation — return text/markdown when AI agents request it
+    accept = request.headers.get('Accept', '')
+    if 'text/markdown' in accept:
+        db = get_db()
+        user = db.execute("SELECT id FROM users WHERE username=?", (username,)).fetchone()
+        if not user:
+            return Response("# Not Found\n\nUser not found.", status=404, mimetype='text/markdown')
+        rows = db.execute("SELECT key, value FROM settings WHERE user_id=?", (user['id'],)).fetchall()
+        stg = {r['key']: r['value'] for r in rows}
+        try: ct = json.loads(stg.get('content', '{}'))
+        except: ct = {}
+        hero  = ct.get('hero', {})
+        about = ct.get('about', {})
+        name  = hero.get('name_ar') or hero.get('name_en') or username
+        role  = hero.get('role_ar') or hero.get('role_en') or ''
+        bio   = about.get('bio_ar') or about.get('bio_en') or ''
+        md  = f"# {name}\n\n"
+        if role: md += f"**{role}**\n\n"
+        if bio:  md += f"{bio}\n\n"
+        md += f"[View Portfolio]({request.host_url}u/{username})\n"
+        return Response(md, mimetype='text/markdown; charset=utf-8',
+                        headers={'x-markdown-tokens': 'true'})
     return send_from_directory(app.static_folder, 'index.html')
 
-# ── AGENT-READY FILES ──
-
-@app.route('/robots.txt')
-def robots_txt():
-    host = request.host_url.rstrip('/')
-    body = f"""User-agent: *
-Allow: /
-
-Sitemap: {host}/sitemap.xml
-Sitemap: {host}/llms.txt
-"""
-    return Response(body, mimetype='text/plain')
+# ── AGENT-READY ENDPOINTS ──
 
 @app.route('/llms.txt')
 def llms_txt():
-    """llms.txt — emerging standard so AI agents can discover & understand the site."""
     db = get_db()
     host = request.host_url.rstrip('/')
     users = db.execute(
@@ -2500,20 +2510,24 @@ def llms_txt():
         "# Format: llms.txt v1 (https://llmstxt.org)",
         "",
         "## About",
-        "A multi-tenant portfolio builder. Each user has their own portfolio page.",
+        "A multi-tenant portfolio builder. Each user has a public portfolio page.",
         "",
         "## Portfolios",
     ]
     for u in users:
-        name = u['name'] or u['username']
-        bio  = u['bio'] or ''
-        lines.append(f"- [{name}]({host}/u/{u['username']}): {bio}".strip(': '))
+        n = u['name'] or u['username']
+        b = u['bio'] or ''
+        line = f"- [{n}]({host}/u/{u['username']})"
+        if b: line += f": {b}"
+        lines.append(line)
     lines += [
         "",
-        "## API",
-        f"Public settings: {host}/api/settings?username=<username>",
-        f"Public projects: {host}/api/projects?username=<username>",
-        f"Public testimonials: {host}/api/testimonials?username=<username>",
+        "## API (public, no auth required)",
+        f"- Settings:      GET {host}/api/settings?username=<username>",
+        f"- Projects:      GET {host}/api/projects?username=<username>",
+        f"- Testimonials:  GET {host}/api/testimonials?username=<username>",
+        f"- Achievements:  GET {host}/api/achievements/public?user_id=<id>",
+        f"- OpenAPI spec:  GET {host}/openapi.json",
     ]
     return Response('\n'.join(lines), mimetype='text/plain')
 
@@ -2522,12 +2536,124 @@ def sitemap_xml():
     db = get_db()
     host = request.host_url.rstrip('/')
     usernames = db.execute("SELECT username FROM users WHERE username IS NOT NULL").fetchall()
-    urls = [f"  <url><loc>{host}/u/{u['username']}</loc><changefreq>weekly</changefreq></url>"
+    urls = [f'  <url><loc>{host}/u/{u["username"]}</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>'
             for u in usernames]
-    body = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-    body += '\n'.join(urls)
-    body += '\n</urlset>'
+    body = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + '\n'.join(urls)
+        + '\n</urlset>'
+    )
     return Response(body, mimetype='application/xml')
+
+@app.route('/openapi.json')
+def openapi_spec():
+    host = request.host_url.rstrip('/')
+    spec = {
+        "openapi": "3.1.0",
+        "info": {"title": "Portfolio Builder API", "version": "1.0.0",
+                 "description": "Public API for multi-tenant portfolio builder"},
+        "servers": [{"url": host}],
+        "paths": {
+            "/api/settings": {"get": {"summary": "Get portfolio settings",
+                "parameters": [{"name": "username","in": "query","required": True,"schema": {"type": "string"}}],
+                "responses": {"200": {"description": "Portfolio settings JSON"}}}},
+            "/api/projects": {"get": {"summary": "Get portfolio projects",
+                "parameters": [{"name": "username","in": "query","required": True,"schema": {"type": "string"}}],
+                "responses": {"200": {"description": "Projects list"}}}},
+            "/api/testimonials": {"get": {"summary": "Get approved testimonials",
+                "parameters": [{"name": "username","in": "query","required": True,"schema": {"type": "string"}}],
+                "responses": {"200": {"description": "Testimonials list"}}}},
+            "/api/testimonials/submit": {"post": {"summary": "Submit a testimonial",
+                "requestBody": {"required": True, "content": {"application/json": {"schema": {
+                    "type": "object",
+                    "required": ["user_id", "name", "content"],
+                    "properties": {
+                        "user_id": {"type": "integer"},
+                        "name":    {"type": "string"},
+                        "content": {"type": "string"},
+                        "rating":  {"type": "integer", "minimum": 1, "maximum": 5},
+                        "role":    {"type": "string"},
+                        "company": {"type": "string"},
+                        "photo":   {"type": "string", "description": "Base64 data URL"}
+                    }
+                }}}},
+                "responses": {"200": {"description": "ok"}}}},
+            "/api/achievements/public": {"get": {"summary": "Get public achievements/stats",
+                "parameters": [{"name": "user_id","in": "query","required": True,"schema": {"type": "integer"}}],
+                "responses": {"200": {"description": "Achievements list"}}}},
+            "/api/health": {"get": {"summary": "Health check",
+                "responses": {"200": {"description": "Service status"}}}}
+        }
+    }
+    return Response(json.dumps(spec, ensure_ascii=False), mimetype='application/openapi+json')
+
+@app.route('/api/health')
+def health_check():
+    return jsonify({'status': 'ok', 'service': 'portfolio-builder', 'timestamp': datetime.utcnow().isoformat()})
+
+@app.route('/.well-known/api-catalog')
+def api_catalog():
+    host = request.host_url.rstrip('/')
+    catalog = {"linkset": [{"anchor": f"{host}/api/",
+        "service-desc": [{"href": f"{host}/openapi.json", "type": "application/openapi+json"}],
+        "service-doc":  [{"href": f"{host}/llms.txt",    "type": "text/plain"}],
+        "status":       [{"href": f"{host}/api/health",  "type": "application/json"}]
+    }]}
+    return Response(json.dumps(catalog), mimetype='application/linkset+json')
+
+@app.route('/.well-known/mcp/server-card.json')
+def mcp_server_card():
+    host = request.host_url.rstrip('/')
+    return jsonify({
+        "serverInfo": {"name": "Portfolio Builder", "version": "1.0.0"},
+        "transport":  {"type": "http", "url": f"{host}/api/"},
+        "capabilities": {
+            "portfolios":   {"description": "Fetch portfolio data by username"},
+            "projects":     {"description": "Fetch portfolio projects"},
+            "testimonials": {"description": "Submit & fetch testimonials"},
+            "achievements": {"description": "Fetch public stats & achievements"}
+        }
+    })
+
+@app.route('/.well-known/agent-skills/index.json')
+def agent_skills_index():
+    host = request.host_url.rstrip('/')
+    return jsonify({
+        "$schema": "https://agentskills.io/schema/v0.2.0/index.json",
+        "skills": [
+            {"name": "get-portfolio", "type": "api",
+             "description": "Get a user portfolio (settings, projects, testimonials)",
+             "url": f"{host}/api/settings?username={{username}}"},
+            {"name": "submit-testimonial", "type": "api",
+             "description": "Submit a testimonial for a portfolio owner",
+             "url": f"{host}/api/testimonials/submit"}
+        ]
+    })
+
+@app.route('/.well-known/oauth-protected-resource')
+def oauth_protected_resource():
+    host = request.host_url.rstrip('/')
+    return jsonify({
+        "resource":              f"{host}/api/",
+        "authorization_servers": [],
+        "scopes_supported":      ["read:portfolio", "write:testimonial"],
+        "bearer_methods_supported": ["header"]
+    })
+
+@app.after_request
+def add_agent_link_headers(response):
+    """Inject Link headers on portfolio pages for agent discovery (RFC 8288)."""
+    if request.path in ('', '/') or request.path.startswith('/u/'):
+        host = request.host_url.rstrip('/')
+        response.headers['Link'] = (
+            f'<{host}/.well-known/api-catalog>; rel="api-catalog", '
+            f'<{host}/openapi.json>; rel="service-desc"; type="application/openapi+json", '
+            f'<{host}/llms.txt>; rel="describedby"; type="text/plain", '
+            f'<{host}/sitemap.xml>; rel="sitemap", '
+            f'<{host}/.well-known/mcp/server-card.json>; rel="mcp-server-card"'
+        )
+    return response
 
 @app.route('/', defaults={'path':''})
 @app.route('/<path:path>')
