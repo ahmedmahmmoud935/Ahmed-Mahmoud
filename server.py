@@ -2468,28 +2468,12 @@ def editor_page(pid):
 @app.route('/u/<username>')
 @app.route('/u/<username>/')
 def user_portfolio(username):
-    # Markdown negotiation — return text/markdown when AI agents request it
-    accept = request.headers.get('Accept', '')
-    if 'text/markdown' in accept:
-        db = get_db()
-        user = db.execute("SELECT id FROM users WHERE username=?", (username,)).fetchone()
-        if not user:
-            return Response("# Not Found\n\nUser not found.", status=404, mimetype='text/markdown')
-        rows = db.execute("SELECT key, value FROM settings WHERE user_id=?", (user['id'],)).fetchall()
-        stg = {r['key']: r['value'] for r in rows}
-        try: ct = json.loads(stg.get('content', '{}'))
-        except: ct = {}
-        hero  = ct.get('hero', {})
-        about = ct.get('about', {})
-        name  = hero.get('name_ar') or hero.get('name_en') or username
-        role  = hero.get('role_ar') or hero.get('role_en') or ''
-        bio   = about.get('bio_ar') or about.get('bio_en') or ''
-        md  = f"# {name}\n\n"
-        if role: md += f"**{role}**\n\n"
-        if bio:  md += f"{bio}\n\n"
-        md += f"[View Portfolio]({request.host_url}u/{username})\n"
-        return Response(md, mimetype='text/markdown; charset=utf-8',
-                        headers={'x-markdown-tokens': 'true'})
+    if 'text/markdown' in request.headers.get('Accept', ''):
+        md = _portfolio_markdown(username)
+        if md:
+            return Response(md, mimetype='text/markdown; charset=utf-8',
+                            headers={'x-markdown-tokens': 'true'})
+        return Response("# Not Found\n\nUser not found.", status=404, mimetype='text/markdown')
     return send_from_directory(app.static_folder, 'index.html')
 
 # ── AGENT-READY ENDPOINTS ──
@@ -2635,10 +2619,26 @@ def agent_skills_index():
 def oauth_protected_resource():
     host = request.host_url.rstrip('/')
     return jsonify({
-        "resource":              f"{host}/api/",
-        "authorization_servers": [],
-        "scopes_supported":      ["read:portfolio", "write:testimonial"],
+        "resource":                 f"{host}/api/",
+        "authorization_servers":    [],
+        "scopes_supported":         ["read:portfolio", "write:testimonial"],
         "bearer_methods_supported": ["header"]
+    })
+
+@app.route('/.well-known/oauth-authorization-server')
+@app.route('/.well-known/openid-configuration')
+def oauth_discovery():
+    """OAuth 2.0 Authorization Server Metadata (RFC 8414) — read-only public API."""
+    host = request.host_url.rstrip('/')
+    return jsonify({
+        "issuer":                               host,
+        "authorization_endpoint":              f"{host}/api/auth/authorize",
+        "token_endpoint":                      f"{host}/api/auth/token",
+        "jwks_uri":                            f"{host}/.well-known/jwks.json",
+        "response_types_supported":            ["token"],
+        "grant_types_supported":               ["client_credentials"],
+        "token_endpoint_auth_methods_supported": ["none"],
+        "scopes_supported":                    ["read:portfolio", "write:testimonial"]
     })
 
 @app.after_request
@@ -2655,9 +2655,46 @@ def add_agent_link_headers(response):
         )
     return response
 
+def _portfolio_markdown(username):
+    """Shared helper: build markdown for a portfolio username."""
+    db = get_db()
+    user = db.execute("SELECT id FROM users WHERE username=?", (username,)).fetchone()
+    if not user:
+        return None
+    rows = db.execute("SELECT key, value FROM settings WHERE user_id=?", (user['id'],)).fetchall()
+    stg  = {r['key']: r['value'] for r in rows}
+    try: ct = json.loads(stg.get('content', '{}'))
+    except: ct = {}
+    hero  = ct.get('hero', {})
+    about = ct.get('about', {})
+    name  = hero.get('name_ar') or hero.get('name_en') or username
+    role  = hero.get('role_ar') or hero.get('role_en') or ''
+    bio   = about.get('bio_ar') or about.get('bio_en') or ''
+    skills = ct.get('skills', {}).get('items', [])
+    md  = f"# {name}\n\n"
+    if role: md += f"**{role}**\n\n"
+    if bio:  md += f"{bio}\n\n"
+    if skills:
+        md += "## Skills\n\n"
+        for s in skills:
+            sn = s.get('name_ar') or s.get('name_en') or s.get('name') or ''
+            if sn: md += f"- {sn}\n"
+        md += "\n"
+    md += f"[View Portfolio]({request.host_url}u/{username})\n"
+    return md
+
 @app.route('/', defaults={'path':''})
 @app.route('/<path:path>')
 def serve(path):
+    # Markdown Negotiation for root (owner portfolio)
+    if path == '' and 'text/markdown' in request.headers.get('Accept', ''):
+        db   = get_db()
+        owner = db.execute("SELECT username FROM users WHERE is_owner=1").fetchone()
+        if owner:
+            md = _portfolio_markdown(owner['username'])
+            if md:
+                return Response(md, mimetype='text/markdown; charset=utf-8',
+                                headers={'x-markdown-tokens': 'true'})
     full = os.path.join(app.static_folder, path)
     if path and os.path.exists(full): return send_from_directory(app.static_folder, path)
     return send_from_directory(app.static_folder, 'index.html')

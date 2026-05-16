@@ -2784,5 +2784,84 @@ async function sendMsg(){
 }
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
 </script>
+
+<!-- WebMCP — expose portfolio tools to AI agents in the browser -->
+<script>
+(function(){
+  if(typeof navigator === 'undefined' || !navigator.modelContext) return;
+  const qs = location.search;
+  const username = (qs.match(/[?&]username=([^&]+)/) || ['',''])[1]
+                || location.pathname.split('/u/')[1] || '';
+  navigator.modelContext.provideContext({
+    name: 'portfolio-builder',
+    description: 'Multi-tenant portfolio builder — access portfolio data and submit testimonials',
+    tools: [
+      {
+        name: 'get_portfolio_settings',
+        description: 'Retrieve portfolio settings (name, bio, theme, sections) for a user',
+        inputSchema: {
+          type: 'object',
+          properties: { username: { type: 'string', description: 'Portfolio owner username' } },
+          required: ['username']
+        },
+        execute: async ({ username: u }) => {
+          const r = await fetch(`/api/settings?username=${encodeURIComponent(u||username)}`);
+          return r.json();
+        }
+      },
+      {
+        name: 'get_projects',
+        description: 'Retrieve portfolio projects for a user',
+        inputSchema: {
+          type: 'object',
+          properties: { username: { type: 'string' } },
+          required: ['username']
+        },
+        execute: async ({ username: u }) => {
+          const r = await fetch(`/api/projects?username=${encodeURIComponent(u||username)}`);
+          return r.json();
+        }
+      },
+      {
+        name: 'get_testimonials',
+        description: 'Retrieve approved testimonials for a portfolio',
+        inputSchema: {
+          type: 'object',
+          properties: { username: { type: 'string' } },
+          required: ['username']
+        },
+        execute: async ({ username: u }) => {
+          const r = await fetch(`/api/testimonials?username=${encodeURIComponent(u||username)}`);
+          return r.json();
+        }
+      },
+      {
+        name: 'submit_testimonial',
+        description: 'Submit a testimonial (review) for a portfolio owner',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            user_id: { type: 'integer', description: 'Portfolio owner user ID' },
+            name:    { type: 'string',  description: 'Reviewer full name' },
+            content: { type: 'string',  description: 'Testimonial text (min 10 chars)' },
+            rating:  { type: 'integer', minimum: 1, maximum: 5 },
+            role:    { type: 'string' },
+            company: { type: 'string' }
+          },
+          required: ['user_id', 'name', 'content']
+        },
+        execute: async (body) => {
+          const r = await fetch('/api/testimonials/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+          return r.json();
+        }
+      }
+    ]
+  });
+})();
+</script>
 </body>
 </html>
