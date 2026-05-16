@@ -3214,6 +3214,7 @@ function setTab(tab,el){
   });
   if(tab==='navbar')renderNavbarList();
   if(tab==='categories')renderCategoriesUI();
+  if(tab==='sections')loadSections();
   if(tab==='design')loadDesign();
   if(tab==='analytics')loadAnalytics();
   if(tab==='users')loadUsers();
@@ -4500,7 +4501,7 @@ function renderSecList(){
 let dragIdx=null;
 function dragStart(e,i){dragIdx=i;setTimeout(()=>{const el=document.querySelectorAll('.sec-item')[i];if(el)el.classList.add('dragging');},0);}
 function dragOver(e,i){e.preventDefault();document.querySelectorAll('.sec-item').forEach((el,idx)=>el.classList.toggle('drag-over',idx===i&&idx!==dragIdx));}
-function drop(e,i){e.preventDefault();if(dragIdx===null||dragIdx===i)return;const moved=secData.splice(dragIdx,1)[0];secData.splice(i,0,moved);secData.forEach((s,idx)=>s.order=idx);dragIdx=null;renderSecList();}
+function drop(e,i){e.preventDefault();if(dragIdx===null||dragIdx===i)return;const moved=secData.splice(dragIdx,1)[0];const insertAt=dragIdx<i?i-1:i;secData.splice(insertAt,0,moved);secData.forEach((s,idx)=>s.order=idx);dragIdx=null;renderSecList();}
 function dragEnd(){dragIdx=null;document.querySelectorAll('.sec-item').forEach(el=>el.classList.remove('dragging','drag-over'));}
 function toggleSec(id,v){const s=secData.find(x=>x.id===id);if(s)s.visible=v;}
 async function saveSections(){
