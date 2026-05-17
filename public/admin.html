@@ -624,6 +624,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
     <div class="ni" onclick="setTab('navbar',this)"><i class="fa-solid fa-bars"></i> <span data-i18n="nav.navbar">الشريط العلوي</span></div>
     <div class="ni" onclick="setTab('content',this)"><i class="fa-solid fa-pen-to-square"></i> <span data-i18n="nav.content">المحتوى</span></div>
     <div class="ni" onclick="setTab('logos',this)"><i class="fa-solid fa-buildings"></i> <span data-i18n="nav.logos">العملاء</span></div>
+    <div class="ni" onclick="setTab('achievements',this)"><i class="fa-solid fa-trophy"></i> <span data-i18n="nav.achievements">الإنجازات</span></div>
     <div class="ni" onclick="setTab('testimonials',this)"><i class="fa-solid fa-quote-right"></i> <span data-i18n="nav.testimonials">آراء العملاء</span></div>
     <div class="ni" onclick="setTab('social',this)"><i class="fa-solid fa-share-nodes"></i> <span data-i18n="nav.social">التواصل</span></div>
     <!-- يظهر فقط للمالك -->
@@ -1130,19 +1131,20 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
     </div>
   </div>
 
-  <!-- ACHIEVEMENTS SECTION -->
-  <div style="margin-top:24px;">
-    <div class="ph" style="margin-bottom:14px;">
-      <div><div class="pt" style="font-size:16px;">📊 الإحصائيات والإنجازات</div><div class="ps">أرقام تظهر على موقعك — عدد المشاريع، العملاء، سنوات الخبرة...</div></div>
-      <button class="btn-add" onclick="openAchModal()"><i class="fa-solid fa-plus"></i> إضافة إحصائية</button>
-    </div>
-    <div class="card">
-      <div id="achGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;"></div>
-      <div id="achEmpty" style="text-align:center;padding:40px 20px;color:#666;display:none;">
-        <i class="fa-solid fa-chart-bar" style="font-size:36px;color:#333;margin-bottom:12px;"></i>
-        <div style="font-size:13px;">لا توجد إحصائيات بعد</div>
-        <div style="font-size:11px;color:#888;margin-top:4px;">اضغط "إضافة إحصائية" لإضافة أرقامك</div>
-      </div>
+</div>
+
+<!-- ACHIEVEMENTS TAB -->
+<div id="tab-achievements" style="display:none;">
+  <div class="ph">
+    <div><div class="pt" data-i18n="page.ach.title">الإنجازات والإحصائيات</div><div class="ps" data-i18n="page.ach.sub">أرقام تظهر على موقعك — عدد المشاريع، العملاء، سنوات الخبرة...</div></div>
+    <button class="btn-add" onclick="openAchModal()"><i class="fa-solid fa-plus"></i> <span data-i18n="ach.add">إضافة إحصائية</span></button>
+  </div>
+  <div class="card">
+    <div id="achGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;"></div>
+    <div id="achEmpty" style="text-align:center;padding:50px 20px;color:#666;display:none;">
+      <i class="fa-solid fa-chart-bar" style="font-size:42px;color:#333;margin-bottom:14px;"></i>
+      <div style="font-size:14px;" data-i18n="ach.empty">لا توجد إحصائيات بعد</div>
+      <div style="font-size:12px;color:#888;margin-top:4px;" data-i18n="ach.emptyHint">اضغط "إضافة إحصائية" لإضافة أرقامك</div>
     </div>
   </div>
 </div>
@@ -1877,9 +1879,15 @@ const I18N = {
     'nav.navbar': 'الشريط العلوي',
     'nav.content': 'المحتوى',
     'nav.logos': 'العملاء',
+    'nav.achievements': 'الإنجازات',
     'nav.testimonials': 'آراء العملاء',
     'nav.social': 'التواصل',
     'nav.users': 'إدارة العملاء',
+    'page.ach.title': 'الإنجازات والإحصائيات',
+    'page.ach.sub': 'أرقام تظهر على موقعك — عدد المشاريع، العملاء، سنوات الخبرة...',
+    'ach.add': 'إضافة إحصائية',
+    'ach.empty': 'لا توجد إحصائيات بعد',
+    'ach.emptyHint': 'اضغط "إضافة إحصائية" لإضافة أرقامك',
     // Sidebar footer
     'sb.loggedAs': 'مسجل كـ',
     'sb.storage': 'المساحة المستخدمة',
@@ -2480,9 +2488,15 @@ const I18N = {
     'nav.navbar': 'Top Navbar',
     'nav.content': 'Content',
     'nav.logos': 'Clients',
+    'nav.achievements': 'Achievements',
     'nav.testimonials': 'Testimonials',
     'nav.social': 'Social',
     'nav.users': 'Manage Clients',
+    'page.ach.title': 'Achievements & Stats',
+    'page.ach.sub': 'Numbers shown on your site — projects, clients, years of experience...',
+    'ach.add': 'Add Stat',
+    'ach.empty': 'No stats yet',
+    'ach.emptyHint': 'Click "Add Stat" to add your numbers',
     // Sidebar footer
     'sb.loggedAs': 'Logged in as',
     'sb.storage': 'Storage Used',
@@ -3209,7 +3223,7 @@ async function initApp(){
 // ══ TABS ══
 function setTab(tab,el){
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));el.classList.add('active');
-  ['projects','analytics','categories','colors','design','sections','navbar','content','logos','testimonials','social','users'].forEach(t=>{
+  ['projects','analytics','categories','colors','design','sections','navbar','content','logos','achievements','testimonials','social','users'].forEach(t=>{
     const d=document.getElementById('tab-'+t);if(d)d.style.display=t===tab?'block':'none';
   });
   if(tab==='navbar')renderNavbarList();
@@ -3218,7 +3232,8 @@ function setTab(tab,el){
   if(tab==='design')loadDesign();
   if(tab==='analytics')loadAnalytics();
   if(tab==='users')loadUsers();
-  if(tab==='logos'){loadLogos();loadAchievements();}
+  if(tab==='logos')loadLogos();
+  if(tab==='achievements')loadAchievements();
   if(tab==='testimonials')loadTestimonials();
   if(window.innerWidth<=900)toggleSidebar(false);
 }

@@ -1480,10 +1480,8 @@ function buildPage(){
       if(el) el.href = S.favicon_url;
     });
   }
-  const hasAchSec=secs.some(s=>s.id==='achievements');
-  const achHtml=(!hasAchSec&&window._ACHIEVEMENTS&&window._ACHIEVEMENTS.length)?buildAchievements(a):'';
   const secsHtml=secs.map(s=>buildSec(s,ct,a)).join('');
-  document.getElementById('mainPage').innerHTML=secsHtml+achHtml+buildFooter(a);
+  document.getElementById('mainPage').innerHTML=secsHtml+buildFooter(a);
   document.getElementById('pgFooter').innerHTML=footerInner(a);
   document.getElementById('pgBackLabel').textContent=a?'رجوع':'Back';
   // Default to first visible project tab (set by buildProjects)

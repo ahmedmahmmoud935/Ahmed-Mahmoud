@@ -92,8 +92,9 @@ DEFAULT_SECTIONS = json.dumps([
     {"id":"experience",   "label_ar":"الخبرات",      "label_en":"Experience",    "visible":True,"order":6},
     {"id":"projects",     "label_ar":"المشاريع",     "label_en":"Projects",      "visible":True,"order":7},
     {"id":"logos",        "label_ar":"العملاء",      "label_en":"Clients",       "visible":True,"order":8},
-    {"id":"testimonials", "label_ar":"آراء العملاء","label_en":"Testimonials",  "visible":True,"order":9},
-    {"id":"contact",      "label_ar":"تواصل معي",   "label_en":"Contact",       "visible":True,"order":10},
+    {"id":"testimonials",  "label_ar":"آراء العملاء","label_en":"Testimonials",  "visible":True,"order":9},
+    {"id":"achievements",  "label_ar":"الإنجازات",   "label_en":"Achievements",  "visible":True,"order":10},
+    {"id":"contact",       "label_ar":"تواصل معي",   "label_en":"Contact",       "visible":True,"order":11},
 ])
 DEFAULT_CONTENT = json.dumps({
     "hero":{"name_en":"Your Name","name_ar":"اسمك","title_en":"Graphic Designer","title_ar":"مصمم جرافيك","btn1_en":"View Work","btn1_ar":"أعمالي","btn2_en":"Get In Touch","btn2_ar":"تواصل معي"},
@@ -1023,6 +1024,10 @@ def get_settings():
             if 'testimonials' not in existing_ids:
                 contact_idx = next((i for i,s in enumerate(secs) if s.get('id')=='contact'), len(secs))
                 secs.insert(contact_idx, {"id":"testimonials","label_ar":"آراء العملاء","label_en":"Testimonials","visible":True,"order":contact_idx})
+                changed = True
+            if 'achievements' not in existing_ids:
+                contact_idx = next((i for i,s in enumerate(secs) if s.get('id')=='contact'), len(secs))
+                secs.insert(contact_idx, {"id":"achievements","label_ar":"الإنجازات","label_en":"Achievements","visible":True,"order":contact_idx})
                 changed = True
             if changed:
                 # Re-number orders
