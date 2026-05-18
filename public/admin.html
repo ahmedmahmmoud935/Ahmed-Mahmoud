@@ -1195,26 +1195,15 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
     <button class="btn-add" onclick="openTestModal()"><i class="fa-solid fa-plus"></i> <span data-i18n="test.add">إضافة رأي</span></button>
   </div>
 
-  <!-- Public form toggle -->
+  <!-- Feedback link (always visible) -->
   <div class="card" style="margin-bottom:14px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;">
-      <div style="flex:1;min-width:240px;">
-        <div style="font-weight:800;font-size:14px;margin-bottom:6px;"><i class="fa-solid fa-link" style="color:var(--o);margin-inline-end:8px;"></i><span data-i18n="test.openTitle">استقبال آراء من العملاء</span></div>
-        <div style="color:#888;font-size:12px;line-height:1.6;" data-i18n="test.openDesc">فعّل هذه الميزة لإرسال رابط لعملائك لكتابة رأيهم بأنفسهم. الآراء تكون قيد المراجعة قبل النشر.</div>
-      </div>
-      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
-        <input type="checkbox" id="testOpenToggle" onchange="toggleTestOpen(this)" style="width:18px;height:18px;accent-color:var(--o);">
-        <span style="font-weight:700;font-size:13px;" data-i18n="test.toggle">تشغيل</span>
-      </label>
-    </div>
-    <div id="testLinkBox" style="display:none;margin-top:14px;padding:14px;background:#0a0a0a;border:1px solid #1f1f1f;border-radius:10px;">
-      <div style="font-size:12px;color:#888;margin-bottom:8px;" data-i18n="test.linkLabel">رابط استقبال الآراء (شارك مع عملائك):</div>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <code id="testLink" style="flex:1;background:#000;padding:10px 12px;border-radius:6px;font-size:11.5px;color:#22c55e;font-family:monospace;word-break:break-all;direction:ltr;text-align:left;"></code>
-        <button onclick="copyTestLink()" id="copyTestBtn" style="background:#22c55e;color:#fff;border:none;padding:10px 16px;border-radius:6px;cursor:pointer;font-weight:700;font-size:12px;font-family:inherit;flex-shrink:0;">
-          <i class="fa-solid fa-copy"></i> <span data-i18n="btn.copy">نسخ</span>
-        </button>
-      </div>
+    <div style="font-weight:800;font-size:14px;margin-bottom:8px;"><i class="fa-solid fa-link" style="color:var(--o);margin-inline-end:8px;"></i><span data-i18n="test.openTitle">رابط استقبال آراء العملاء</span></div>
+    <div style="color:#888;font-size:12px;margin-bottom:12px;" data-i18n="test.openDesc">شارك هذا الرابط مع عملائك — يكتبون رأيهم وأنت تراجعه قبل النشر</div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <code id="testLink" style="flex:1;background:#000;padding:10px 12px;border-radius:6px;font-size:11.5px;color:#22c55e;font-family:monospace;word-break:break-all;direction:ltr;text-align:left;"></code>
+      <button onclick="copyTestLink()" id="copyTestBtn" style="background:#22c55e;color:#fff;border:none;padding:10px 16px;border-radius:6px;cursor:pointer;font-weight:700;font-size:12px;font-family:inherit;flex-shrink:0;white-space:nowrap;">
+        <i class="fa-solid fa-copy"></i> <span data-i18n="btn.copy">نسخ</span>
+      </button>
     </div>
   </div>
 
@@ -3550,9 +3539,20 @@ async function saveDesign(){
     const r = await fetch('/api/settings', { method:'PUT', credentials:'include', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
     if(r.ok){
       Object.assign(S, payload);
+      // Sync image URLs into S so preview reflects new uploads
+      if(photoData && photoData.startsWith('/uploads/')) S.photo_url = photoData;
+      else if(photoData === '') S.photo_url = '';
+      if(heroCoverData && heroCoverData.startsWith('/uploads/')) S.hero_cover_url = heroCoverData;
+      else if(heroCoverData === '') S.hero_cover_url = '';
+      if(brandLogoData && brandLogoData.startsWith('/uploads/')) S.brand_logo_url = brandLogoData;
+      else if(brandLogoData === '') S.brand_logo_url = '';
+      if(faviconData && faviconData.startsWith('/uploads/')) S.favicon_url = faviconData;
+      else if(faviconData === '') S.favicon_url = '';
       // Reset image data globals
       if(typeof heroCoverData !== 'undefined') heroCoverData = null;
       if(typeof photoData     !== 'undefined') photoData = null;
+      if(typeof brandLogoData !== 'undefined') brandLogoData = null;
+      if(typeof faviconData   !== 'undefined') faviconData = null;
       showToast('تم حفظ التصميم ✅');
     } else {
       const e = await r.json();
@@ -5728,11 +5728,9 @@ async function loadTestimonials(){
     const d = await r.json();
     TESTIMONIALS = d.testimonials || [];
     renderTestimonials();
-    // Load toggle state
-    const sr = await fetch('/api/settings',{credentials:'include'}).then(r=>r.json()).catch(()=>({}));
-    const isOpen = sr.testimonials_open === '1' || sr.testimonials_open === 'true' || sr.testimonials_open === true;
-    document.getElementById('testOpenToggle').checked = isOpen;
-    updateTestLinkBox(isOpen);
+    // Always show the feedback link
+    const linkEl = document.getElementById('testLink');
+    if(linkEl) linkEl.textContent = location.origin + '/testimonial/' + (window._username || '');
   }catch(e){ console.warn('loadTestimonials:',e); }
 }
 
@@ -5884,30 +5882,6 @@ async function deleteTest(id){
     const r = await fetch('/api/testimonials/'+id,{method:'DELETE',credentials:'include'});
     if(r.ok){ toast(t('toast.deleted')); await loadTestimonials(); await loadStorageInfo(); }
   }catch{}
-}
-
-async function toggleTestOpen(input){
-  const isOpen = input.checked;
-  try{
-    const r = await fetch('/api/settings',{method:'PUT',credentials:'include',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({testimonials_open: isOpen ? '1' : '0'})});
-    if(r.ok){
-      toast(isOpen ? '✓ تم تفعيل استقبال الآراء' : '✓ تم إيقاف استقبال الآراء');
-      updateTestLinkBox(isOpen);
-    }
-  }catch(e){ toast(t('toast.connectionError'),'error'); input.checked = !isOpen; }
-}
-
-function updateTestLinkBox(isOpen){
-  const box = document.getElementById('testLinkBox');
-  if(isOpen){
-    const username = window._username || '';
-    document.getElementById('testLink').textContent = location.origin + '/testimonial/' + username;
-    box.style.display = 'block';
-  } else {
-    box.style.display = 'none';
-  }
 }
 
 async function copyTestLink(){
@@ -6069,7 +6043,7 @@ async function loadUsers(){
   if(!list) return;
   list.innerHTML='<div class="empty"><i class="fa-solid fa-spinner fa-spin"></i><br>جاري التحميل...</div>';
   try{
-    const res = await fetch('/api/users',{credentials:'include'});
+    const res = await fetch('/api/owner/users',{credentials:'include'});
     if(!res.ok){
       const err = await res.json().catch(()=>({}));
       list.innerHTML=`<div class="empty" style="color:var(--red)"><i class="fa-solid fa-triangle-exclamation"></i><br>${err.error||'خطأ: '+res.status}</div>`;
@@ -6134,7 +6108,7 @@ async function doAddUser(){
   if(!username||!password){errEl.textContent='أدخل اسم المستخدم وكلمة المرور';errEl.style.display='block';return;}
   if(password.length<6){errEl.textContent='كلمة المرور يجب أن تكون 6 أحرف على الأقل';errEl.style.display='block';return;}
 
-  const r = await fetch('/api/users',{
+  const r = await fetch('/api/owner/users',{
     method:'POST',credentials:'include',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({username,password,storage_limit_mb:+storage})
@@ -6148,7 +6122,7 @@ async function doAddUser(){
 
 async function deleteUser(uid, username){
   if(!confirm(`حذف العميل "${username}"؟ سيتم حذف كل مشاريعه وبياناته نهائياً.`)) return;
-  const r = await fetch(`/api/users/${uid}`,{method:'DELETE',credentials:'include'}).then(r=>r.json());
+  const r = await fetch(`/api/owner/users/${uid}`,{method:'DELETE',credentials:'include'}).then(r=>r.json());
   if(r.error){showToast(r.error,'error');return;}
   loadUsers();
   showToast('تم حذف العميل ✅');
@@ -6158,7 +6132,7 @@ async function changeUserPass(uid, username){
   const newPass = prompt(`كلمة مرور جديدة للعميل "${username}":`)?.trim();
   if(!newPass) return;
   if(newPass.length<6){showToast('كلمة المرور يجب أن تكون 6 أحرف على الأقل','error');return;}
-  const r = await fetch(`/api/users/${uid}/password`,{
+  const r = await fetch(`/api/owner/users/${uid}/password`,{
     method:'PUT',credentials:'include',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({password:newPass})
@@ -6169,7 +6143,7 @@ async function changeUserPass(uid, username){
 
 // ══ DOMAIN MANAGEMENT ══
 async function manageDomain(uid, username){
-  const current = await fetch(`/api/users/${uid}/domain`,{credentials:'include'}).then(r=>r.json()).catch(()=>({}));
+  const current = await fetch(`/api/owner/users/${uid}/domain`,{credentials:'include'}).then(r=>r.json()).catch(()=>({}));
   const domain = prompt(
     `دومين العميل "${username}":\n\n` +
     `اكتب الدومين بدون https:// (مثال: ahmed.com)\n` +
@@ -6178,7 +6152,7 @@ async function manageDomain(uid, username){
     current.domain || ''
   );
   if(domain === null) return; // user cancelled
-  const r = await fetch(`/api/users/${uid}/domain`,{
+  const r = await fetch(`/api/owner/users/${uid}/domain`,{
     method:'PUT', credentials:'include',
     headers:{'Content-Type':'application/json'},
     body: JSON.stringify({domain: domain.trim()})

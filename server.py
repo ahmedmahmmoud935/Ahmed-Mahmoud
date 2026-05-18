@@ -2179,12 +2179,7 @@ def submit_testimonial():
     except: return jsonify({'error':'مستخدم غير صالح'}), 400
 
     db = get_db()
-    s = db.execute(
-        "SELECT value FROM settings WHERE user_id=? AND key='testimonials_open'", (user_id,)
-    ).fetchone()
-    is_open = (s and s['value'] in ('1','true','True'))
-    if not is_open:
-        return jsonify({'error':'استقبال الآراء معطل'}), 403
+    # testimonials submissions are always open — owner moderates via admin panel
 
     name = (d.get('name') or '').strip()[:100]
     content = (d.get('content') or '').strip()[:2000]
@@ -2368,18 +2363,13 @@ def reorder_testimonials():
     db.commit()
     return jsonify({'ok':True})
 
-# Public testimonial form page
+# Public testimonial form page — always accessible
 @app.route('/testimonial/<username>')
 def testimonial_form_page(username):
     """Public form for clients to submit testimonials."""
     db = get_db()
     user = db.execute("SELECT id, username FROM users WHERE username=?", (username,)).fetchone()
     if not user: abort(404)
-    s = db.execute(
-        "SELECT value FROM settings WHERE user_id=? AND key='testimonials_open'", (user['id'],)
-    ).fetchone()
-    if not (s and s['value'] in ('1','true','True')):
-        return '<html><body style="font-family:Arial;text-align:center;padding:60px;background:#0a0a0a;color:#fff;"><h2>هذه الصفحة غير متاحة حالياً</h2></body></html>', 403
     return send_from_directory(app.static_folder, 'testimonial.html')
 
 
