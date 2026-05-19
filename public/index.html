@@ -1076,16 +1076,28 @@ const ar=()=>LANG==='ar';
 const T={en:{back:'Back',gallery:'Gallery',all:'All',designs:'Designs',reels:'Reels',send:'Send Message',name:'Name',email:'Email',subject:'Subject',msg:'Message',noProjects:'No projects yet',rights:'All rights reserved.'},ar:{back:'رجوع',gallery:'المعرض',all:'الكل',designs:'تصاميم',reels:'ريلز',send:'إرسال الرسالة',name:'الاسم',email:'البريد الإلكتروني',subject:'الموضوع',msg:'رسالتك',noProjects:'لا توجد مشاريع بعد',rights:'جميع الحقوق محفوظة.'}};
 const t=k=>(T[LANG]||T.en)[k]||k;
 
+// Top-level paths that are NEVER usernames (mirror of server-side _RESERVED_PATHS)
+const _RESERVED = new Set(['admin','owner','api','uploads','u','testimonial','editor','landing',
+  'robots.txt','llms.txt','sitemap.xml','openapi.json','favicon.ico',
+  '.well-known','manifest.json','index.html','admin.html','owner.html',
+  'editor.html','testimonial.html','landing.html','static','assets','public']);
+
 async function resolveUserId(){
-  // 1. Check if path is /u/<username>
-  const pathMatch = window.location.pathname.match(/^\/u\/([^\/]+)/);
+  // 1. Legacy path /u/<username>
+  let pathMatch = window.location.pathname.match(/^\/u\/([^\/]+)/);
   if(pathMatch){
     const username = pathMatch[1];
     const r = await fetch(`/api/resolve-user?username=${encodeURIComponent(username)}`).then(r=>r.json()).catch(()=>({}));
     return r.user_id || null;
   }
-  // 2. Check if on a custom domain (not the main server domain)
-  // We ask the server to resolve based on hostname
+  // 2. Pretty path /<username>
+  pathMatch = window.location.pathname.match(/^\/([^\/\.]+)\/?$/);
+  if(pathMatch && !_RESERVED.has(pathMatch[1].toLowerCase())){
+    const username = pathMatch[1];
+    const r = await fetch(`/api/resolve-user?username=${encodeURIComponent(username)}`).then(r=>r.json()).catch(()=>({}));
+    if(r.user_id) return r.user_id;
+  }
+  // 3. Custom domain
   const host = window.location.hostname;
   const r = await fetch(`/api/resolve-user?host=${encodeURIComponent(host)}`).then(r=>r.json()).catch(()=>({}));
   return r.user_id || null;
@@ -1093,6 +1105,11 @@ async function resolveUserId(){
 
 async function boot(){
   const userId = await resolveUserId();
+  // If no user resolved AND we're at the root path, redirect to landing
+  if(!userId && (location.pathname === '/' || location.pathname === '')){
+    window.location.replace('/landing.html');
+    return;
+  }
   window.__currentUserId = userId;
   const qs = userId ? `?user_id=${userId}` : '';
   try{

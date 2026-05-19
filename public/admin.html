@@ -3182,8 +3182,9 @@ async function doLogin(){
       // Update "View Site" link based on user
       const vsLink = document.getElementById('viewSiteLink');
       if(vsLink){
-        vsLink.href = d.is_owner ? '/' : ('/u/' + encodeURIComponent(d.username));
+        vsLink.href = '/' + encodeURIComponent(d.username);
       }
+      window._username = d.username;
       if(d.is_owner) document.querySelectorAll('.owner-only').forEach(el=>el.style.display='flex');
       initApp();
       loadStorageInfo();
@@ -6057,7 +6058,7 @@ async function loadUsers(){
     list.innerHTML = users.map(u=>{
       const pct = u.storage_limit_mb ? Math.round(u.storage_used_mb/u.storage_limit_mb*100) : 0;
       const barColor = pct>80?'#ef4444':'var(--o)';
-      const publicUrl = `/u/${u.username}`;
+      const publicUrl = `/${u.username}`;
       return `<div class="trow" style="grid-template-columns:1fr 140px 140px 130px">
         <div>
           <div class="rtitle">${u.username} ${u.is_owner?'<span style="background:rgba(249,115,22,.15);color:var(--o);padding:2px 8px;border-radius:4px;font-size:11px;">مالك</span>':''}</div>

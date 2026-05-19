@@ -115,6 +115,94 @@ DEFAULT_NAVBAR = json.dumps([
 DEFAULT_IMG_CATS = json.dumps(['Social Media','Brand Identity','Logo Design','Print Design','Packaging','Posters','UI/UX'])
 DEFAULT_VID_CATS = json.dumps(['Reels','Motion Graphics','Video Editing','AI Videos','Promo Ads','Tutorials'])
 
+# ── Landing page (SaaS marketing page at root domain) ──
+DEFAULT_LANDING = {
+    "brand": {
+        "name": "ViralPX",
+        "logo_url": "",
+        "tagline_ar": "منصة بناء البورتفوليو الاحترافي",
+        "tagline_en": "Professional Portfolio Builder"
+    },
+    "sections": [
+        {"id":"hero",        "label_ar":"الرئيسية",      "label_en":"Hero",         "visible":True, "order":0},
+        {"id":"features",    "label_ar":"المميزات",      "label_en":"Features",     "visible":True, "order":1},
+        {"id":"how",         "label_ar":"كيف تعمل",      "label_en":"How It Works", "visible":True, "order":2},
+        {"id":"pricing",     "label_ar":"الأسعار",        "label_en":"Pricing",      "visible":True, "order":3},
+        {"id":"testimonials","label_ar":"آراء العملاء",  "label_en":"Testimonials", "visible":True, "order":4},
+        {"id":"faq",         "label_ar":"أسئلة شائعة",   "label_en":"FAQ",          "visible":True, "order":5},
+        {"id":"cta",         "label_ar":"دعوة للتسجيل",  "label_en":"CTA",          "visible":True, "order":6}
+    ],
+    "hero": {
+        "badge_ar":"جديد", "badge_en":"New",
+        "title_ar":"اعرض موهبتك للعالم في دقائق",
+        "title_en":"Showcase Your Talent to the World in Minutes",
+        "subtitle_ar":"منصة بناء بورتفوليو احترافي للمصممين والمبدعين. بدون كود، بدون تعقيد.",
+        "subtitle_en":"A professional portfolio platform for designers and creators. No code, no complexity.",
+        "cta1_text_ar":"ابدأ مجاناً", "cta1_text_en":"Get Started Free",
+        "cta1_link":"#pricing",
+        "cta2_text_ar":"شاهد الأمثلة", "cta2_text_en":"View Examples",
+        "cta2_link":"#testimonials",
+        "image_url":""
+    },
+    "features": {
+        "title_ar":"كل ما تحتاجه لبورتفوليو احترافي",
+        "title_en":"Everything You Need for a Pro Portfolio",
+        "subtitle_ar":"أدوات قوية وسهلة، مصممة للمبدعين",
+        "subtitle_en":"Powerful, easy tools designed for creators",
+        "items":[
+            {"icon":"fa-wand-magic-sparkles","title_ar":"تصاميم جاهزة","title_en":"Ready Designs","desc_ar":"اختر من قوالب احترافية متعددة","desc_en":"Choose from multiple professional templates"},
+            {"icon":"fa-mobile-screen","title_ar":"متجاوب 100%","title_en":"Fully Responsive","desc_ar":"يعمل على كل الأجهزة بسلاسة","desc_en":"Works seamlessly on all devices"},
+            {"icon":"fa-globe","title_ar":"دومين خاص","title_en":"Custom Domain","desc_ar":"اربط الدومين الخاص بك بسهولة","desc_en":"Connect your own domain easily"},
+            {"icon":"fa-chart-line","title_ar":"إحصائيات مفصلة","title_en":"Detailed Analytics","desc_ar":"اعرف زوّارك وتفاعلهم","desc_en":"Track your visitors and engagement"},
+            {"icon":"fa-language","title_ar":"عربي وإنجليزي","title_en":"AR & EN","desc_ar":"دعم كامل للغتين","desc_en":"Full bilingual support"},
+            {"icon":"fa-bolt","title_ar":"سرعة فائقة","title_en":"Lightning Fast","desc_ar":"تحميل فوري لزوّارك","desc_en":"Instant loading for your visitors"}
+        ]
+    },
+    "how": {
+        "title_ar":"ابدأ في 3 خطوات","title_en":"Start in 3 Steps",
+        "subtitle_ar":"بسيط، سريع، احترافي","subtitle_en":"Simple, fast, professional",
+        "steps":[
+            {"title_ar":"سجّل حسابك","title_en":"Sign Up","desc_ar":"اشترك واحصل على لوحة تحكم خاصة بك","desc_en":"Subscribe and get your own dashboard"},
+            {"title_ar":"ارفع أعمالك","title_en":"Upload Your Work","desc_ar":"أضف مشاريعك وصورك بكل سهولة","desc_en":"Add your projects and images easily"},
+            {"title_ar":"شارك بورتفوليوك","title_en":"Share Your Portfolio","desc_ar":"احصل على رابط احترافي تشاركه مع العالم","desc_en":"Get a professional link to share with the world"}
+        ]
+    },
+    "pricing": {
+        "title_ar":"اختر الخطة المناسبة لك","title_en":"Choose Your Plan",
+        "subtitle_ar":"بدون رسوم خفية، يمكنك الإلغاء في أي وقت","subtitle_en":"No hidden fees, cancel anytime",
+        "plans":[
+            {"name_ar":"البداية","name_en":"Starter","price":"49","currency_ar":"ج.م","currency_en":"EGP","period_ar":"شهرياً","period_en":"/month","popular":False,"features_ar":["بورتفوليو واحد","500 MB مساحة","رابط فرعي","دعم بالإيميل"],"features_en":["1 Portfolio","500 MB Storage","Subdomain","Email Support"],"cta_text_ar":"ابدأ الآن","cta_text_en":"Get Started","cta_link":"#contact"},
+            {"name_ar":"الاحترافي","name_en":"Pro","price":"149","currency_ar":"ج.م","currency_en":"EGP","period_ar":"شهرياً","period_en":"/month","popular":True,"features_ar":["بورتفوليو احترافي","2 GB مساحة","دومين خاص","إحصائيات مفصلة","دعم على مدار الساعة"],"features_en":["Pro Portfolio","2 GB Storage","Custom Domain","Detailed Analytics","24/7 Support"],"cta_text_ar":"الأكثر شعبية","cta_text_en":"Most Popular","cta_link":"#contact"},
+            {"name_ar":"المؤسسات","name_en":"Enterprise","price":"399","currency_ar":"ج.م","currency_en":"EGP","period_ar":"شهرياً","period_en":"/month","popular":False,"features_ar":["بورتفوليوهات متعددة","10 GB مساحة","دومين خاص","تخصيص كامل","مدير حساب خاص"],"features_en":["Multiple Portfolios","10 GB Storage","Custom Domain","Full Customization","Dedicated Manager"],"cta_text_ar":"تواصل معنا","cta_text_en":"Contact Us","cta_link":"#contact"}
+        ]
+    },
+    "testimonials": {
+        "title_ar":"ماذا يقول عملاؤنا","title_en":"What Our Clients Say",
+        "subtitle_ar":"قصص نجاح حقيقية من مبدعين يستخدمون منصتنا","subtitle_en":"Real success stories from creators using our platform",
+        "items":[]
+    },
+    "faq": {
+        "title_ar":"الأسئلة الشائعة","title_en":"Frequently Asked Questions",
+        "items":[
+            {"q_ar":"هل أحتاج خبرة برمجية؟","q_en":"Do I need coding experience?","a_ar":"لأ، المنصة سهلة جداً ولا تحتاج أي خبرة تقنية.","a_en":"No, the platform is very easy and requires no technical experience."},
+            {"q_ar":"هل يمكنني ربط دومين خاص؟","q_en":"Can I connect my own domain?","a_ar":"نعم، متاح في الخطة الاحترافية والمؤسسات.","a_en":"Yes, available in Pro and Enterprise plans."},
+            {"q_ar":"هل يمكنني الإلغاء في أي وقت؟","q_en":"Can I cancel anytime?","a_ar":"بالتأكيد، الإلغاء فوري وبدون رسوم.","a_en":"Absolutely, cancellation is instant with no fees."}
+        ]
+    },
+    "cta": {
+        "title_ar":"جاهز لبناء بورتفوليوك؟","title_en":"Ready to Build Your Portfolio?",
+        "subtitle_ar":"انضم لمئات المبدعين اللي بنوا حضورهم الرقمي معنا","subtitle_en":"Join hundreds of creators who built their digital presence with us",
+        "btn_text_ar":"ابدأ مجاناً الآن","btn_text_en":"Start Free Now",
+        "btn_link":"#pricing"
+    },
+    "footer": {
+        "tagline_ar":"منصة البورتفوليو الاحترافي للمبدعين العرب","tagline_en":"Professional portfolio platform for Arab creators",
+        "email":"","phone":"","whatsapp":"",
+        "social":{"instagram":"","facebook":"","twitter":"","linkedin":"","behance":""}
+    }
+}
+DEFAULT_LANDING_JSON = json.dumps(DEFAULT_LANDING, ensure_ascii=False)
+
 def default_settings(user_id, db):
     for k, v in [
         ('whatsapp',''),('behance',''),('instagram',''),('linkedin',''),('facebook',''),('vimeo',''),
@@ -522,6 +610,62 @@ def owner_stats():
         'alloc_pct': alloc_pct,
         'safe_total_mb': safe_total,
     })
+
+# ══════════════ LANDING PAGE SETTINGS ══════════════
+# Stored under user_id=0 (global, owner-managed)
+LANDING_KEY = 'landing_data'
+
+def _deep_merge(base, override):
+    """Recursively merge override into base. Lists are replaced wholesale."""
+    if not isinstance(override, dict): return override
+    if not isinstance(base, dict): return override
+    out = dict(base)
+    for k, v in override.items():
+        if k in out and isinstance(out[k], dict) and isinstance(v, dict):
+            out[k] = _deep_merge(out[k], v)
+        else:
+            out[k] = v
+    return out
+
+def _get_landing(db):
+    row = db.execute("SELECT value FROM settings WHERE user_id=0 AND key=?", (LANDING_KEY,)).fetchone()
+    if row and row['value']:
+        try:
+            stored = json.loads(row['value'])
+            # Merge stored over defaults so newly-added fields don't break old saves
+            return _deep_merge(DEFAULT_LANDING, stored)
+        except: pass
+    return DEFAULT_LANDING
+
+@app.route('/api/landing', methods=['GET'])
+def get_landing():
+    """Public — returns the landing page data for rendering."""
+    return jsonify(_get_landing(get_db()))
+
+@app.route('/api/landing', methods=['PUT'])
+@owner_panel_required
+def update_landing():
+    """Owner-only — saves landing page configuration."""
+    d = request.get_json()
+    if not isinstance(d, dict):
+        return jsonify({'error':'بيانات غير صالحة'}), 400
+    db = get_db()
+    # Merge with existing so partial updates work
+    current = _get_landing(db)
+    merged  = _deep_merge(current, d)
+    db.execute("INSERT OR REPLACE INTO settings(user_id,key,value) VALUES(0,?,?)",
+               (LANDING_KEY, json.dumps(merged, ensure_ascii=False)))
+    db.commit()
+    return jsonify({'ok':True})
+
+@app.route('/api/landing/reset', methods=['POST'])
+@owner_panel_required
+def reset_landing():
+    """Owner-only — restore defaults."""
+    db = get_db()
+    db.execute("DELETE FROM settings WHERE user_id=0 AND key=?", (LANDING_KEY,))
+    db.commit()
+    return jsonify({'ok':True, 'data': DEFAULT_LANDING})
 
 # ── MY STORAGE (client) ──
 @app.route('/api/me/storage')
@@ -2404,20 +2548,37 @@ def contact_send():
     except Exception as e: print(f'Contact error: {e}'); return jsonify({'error':'حدث خطأ'}), 500
 
 # ── USER PORTFOLIO ROUTING ──
+def _lookup_domain_owner(db, raw_host):
+    """Lookup user_id for a host, trying both with and without 'www.' prefix.
+    Returns user_id or None if not found."""
+    if not raw_host: return None
+    host = raw_host.strip().lower().split(':')[0]
+    # Remove protocol if accidentally included
+    host = re.sub(r'^https?://', '', host).rstrip('/')
+    if not host: return None
+    # Try exact match first
+    row = db.execute("SELECT user_id FROM domains WHERE domain=?", (host,)).fetchone()
+    if row: return row['user_id']
+    # Try toggling www. prefix
+    alt = host[4:] if host.startswith('www.') else 'www.' + host
+    row = db.execute("SELECT user_id FROM domains WHERE domain=?", (alt,)).fetchone()
+    if row: return row['user_id']
+    return None
+
 @app.route('/api/resolve-user')
 def resolve_user():
     username = request.args.get('username','').strip()
-    host = request.args.get('host','').strip().lower().split(':')[0]
+    host = request.args.get('host','').strip()
     db = get_db()
     if username:
-        user = db.execute("SELECT id FROM users WHERE username=?", (username,)).fetchone()
+        user = db.execute("SELECT id FROM users WHERE LOWER(username)=?", (username.lower(),)).fetchone()
         if user: return jsonify({'user_id':user['id']})
         return jsonify({'error':'not found'}), 404
     if host:
-        domain = db.execute("SELECT user_id FROM domains WHERE domain=?", (host,)).fetchone()
-        if domain: return jsonify({'user_id':domain['user_id']})
-    owner = db.execute("SELECT id FROM users WHERE is_owner=1").fetchone()
-    return jsonify({'user_id': owner['id'] if owner else 1})
+        client_uid = _lookup_domain_owner(db, host)
+        if client_uid: return jsonify({'user_id': client_uid})
+    # No match — return null so frontend knows to show landing instead of a portfolio
+    return jsonify({'user_id': None})
 
 # ── STATIC ROUTES ──
 
@@ -2453,6 +2614,10 @@ def admin_page():
 @app.route('/owner')
 @app.route('/owner.html')
 def owner_page():
+    # Hide owner panel on client custom domains (prevents info disclosure)
+    client_uid = _lookup_domain_owner(get_db(), request.host)
+    if client_uid:
+        abort(404)
     return send_from_directory(app.static_folder, 'owner.html')
 
 @app.route('/admin/editor/<int:pid>')
@@ -2678,21 +2843,34 @@ def _portfolio_markdown(username):
     md += f"[View Portfolio]({request.host_url}u/{username})\n"
     return md
 
+# Reserved top-level paths that can NEVER be a username
+_RESERVED_PATHS = {
+    'admin','owner','api','uploads','u','testimonial','editor','landing',
+    'robots.txt','llms.txt','sitemap.xml','openapi.json','favicon.ico',
+    '.well-known','manifest.json','index.html','admin.html','owner.html',
+    'editor.html','testimonial.html','landing.html','static','assets','public'
+}
+
 @app.route('/', defaults={'path':''})
 @app.route('/<path:path>')
 def serve(path):
-    # Markdown Negotiation for root (owner portfolio)
-    if path == '' and 'text/markdown' in request.headers.get('Accept', ''):
-        db   = get_db()
-        owner = db.execute("SELECT username FROM users WHERE is_owner=1").fetchone()
-        if owner:
-            md = _portfolio_markdown(owner['username'])
-            if md:
-                return Response(md, mimetype='text/markdown; charset=utf-8',
-                                headers={'x-markdown-tokens': 'true'})
+    db = get_db()
+    # Static file?
     full = os.path.join(app.static_folder, path)
     if path and os.path.exists(full): return send_from_directory(app.static_folder, path)
-    return send_from_directory(app.static_folder, 'index.html')
+    # Pretty username URL: /<username> (single segment, no dots, not reserved)
+    if path and '/' not in path and '.' not in path:
+        first = path.split('/')[0].lower()
+        if first not in _RESERVED_PATHS:
+            user = db.execute("SELECT id FROM users WHERE LOWER(username)=?", (first,)).fetchone()
+            if user:
+                return send_from_directory(app.static_folder, 'index.html')
+    # Fallback: serve landing page (root acts as SaaS marketing page)
+    # If the host is a custom domain mapped to a client, serve their portfolio instead
+    client_uid = _lookup_domain_owner(db, request.host)
+    if client_uid:
+        return send_from_directory(app.static_folder, 'index.html')
+    return send_from_directory(app.static_folder, 'landing.html')
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

@@ -92,6 +92,74 @@ tr:hover td{background:rgba(255,255,255,.02)}
   .content{padding:16px}
   th:nth-child(3),td:nth-child(3){display:none}
 }
+
+/* ─── TOP TABS ─── */
+.top-tabs{display:flex;gap:6px;background:var(--bg2);border:1px solid var(--brd);border-radius:12px;padding:6px;margin-bottom:24px;width:fit-content}
+.top-tab{background:transparent;color:var(--g2);font-weight:700;font-size:14px;padding:10px 22px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;transition:.2s}
+.top-tab:hover{color:#fff}
+.top-tab.active{background:var(--o);color:#fff}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ─── LANDING EDITOR ─── */
+.landing-sections{display:flex;flex-direction:column;gap:16px}
+.lsec{background:var(--bg2);border:1px solid var(--brd);border-radius:12px;overflow:hidden}
+.lsec-head{padding:18px 22px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;background:var(--bg3);transition:background .2s}
+.lsec-head:hover{background:var(--bg4)}
+.lsec-title{font-weight:800;font-size:15px;display:flex;align-items:center;gap:10px}
+.lsec-title i.toggle{transition:transform .2s;color:var(--g2);font-size:12px}
+.lsec.open .lsec-title i.toggle{transform:rotate(180deg)}
+.lsec-body{display:none;padding:24px 22px;border-top:1px solid var(--brd)}
+.lsec.open .lsec-body{display:block}
+.lsec-icon{width:32px;height:32px;border-radius:8px;background:rgba(249,115,22,.15);color:var(--o);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:700px){.frow{grid-template-columns:1fr}}
+.fbox{display:flex;flex-direction:column;gap:6px}
+.fbox label{font-size:12px;color:var(--g2);font-weight:600}
+.fbox input,.fbox textarea,.fbox select{width:100%;background:var(--bg);border:1px solid var(--brd);color:#fff;padding:11px 13px;border-radius:8px;font-family:inherit;font-size:13px;outline:none;transition:.2s}
+.fbox input:focus,.fbox textarea:focus,.fbox select:focus{border-color:var(--o)}
+.fbox textarea{resize:vertical;min-height:70px;line-height:1.6}
+.fbox .hint{font-size:11px;color:var(--g2);margin-top:2px}
+
+/* Items list (features, FAQ, plans, testimonials) */
+.items-list{display:flex;flex-direction:column;gap:14px;margin-bottom:14px}
+.item-card{background:var(--bg);border:1px solid var(--brd);border-radius:10px;padding:16px;position:relative}
+.item-card .item-del{position:absolute;top:10px;left:10px;background:transparent;border:1px solid var(--brd);color:var(--g2);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:11px;transition:.2s}
+.item-card .item-del:hover{border-color:var(--red);color:var(--red)}
+.item-card .item-num{position:absolute;top:10px;right:10px;width:24px;height:24px;background:var(--bg3);border-radius:50%;color:var(--g2);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.btn-add-item{background:transparent;border:1.5px dashed var(--brd2);color:var(--g2);padding:14px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;width:100%;transition:.2s}
+.btn-add-item:hover{border-color:var(--o);color:var(--o);background:rgba(249,115,22,.04)}
+
+/* Section order (drag-drop) */
+.so-list{display:flex;flex-direction:column;gap:8px}
+.so-item{background:var(--bg);border:1px solid var(--brd);border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:grab;transition:.2s}
+.so-item:hover{border-color:var(--brd2)}
+.so-item.dragging{opacity:.4;background:rgba(249,115,22,.08);border-color:var(--o)}
+.so-item.drag-over{border-top:3px solid var(--o)}
+.so-grip{color:var(--g2);font-size:14px;cursor:grab}
+.so-name{flex:1;font-weight:700;font-size:13px}
+.so-toggle{position:relative;display:inline-block;width:38px;height:22px;flex-shrink:0}
+.so-toggle input{opacity:0;width:0;height:0}
+.so-slider{position:absolute;inset:0;background:var(--bg4);border-radius:22px;cursor:pointer;transition:.2s}
+.so-slider::before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.so-toggle input:checked + .so-slider{background:var(--o)}
+.so-toggle input:checked + .so-slider::before{transform:translateX(16px)}
+
+/* Save bar */
+.save-bar{position:sticky;bottom:0;background:linear-gradient(180deg,transparent,var(--bg) 30%);padding:24px 0 8px;margin-top:24px;display:flex;justify-content:flex-end;gap:10px;z-index:10}
+.btn-save{background:var(--o);color:#fff;border:none;padding:13px 28px;border-radius:10px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 8px 20px rgba(249,115,22,.3);transition:transform .2s}
+.btn-save:hover{transform:translateY(-1px)}
+.btn-reset{background:transparent;color:var(--g2);border:1px solid var(--brd2);padding:13px 22px;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.btn-reset:hover{border-color:var(--red);color:var(--red)}
+
+/* Preview link */
+.preview-bar{background:var(--bg2);border:1px solid var(--brd);border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.preview-bar .pleft{display:flex;align-items:center;gap:10px;color:var(--g2);font-size:13px}
+.preview-bar .pleft i{color:var(--o)}
+.preview-bar .pright{display:flex;gap:8px}
+.preview-bar a{background:var(--bg3);border:1px solid var(--brd);color:#fff;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+.preview-bar a:hover{border-color:var(--o);color:var(--o)}
 </style>
 </head>
 <body>
@@ -119,6 +187,14 @@ tr:hover td{background:rgba(255,255,255,.02)}
   </div>
 
   <div class="content">
+    <!-- TOP TABS -->
+    <div class="top-tabs">
+      <button class="top-tab active" data-tab="dashboard" onclick="switchTab('dashboard')"><i class="fa-solid fa-gauge-high"></i> الداش بورد</button>
+      <button class="top-tab" data-tab="landing" onclick="switchTab('landing')"><i class="fa-solid fa-rocket"></i> صفحة الهبوط</button>
+    </div>
+
+    <!-- ═══════ DASHBOARD TAB ═══════ -->
+    <div class="tab-panel active" id="tab-dashboard">
     <!-- STATS -->
     <div class="stats">
       <div class="stat"><div class="stat-num" id="statUsers">—</div><div class="stat-label">إجمالي العملاء</div></div>
@@ -157,6 +233,22 @@ tr:hover td{background:rgba(255,255,255,.02)}
             <tr class="empty-row"><td colspan="5"><i class="fa-solid fa-spinner fa-spin"></i> جاري التحميل...</td></tr>
           </tbody>
         </table>
+      </div>
+    </div>
+    </div><!-- /tab-dashboard -->
+
+    <!-- ═══════ LANDING TAB ═══════ -->
+    <div class="tab-panel" id="tab-landing">
+      <div class="preview-bar">
+        <div class="pleft"><i class="fa-solid fa-info-circle"></i> التعديلات بتظهر على صفحة الموقع الرئيسية مباشرة بعد الحفظ</div>
+        <div class="pright">
+          <a href="/" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> معاينة</a>
+          <button class="btn-reset" onclick="resetLanding()" style="padding:8px 14px;font-size:12px"><i class="fa-solid fa-rotate-left"></i> إعادة الافتراضي</button>
+        </div>
+      </div>
+
+      <div id="landingContent" style="text-align:center;padding:60px;color:var(--g2)">
+        <i class="fa-solid fa-spinner fa-spin" style="font-size:24px"></i><br><br>جاري تحميل البيانات...
       </div>
     </div>
   </div>
@@ -249,7 +341,7 @@ async function loadUsers(){
     tbody.innerHTML = users.map(u => {
       const pct   = u.storage_limit_mb ? Math.round(u.storage_used_mb / u.storage_limit_mb * 100) : 0;
       const color = pct > 80 ? '#ef4444' : '#F97316';
-      const pubUrl = `/u/${u.username}`;
+      const pubUrl = `/${u.username}`;
       return `<tr>
         <td>
           <div style="font-weight:700">${u.username} ${u.is_owner ? '<span class="badge">مالك</span>' : ''}</div>
@@ -374,6 +466,521 @@ function toast(msg, type='success'){
   el.className = `toast ${type} show`;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ══════════════════ TAB SWITCHING ══════════════════
+function switchTab(tab){
+  document.querySelectorAll('.top-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-'+tab));
+  if(tab === 'landing' && !LANDING) loadLanding();
+}
+
+// ══════════════════ LANDING EDITOR ══════════════════
+let LANDING = null;
+const SEC_ICONS = {
+  hero:'fa-home', features:'fa-star', how:'fa-list-ol', pricing:'fa-tag',
+  testimonials:'fa-quote-right', faq:'fa-circle-question', cta:'fa-bullhorn'
+};
+
+async function loadLanding(){
+  try{
+    LANDING = await fetch('/api/landing', {credentials:'include'}).then(r=>r.json());
+    renderLandingEditor();
+  }catch(e){
+    document.getElementById('landingContent').innerHTML = `<div style="color:var(--red)">خطأ: ${e.message}</div>`;
+  }
+}
+
+function renderLandingEditor(){
+  const html = `
+    <div class="landing-sections">
+      ${editorBrand()}
+      ${editorSectionOrder()}
+      ${editorHero()}
+      ${editorFeatures()}
+      ${editorHow()}
+      ${editorPricing()}
+      ${editorTestimonials()}
+      ${editorFaq()}
+      ${editorCta()}
+      ${editorFooter()}
+    </div>
+    <div class="save-bar">
+      <button class="btn-reset" onclick="resetLanding()"><i class="fa-solid fa-rotate-left"></i> إعادة الافتراضي</button>
+      <button class="btn-save" onclick="saveLanding()"><i class="fa-solid fa-floppy-disk"></i> حفظ التغييرات</button>
+    </div>`;
+  document.getElementById('landingContent').innerHTML = html;
+  document.getElementById('landingContent').style.padding = '0';
+  document.getElementById('landingContent').style.textAlign = 'right';
+  // Auto-open first section
+  document.querySelector('.lsec')?.classList.add('open');
+  setupSectionToggle();
+  setupSectionDragDrop();
+}
+
+function setupSectionToggle(){
+  document.querySelectorAll('.lsec-head').forEach(h => {
+    h.addEventListener('click', e => {
+      if(e.target.closest('.so-toggle')) return; // don't toggle on switch click
+      h.parentElement.classList.toggle('open');
+    });
+  });
+}
+
+// ── Helper: wraps a section with collapsible header ──
+function lsec(id, icon, title, body){
+  return `<div class="lsec" data-sec="${id}">
+    <div class="lsec-head">
+      <div class="lsec-title"><span class="lsec-icon"><i class="fa-solid ${icon}"></i></span> ${title}</div>
+      <i class="fa-solid fa-chevron-down toggle"></i>
+    </div>
+    <div class="lsec-body">${body}</div>
+  </div>`;
+}
+
+// ─── BRAND ───
+function editorBrand(){
+  const b = LANDING.brand || {};
+  return lsec('brand','fa-tag','العلامة التجارية', `
+    <div class="frow">
+      <div class="fbox"><label>اسم العلامة التجارية</label><input id="b_name" value="${esc(b.name)}"></div>
+      <div class="fbox"><label>رابط الشعار (Logo URL)</label><input id="b_logo" value="${esc(b.logo_url)}" placeholder="اتركه فاضي لاستخدام الاسم"></div>
+    </div>
+    <div class="frow">
+      <div class="fbox"><label>الوصف بالعربي</label><input id="b_tag_ar" value="${esc(b.tagline_ar)}"></div>
+      <div class="fbox"><label>الوصف بالإنجليزي</label><input id="b_tag_en" value="${esc(b.tagline_en)}" dir="ltr"></div>
+    </div>
+  `);
+}
+
+// ─── SECTION ORDER (drag-drop) ───
+function editorSectionOrder(){
+  const secs = (LANDING.sections || []).slice().sort((a,b)=>a.order-b.order);
+  const items = secs.map(s => `
+    <div class="so-item" draggable="true" data-id="${s.id}">
+      <i class="fa-solid fa-grip-vertical so-grip"></i>
+      <div class="so-name">${s.label_ar} <span style="color:var(--g2);font-weight:500">— ${s.label_en}</span></div>
+      <label class="so-toggle"><input type="checkbox" data-vis="${s.id}" ${s.visible?'checked':''}><span class="so-slider"></span></label>
+    </div>
+  `).join('');
+  return lsec('order','fa-arrows-up-down','ترتيب وإظهار الأقسام',
+    `<div style="color:var(--g2);font-size:13px;margin-bottom:14px;line-height:1.7">اسحب لإعادة الترتيب — استخدم المفتاح لإظهار/إخفاء القسم في الصفحة</div>
+    <div class="so-list" id="soList">${items}</div>`);
+}
+
+let dragId = null;
+function setupSectionDragDrop(){
+  const list = document.getElementById('soList');
+  if(!list) return;
+  list.querySelectorAll('.so-item').forEach(it => {
+    it.addEventListener('dragstart', e => { dragId = it.dataset.id; it.classList.add('dragging'); });
+    it.addEventListener('dragend',   () => { it.classList.remove('dragging'); list.querySelectorAll('.drag-over').forEach(x=>x.classList.remove('drag-over')); });
+    it.addEventListener('dragover',  e => { e.preventDefault(); if(it.dataset.id !== dragId) it.classList.add('drag-over'); });
+    it.addEventListener('dragleave', () => it.classList.remove('drag-over'));
+    it.addEventListener('drop', e => {
+      e.preventDefault();
+      it.classList.remove('drag-over');
+      if(!dragId || dragId === it.dataset.id) return;
+      const dragEl = list.querySelector(`[data-id="${dragId}"]`);
+      if(!dragEl) return;
+      list.insertBefore(dragEl, it);
+      dragId = null;
+    });
+  });
+}
+
+// ─── HERO ───
+function editorHero(){
+  const h = LANDING.hero || {};
+  return lsec('hero','fa-home','القسم الرئيسي (Hero)', `
+    <div class="frow">
+      <div class="fbox"><label>شارة (badge) عربي</label><input id="h_badge_ar" value="${esc(h.badge_ar)}"></div>
+      <div class="fbox"><label>Badge (English)</label><input id="h_badge_en" value="${esc(h.badge_en)}" dir="ltr"></div>
+    </div>
+    <div class="frow">
+      <div class="fbox"><label>العنوان الرئيسي (AR)</label><textarea id="h_title_ar">${esc(h.title_ar)}</textarea></div>
+      <div class="fbox"><label>Main Title (EN)</label><textarea id="h_title_en" dir="ltr">${esc(h.title_en)}</textarea></div>
+    </div>
+    <div class="frow">
+      <div class="fbox"><label>الوصف (AR)</label><textarea id="h_sub_ar">${esc(h.subtitle_ar)}</textarea></div>
+      <div class="fbox"><label>Subtitle (EN)</label><textarea id="h_sub_en" dir="ltr">${esc(h.subtitle_en)}</textarea></div>
+    </div>
+    <div class="frow">
+      <div class="fbox"><label>زر أساسي (AR)</label><input id="h_cta1_ar" value="${esc(h.cta1_text_ar)}"></div>
+      <div class="fbox"><label>Primary CTA (EN)</label><input id="h_cta1_en" value="${esc(h.cta1_text_en)}" dir="ltr"></div>
+    </div>
+    <div class="fbox" style="margin-bottom:14px"><label>رابط الزر الأساسي</label><input id="h_cta1_link" value="${esc(h.cta1_link)}" dir="ltr" placeholder="#pricing أو رابط كامل"></div>
+    <div class="frow">
+      <div class="fbox"><label>زر ثانوي (AR)</label><input id="h_cta2_ar" value="${esc(h.cta2_text_ar)}"></div>
+      <div class="fbox"><label>Secondary CTA (EN)</label><input id="h_cta2_en" value="${esc(h.cta2_text_en)}" dir="ltr"></div>
+    </div>
+    <div class="fbox" style="margin-bottom:14px"><label>رابط الزر الثانوي</label><input id="h_cta2_link" value="${esc(h.cta2_link)}" dir="ltr"></div>
+    <div class="fbox"><label>صورة Hero (URL)</label><input id="h_image" value="${esc(h.image_url)}" placeholder="اتركه فاضي لعرض placeholder"></div>
+  `);
+}
+
+// ─── FEATURES ───
+function editorFeatures(){
+  const f = LANDING.features || {};
+  const items = (f.items || []).map((it, i) => `
+    <div class="item-card" data-feature-idx="${i}">
+      <div class="item-num">${i+1}</div>
+      <button class="item-del" onclick="delItem('features',${i})"><i class="fa-solid fa-trash"></i></button>
+      <div class="frow"><div class="fbox"><label>أيقونة (FontAwesome)</label><input data-f="icon" value="${esc(it.icon)}" placeholder="fa-rocket"></div></div>
+      <div class="frow">
+        <div class="fbox"><label>العنوان (AR)</label><input data-f="title_ar" value="${esc(it.title_ar)}"></div>
+        <div class="fbox"><label>Title (EN)</label><input data-f="title_en" value="${esc(it.title_en)}" dir="ltr"></div>
+      </div>
+      <div class="frow">
+        <div class="fbox"><label>الوصف (AR)</label><textarea data-f="desc_ar">${esc(it.desc_ar)}</textarea></div>
+        <div class="fbox"><label>Description (EN)</label><textarea data-f="desc_en" dir="ltr">${esc(it.desc_en)}</textarea></div>
+      </div>
+    </div>
+  `).join('');
+  return lsec('features','fa-star','المميزات (Features)', `
+    <div class="frow">
+      <div class="fbox"><label>عنوان القسم (AR)</label><input id="f_title_ar" value="${esc(f.title_ar)}"></div>
+      <div class="fbox"><label>Section Title (EN)</label><input id="f_title_en" value="${esc(f.title_en)}" dir="ltr"></div>
+    </div>
+    <div class="frow">
+      <div class="fbox"><label>الوصف (AR)</label><input id="f_sub_ar" value="${esc(f.subtitle_ar)}"></div>
+      <div class="fbox"><label>Subtitle (EN)</label><input id="f_sub_en" value="${esc(f.subtitle_en)}" dir="ltr"></div>
+    </div>
+    <div style="height:1px;background:var(--brd);margin:18px 0"></div>
+    <div class="items-list" id="featuresList">${items}</div>
+    <button class="btn-add-item" onclick="addItem('features',{icon:'fa-star',title_ar:'',title_en:'',desc_ar:'',desc_en:''})"><i class="fa-solid fa-plus"></i> إضافة ميزة</button>
+  `);
+}
+
+// ─── HOW IT WORKS ───
+function editorHow(){
+  const h = LANDING.how || {};
+  const steps = (h.steps || []).map((st, i) => `
+    <div class="item-card" data-how-idx="${i}">
+      <div class="item-num">${i+1}</div>
+      <button class="item-del" onclick="delItem('how',${i})"><i class="fa-solid fa-trash"></i></button>
+      <div class="frow">
+        <div class="fbox"><label>عنوان الخطوة (AR)</label><input data-f="title_ar" value="${esc(st.title_ar)}"></div>
+        <div class="fbox"><label>Step Title (EN)</label><input data-f="title_en" value="${esc(st.title_en)}" dir="ltr"></div>
+      </div>
+      <div class="frow">
+        <div class="fbox"><label>الوصف (AR)</label><textarea data-f="desc_ar">${esc(st.desc_ar)}</textarea></div>
+        <div class="fbox"><label>Description (EN)</label><textarea data-f="desc_en" dir="ltr">${esc(st.desc_en)}</textarea></div>
+      </div>
+    </div>
+  `).join('');
+  return lsec('how','fa-list-ol','كيف تعمل (How It Works)', `
+    <div class="frow">
+      <div class="fbox"><label>عنوان القسم (AR)</label><input id="hw_title_ar" value="${esc(h.title_ar)}"></div>
+      <div class="fbox"><label>Title (EN)</label><input id="hw_title_en" value="${esc(h.title_en)}" dir="ltr"></div>
+    </div>
+    <div class="frow">
+      <div class="fbox"><label>الوصف (AR)</label><input id="hw_sub_ar" value="${esc(h.subtitle_ar)}"></div>
+      <div class="fbox"><label>Subtitle (EN)</label><input id="hw_sub_en" value="${esc(h.subtitle_en)}" dir="ltr"></div>
+    </div>
+    <div style="height:1px;background:var(--brd);margin:18px 0"></div>
+    <div class="items-list" id="howList">${steps}</div>
+    <button class="btn-add-item" onclick="addItem('how',{title_ar:'',title_en:'',desc_ar:'',desc_en:''})"><i class="fa-solid fa-plus"></i> إضافة خطوة</button>
+  `);
+}
+
+// ─── PRICING ───
+function editorPricing(){
+  const p = LANDING.pricing || {};
+  const plans = (p.plans || []).map((pl, i) => `
+    <div class="item-card" data-pricing-idx="${i}">
+      <div class="item-num">${i+1}</div>
+      <button class="item-del" onclick="delItem('pricing',${i})"><i class="fa-solid fa-trash"></i></button>
+      <div class="frow">
+        <div class="fbox"><label>اسم الخطة (AR)</label><input data-f="name_ar" value="${esc(pl.name_ar)}"></div>
+        <div class="fbox"><label>Plan Name (EN)</label><input data-f="name_en" value="${esc(pl.name_en)}" dir="ltr"></div>
+      </div>
+      <div class="frow">
+        <div class="fbox"><label>السعر</label><input data-f="price" value="${esc(pl.price)}" dir="ltr"></div>
+        <div class="fbox"><label>العملة (AR)</label><input data-f="currency_ar" value="${esc(pl.currency_ar)}"></div>
+        <div class="fbox"><label>Currency (EN)</label><input data-f="currency_en" value="${esc(pl.currency_en)}" dir="ltr"></div>
+      </div>
+      <div class="frow">
+        <div class="fbox"><label>المدة (AR) مثل: شهرياً</label><input data-f="period_ar" value="${esc(pl.period_ar)}"></div>
+        <div class="fbox"><label>Period (EN) e.g. /month</label><input data-f="period_en" value="${esc(pl.period_en)}" dir="ltr"></div>
+      </div>
+      <div class="frow">
+        <div class="fbox"><label>المميزات (AR) — سطر لكل ميزة</label><textarea data-f="features_ar" rows="4">${esc((pl.features_ar||[]).join('\n'))}</textarea></div>
+        <div class="fbox"><label>Features (EN) — one per line</label><textarea data-f="features_en" rows="4" dir="ltr">${esc((pl.features_en||[]).join('\n'))}</textarea></div>
+      </div>
+      <div class="frow">
+        <div class="fbox"><label>نص الزر (AR)</label><input data-f="cta_text_ar" value="${esc(pl.cta_text_ar)}"></div>
+        <div class="fbox"><label>CTA Text (EN)</label><input data-f="cta_text_en" value="${esc(pl.cta_text_en)}" dir="ltr"></div>
+      </div>
+      <div class="frow">
+        <div class="fbox"><label>رابط الزر</label><input data-f="cta_link" value="${esc(pl.cta_link)}" dir="ltr"></div>
+        <div class="fbox"><label>الأكثر شعبية؟</label><select data-f="popular"><option value="0" ${!pl.popular?'selected':''}>لا</option><option value="1" ${pl.popular?'selected':''}>نعم</option></select></div>
+      </div>
+    </div>
+  `).join('');
+  return lsec('pricing','fa-tag','الأسعار (Pricing)', `
+    <div class="frow">
+      <div class="fbox"><label>عنوان القسم (AR)</label><input id="p_title_ar" value="${esc(p.title_ar)}"></div>
+      <div class="fbox"><label>Title (EN)</label><input id="p_title_en" value="${esc(p.title_en)}" dir="ltr"></div>
+    </div>
+    <div class="frow">
+      <div class="fbox"><label>الوصف (AR)</label><input id="p_sub_ar" value="${esc(p.subtitle_ar)}"></div>
+      <div class="fbox"><label>Subtitle (EN)</label><input id="p_sub_en" value="${esc(p.subtitle_en)}" dir="ltr"></div>
+    </div>
+    <div style="height:1px;background:var(--brd);margin:18px 0"></div>
+    <div class="items-list" id="pricingList">${plans}</div>
+    <button class="btn-add-item" onclick="addItem('pricing',{name_ar:'خطة جديدة',name_en:'New Plan',price:'0',currency_ar:'ج.م',currency_en:'EGP',period_ar:'شهرياً',period_en:'/month',popular:false,features_ar:[],features_en:[],cta_text_ar:'اشترك',cta_text_en:'Subscribe',cta_link:'#contact'})"><i class="fa-solid fa-plus"></i> إضافة خطة</button>
+  `);
+}
+
+// ─── TESTIMONIALS ───
+function editorTestimonials(){
+  const t = LANDING.testimonials || {};
+  const items = (t.items || []).map((it, i) => `
+    <div class="item-card" data-testimonials-idx="${i}">
+      <div class="item-num">${i+1}</div>
+      <button class="item-del" onclick="delItem('testimonials',${i})"><i class="fa-solid fa-trash"></i></button>
+      <div class="frow">
+        <div class="fbox"><label>الاسم</label><input data-f="name" value="${esc(it.name)}"></div>
+        <div class="fbox"><label>صورة (URL)</label><input data-f="photo_url" value="${esc(it.photo_url)}" dir="ltr"></div>
+      </div>
+      <div class="frow">
+        <div class="fbox"><label>الوظيفة (AR)</label><input data-f="role_ar" value="${esc(it.role_ar)}"></div>
+        <div class="fbox"><label>Role (EN)</label><input data-f="role_en" value="${esc(it.role_en)}" dir="ltr"></div>
+      </div>
+      <div class="frow">
+        <div class="fbox"><label>الرأي (AR)</label><textarea data-f="content_ar">${esc(it.content_ar)}</textarea></div>
+        <div class="fbox"><label>Testimonial (EN)</label><textarea data-f="content_en" dir="ltr">${esc(it.content_en)}</textarea></div>
+      </div>
+    </div>
+  `).join('');
+  return lsec('testimonials','fa-quote-right','آراء العملاء (Testimonials)', `
+    <div class="frow">
+      <div class="fbox"><label>عنوان القسم (AR)</label><input id="t_title_ar" value="${esc(t.title_ar)}"></div>
+      <div class="fbox"><label>Title (EN)</label><input id="t_title_en" value="${esc(t.title_en)}" dir="ltr"></div>
+    </div>
+    <div class="frow">
+      <div class="fbox"><label>الوصف (AR)</label><input id="t_sub_ar" value="${esc(t.subtitle_ar)}"></div>
+      <div class="fbox"><label>Subtitle (EN)</label><input id="t_sub_en" value="${esc(t.subtitle_en)}" dir="ltr"></div>
+    </div>
+    <div style="height:1px;background:var(--brd);margin:18px 0"></div>
+    <div class="items-list" id="testimonialsList">${items}</div>
+    <button class="btn-add-item" onclick="addItem('testimonials',{name:'',role_ar:'',role_en:'',content_ar:'',content_en:'',photo_url:''})"><i class="fa-solid fa-plus"></i> إضافة رأي</button>
+  `);
+}
+
+// ─── FAQ ───
+function editorFaq(){
+  const f = LANDING.faq || {};
+  const items = (f.items || []).map((it, i) => `
+    <div class="item-card" data-faq-idx="${i}">
+      <div class="item-num">${i+1}</div>
+      <button class="item-del" onclick="delItem('faq',${i})"><i class="fa-solid fa-trash"></i></button>
+      <div class="frow">
+        <div class="fbox"><label>السؤال (AR)</label><input data-f="q_ar" value="${esc(it.q_ar)}"></div>
+        <div class="fbox"><label>Question (EN)</label><input data-f="q_en" value="${esc(it.q_en)}" dir="ltr"></div>
+      </div>
+      <div class="frow">
+        <div class="fbox"><label>الإجابة (AR)</label><textarea data-f="a_ar">${esc(it.a_ar)}</textarea></div>
+        <div class="fbox"><label>Answer (EN)</label><textarea data-f="a_en" dir="ltr">${esc(it.a_en)}</textarea></div>
+      </div>
+    </div>
+  `).join('');
+  return lsec('faq','fa-circle-question','الأسئلة الشائعة (FAQ)', `
+    <div class="frow">
+      <div class="fbox"><label>عنوان القسم (AR)</label><input id="fq_title_ar" value="${esc(f.title_ar)}"></div>
+      <div class="fbox"><label>Title (EN)</label><input id="fq_title_en" value="${esc(f.title_en)}" dir="ltr"></div>
+    </div>
+    <div style="height:1px;background:var(--brd);margin:18px 0"></div>
+    <div class="items-list" id="faqList">${items}</div>
+    <button class="btn-add-item" onclick="addItem('faq',{q_ar:'',q_en:'',a_ar:'',a_en:''})"><i class="fa-solid fa-plus"></i> إضافة سؤال</button>
+  `);
+}
+
+// ─── CTA SECTION ───
+function editorCta(){
+  const c = LANDING.cta || {};
+  return lsec('cta','fa-bullhorn','قسم الدعوة للتسجيل (CTA)', `
+    <div class="frow">
+      <div class="fbox"><label>العنوان (AR)</label><input id="c_title_ar" value="${esc(c.title_ar)}"></div>
+      <div class="fbox"><label>Title (EN)</label><input id="c_title_en" value="${esc(c.title_en)}" dir="ltr"></div>
+    </div>
+    <div class="frow">
+      <div class="fbox"><label>الوصف (AR)</label><textarea id="c_sub_ar">${esc(c.subtitle_ar)}</textarea></div>
+      <div class="fbox"><label>Subtitle (EN)</label><textarea id="c_sub_en" dir="ltr">${esc(c.subtitle_en)}</textarea></div>
+    </div>
+    <div class="frow">
+      <div class="fbox"><label>نص الزر (AR)</label><input id="c_btn_ar" value="${esc(c.btn_text_ar)}"></div>
+      <div class="fbox"><label>Button Text (EN)</label><input id="c_btn_en" value="${esc(c.btn_text_en)}" dir="ltr"></div>
+    </div>
+    <div class="fbox"><label>رابط الزر</label><input id="c_btn_link" value="${esc(c.btn_link)}" dir="ltr"></div>
+  `);
+}
+
+// ─── FOOTER ───
+function editorFooter(){
+  const f = LANDING.footer || {};
+  const s = f.social || {};
+  return lsec('footer','fa-grip-lines','تذييل الصفحة (Footer)', `
+    <div class="frow">
+      <div class="fbox"><label>وصف العلامة (AR)</label><textarea id="ft_tag_ar">${esc(f.tagline_ar)}</textarea></div>
+      <div class="fbox"><label>Tagline (EN)</label><textarea id="ft_tag_en" dir="ltr">${esc(f.tagline_en)}</textarea></div>
+    </div>
+    <div style="height:1px;background:var(--brd);margin:18px 0"></div>
+    <div style="font-weight:700;margin-bottom:14px;color:var(--g2);font-size:13px">معلومات التواصل</div>
+    <div class="frow">
+      <div class="fbox"><label>الإيميل</label><input id="ft_email" value="${esc(f.email)}" dir="ltr"></div>
+      <div class="fbox"><label>الهاتف</label><input id="ft_phone" value="${esc(f.phone)}" dir="ltr"></div>
+      <div class="fbox"><label>WhatsApp</label><input id="ft_whatsapp" value="${esc(f.whatsapp)}" dir="ltr" placeholder="+201234567890"></div>
+    </div>
+    <div style="height:1px;background:var(--brd);margin:18px 0"></div>
+    <div style="font-weight:700;margin-bottom:14px;color:var(--g2);font-size:13px">روابط السوشيال ميديا</div>
+    <div class="frow">
+      <div class="fbox"><label><i class="fa-brands fa-instagram"></i> Instagram URL</label><input id="ft_instagram" value="${esc(s.instagram)}" dir="ltr"></div>
+      <div class="fbox"><label><i class="fa-brands fa-facebook"></i> Facebook URL</label><input id="ft_facebook" value="${esc(s.facebook)}" dir="ltr"></div>
+    </div>
+    <div class="frow">
+      <div class="fbox"><label><i class="fa-brands fa-x-twitter"></i> Twitter/X URL</label><input id="ft_twitter" value="${esc(s.twitter)}" dir="ltr"></div>
+      <div class="fbox"><label><i class="fa-brands fa-linkedin"></i> LinkedIn URL</label><input id="ft_linkedin" value="${esc(s.linkedin)}" dir="ltr"></div>
+    </div>
+    <div class="frow">
+      <div class="fbox"><label><i class="fa-brands fa-behance"></i> Behance URL</label><input id="ft_behance" value="${esc(s.behance)}" dir="ltr"></div>
+    </div>
+  `);
+}
+
+// ── ITEM ADD/DELETE ──
+function addItem(section, template){
+  if(!LANDING[section]) LANDING[section] = {items:[]};
+  const arr = LANDING[section][section==='pricing'?'plans':(section==='how'?'steps':'items')];
+  arr.push(template);
+  renderLandingEditor();
+  // Open the section that was modified
+  setTimeout(() => document.querySelector(`.lsec[data-sec="${section}"]`)?.classList.add('open'), 50);
+}
+
+function delItem(section, idx){
+  if(!confirm('حذف هذا العنصر؟')) return;
+  const arr = LANDING[section][section==='pricing'?'plans':(section==='how'?'steps':'items')];
+  arr.splice(idx, 1);
+  renderLandingEditor();
+  setTimeout(() => document.querySelector(`.lsec[data-sec="${section}"]`)?.classList.add('open'), 50);
+}
+
+// ── GATHER FROM DOM ──
+function v(id){ const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+function esc(s){ if(s == null) return ''; return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function gatherCardItems(listId){
+  const cards = document.querySelectorAll(`#${listId} .item-card`);
+  return Array.from(cards).map(card => {
+    const obj = {};
+    card.querySelectorAll('[data-f]').forEach(el => {
+      const k = el.dataset.f;
+      let val = el.value;
+      if(k === 'popular') val = (val === '1' || val === true);
+      else if(k === 'features_ar' || k === 'features_en') val = val.split('\n').map(s=>s.trim()).filter(Boolean);
+      obj[k] = val;
+    });
+    return obj;
+  });
+}
+
+function gatherLanding(){
+  const out = { ...LANDING };
+  // Brand
+  out.brand = { name:v('b_name'), logo_url:v('b_logo'), tagline_ar:v('b_tag_ar'), tagline_en:v('b_tag_en') };
+  // Section order + visibility
+  const order = Array.from(document.querySelectorAll('#soList .so-item')).map((el, i) => {
+    const id = el.dataset.id;
+    const orig = LANDING.sections.find(s => s.id === id) || {id};
+    const checkbox = el.querySelector(`input[data-vis="${id}"]`);
+    return { ...orig, order:i, visible: checkbox ? checkbox.checked : true };
+  });
+  if(order.length) out.sections = order;
+  // Hero
+  out.hero = {
+    badge_ar:v('h_badge_ar'), badge_en:v('h_badge_en'),
+    title_ar:v('h_title_ar'), title_en:v('h_title_en'),
+    subtitle_ar:v('h_sub_ar'), subtitle_en:v('h_sub_en'),
+    cta1_text_ar:v('h_cta1_ar'), cta1_text_en:v('h_cta1_en'), cta1_link:v('h_cta1_link'),
+    cta2_text_ar:v('h_cta2_ar'), cta2_text_en:v('h_cta2_en'), cta2_link:v('h_cta2_link'),
+    image_url:v('h_image')
+  };
+  // Features
+  out.features = {
+    title_ar:v('f_title_ar'), title_en:v('f_title_en'),
+    subtitle_ar:v('f_sub_ar'), subtitle_en:v('f_sub_en'),
+    items: gatherCardItems('featuresList')
+  };
+  // How
+  out.how = {
+    title_ar:v('hw_title_ar'), title_en:v('hw_title_en'),
+    subtitle_ar:v('hw_sub_ar'), subtitle_en:v('hw_sub_en'),
+    steps: gatherCardItems('howList')
+  };
+  // Pricing
+  out.pricing = {
+    title_ar:v('p_title_ar'), title_en:v('p_title_en'),
+    subtitle_ar:v('p_sub_ar'), subtitle_en:v('p_sub_en'),
+    plans: gatherCardItems('pricingList')
+  };
+  // Testimonials
+  out.testimonials = {
+    title_ar:v('t_title_ar'), title_en:v('t_title_en'),
+    subtitle_ar:v('t_sub_ar'), subtitle_en:v('t_sub_en'),
+    items: gatherCardItems('testimonialsList')
+  };
+  // FAQ
+  out.faq = {
+    title_ar:v('fq_title_ar'), title_en:v('fq_title_en'),
+    items: gatherCardItems('faqList')
+  };
+  // CTA
+  out.cta = {
+    title_ar:v('c_title_ar'), title_en:v('c_title_en'),
+    subtitle_ar:v('c_sub_ar'), subtitle_en:v('c_sub_en'),
+    btn_text_ar:v('c_btn_ar'), btn_text_en:v('c_btn_en'), btn_link:v('c_btn_link')
+  };
+  // Footer
+  out.footer = {
+    tagline_ar:v('ft_tag_ar'), tagline_en:v('ft_tag_en'),
+    email:v('ft_email'), phone:v('ft_phone'), whatsapp:v('ft_whatsapp'),
+    social: {
+      instagram:v('ft_instagram'), facebook:v('ft_facebook'),
+      twitter:v('ft_twitter'), linkedin:v('ft_linkedin'), behance:v('ft_behance')
+    }
+  };
+  return out;
+}
+
+async function saveLanding(){
+  try{
+    const data = gatherLanding();
+    const r = await fetch('/api/landing', {
+      method:'PUT', credentials:'include',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(data)
+    }).then(r=>r.json());
+    if(r.ok){
+      LANDING = data;
+      toast('✓ تم حفظ التغييرات بنجاح');
+    } else {
+      toast(r.error || 'فشل الحفظ', 'error');
+    }
+  }catch(e){ toast('خطأ في الاتصال', 'error'); }
+}
+
+async function resetLanding(){
+  if(!confirm('هتعيد كل المحتوى للقيم الافتراضية. متأكد؟')) return;
+  try{
+    const r = await fetch('/api/landing/reset', {method:'POST', credentials:'include'}).then(r=>r.json());
+    if(r.ok){
+      LANDING = r.data;
+      renderLandingEditor();
+      toast('✓ تم إعادة الافتراضي');
+    }
+  }catch(e){ toast('خطأ', 'error'); }
 }
 
 // ── AUTO CHECK LOGIN ──

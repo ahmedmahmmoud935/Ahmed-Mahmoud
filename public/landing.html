@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ViralPX — منصة البورتفوليو الاحترافي</title>
+<meta name="description" content="منصة بناء بورتفوليو احترافي للمصممين والمبدعين. بدون كود، بدون تعقيد.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --o:#F97316;--od:#EA6C0A;--ol:#FB923C;
+  --bg:#0A0A0A;--bg2:#111;--bg3:#161616;--bg4:#1e1e1e;
+  --tx:#fff;--tx2:#ccc;--tx3:#888;--tx4:#666;
+  --brd:#1f1f1f;--brd2:#2a2a2a;
+  --grad:linear-gradient(135deg,#F97316 0%,#EA6C0A 100%);
+  --grad-soft:linear-gradient(135deg,rgba(249,115,22,.12),rgba(234,108,10,.04));
+  --max:1180px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--tx);overflow-x:hidden;line-height:1.6}
+html[dir="ltr"]{text-align:left}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none}
+
+/* Container */
+.wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+
+/* ─── NAVBAR ─── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,10,.85);backdrop-filter:blur(14px);border-bottom:1px solid var(--brd);transition:all .3s}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;max-width:var(--max);margin:0 auto}
+.nav-logo{display:flex;align-items:center;gap:10px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:18px}
+.nav-logo i{color:var(--o);font-size:20px}
+.nav-logo img{height:32px;width:auto}
+.nav-links{display:flex;align-items:center;gap:32px;list-style:none}
+.nav-links a{font-size:14px;font-weight:600;color:var(--tx2);transition:color .2s}
+.nav-links a:hover{color:var(--o)}
+.nav-cta{display:flex;align-items:center;gap:10px}
+.nav-cta .lang-btn{background:transparent;color:var(--tx2);font-size:13px;font-weight:700;padding:8px 12px;border-radius:8px;border:1px solid var(--brd2);transition:all .2s}
+.nav-cta .lang-btn:hover{border-color:var(--o);color:var(--o)}
+.nav-cta .btn-primary{background:var(--grad);color:#fff;font-size:13px;font-weight:700;padding:10px 20px;border-radius:8px;box-shadow:0 6px 16px rgba(249,115,22,.3);transition:transform .2s}
+.nav-cta .btn-primary:hover{transform:translateY(-1px)}
+.nav-burger{display:none;background:transparent;color:var(--tx);font-size:20px;padding:8px}
+@media(max-width:900px){
+  .nav-links,.nav-cta .btn-primary{display:none}
+  .nav-burger{display:block}
+}
+
+/* Mobile menu */
+.mob-menu{position:fixed;inset:60px 0 0 0;background:rgba(10,10,10,.98);backdrop-filter:blur(20px);z-index:99;padding:40px 24px;display:none;flex-direction:column;gap:8px}
+.mob-menu.open{display:flex}
+.mob-menu a{padding:16px 20px;font-size:16px;font-weight:700;color:var(--tx);border-radius:10px;transition:background .2s}
+.mob-menu a:hover{background:var(--bg3)}
+.mob-menu .btn-primary{margin-top:14px;text-align:center;background:var(--grad);padding:14px 20px;border-radius:10px}
+
+/* ─── HERO ─── */
+.hero{padding:140px 0 80px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(249,115,22,.15) 0%,transparent 70%);pointer-events:none;z-index:0}
+.hero-inner{position:relative;z-index:1;text-align:center;max-width:880px;margin:0 auto}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--grad-soft);border:1px solid rgba(249,115,22,.25);color:var(--o);padding:8px 18px;border-radius:30px;font-size:13px;font-weight:700;margin-bottom:28px}
+.hero-badge i{font-size:11px}
+.hero h1{font-family:'Cairo',sans-serif;font-size:clamp(34px,5.5vw,62px);font-weight:900;line-height:1.15;margin-bottom:22px;letter-spacing:-.5px}
+.hero h1 .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-sub{font-size:clamp(15px,1.6vw,18px);color:var(--tx2);max-width:680px;margin:0 auto 38px;line-height:1.75}
+.hero-actions{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:15px 30px;border-radius:11px;font-size:15px;font-weight:700;transition:all .25s;cursor:pointer;font-family:inherit;border:none}
+.btn-pri{background:var(--grad);color:#fff;box-shadow:0 10px 24px rgba(249,115,22,.32)}
+.btn-pri:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(249,115,22,.42)}
+.btn-sec{background:transparent;color:var(--tx);border:1.5px solid var(--brd2)}
+.btn-sec:hover{border-color:var(--o);color:var(--o);background:rgba(249,115,22,.05)}
+.hero-image{margin-top:60px;max-width:900px;margin-left:auto;margin-right:auto;position:relative}
+.hero-image img{border-radius:16px;border:1px solid var(--brd2);box-shadow:0 30px 80px rgba(0,0,0,.5);width:100%}
+.hero-image-placeholder{aspect-ratio:16/9;border:2px dashed var(--brd2);border-radius:16px;background:var(--bg2);display:flex;align-items:center;justify-content:center;color:var(--tx4);font-size:14px}
+
+/* ─── SECTION COMMON ─── */
+.sec{padding:90px 0;position:relative}
+.sec-head{text-align:center;max-width:680px;margin:0 auto 56px}
+.sec-eyebrow{display:inline-block;color:var(--o);font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px}
+.sec-title{font-size:clamp(28px,3.8vw,42px);font-weight:900;line-height:1.2;margin-bottom:18px;letter-spacing:-.3px}
+.sec-sub{color:var(--tx2);font-size:16px;line-height:1.75}
+
+/* ─── FEATURES ─── */
+#features{background:var(--bg2)}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+@media(max-width:900px){.features-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.features-grid{grid-template-columns:1fr}}
+.feature-card{background:var(--bg);border:1px solid var(--brd);border-radius:16px;padding:32px 26px;transition:all .25s;position:relative;overflow:hidden}
+.feature-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad);transform:scaleX(0);transform-origin:right;transition:transform .35s}
+.feature-card:hover{transform:translateY(-4px);border-color:var(--brd2)}
+.feature-card:hover::before{transform:scaleX(1);transform-origin:left}
+.feature-icon{width:54px;height:54px;border-radius:12px;background:var(--grad-soft);color:var(--o);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:20px}
+.feature-card h3{font-size:18px;font-weight:800;margin-bottom:10px}
+.feature-card p{color:var(--tx3);font-size:14px;line-height:1.7}
+
+/* ─── HOW IT WORKS ─── */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;position:relative}
+@media(max-width:800px){.steps{grid-template-columns:1fr;gap:24px}}
+.step{text-align:center;position:relative}
+.step-num{width:64px;height:64px;border-radius:50%;background:var(--grad);color:#fff;font-family:'Montserrat',sans-serif;font-size:24px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 10px 24px rgba(249,115,22,.3)}
+.step h3{font-size:19px;font-weight:800;margin-bottom:10px}
+.step p{color:var(--tx3);font-size:14px;line-height:1.75;max-width:280px;margin:0 auto}
+
+/* ─── PRICING ─── */
+#pricing{background:var(--bg2)}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+@media(max-width:900px){.plans{grid-template-columns:1fr;max-width:420px;margin:0 auto}}
+.plan{background:var(--bg);border:1px solid var(--brd);border-radius:18px;padding:36px 28px;position:relative;transition:all .25s}
+.plan:hover{transform:translateY(-3px);border-color:var(--brd2)}
+.plan.popular{border-color:var(--o);background:linear-gradient(180deg,rgba(249,115,22,.06),var(--bg) 40%);transform:scale(1.03)}
+.plan.popular::before{content:attr(data-pop);position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--grad);color:#fff;font-size:11px;font-weight:800;padding:6px 18px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;box-shadow:0 6px 14px rgba(249,115,22,.4)}
+.plan-name{font-size:14px;font-weight:800;color:var(--tx3);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px}
+.plan-price{display:flex;align-items:baseline;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.plan-price .num{font-family:'Montserrat',sans-serif;font-size:48px;font-weight:900;line-height:1}
+.plan-price .cur{color:var(--tx3);font-size:14px;font-weight:700}
+.plan-period{color:var(--tx3);font-size:13px;margin-bottom:24px}
+.plan-features{list-style:none;margin-bottom:28px}
+.plan-features li{display:flex;align-items:flex-start;gap:10px;padding:10px 0;font-size:14px;color:var(--tx2);border-bottom:1px solid var(--brd)}
+.plan-features li:last-child{border-bottom:none}
+.plan-features li i{color:var(--o);font-size:13px;margin-top:5px;flex-shrink:0}
+.plan-cta{display:block;width:100%;text-align:center;padding:14px;border-radius:10px;font-weight:700;font-size:14px;background:var(--bg3);color:var(--tx);border:1px solid var(--brd2);transition:all .2s}
+.plan-cta:hover{background:var(--bg4);border-color:var(--o);color:var(--o)}
+.plan.popular .plan-cta{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 6px 16px rgba(249,115,22,.3)}
+.plan.popular .plan-cta:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(249,115,22,.4);color:#fff}
+
+/* ─── TESTIMONIALS ─── */
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+@media(max-width:900px){.testi-grid{grid-template-columns:1fr}}
+.testi-card{background:var(--bg2);border:1px solid var(--brd);border-radius:16px;padding:28px;transition:all .25s;position:relative}
+.testi-card:hover{border-color:var(--brd2);transform:translateY(-3px)}
+.testi-quote{font-size:48px;color:var(--o);opacity:.2;font-family:'Montserrat',sans-serif;line-height:1;margin-bottom:8px}
+.testi-content{color:var(--tx2);font-size:15px;line-height:1.75;margin-bottom:22px}
+.testi-author{display:flex;align-items:center;gap:14px}
+.testi-photo{width:48px;height:48px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;color:var(--tx3);font-size:20px;overflow:hidden;flex-shrink:0}
+.testi-photo img{width:100%;height:100%;object-fit:cover}
+.testi-name{font-weight:800;font-size:14px}
+.testi-role{color:var(--tx3);font-size:12px;margin-top:2px}
+.testi-empty{text-align:center;padding:60px 20px;color:var(--tx4)}
+
+/* ─── FAQ ─── */
+#faq{background:var(--bg2)}
+.faq-list{max-width:780px;margin:0 auto}
+.faq-item{background:var(--bg);border:1px solid var(--brd);border-radius:12px;margin-bottom:12px;overflow:hidden;transition:border-color .2s}
+.faq-item:hover{border-color:var(--brd2)}
+.faq-item.open{border-color:var(--o)}
+.faq-q{padding:20px 24px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-weight:700;font-size:15px;gap:14px}
+.faq-q i{color:var(--o);transition:transform .25s;font-size:13px;flex-shrink:0}
+.faq-item.open .faq-q i{transform:rotate(180deg)}
+.faq-a{padding:0 24px;max-height:0;overflow:hidden;color:var(--tx2);font-size:14px;line-height:1.8;transition:all .3s ease}
+.faq-item.open .faq-a{padding:0 24px 22px;max-height:500px}
+
+/* ─── CTA ─── */
+.cta-box{background:var(--grad);border-radius:24px;padding:60px 40px;text-align:center;max-width:920px;margin:0 auto;position:relative;overflow:hidden;box-shadow:0 30px 60px rgba(249,115,22,.25)}
+.cta-box::before{content:'';position:absolute;top:-100px;right:-100px;width:300px;height:300px;background:rgba(255,255,255,.08);border-radius:50%}
+.cta-box::after{content:'';position:absolute;bottom:-150px;left:-150px;width:400px;height:400px;background:rgba(255,255,255,.05);border-radius:50%}
+.cta-box>*{position:relative;z-index:1}
+.cta-title{font-size:clamp(26px,3.5vw,38px);font-weight:900;color:#fff;margin-bottom:14px;line-height:1.2}
+.cta-sub{color:rgba(255,255,255,.92);font-size:16px;margin-bottom:28px;max-width:580px;margin-left:auto;margin-right:auto}
+.cta-btn{display:inline-flex;align-items:center;gap:10px;background:#fff;color:var(--o);padding:16px 36px;border-radius:11px;font-weight:800;font-size:16px;transition:transform .2s;box-shadow:0 10px 28px rgba(0,0,0,.2)}
+.cta-btn:hover{transform:translateY(-2px)}
+
+/* ─── FOOTER ─── */
+.footer{background:#050505;border-top:1px solid var(--brd);padding:60px 0 28px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:50px;margin-bottom:40px}
+@media(max-width:800px){.footer-grid{grid-template-columns:1fr;gap:32px}}
+.footer-brand .nav-logo{margin-bottom:14px}
+.footer-tag{color:var(--tx3);font-size:14px;line-height:1.7;max-width:340px;margin-bottom:20px}
+.footer-social{display:flex;gap:10px}
+.footer-social a{width:38px;height:38px;border-radius:9px;background:var(--bg3);border:1px solid var(--brd);color:var(--tx2);display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .2s}
+.footer-social a:hover{background:var(--o);color:#fff;border-color:var(--o);transform:translateY(-2px)}
+.footer-col h4{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:18px;color:var(--tx)}
+.footer-col ul{list-style:none}
+.footer-col li{margin-bottom:10px}
+.footer-col a{color:var(--tx3);font-size:14px;transition:color .2s}
+.footer-col a:hover{color:var(--o)}
+.footer-bottom{border-top:1px solid var(--brd);padding-top:22px;text-align:center;color:var(--tx4);font-size:13px}
+
+/* Mobile spacing */
+@media(max-width:600px){
+  .sec{padding:60px 0}
+  .hero{padding:110px 0 60px}
+  .cta-box{padding:42px 24px;border-radius:18px}
+  .plan{padding:28px 22px}
+  .plan.popular{transform:none}
+}
+
+/* Animation */
+.fade-up{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
+.fade-up.in{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- ───── NAVBAR ───── -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo" id="navLogo"><i class="fa-solid fa-gem"></i> <span>ViralPX</span></a>
+    <ul class="nav-links" id="navLinks"></ul>
+    <div class="nav-cta">
+      <button class="lang-btn" onclick="toggleLang()" id="langBtn">EN</button>
+      <a href="#pricing" class="btn-primary" id="navCta">ابدأ مجاناً</a>
+      <button class="nav-burger" onclick="toggleMobMenu()"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+</nav>
+<div class="mob-menu" id="mobMenu"></div>
+
+<!-- ───── MAIN ───── -->
+<main id="main"></main>
+
+<!-- ───── FOOTER ───── -->
+<footer class="footer" id="footer"></footer>
+
+<script>
+let LANG = localStorage.getItem('lang') || 'ar';
+let DATA = null;
+const ar = () => LANG === 'ar';
+const T = k => (DATA && DATA[k]) || '';
+
+async function init(){
+  try{
+    const r = await fetch('/api/landing').then(r=>r.json());
+    DATA = r;
+  }catch{ DATA = null; }
+  if(!DATA){
+    document.getElementById('main').innerHTML = '<div style="padding:120px 24px;text-align:center;color:#888"><i class="fa-solid fa-triangle-exclamation" style="font-size:48px;color:#F97316;margin-bottom:20px;display:block"></i>تعذّر تحميل البيانات. حاول إعادة تحميل الصفحة.</div>';
+    return;
+  }
+  applyLang();
+  render();
+  setupScroll();
+}
+
+function applyLang(){
+  document.documentElement.lang = LANG;
+  document.documentElement.dir  = ar() ? 'rtl' : 'ltr';
+  document.getElementById('langBtn').textContent = ar() ? 'EN' : 'ع';
+}
+
+function toggleLang(){
+  LANG = ar() ? 'en' : 'ar';
+  localStorage.setItem('lang', LANG);
+  applyLang();
+  render();
+}
+
+function L(o, key){
+  if(!o) return '';
+  return o[key+'_'+LANG] || o[key+'_'+(ar()?'en':'ar')] || o[key] || '';
+}
+
+function toggleMobMenu(){
+  document.getElementById('mobMenu').classList.toggle('open');
+}
+
+function render(){
+  if(!DATA) return;
+  renderNav();
+  renderMain();
+  renderFooter();
+}
+
+function renderNav(){
+  // Brand
+  const logo = document.getElementById('navLogo');
+  const brand = DATA.brand || {};
+  if(brand.logo_url){
+    logo.innerHTML = `<img src="${brand.logo_url}" alt="${brand.name||'logo'}">`;
+  } else {
+    logo.innerHTML = `<i class="fa-solid fa-gem"></i> <span>${brand.name || 'ViralPX'}</span>`;
+  }
+  // Links — only visible sections except hero
+  const secs = (DATA.sections || []).filter(s => s.visible && s.id !== 'hero').sort((a,b)=>a.order-b.order);
+  const links = secs.map(s => `<li><a href="#${s.id}">${L(s,'label')}</a></li>`).join('');
+  document.getElementById('navLinks').innerHTML = links;
+  // Mobile menu
+  const mobMenu = document.getElementById('mobMenu');
+  const cta = DATA.hero || {};
+  mobMenu.innerHTML = secs.map(s=>`<a href="#${s.id}" onclick="toggleMobMenu()">${L(s,'label')}</a>`).join('')
+    + `<a href="${cta.cta1_link||'#pricing'}" class="btn-primary" onclick="toggleMobMenu()">${L(cta,'cta1_text') || (ar()?'ابدأ مجاناً':'Get Started')}</a>`;
+  // Nav CTA
+  document.getElementById('navCta').textContent = L(cta,'cta1_text') || (ar()?'ابدأ مجاناً':'Get Started');
+  document.getElementById('navCta').href = cta.cta1_link || '#pricing';
+}
+
+function renderMain(){
+  const secs = (DATA.sections || []).filter(s => s.visible).sort((a,b)=>a.order-b.order);
+  document.getElementById('main').innerHTML = secs.map(buildSection).join('');
+}
+
+function buildSection(s){
+  switch(s.id){
+    case 'hero':         return renderHero();
+    case 'features':     return renderFeatures();
+    case 'how':          return renderHow();
+    case 'pricing':      return renderPricing();
+    case 'testimonials': return renderTestimonials();
+    case 'faq':          return renderFaq();
+    case 'cta':          return renderCta();
+    default: return '';
+  }
+}
+
+function renderHero(){
+  const h = DATA.hero || {};
+  const badge = L(h,'badge');
+  const img = h.image_url
+    ? `<img src="${h.image_url}" alt="hero">`
+    : `<div class="hero-image-placeholder"><span>${ar()?'صورة توضيحية للمنصة':'Platform preview image'}</span></div>`;
+  // Highlight last 2 words in gradient
+  const title = L(h,'title') || '';
+  const words = title.split(' ');
+  let titleHtml = title;
+  if(words.length > 2){
+    const head = words.slice(0, words.length-2).join(' ');
+    const tail = words.slice(-2).join(' ');
+    titleHtml = `${head} <span class="grad-text">${tail}</span>`;
+  }
+  return `
+  <section id="hero" class="hero">
+    <div class="wrap hero-inner">
+      ${badge ? `<div class="hero-badge fade-up"><i class="fa-solid fa-sparkles"></i> ${badge}</div>` : ''}
+      <h1 class="fade-up">${titleHtml}</h1>
+      <p class="hero-sub fade-up">${L(h,'subtitle')}</p>
+      <div class="hero-actions fade-up">
+        <a href="${h.cta1_link||'#pricing'}" class="btn btn-pri">${L(h,'cta1_text') || (ar()?'ابدأ الآن':'Get Started')}</a>
+        <a href="${h.cta2_link||'#features'}" class="btn btn-sec">${L(h,'cta2_text') || (ar()?'اعرف أكتر':'Learn More')}</a>
+      </div>
+      <div class="hero-image fade-up">${img}</div>
+    </div>
+  </section>`;
+}
+
+function renderFeatures(){
+  const f = DATA.features || {};
+  const cards = (f.items || []).map(it => `
+    <div class="feature-card fade-up">
+      <div class="feature-icon"><i class="fa-solid ${it.icon||'fa-star'}"></i></div>
+      <h3>${L(it,'title')}</h3>
+      <p>${L(it,'desc')}</p>
+    </div>`).join('');
+  return `
+  <section id="features" class="sec">
+    <div class="wrap">
+      <div class="sec-head fade-up">
+        <div class="sec-eyebrow">${ar()?'مميزاتنا':'Features'}</div>
+        <h2 class="sec-title">${L(f,'title')}</h2>
+        <p class="sec-sub">${L(f,'subtitle')}</p>
+      </div>
+      <div class="features-grid">${cards}</div>
+    </div>
+  </section>`;
+}
+
+function renderHow(){
+  const h = DATA.how || {};
+  const steps = (h.steps || []).map((st,i) => `
+    <div class="step fade-up">
+      <div class="step-num">${i+1}</div>
+      <h3>${L(st,'title')}</h3>
+      <p>${L(st,'desc')}</p>
+    </div>`).join('');
+  return `
+  <section id="how" class="sec">
+    <div class="wrap">
+      <div class="sec-head fade-up">
+        <div class="sec-eyebrow">${ar()?'الطريقة':'Process'}</div>
+        <h2 class="sec-title">${L(h,'title')}</h2>
+        <p class="sec-sub">${L(h,'subtitle')}</p>
+      </div>
+      <div class="steps">${steps}</div>
+    </div>
+  </section>`;
+}
+
+function renderPricing(){
+  const p = DATA.pricing || {};
+  const plans = (p.plans || []).map(pl => {
+    const features = (LANG==='ar' ? (pl.features_ar||[]) : (pl.features_en||[])).map(ft =>
+      `<li><i class="fa-solid fa-check"></i> ${ft}</li>`).join('');
+    return `
+    <div class="plan ${pl.popular?'popular':''} fade-up" ${pl.popular?`data-pop="${ar()?'الأكثر شعبية':'Popular'}"`:''}>
+      <div class="plan-name">${L(pl,'name')}</div>
+      <div class="plan-price">
+        <span class="num">${pl.price||''}</span>
+        <span class="cur">${L(pl,'currency')}</span>
+      </div>
+      <div class="plan-period">${L(pl,'period')}</div>
+      <ul class="plan-features">${features}</ul>
+      <a href="${pl.cta_link||'#contact'}" class="plan-cta">${L(pl,'cta_text') || (ar()?'اختر':'Choose')}</a>
+    </div>`;
+  }).join('');
+  return `
+  <section id="pricing" class="sec">
+    <div class="wrap">
+      <div class="sec-head fade-up">
+        <div class="sec-eyebrow">${ar()?'الأسعار':'Pricing'}</div>
+        <h2 class="sec-title">${L(p,'title')}</h2>
+        <p class="sec-sub">${L(p,'subtitle')}</p>
+      </div>
+      <div class="plans">${plans}</div>
+    </div>
+  </section>`;
+}
+
+function renderTestimonials(){
+  const t = DATA.testimonials || {};
+  const items = (t.items || []);
+  const cards = items.length
+    ? items.map(it => `
+      <div class="testi-card fade-up">
+        <div class="testi-quote">"</div>
+        <p class="testi-content">${L(it,'content')}</p>
+        <div class="testi-author">
+          <div class="testi-photo">${it.photo_url ? `<img src="${it.photo_url}" alt="">` : '<i class="fa-solid fa-user"></i>'}</div>
+          <div>
+            <div class="testi-name">${it.name||''}</div>
+            <div class="testi-role">${L(it,'role')}</div>
+          </div>
+        </div>
+      </div>`).join('')
+    : `<div class="testi-empty">${ar()?'لا توجد آراء بعد — كن أول من يكتب رأيه!':'No testimonials yet — be the first!'}</div>`;
+  return `
+  <section id="testimonials" class="sec">
+    <div class="wrap">
+      <div class="sec-head fade-up">
+        <div class="sec-eyebrow">${ar()?'آراء':'Testimonials'}</div>
+        <h2 class="sec-title">${L(t,'title')}</h2>
+        <p class="sec-sub">${L(t,'subtitle')}</p>
+      </div>
+      <div class="testi-grid">${cards}</div>
+    </div>
+  </section>`;
+}
+
+function renderFaq(){
+  const f = DATA.faq || {};
+  const items = (f.items || []).map((it,i) => `
+    <div class="faq-item fade-up" onclick="this.classList.toggle('open')">
+      <div class="faq-q">${L(it,'q')} <i class="fa-solid fa-chevron-down"></i></div>
+      <div class="faq-a">${L(it,'a')}</div>
+    </div>`).join('');
+  return `
+  <section id="faq" class="sec">
+    <div class="wrap">
+      <div class="sec-head fade-up">
+        <div class="sec-eyebrow">FAQ</div>
+        <h2 class="sec-title">${L(f,'title')}</h2>
+      </div>
+      <div class="faq-list">${items}</div>
+    </div>
+  </section>`;
+}
+
+function renderCta(){
+  const c = DATA.cta || {};
+  return `
+  <section id="cta" class="sec">
+    <div class="wrap">
+      <div class="cta-box fade-up">
+        <h2 class="cta-title">${L(c,'title')}</h2>
+        <p class="cta-sub">${L(c,'subtitle')}</p>
+        <a href="${c.btn_link||'#pricing'}" class="cta-btn">${L(c,'btn_text') || (ar()?'ابدأ الآن':'Start Now')} <i class="fa-solid fa-arrow-${ar()?'left':'right'}"></i></a>
+      </div>
+    </div>
+  </section>`;
+}
+
+function renderFooter(){
+  const f = DATA.footer || {};
+  const brand = DATA.brand || {};
+  const social = f.social || {};
+  const socialMap = {
+    instagram:'fa-instagram', facebook:'fa-facebook-f', twitter:'fa-x-twitter',
+    linkedin:'fa-linkedin-in', behance:'fa-behance'
+  };
+  const socialLinks = Object.keys(socialMap)
+    .filter(k => social[k])
+    .map(k => `<a href="${social[k]}" target="_blank" rel="noopener" aria-label="${k}"><i class="fa-brands ${socialMap[k]}"></i></a>`)
+    .join('');
+  const secs = (DATA.sections || []).filter(s => s.visible && s.id !== 'hero').sort((a,b)=>a.order-b.order);
+  const navLinks = secs.slice(0,4).map(s => `<li><a href="#${s.id}">${L(s,'label')}</a></li>`).join('');
+  const contactLinks = [
+    f.email ? `<li><a href="mailto:${f.email}"><i class="fa-solid fa-envelope" style="width:18px"></i> ${f.email}</a></li>` : '',
+    f.phone ? `<li><a href="tel:${f.phone}"><i class="fa-solid fa-phone" style="width:18px"></i> ${f.phone}</a></li>` : '',
+    f.whatsapp ? `<li><a href="https://wa.me/${f.whatsapp.replace(/[^\d]/g,'')}" target="_blank"><i class="fa-brands fa-whatsapp" style="width:18px"></i> WhatsApp</a></li>` : '',
+  ].filter(Boolean).join('');
+  document.getElementById('footer').innerHTML = `
+    <div class="wrap">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="nav-logo">
+            ${brand.logo_url ? `<img src="${brand.logo_url}" alt="${brand.name}">` : `<i class="fa-solid fa-gem"></i> <span>${brand.name||'ViralPX'}</span>`}
+          </div>
+          <p class="footer-tag">${L(f,'tagline')}</p>
+          ${socialLinks ? `<div class="footer-social">${socialLinks}</div>` : ''}
+        </div>
+        <div class="footer-col">
+          <h4>${ar()?'الموقع':'Site'}</h4>
+          <ul>${navLinks}</ul>
+        </div>
+        <div class="footer-col">
+          <h4>${ar()?'تواصل':'Contact'}</h4>
+          <ul>${contactLinks || `<li style="color:var(--tx4)">—</li>`}</ul>
+        </div>
+      </div>
+      <div class="footer-bottom">© ${new Date().getFullYear()} ${brand.name||'ViralPX'} — ${ar()?'جميع الحقوق محفوظة':'All rights reserved'}</div>
+    </div>`;
+}
+
+function setupScroll(){
+  // Navbar background on scroll
+  const nav = document.querySelector('.nav');
+  window.addEventListener('scroll', () => {
+    nav.style.background = window.scrollY > 30 ? 'rgba(10,10,10,.95)' : 'rgba(10,10,10,.85)';
+  });
+  // Fade-up animations
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }});
+  }, {threshold:0.12});
+  setTimeout(() => document.querySelectorAll('.fade-up').forEach(el => io.observe(el)), 100);
+}
+
+init();
+</script>
+</body>
+</html>
