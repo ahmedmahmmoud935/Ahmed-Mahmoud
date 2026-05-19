@@ -5,7 +5,7 @@ from flask import Flask, request, jsonify, session, send_from_directory, abort, 
 from flask_cors import CORS
 from functools import wraps
 
-app = Flask(__name__, static_folder='public', static_url_path='')
+app = Flask(__name__, static_folder='public', static_url_path='/_static_disabled')
 
 # ── SECURITY ──
 _env_secret = os.environ.get('SECRET_KEY') or secrets.token_hex(32)
