@@ -59,6 +59,9 @@ button{font-family:inherit;cursor:pointer;border:none}
 /* ─── HERO ─── */
 .hero{padding:140px 0 80px;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(249,115,22,.15) 0%,transparent 70%);pointer-events:none;z-index:0}
+.hero.has-cover{padding:160px 0 100px}
+.hero-bg{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;opacity:.35}
+.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,10,.6) 0%,rgba(10,10,10,.85) 60%,rgba(10,10,10,1) 100%)}
 .hero-inner{position:relative;z-index:1;text-align:center;max-width:880px;margin:0 auto}
 .hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--grad-soft);border:1px solid rgba(249,115,22,.25);color:var(--o);padding:8px 18px;border-radius:30px;font-size:13px;font-weight:700;margin-bottom:28px}
 .hero-badge i{font-size:11px}
@@ -74,6 +77,14 @@ button{font-family:inherit;cursor:pointer;border:none}
 .hero-image{margin-top:60px;max-width:900px;margin-left:auto;margin-right:auto;position:relative}
 .hero-image img{border-radius:16px;border:1px solid var(--brd2);box-shadow:0 30px 80px rgba(0,0,0,.5);width:100%}
 .hero-image-placeholder{aspect-ratio:16/9;border:2px dashed var(--brd2);border-radius:16px;background:var(--bg2);display:flex;align-items:center;justify-content:center;color:var(--tx4);font-size:14px}
+
+/* Hero video */
+.hero-video-wrap{margin-top:60px;max-width:920px;margin-left:auto;margin-right:auto;position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--brd2);box-shadow:0 30px 80px rgba(0,0,0,.5);aspect-ratio:16/9;background:#000}
+.hero-video-wrap iframe,.hero-video-wrap video{width:100%;height:100%;border:none;display:block}
+.hero-video-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.4);cursor:pointer;z-index:2;transition:background .2s}
+.hero-video-play:hover{background:rgba(0,0,0,.55)}
+.hero-video-play-btn{width:88px;height:88px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;color:#fff;font-size:30px;box-shadow:0 14px 40px rgba(249,115,22,.5);padding-left:6px;transition:transform .25s}
+.hero-video-play:hover .hero-video-play-btn{transform:scale(1.08)}
 
 /* ─── SECTION COMMON ─── */
 .sec{padding:90px 0;position:relative}
@@ -91,9 +102,44 @@ button{font-family:inherit;cursor:pointer;border:none}
 .feature-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad);transform:scaleX(0);transform-origin:right;transition:transform .35s}
 .feature-card:hover{transform:translateY(-4px);border-color:var(--brd2)}
 .feature-card:hover::before{transform:scaleX(1);transform-origin:left}
-.feature-icon{width:54px;height:54px;border-radius:12px;background:var(--grad-soft);color:var(--o);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:20px}
+.feature-icon{width:54px;height:54px;border-radius:12px;background:var(--grad-soft);color:var(--o);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:20px;overflow:hidden}
+.feature-icon img{width:100%;height:100%;object-fit:contain;padding:8px}
 .feature-card h3{font-size:18px;font-weight:800;margin-bottom:10px}
 .feature-card p{color:var(--tx3);font-size:14px;line-height:1.7}
+
+/* ─── PROJECTS SHOWCASE (competitive advantage) ─── */
+#projects{position:relative;overflow:hidden;background:linear-gradient(180deg,var(--bg) 0%,#0d0d0d 100%)}
+#projects::before{content:'';position:absolute;top:-300px;right:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(249,115,22,.18) 0%,transparent 70%);pointer-events:none}
+#projects::after{content:'';position:absolute;bottom:-200px;left:-150px;width:500px;height:500px;background:radial-gradient(circle,rgba(249,115,22,.12) 0%,transparent 70%);pointer-events:none}
+.proj-wrap{position:relative;z-index:1}
+.proj-highlight{display:inline-flex;align-items:center;gap:8px;background:var(--grad);color:#fff;padding:7px 16px;border-radius:30px;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:20px;box-shadow:0 8px 20px rgba(249,115,22,.4)}
+.proj-highlight i{font-size:11px}
+.proj-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:60px;align-items:center;margin-top:50px}
+@media(max-width:900px){.proj-grid{grid-template-columns:1fr;gap:40px}}
+.proj-features{display:flex;flex-direction:column;gap:20px}
+.proj-feat{display:flex;gap:18px;align-items:flex-start;padding:20px;background:var(--bg2);border:1px solid var(--brd);border-radius:14px;transition:all .3s}
+.proj-feat:hover{border-color:var(--o);transform:translateX(-4px);background:var(--bg3)}
+html[dir="ltr"] .proj-feat:hover{transform:translateX(4px)}
+.proj-feat-icon{width:48px;height:48px;border-radius:11px;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;box-shadow:0 6px 16px rgba(249,115,22,.3)}
+.proj-feat-text h4{font-size:16px;font-weight:800;margin-bottom:6px}
+.proj-feat-text p{font-size:13px;color:var(--tx3);line-height:1.7}
+/* Mockup preview */
+.proj-mockup{position:relative;perspective:1500px}
+.proj-mockup-frame{background:linear-gradient(135deg,#1a1a1a,#0d0d0d);border:1px solid var(--brd2);border-radius:20px;padding:18px;box-shadow:0 40px 80px rgba(0,0,0,.6),0 0 40px rgba(249,115,22,.1);transform:rotateY(-6deg) rotateX(3deg);transition:transform .4s}
+html[dir="ltr"] .proj-mockup-frame{transform:rotateY(6deg) rotateX(3deg)}
+.proj-mockup-frame:hover{transform:rotateY(0) rotateX(0)}
+.proj-mockup-bar{display:flex;gap:6px;margin-bottom:14px}
+.proj-mockup-dot{width:11px;height:11px;border-radius:50%;background:#333}
+.proj-mockup-dot:nth-child(1){background:#ff5f57}
+.proj-mockup-dot:nth-child(2){background:#febc2e}
+.proj-mockup-dot:nth-child(3){background:#28c840}
+.proj-mockup-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.proj-mockup-cell{aspect-ratio:1;border-radius:8px;background:var(--bg3);position:relative;overflow:hidden}
+.proj-mockup-cell::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(249,115,22,.3),rgba(234,108,10,.1))}
+.proj-mockup-cell:nth-child(odd)::before{background:linear-gradient(135deg,rgba(59,130,246,.3),rgba(16,185,129,.1))}
+.proj-mockup-cell:nth-child(3n)::before{background:linear-gradient(135deg,rgba(168,85,247,.3),rgba(236,72,153,.1))}
+.proj-cta{margin-top:36px;display:inline-flex;align-items:center;gap:10px;background:var(--grad);color:#fff;padding:14px 28px;border-radius:11px;font-weight:800;font-size:14px;box-shadow:0 10px 24px rgba(249,115,22,.35);transition:transform .2s}
+.proj-cta:hover{transform:translateY(-2px)}
 
 /* ─── HOW IT WORKS ─── */
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;position:relative}
@@ -186,6 +232,65 @@ button{font-family:inherit;cursor:pointer;border:none}
   .plan.popular{transform:none}
 }
 
+/* ─── STATS COUNTER ─── */
+#stats{background:linear-gradient(180deg,var(--bg2),var(--bg))}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+@media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.stats-grid{grid-template-columns:1fr}}
+.stat-card{background:var(--bg);border:1px solid var(--brd);border-radius:16px;padding:32px 22px;text-align:center;transition:all .3s;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad);transform:scaleX(0);transition:transform .4s}
+.stat-card:hover{transform:translateY(-4px);border-color:var(--brd2)}
+.stat-card:hover::before{transform:scaleX(1)}
+.stat-icon{width:54px;height:54px;border-radius:14px;background:var(--grad-soft);color:var(--o);display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 14px}
+.stat-num{font-family:'Montserrat',sans-serif;font-size:46px;font-weight:900;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1;margin-bottom:8px;display:inline-block}
+.stat-label{color:var(--tx3);font-size:14px;font-weight:600}
+
+/* ─── CONTACT ─── */
+#contact{background:var(--bg2)}
+.contact-grid{display:grid;grid-template-columns:1fr 1.3fr;gap:40px;align-items:start;max-width:1000px;margin:0 auto}
+@media(max-width:850px){.contact-grid{grid-template-columns:1fr;gap:30px}}
+.contact-info{background:var(--bg);border:1px solid var(--brd);border-radius:16px;padding:30px}
+.contact-info-title{font-size:18px;font-weight:800;margin-bottom:6px}
+.contact-info-sub{color:var(--tx3);font-size:13px;margin-bottom:24px;line-height:1.7}
+.contact-info-item{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--brd);text-decoration:none;color:var(--tx);transition:color .2s}
+.contact-info-item:last-of-type{border-bottom:none}
+.contact-info-item:hover{color:var(--o)}
+.contact-info-icon{width:42px;height:42px;border-radius:10px;background:var(--grad-soft);color:var(--o);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:.2s}
+.contact-info-item:hover .contact-info-icon{background:var(--grad);color:#fff}
+.contact-info-text{flex:1;min-width:0}
+.contact-info-label{font-size:12px;color:var(--tx3);font-weight:600;margin-bottom:2px}
+.contact-info-value{font-size:14px;font-weight:700;direction:ltr;text-align:start;word-break:break-all}
+.contact-socials{display:flex;gap:8px;margin-top:20px;padding-top:20px;border-top:1px solid var(--brd)}
+.contact-socials a{width:40px;height:40px;border-radius:10px;background:var(--bg3);border:1px solid var(--brd);color:var(--tx2);display:flex;align-items:center;justify-content:center;font-size:14px;transition:.2s;text-decoration:none}
+.contact-socials a:hover{background:var(--o);color:#fff;border-color:var(--o);transform:translateY(-2px)}
+
+.contact-form{background:var(--bg);border:1px solid var(--brd);border-radius:16px;padding:30px}
+.cform-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:500px){.cform-row{grid-template-columns:1fr}}
+.cform-field{display:flex;flex-direction:column;gap:6px}
+.cform-field label{font-size:12px;color:var(--tx3);font-weight:600}
+.cform-field input,.cform-field textarea{width:100%;background:var(--bg2);border:1px solid var(--brd);color:#fff;padding:13px 15px;border-radius:10px;font-family:inherit;font-size:14px;outline:none;transition:.2s}
+.cform-field input:focus,.cform-field textarea:focus{border-color:var(--o)}
+.cform-field textarea{resize:vertical;min-height:120px;line-height:1.6}
+.cform-submit{width:100%;background:var(--grad);color:#fff;border:none;padding:15px;border-radius:11px;font-family:inherit;font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 10px 24px rgba(249,115,22,.32);transition:transform .2s;margin-top:8px}
+.cform-submit:hover:not(:disabled){transform:translateY(-2px)}
+.cform-submit:disabled{opacity:.6;cursor:wait}
+
+/* ─── WHATSAPP FLOAT ─── */
+.wa-float{position:fixed;bottom:24px;left:24px;z-index:990;background:#25D366;color:#fff;border:none;width:62px;height:62px;border-radius:50%;font-size:30px;cursor:pointer;box-shadow:0 6px 24px rgba(37,211,102,.5);transition:transform .25s,box-shadow .25s;display:none;align-items:center;justify-content:center;text-decoration:none}
+html[dir="ltr"] .wa-float{left:auto;right:24px}
+.wa-float.show{display:flex}
+.wa-float:hover{transform:scale(1.08);box-shadow:0 8px 30px rgba(37,211,102,.7)}
+.wa-float i{animation:waPulse 2s ease-in-out infinite}
+@keyframes waPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+@media(max-width:600px){.wa-float{bottom:18px;left:18px;width:54px;height:54px;font-size:26px}html[dir="ltr"] .wa-float{left:auto;right:18px}}
+
+/* ─── TOAST ─── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:14px 26px;border-radius:11px;font-size:14px;font-weight:700;z-index:999;pointer-events:none;opacity:0;transition:opacity .3s;box-shadow:0 10px 24px rgba(0,0,0,.4)}
+.toast.show{opacity:1}
+.toast.success{background:#22c55e;color:#fff}
+.toast.error{background:#ef4444;color:#fff}
+
 /* Animation */
 .fade-up{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
 .fade-up.in{opacity:1;transform:translateY(0)}
@@ -212,6 +317,12 @@ button{font-family:inherit;cursor:pointer;border:none}
 
 <!-- ───── FOOTER ───── -->
 <footer class="footer" id="footer"></footer>
+
+<!-- ───── WHATSAPP FLOAT ───── -->
+<a id="waFloat" class="wa-float" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+
+<!-- ───── TOAST ───── -->
+<div class="toast" id="toast"></div>
 
 <script>
 let LANG = localStorage.getItem('lang') || 'ar';
@@ -244,6 +355,7 @@ function toggleLang(){
   localStorage.setItem('lang', LANG);
   applyLang();
   render();
+  setupScroll(); // re-observe new fade-up elements
 }
 
 function L(o, key){
@@ -260,6 +372,31 @@ function render(){
   renderNav();
   renderMain();
   renderFooter();
+  renderWhatsAppFloat();
+}
+
+function renderWhatsAppFloat(){
+  const wa = (DATA.footer && DATA.footer.whatsapp) || '';
+  const el = document.getElementById('waFloat');
+  if(!el) return;
+  if(wa){
+    const num = wa.replace(/[^\d]/g, '');
+    el.href = `https://wa.me/${num}`;
+    el.classList.add('show');
+  } else {
+    el.classList.remove('show');
+    el.removeAttribute('href');
+  }
+}
+
+// Toast helper
+let _toastTimer;
+function toast(msg, type='success'){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${type} show`;
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
 }
 
 function renderNav(){
@@ -294,21 +431,35 @@ function buildSection(s){
   switch(s.id){
     case 'hero':         return renderHero();
     case 'features':     return renderFeatures();
+    case 'projects':     return renderProjects();
+    case 'stats':        return renderStats();
     case 'how':          return renderHow();
     case 'pricing':      return renderPricing();
     case 'testimonials': return renderTestimonials();
     case 'faq':          return renderFaq();
+    case 'contact':      return renderContact();
     case 'cta':          return renderCta();
     default: return '';
   }
 }
 
+// ── Video embed helper: converts YouTube/Vimeo URL to embed URL ──
+function toEmbedUrl(url){
+  if(!url) return '';
+  // YouTube
+  let m = url.match(/(?:youtube\.com\/(?:.*v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
+  if(m) return `https://www.youtube.com/embed/${m[1]}?autoplay=1&rel=0`;
+  // Vimeo
+  m = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if(m) return `https://player.vimeo.com/video/${m[1]}?autoplay=1`;
+  // Direct video file
+  if(/\.(mp4|webm|ogg)(\?|$)/i.test(url)) return url;
+  return url;
+}
+
 function renderHero(){
   const h = DATA.hero || {};
   const badge = L(h,'badge');
-  const img = h.image_url
-    ? `<img src="${h.image_url}" alt="hero">`
-    : `<div class="hero-image-placeholder"><span>${ar()?'صورة توضيحية للمنصة':'Platform preview image'}</span></div>`;
   // Highlight last 2 words in gradient
   const title = L(h,'title') || '';
   const words = title.split(' ');
@@ -318,8 +469,25 @@ function renderHero(){
     const tail = words.slice(-2).join(' ');
     titleHtml = `${head} <span class="grad-text">${tail}</span>`;
   }
+  // Media: video > image > placeholder
+  let media = '';
+  if(h.video_url){
+    media = `
+      <div class="hero-video-wrap fade-up" id="heroVideo">
+        ${h.image_url ? `<img src="${h.image_url}" alt="thumbnail" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0">` : ''}
+        <div class="hero-video-play" onclick="playHeroVideo('${h.video_url.replace(/'/g,"\\'")}')">
+          <div class="hero-video-play-btn"><i class="fa-solid fa-play"></i></div>
+        </div>
+      </div>`;
+  } else if(h.image_url){
+    media = `<div class="hero-image fade-up"><img src="${h.image_url}" alt="hero"></div>`;
+  } else {
+    media = `<div class="hero-image fade-up"><div class="hero-image-placeholder"><span>${ar()?'صورة أو فيديو توضيحي للمنصة':'Platform preview image or video'}</span></div></div>`;
+  }
+  const coverBg = h.cover_url ? `<div class="hero-bg" style="background-image:url('${h.cover_url}')"></div>` : '';
   return `
-  <section id="hero" class="hero">
+  <section id="hero" class="hero ${h.cover_url?'has-cover':''}">
+    ${coverBg}
     <div class="wrap hero-inner">
       ${badge ? `<div class="hero-badge fade-up"><i class="fa-solid fa-sparkles"></i> ${badge}</div>` : ''}
       <h1 class="fade-up">${titleHtml}</h1>
@@ -328,19 +496,34 @@ function renderHero(){
         <a href="${h.cta1_link||'#pricing'}" class="btn btn-pri">${L(h,'cta1_text') || (ar()?'ابدأ الآن':'Get Started')}</a>
         <a href="${h.cta2_link||'#features'}" class="btn btn-sec">${L(h,'cta2_text') || (ar()?'اعرف أكتر':'Learn More')}</a>
       </div>
-      <div class="hero-image fade-up">${img}</div>
+      ${media}
     </div>
   </section>`;
 }
 
+function playHeroVideo(url){
+  const wrap = document.getElementById('heroVideo');
+  if(!wrap) return;
+  const embed = toEmbedUrl(url);
+  const isDirect = /\.(mp4|webm|ogg)(\?|$)/i.test(embed);
+  wrap.innerHTML = isDirect
+    ? `<video src="${embed}" controls autoplay></video>`
+    : `<iframe src="${embed}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+}
+
 function renderFeatures(){
   const f = DATA.features || {};
-  const cards = (f.items || []).map(it => `
+  const cards = (f.items || []).map(it => {
+    const iconHtml = it.icon_url
+      ? `<img src="${it.icon_url}" alt="">`
+      : `<i class="fa-solid ${it.icon||'fa-star'}"></i>`;
+    return `
     <div class="feature-card fade-up">
-      <div class="feature-icon"><i class="fa-solid ${it.icon||'fa-star'}"></i></div>
+      <div class="feature-icon">${iconHtml}</div>
       <h3>${L(it,'title')}</h3>
       <p>${L(it,'desc')}</p>
-    </div>`).join('');
+    </div>`;
+  }).join('');
   return `
   <section id="features" class="sec">
     <div class="wrap">
@@ -353,6 +536,156 @@ function renderFeatures(){
     </div>
   </section>`;
 }
+
+function renderProjects(){
+  const p = DATA.projects || {};
+  const feats = (p.features || []).map(f => `
+    <div class="proj-feat fade-up">
+      <div class="proj-feat-icon"><i class="fa-solid ${f.icon||'fa-star'}"></i></div>
+      <div class="proj-feat-text">
+        <h4>${L(f,'title')}</h4>
+        <p>${L(f,'desc')}</p>
+      </div>
+    </div>`).join('');
+  // Mockup cells (6 placeholder cells for visual interest)
+  const mockupCells = Array(6).fill(0).map(() => `<div class="proj-mockup-cell"></div>`).join('');
+  const highlight = L(p,'highlight');
+  return `
+  <section id="projects" class="sec">
+    <div class="wrap proj-wrap">
+      <div class="sec-head fade-up">
+        ${highlight ? `<div class="proj-highlight"><i class="fa-solid fa-trophy"></i> ${highlight}</div>` : `<div class="sec-eyebrow">${ar()?'الميزة التنافسية':'Competitive Edge'}</div>`}
+        <h2 class="sec-title">${L(p,'title')}</h2>
+        <p class="sec-sub">${L(p,'subtitle')}</p>
+      </div>
+      <div class="proj-grid">
+        <div class="proj-features">${feats}</div>
+        <div class="proj-mockup fade-up">
+          <div class="proj-mockup-frame">
+            <div class="proj-mockup-bar">
+              <div class="proj-mockup-dot"></div><div class="proj-mockup-dot"></div><div class="proj-mockup-dot"></div>
+            </div>
+            <div class="proj-mockup-grid">${mockupCells}</div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center" class="fade-up">
+        <a href="${p.cta_link||'#testimonials'}" class="proj-cta">${L(p,'cta_text') || (ar()?'شوف مثال':'See Example')} <i class="fa-solid fa-arrow-${ar()?'left':'right'}"></i></a>
+      </div>
+    </div>
+  </section>`;
+}
+
+function renderStats(){
+  const s = DATA.stats || {};
+  const cards = (s.items || []).map(it => `
+    <div class="stat-card fade-up">
+      ${it.icon ? `<div class="stat-icon"><i class="fa-solid ${it.icon}"></i></div>` : ''}
+      <div class="stat-num" data-target="${esc(it.number||'0')}" data-suffix="${esc(it.suffix||'')}">0${esc(it.suffix||'')}</div>
+      <div class="stat-label">${L(it,'label')}</div>
+    </div>
+  `).join('');
+  return `
+  <section id="stats" class="sec">
+    <div class="wrap">
+      <div class="sec-head fade-up">
+        <div class="sec-eyebrow">${ar()?'إحصائيات':'Stats'}</div>
+        <h2 class="sec-title">${L(s,'title')}</h2>
+        <p class="sec-sub">${L(s,'subtitle')}</p>
+      </div>
+      <div class="stats-grid">${cards}</div>
+    </div>
+  </section>`;
+}
+
+function renderContact(){
+  const c = DATA.contact || {};
+  const f = DATA.footer || {};
+  const social = f.social || {};
+  // Info items: email + phone + whatsapp
+  const infoItems = [
+    f.email ? `<a class="contact-info-item" href="mailto:${esc(f.email)}"><div class="contact-info-icon"><i class="fa-solid fa-envelope"></i></div><div class="contact-info-text"><div class="contact-info-label">${L(c,'info_email_label')}</div><div class="contact-info-value">${esc(f.email)}</div></div></a>` : '',
+    f.phone ? `<a class="contact-info-item" href="tel:${esc(f.phone)}"><div class="contact-info-icon"><i class="fa-solid fa-phone"></i></div><div class="contact-info-text"><div class="contact-info-label">${L(c,'info_phone_label')}</div><div class="contact-info-value">${esc(f.phone)}</div></div></a>` : '',
+    f.whatsapp ? `<a class="contact-info-item" href="https://wa.me/${esc(f.whatsapp.replace(/[^\d]/g,''))}" target="_blank" rel="noopener"><div class="contact-info-icon" style="background:rgba(37,211,102,.15);color:#25D366"><i class="fa-brands fa-whatsapp"></i></div><div class="contact-info-text"><div class="contact-info-label">${L(c,'info_whatsapp_label')}</div><div class="contact-info-value">${esc(f.whatsapp)}</div></div></a>` : '',
+  ].filter(Boolean).join('');
+  // Socials row
+  const socialMap = {
+    instagram:'fa-instagram', facebook:'fa-facebook-f', twitter:'fa-x-twitter',
+    linkedin:'fa-linkedin-in', behance:'fa-behance'
+  };
+  const socialLinks = c.show_socials !== false ? Object.keys(socialMap)
+    .filter(k => social[k])
+    .map(k => `<a href="${esc(social[k])}" target="_blank" rel="noopener" aria-label="${k}"><i class="fa-brands ${socialMap[k]}"></i></a>`)
+    .join('') : '';
+  const socialBlock = socialLinks ? `<div class="contact-socials">${socialLinks}</div>` : '';
+  const infoBlock = `
+    <div class="contact-info fade-up">
+      <div class="contact-info-title">${ar()?'كلّمنا':'Reach Us'}</div>
+      <div class="contact-info-sub">${ar()?'متاحين لكل استفسار، ابعتلنا في أي وقت':'Available for all inquiries, reach out anytime'}</div>
+      ${infoItems || `<div style="color:var(--tx4);font-size:13px;padding:10px 0">${ar()?'لم يتم إضافة معلومات تواصل بعد':'No contact info added yet'}</div>`}
+      ${socialBlock}
+    </div>`;
+  const formBlock = c.form_enabled === false ? '' : `
+    <form class="contact-form fade-up" onsubmit="sendContactForm(event)">
+      <div class="cform-row">
+        <div class="cform-field"><label>${ar()?'الاسم':'Name'} *</label><input type="text" id="cf_name" required maxlength="100"></div>
+        <div class="cform-field"><label>${ar()?'الإيميل':'Email'} *</label><input type="email" id="cf_email" required maxlength="200" dir="ltr"></div>
+      </div>
+      <div class="cform-row" style="grid-template-columns:1fr">
+        <div class="cform-field"><label>${ar()?'الموضوع':'Subject'}</label><input type="text" id="cf_subject" maxlength="200"></div>
+      </div>
+      <div class="cform-row" style="grid-template-columns:1fr">
+        <div class="cform-field"><label>${ar()?'الرسالة':'Message'} *</label><textarea id="cf_message" required maxlength="5000"></textarea></div>
+      </div>
+      <button type="submit" class="cform-submit" id="cf_btn">
+        <i class="fa-solid fa-paper-plane"></i> ${ar()?'إرسال الرسالة':'Send Message'}
+      </button>
+    </form>`;
+  return `
+  <section id="contact" class="sec">
+    <div class="wrap">
+      <div class="sec-head fade-up">
+        <div class="sec-eyebrow">${ar()?'تواصل':'Contact'}</div>
+        <h2 class="sec-title">${L(c,'title')}</h2>
+        <p class="sec-sub">${L(c,'subtitle')}</p>
+      </div>
+      <div class="contact-grid">
+        ${infoBlock}
+        ${formBlock}
+      </div>
+    </div>
+  </section>`;
+}
+
+async function sendContactForm(e){
+  e.preventDefault();
+  const btn = document.getElementById('cf_btn');
+  const name = document.getElementById('cf_name').value.trim();
+  const email = document.getElementById('cf_email').value.trim();
+  const subject = document.getElementById('cf_subject').value.trim();
+  const message = document.getElementById('cf_message').value.trim();
+  if(!name || !email || !message){ toast(ar()?'الاسم والإيميل والرسالة مطلوبة':'Name, email and message required', 'error'); return; }
+  btn.disabled = true;
+  const originalHTML = btn.innerHTML;
+  btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> ${ar()?'جاري الإرسال...':'Sending...'}`;
+  try{
+    const r = await fetch('/api/contact', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({name, email, subject, message})
+    });
+    const d = await r.json().catch(()=>({}));
+    if(r.ok && d.ok){
+      toast(ar()?'✓ تم إرسال رسالتك بنجاح':'✓ Message sent successfully');
+      ['cf_name','cf_email','cf_subject','cf_message'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+    } else {
+      toast(d.error || (ar()?'فشل الإرسال':'Failed to send'), 'error');
+    }
+  }catch{ toast(ar()?'خطأ في الاتصال':'Connection error', 'error'); }
+  finally{ btn.disabled = false; btn.innerHTML = originalHTML; }
+}
+
+// esc helper for landing rendering (avoid XSS in attribute values)
+function esc(s){ if(s == null) return ''; return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function renderHow(){
   const h = DATA.how || {};
@@ -510,17 +843,51 @@ function renderFooter(){
     </div>`;
 }
 
+let _scrollSetup = false;
+let _io = null, _statsIo = null;
 function setupScroll(){
-  // Navbar background on scroll
-  const nav = document.querySelector('.nav');
-  window.addEventListener('scroll', () => {
-    nav.style.background = window.scrollY > 30 ? 'rgba(10,10,10,.95)' : 'rgba(10,10,10,.85)';
-  });
-  // Fade-up animations
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }});
+  if(!_scrollSetup){
+    const nav = document.querySelector('.nav');
+    window.addEventListener('scroll', () => {
+      nav.style.background = window.scrollY > 30 ? 'rgba(10,10,10,.95)' : 'rgba(10,10,10,.85)';
+    });
+    _scrollSetup = true;
+  }
+  // (Re)create observer for newly-rendered fade-up elements
+  if(_io) _io.disconnect();
+  _io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); _io.unobserve(e.target); }});
   }, {threshold:0.12});
-  setTimeout(() => document.querySelectorAll('.fade-up').forEach(el => io.observe(el)), 100);
+  setTimeout(() => document.querySelectorAll('.fade-up').forEach(el => _io.observe(el)), 50);
+  // Animated counters for stats
+  if(_statsIo) _statsIo.disconnect();
+  _statsIo = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if(e.isIntersecting){
+        animateCounter(e.target);
+        _statsIo.unobserve(e.target);
+      }
+    });
+  }, {threshold:0.3});
+  setTimeout(() => document.querySelectorAll('.stat-num[data-target]').forEach(el => _statsIo.observe(el)), 60);
+}
+
+function animateCounter(el){
+  const targetStr = el.dataset.target || '0';
+  const suffix = el.dataset.suffix || '';
+  const target = parseFloat(targetStr.replace(/,/g, '')) || 0;
+  if(!target){ el.textContent = targetStr + suffix; return; }
+  const duration = 1400;
+  const start = performance.now();
+  function tick(now){
+    const t = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
+    const val = Math.floor(target * eased);
+    el.textContent = val.toLocaleString() + suffix;
+    if(t < 1) requestAnimationFrame(tick);
+    else el.textContent = targetStr + suffix;
+  }
+  requestAnimationFrame(tick);
 }
 
 init();

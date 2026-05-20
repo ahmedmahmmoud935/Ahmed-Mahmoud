@@ -498,10 +498,13 @@ function renderLandingEditor(){
       ${editorSectionOrder()}
       ${editorHero()}
       ${editorFeatures()}
+      ${editorProjects()}
+      ${editorStats()}
       ${editorHow()}
       ${editorPricing()}
       ${editorTestimonials()}
       ${editorFaq()}
+      ${editorContact()}
       ${editorCta()}
       ${editorFooter()}
     </div>
@@ -615,8 +618,66 @@ function editorHero(){
       <div class="fbox"><label>Secondary CTA (EN)</label><input id="h_cta2_en" value="${esc(h.cta2_text_en)}" dir="ltr"></div>
     </div>
     <div class="fbox" style="margin-bottom:14px"><label>رابط الزر الثانوي</label><input id="h_cta2_link" value="${esc(h.cta2_link)}" dir="ltr"></div>
-    <div class="fbox"><label>صورة Hero (URL)</label><input id="h_image" value="${esc(h.image_url)}" placeholder="اتركه فاضي لعرض placeholder"></div>
+    <div class="fbox" style="margin-bottom:14px"><label>صورة عرض رئيسية (تحت العنوان)</label>
+      ${uploadInput('h_image', h.image_url)}
+    </div>
+    <div class="fbox" style="margin-bottom:14px"><label>صورة كفر/خلفية للقسم بالكامل</label>
+      ${uploadInput('h_cover', h.cover_url)}
+      <span class="hint">صورة هتظهر كخلفية شفافة وراء النصوص</span>
+    </div>
+    <div class="fbox"><label>رابط فيديو تعريفي (YouTube / Vimeo / mp4)</label>
+      <input id="h_video" value="${esc(h.video_url)}" dir="ltr" placeholder="https://youtube.com/watch?v=...">
+      <span class="hint">لو حطيت فيديو، هيظهر بدل صورة العرض، مع زرار play كبير</span>
+    </div>
   `);
+}
+
+// Generic upload+preview helper. If dataAttr is given, the hidden input also gets data-f=<dataAttr>
+function uploadInput(idPrefix, currentUrl, dataAttr){
+  const dAttr = dataAttr ? ` data-f="${dataAttr}"` : '';
+  return `
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <div id="${idPrefix}_preview" style="width:60px;height:60px;border-radius:8px;background:var(--bg);border:1px dashed var(--brd2);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;color:var(--g2);font-size:18px">
+        ${currentUrl ? `<img src="${currentUrl}" style="width:100%;height:100%;object-fit:cover">` : '<i class="fa-solid fa-image"></i>'}
+      </div>
+      <input id="${idPrefix}" type="hidden" value="${esc(currentUrl)}"${dAttr}>
+      <input id="${idPrefix}_file" type="file" accept="image/*" style="display:none" onchange="handleUpload('${idPrefix}', this)">
+      <button type="button" onclick="document.getElementById('${idPrefix}_file').click()" style="background:var(--bg3);border:1px solid var(--brd);color:#fff;padding:9px 16px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px"><i class="fa-solid fa-upload"></i> رفع صورة</button>
+      <button type="button" onclick="clearUpload('${idPrefix}')" style="background:transparent;border:1px solid var(--brd);color:var(--g2);padding:9px 14px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:12px"><i class="fa-solid fa-xmark"></i> مسح</button>
+      <input id="${idPrefix}_url" type="text" placeholder="أو الصق URL" value="${esc(currentUrl)}" oninput="syncUploadUrl('${idPrefix}')" style="flex:1;min-width:180px;background:var(--bg);border:1px solid var(--brd);color:#fff;padding:9px 13px;border-radius:8px;font-family:inherit;font-size:12px" dir="ltr">
+    </div>
+  `;
+}
+
+async function handleUpload(idPrefix, input){
+  const f = input.files[0]; if(!f) return;
+  const fd = new FormData(); fd.append('file', f); fd.append('kind', 'image');
+  toast('⏳ جاري رفع الصورة...');
+  try{
+    const r = await fetch('/api/upload', {method:'POST', credentials:'include', body:fd}).then(r=>r.json());
+    if(r.url){
+      document.getElementById(idPrefix).value = r.url;
+      const urlInput = document.getElementById(idPrefix+'_url');
+      if(urlInput) urlInput.value = r.url;
+      document.getElementById(idPrefix+'_preview').innerHTML = `<img src="${r.url}" style="width:100%;height:100%;object-fit:cover">`;
+      toast('✓ تم رفع الصورة');
+    } else { toast(r.error || 'فشل الرفع', 'error'); }
+  }catch(e){ toast('خطأ في الاتصال', 'error'); }
+}
+
+function clearUpload(idPrefix){
+  document.getElementById(idPrefix).value = '';
+  const urlInput = document.getElementById(idPrefix+'_url');
+  if(urlInput) urlInput.value = '';
+  document.getElementById(idPrefix+'_preview').innerHTML = '<i class="fa-solid fa-image"></i>';
+}
+
+function syncUploadUrl(idPrefix){
+  const val = document.getElementById(idPrefix+'_url').value.trim();
+  document.getElementById(idPrefix).value = val;
+  const prev = document.getElementById(idPrefix+'_preview');
+  if(val) prev.innerHTML = `<img src="${val}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<i class=\\'fa-solid fa-image\\'></i>'">`;
+  else prev.innerHTML = '<i class="fa-solid fa-image"></i>';
 }
 
 // ─── FEATURES ───
@@ -626,7 +687,12 @@ function editorFeatures(){
     <div class="item-card" data-feature-idx="${i}">
       <div class="item-num">${i+1}</div>
       <button class="item-del" onclick="delItem('features',${i})"><i class="fa-solid fa-trash"></i></button>
-      <div class="frow"><div class="fbox"><label>أيقونة (FontAwesome)</label><input data-f="icon" value="${esc(it.icon)}" placeholder="fa-rocket"></div></div>
+      <div class="frow">
+        <div class="fbox"><label>أيقونة مرفوعة (اختياري — يلغي الـ FontAwesome)</label>
+          ${uploadInput('feat_icon_'+i, it.icon_url||'', 'icon_url')}
+        </div>
+        <div class="fbox"><label>أو أيقونة FontAwesome</label><input data-f="icon" value="${esc(it.icon)}" placeholder="fa-rocket" dir="ltr"><span class="hint">من <a href="https://fontawesome.com/icons" target="_blank" style="color:var(--o)">fontawesome.com</a></span></div>
+      </div>
       <div class="frow">
         <div class="fbox"><label>العنوان (AR)</label><input data-f="title_ar" value="${esc(it.title_ar)}"></div>
         <div class="fbox"><label>Title (EN)</label><input data-f="title_en" value="${esc(it.title_en)}" dir="ltr"></div>
@@ -649,6 +715,55 @@ function editorFeatures(){
     <div style="height:1px;background:var(--brd);margin:18px 0"></div>
     <div class="items-list" id="featuresList">${items}</div>
     <button class="btn-add-item" onclick="addItem('features',{icon:'fa-star',title_ar:'',title_en:'',desc_ar:'',desc_en:''})"><i class="fa-solid fa-plus"></i> إضافة ميزة</button>
+  `);
+}
+
+// ─── PROJECTS SHOWCASE (competitive advantage) ───
+function editorProjects(){
+  const p = LANDING.projects || {};
+  const feats = (p.features || []).map((ft, i) => `
+    <div class="item-card" data-projects-idx="${i}">
+      <div class="item-num">${i+1}</div>
+      <button class="item-del" onclick="delItem('projects',${i})"><i class="fa-solid fa-trash"></i></button>
+      <div class="frow">
+        <div class="fbox"><label>أيقونة FontAwesome</label><input data-f="icon" value="${esc(ft.icon)}" placeholder="fa-images" dir="ltr"></div>
+      </div>
+      <div class="frow">
+        <div class="fbox"><label>العنوان (AR)</label><input data-f="title_ar" value="${esc(ft.title_ar)}"></div>
+        <div class="fbox"><label>Title (EN)</label><input data-f="title_en" value="${esc(ft.title_en)}" dir="ltr"></div>
+      </div>
+      <div class="frow">
+        <div class="fbox"><label>الوصف (AR)</label><textarea data-f="desc_ar">${esc(ft.desc_ar)}</textarea></div>
+        <div class="fbox"><label>Description (EN)</label><textarea data-f="desc_en" dir="ltr">${esc(ft.desc_en)}</textarea></div>
+      </div>
+    </div>
+  `).join('');
+  return lsec('projects','fa-trophy','عرض المشاريع — الميزة التنافسية', `
+    <div style="background:rgba(249,115,22,.06);border:1px solid rgba(249,115,22,.2);border-radius:10px;padding:14px;margin-bottom:18px;color:var(--g1);font-size:13px;line-height:1.7">
+      <i class="fa-solid fa-lightbulb" style="color:var(--o)"></i> ده القسم اللي بيبرز إن منصتك مش زي الباقي — استخدمه لإظهار قوة الـ Projects Section في مواقع عملائك.
+    </div>
+    <div class="frow">
+      <div class="fbox"><label>عنوان القسم (AR)</label><input id="pr_title_ar" value="${esc(p.title_ar)}"></div>
+      <div class="fbox"><label>Title (EN)</label><input id="pr_title_en" value="${esc(p.title_en)}" dir="ltr"></div>
+    </div>
+    <div class="frow">
+      <div class="fbox"><label>الوصف (AR)</label><textarea id="pr_sub_ar">${esc(p.subtitle_ar)}</textarea></div>
+      <div class="fbox"><label>Subtitle (EN)</label><textarea id="pr_sub_en" dir="ltr">${esc(p.subtitle_en)}</textarea></div>
+    </div>
+    <div class="frow">
+      <div class="fbox"><label>شارة بارزة (AR) — تظهر فوق العنوان</label><input id="pr_hl_ar" value="${esc(p.highlight_ar)}" placeholder="مثال: الميزة التنافسية"></div>
+      <div class="fbox"><label>Highlight Badge (EN)</label><input id="pr_hl_en" value="${esc(p.highlight_en)}" dir="ltr"></div>
+    </div>
+    <div style="height:1px;background:var(--brd);margin:18px 0"></div>
+    <div style="font-weight:700;margin-bottom:10px;color:var(--g2);font-size:13px">مميزات قسم المشاريع</div>
+    <div class="items-list" id="projectsList">${feats}</div>
+    <button class="btn-add-item" onclick="addItem('projects',{icon:'fa-star',title_ar:'',title_en:'',desc_ar:'',desc_en:''})"><i class="fa-solid fa-plus"></i> إضافة ميزة</button>
+    <div style="height:1px;background:var(--brd);margin:18px 0"></div>
+    <div class="frow">
+      <div class="fbox"><label>نص الزر (AR)</label><input id="pr_cta_ar" value="${esc(p.cta_text_ar)}"></div>
+      <div class="fbox"><label>CTA Text (EN)</label><input id="pr_cta_en" value="${esc(p.cta_text_en)}" dir="ltr"></div>
+    </div>
+    <div class="fbox"><label>رابط الزر</label><input id="pr_cta_link" value="${esc(p.cta_link)}" dir="ltr"></div>
   `);
 }
 
@@ -797,6 +912,85 @@ function editorFaq(){
   `);
 }
 
+// ─── STATS COUNTER ───
+function editorStats(){
+  const s = LANDING.stats || {};
+  const items = (s.items || []).map((it, i) => `
+    <div class="item-card" data-stats-idx="${i}">
+      <div class="item-num">${i+1}</div>
+      <button class="item-del" onclick="delItem('stats',${i})"><i class="fa-solid fa-trash"></i></button>
+      <div class="frow">
+        <div class="fbox"><label>الرقم</label><input data-f="number" value="${esc(it.number)}" dir="ltr" placeholder="100"></div>
+        <div class="fbox"><label>اللاحقة (suffix)</label><input data-f="suffix" value="${esc(it.suffix)}" dir="ltr" placeholder="+ أو % أو /7"></div>
+        <div class="fbox"><label>أيقونة FontAwesome</label><input data-f="icon" value="${esc(it.icon)}" dir="ltr" placeholder="fa-users"></div>
+      </div>
+      <div class="frow">
+        <div class="fbox"><label>التسمية (AR)</label><input data-f="label_ar" value="${esc(it.label_ar)}"></div>
+        <div class="fbox"><label>Label (EN)</label><input data-f="label_en" value="${esc(it.label_en)}" dir="ltr"></div>
+      </div>
+    </div>
+  `).join('');
+  return lsec('stats','fa-chart-simple','الإحصائيات والأرقام', `
+    <div class="frow">
+      <div class="fbox"><label>عنوان القسم (AR)</label><input id="st_title_ar" value="${esc(s.title_ar)}"></div>
+      <div class="fbox"><label>Title (EN)</label><input id="st_title_en" value="${esc(s.title_en)}" dir="ltr"></div>
+    </div>
+    <div class="frow">
+      <div class="fbox"><label>الوصف (AR)</label><input id="st_sub_ar" value="${esc(s.subtitle_ar)}"></div>
+      <div class="fbox"><label>Subtitle (EN)</label><input id="st_sub_en" value="${esc(s.subtitle_en)}" dir="ltr"></div>
+    </div>
+    <div style="height:1px;background:var(--brd);margin:18px 0"></div>
+    <div class="items-list" id="statsList">${items}</div>
+    <button class="btn-add-item" onclick="addItem('stats',{number:'100',suffix:'+',label_ar:'',label_en:'',icon:'fa-star'})"><i class="fa-solid fa-plus"></i> إضافة إحصائية</button>
+  `);
+}
+
+// ─── CONTACT SECTION ───
+function editorContact(){
+  const c = LANDING.contact || {};
+  return lsec('contact','fa-envelope','قسم التواصل (Contact)', `
+    <div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:14px;margin-bottom:18px;color:var(--g1);font-size:13px;line-height:1.7">
+      <i class="fa-solid fa-info-circle" style="color:#22c55e"></i> الفورم بيستخدم خدمة Resend اللي معدّاها في environment variables (<code>RESEND_API_KEY</code> + <code>CONTACT_EMAIL</code>). معلومات التواصل (إيميل/هاتف/واتساب) بتيجي من قسم <b>Footer</b>.
+    </div>
+    <div class="frow">
+      <div class="fbox"><label>عنوان القسم (AR)</label><input id="ct_title_ar" value="${esc(c.title_ar)}"></div>
+      <div class="fbox"><label>Title (EN)</label><input id="ct_title_en" value="${esc(c.title_en)}" dir="ltr"></div>
+    </div>
+    <div class="frow">
+      <div class="fbox"><label>الوصف (AR)</label><textarea id="ct_sub_ar">${esc(c.subtitle_ar)}</textarea></div>
+      <div class="fbox"><label>Subtitle (EN)</label><textarea id="ct_sub_en" dir="ltr">${esc(c.subtitle_en)}</textarea></div>
+    </div>
+    <div class="frow">
+      <div class="fbox"><label>إظهار فورم الإرسال؟</label>
+        <select id="ct_form_enabled">
+          <option value="1" ${c.form_enabled !== false ? 'selected':''}>نعم — اعرض فورم</option>
+          <option value="0" ${c.form_enabled === false ? 'selected':''}>لأ — اعرض معلومات التواصل فقط</option>
+        </select>
+      </div>
+      <div class="fbox"><label>إظهار أيقونات السوشيال؟</label>
+        <select id="ct_show_socials">
+          <option value="1" ${c.show_socials !== false ? 'selected':''}>نعم</option>
+          <option value="0" ${c.show_socials === false ? 'selected':''}>لأ</option>
+        </select>
+      </div>
+    </div>
+    <div style="height:1px;background:var(--brd);margin:18px 0"></div>
+    <div style="font-weight:700;margin-bottom:14px;color:var(--g2);font-size:13px">تسميات معلومات التواصل</div>
+    <div class="frow">
+      <div class="fbox"><label>إيميل (AR)</label><input id="ct_lbl_email_ar" value="${esc(c.info_email_label_ar)}"></div>
+      <div class="fbox"><label>Email (EN)</label><input id="ct_lbl_email_en" value="${esc(c.info_email_label_en)}" dir="ltr"></div>
+    </div>
+    <div class="frow">
+      <div class="fbox"><label>هاتف (AR)</label><input id="ct_lbl_phone_ar" value="${esc(c.info_phone_label_ar)}"></div>
+      <div class="fbox"><label>Phone (EN)</label><input id="ct_lbl_phone_en" value="${esc(c.info_phone_label_en)}" dir="ltr"></div>
+    </div>
+    <div class="frow">
+      <div class="fbox"><label>واتساب (AR)</label><input id="ct_lbl_wa_ar" value="${esc(c.info_whatsapp_label_ar)}"></div>
+      <div class="fbox"><label>WhatsApp (EN)</label><input id="ct_lbl_wa_en" value="${esc(c.info_whatsapp_label_en)}" dir="ltr"></div>
+    </div>
+  `);
+}
+
 // ─── CTA SECTION ───
 function editorCta(){
   const c = LANDING.cta || {};
@@ -850,18 +1044,26 @@ function editorFooter(){
 }
 
 // ── ITEM ADD/DELETE ──
+function _arrayKey(section){
+  // Each section has a different array key
+  return section==='pricing'?'plans':(section==='how'?'steps':(section==='projects'?'features':'items'));
+}
 function addItem(section, template){
-  if(!LANDING[section]) LANDING[section] = {items:[]};
-  const arr = LANDING[section][section==='pricing'?'plans':(section==='how'?'steps':'items')];
-  arr.push(template);
+  if(!LANDING[section]) LANDING[section] = {};
+  const k = _arrayKey(section);
+  if(!LANDING[section][k]) LANDING[section][k] = [];
+  // First save current edits so we don't lose them on re-render
+  Object.assign(LANDING, gatherLanding());
+  LANDING[section][k].push(template);
   renderLandingEditor();
-  // Open the section that was modified
   setTimeout(() => document.querySelector(`.lsec[data-sec="${section}"]`)?.classList.add('open'), 50);
 }
 
 function delItem(section, idx){
   if(!confirm('حذف هذا العنصر؟')) return;
-  const arr = LANDING[section][section==='pricing'?'plans':(section==='how'?'steps':'items')];
+  // Save current edits first
+  Object.assign(LANDING, gatherLanding());
+  const arr = LANDING[section][_arrayKey(section)];
   arr.splice(idx, 1);
   renderLandingEditor();
   setTimeout(() => document.querySelector(`.lsec[data-sec="${section}"]`)?.classList.add('open'), 50);
@@ -905,13 +1107,23 @@ function gatherLanding(){
     subtitle_ar:v('h_sub_ar'), subtitle_en:v('h_sub_en'),
     cta1_text_ar:v('h_cta1_ar'), cta1_text_en:v('h_cta1_en'), cta1_link:v('h_cta1_link'),
     cta2_text_ar:v('h_cta2_ar'), cta2_text_en:v('h_cta2_en'), cta2_link:v('h_cta2_link'),
-    image_url:v('h_image')
+    image_url:v('h_image'),
+    cover_url:v('h_cover'),
+    video_url:v('h_video')
   };
   // Features
   out.features = {
     title_ar:v('f_title_ar'), title_en:v('f_title_en'),
     subtitle_ar:v('f_sub_ar'), subtitle_en:v('f_sub_en'),
     items: gatherCardItems('featuresList')
+  };
+  // Projects (competitive advantage)
+  out.projects = {
+    title_ar:v('pr_title_ar'), title_en:v('pr_title_en'),
+    subtitle_ar:v('pr_sub_ar'), subtitle_en:v('pr_sub_en'),
+    highlight_ar:v('pr_hl_ar'), highlight_en:v('pr_hl_en'),
+    features: gatherCardItems('projectsList'),
+    cta_text_ar:v('pr_cta_ar'), cta_text_en:v('pr_cta_en'), cta_link:v('pr_cta_link')
   };
   // How
   out.how = {
@@ -935,6 +1147,22 @@ function gatherLanding(){
   out.faq = {
     title_ar:v('fq_title_ar'), title_en:v('fq_title_en'),
     items: gatherCardItems('faqList')
+  };
+  // Stats
+  out.stats = {
+    title_ar:v('st_title_ar'), title_en:v('st_title_en'),
+    subtitle_ar:v('st_sub_ar'), subtitle_en:v('st_sub_en'),
+    items: gatherCardItems('statsList')
+  };
+  // Contact
+  out.contact = {
+    title_ar:v('ct_title_ar'), title_en:v('ct_title_en'),
+    subtitle_ar:v('ct_sub_ar'), subtitle_en:v('ct_sub_en'),
+    form_enabled: v('ct_form_enabled') !== '0',
+    show_socials: v('ct_show_socials') !== '0',
+    info_email_label_ar:v('ct_lbl_email_ar'), info_email_label_en:v('ct_lbl_email_en'),
+    info_phone_label_ar:v('ct_lbl_phone_ar'), info_phone_label_en:v('ct_lbl_phone_en'),
+    info_whatsapp_label_ar:v('ct_lbl_wa_ar'), info_whatsapp_label_en:v('ct_lbl_wa_en')
   };
   // CTA
   out.cta = {

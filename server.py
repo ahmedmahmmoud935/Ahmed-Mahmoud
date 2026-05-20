@@ -126,11 +126,14 @@ DEFAULT_LANDING = {
     "sections": [
         {"id":"hero",        "label_ar":"الرئيسية",      "label_en":"Hero",         "visible":True, "order":0},
         {"id":"features",    "label_ar":"المميزات",      "label_en":"Features",     "visible":True, "order":1},
-        {"id":"how",         "label_ar":"كيف تعمل",      "label_en":"How It Works", "visible":True, "order":2},
-        {"id":"pricing",     "label_ar":"الأسعار",        "label_en":"Pricing",      "visible":True, "order":3},
-        {"id":"testimonials","label_ar":"آراء العملاء",  "label_en":"Testimonials", "visible":True, "order":4},
-        {"id":"faq",         "label_ar":"أسئلة شائعة",   "label_en":"FAQ",          "visible":True, "order":5},
-        {"id":"cta",         "label_ar":"دعوة للتسجيل",  "label_en":"CTA",          "visible":True, "order":6}
+        {"id":"projects",    "label_ar":"عرض المشاريع",   "label_en":"Projects Showcase","visible":True,"order":2},
+        {"id":"stats",       "label_ar":"إحصائيات",       "label_en":"Stats",        "visible":True, "order":3},
+        {"id":"how",         "label_ar":"كيف تعمل",      "label_en":"How It Works", "visible":True, "order":4},
+        {"id":"pricing",     "label_ar":"الأسعار",        "label_en":"Pricing",      "visible":True, "order":5},
+        {"id":"testimonials","label_ar":"آراء العملاء",  "label_en":"Testimonials", "visible":True, "order":6},
+        {"id":"faq",         "label_ar":"أسئلة شائعة",   "label_en":"FAQ",          "visible":True, "order":7},
+        {"id":"contact",     "label_ar":"تواصل معنا",    "label_en":"Contact",      "visible":True, "order":8},
+        {"id":"cta",         "label_ar":"دعوة للتسجيل",  "label_en":"CTA",          "visible":True, "order":9}
     ],
     "hero": {
         "badge_ar":"جديد", "badge_en":"New",
@@ -142,7 +145,9 @@ DEFAULT_LANDING = {
         "cta1_link":"#pricing",
         "cta2_text_ar":"شاهد الأمثلة", "cta2_text_en":"View Examples",
         "cta2_link":"#testimonials",
-        "image_url":""
+        "image_url":"",
+        "cover_url":"",     # background image for hero section
+        "video_url":""      # promotional video (YouTube/Vimeo/mp4)
     },
     "features": {
         "title_ar":"كل ما تحتاجه لبورتفوليو احترافي",
@@ -150,13 +155,30 @@ DEFAULT_LANDING = {
         "subtitle_ar":"أدوات قوية وسهلة، مصممة للمبدعين",
         "subtitle_en":"Powerful, easy tools designed for creators",
         "items":[
-            {"icon":"fa-wand-magic-sparkles","title_ar":"تصاميم جاهزة","title_en":"Ready Designs","desc_ar":"اختر من قوالب احترافية متعددة","desc_en":"Choose from multiple professional templates"},
-            {"icon":"fa-mobile-screen","title_ar":"متجاوب 100%","title_en":"Fully Responsive","desc_ar":"يعمل على كل الأجهزة بسلاسة","desc_en":"Works seamlessly on all devices"},
-            {"icon":"fa-globe","title_ar":"دومين خاص","title_en":"Custom Domain","desc_ar":"اربط الدومين الخاص بك بسهولة","desc_en":"Connect your own domain easily"},
-            {"icon":"fa-chart-line","title_ar":"إحصائيات مفصلة","title_en":"Detailed Analytics","desc_ar":"اعرف زوّارك وتفاعلهم","desc_en":"Track your visitors and engagement"},
-            {"icon":"fa-language","title_ar":"عربي وإنجليزي","title_en":"AR & EN","desc_ar":"دعم كامل للغتين","desc_en":"Full bilingual support"},
-            {"icon":"fa-bolt","title_ar":"سرعة فائقة","title_en":"Lightning Fast","desc_ar":"تحميل فوري لزوّارك","desc_en":"Instant loading for your visitors"}
+            {"icon":"fa-wand-magic-sparkles","icon_url":"","title_ar":"تصاميم جاهزة","title_en":"Ready Designs","desc_ar":"اختر من قوالب احترافية متعددة","desc_en":"Choose from multiple professional templates"},
+            {"icon":"fa-mobile-screen","icon_url":"","title_ar":"متجاوب 100%","title_en":"Fully Responsive","desc_ar":"يعمل على كل الأجهزة بسلاسة","desc_en":"Works seamlessly on all devices"},
+            {"icon":"fa-globe","icon_url":"","title_ar":"دومين خاص","title_en":"Custom Domain","desc_ar":"اربط الدومين الخاص بك بسهولة","desc_en":"Connect your own domain easily"},
+            {"icon":"fa-chart-line","icon_url":"","title_ar":"إحصائيات مفصلة","title_en":"Detailed Analytics","desc_ar":"اعرف زوّارك وتفاعلهم","desc_en":"Track your visitors and engagement"},
+            {"icon":"fa-language","icon_url":"","title_ar":"عربي وإنجليزي","title_en":"AR & EN","desc_ar":"دعم كامل للغتين","desc_en":"Full bilingual support"},
+            {"icon":"fa-bolt","icon_url":"","title_ar":"سرعة فائقة","title_en":"Lightning Fast","desc_ar":"تحميل فوري لزوّارك","desc_en":"Instant loading for your visitors"}
         ]
+    },
+    "projects": {
+        "title_ar":"معرض المشاريع الاحترافي",
+        "title_en":"Pro Projects Showcase",
+        "subtitle_ar":"اعرض مشاريعك بطريقة تخطف الأنظار — مع تصنيفات، فلاتر، ومعارض تفاعلية",
+        "subtitle_en":"Showcase your work in a stunning way — with categories, filters, and interactive galleries",
+        "highlight_ar":"الميزة التنافسية اللي بتميّز موقعك عن الباقي",
+        "highlight_en":"The competitive edge that sets your site apart",
+        "features":[
+            {"icon":"fa-images","title_ar":"معرض صور احترافي","title_en":"Professional Image Gallery","desc_ar":"تصفّح بإيقاع سينمائي مع تكبير full-screen","desc_en":"Cinematic browsing with full-screen lightbox"},
+            {"icon":"fa-video","title_ar":"دعم الفيديو والريلز","title_en":"Video & Reels Support","desc_ar":"اعرض فيديوهاتك بـ aspect ratios مختلفة","desc_en":"Display videos in different aspect ratios"},
+            {"icon":"fa-filter","title_ar":"تصنيفات وفلاتر","title_en":"Categories & Filters","desc_ar":"نظّم أعمالك واجعل الزائر يلاقي اللي بيدور عليه","desc_en":"Organize your work so visitors find what they need"},
+            {"icon":"fa-mobile-screen-button","title_ar":"تجربة موبايل سلسة","title_en":"Smooth Mobile UX","desc_ar":"swipe بأصابعك بين المشاريع","desc_en":"Swipe between projects with your fingers"}
+        ],
+        "cta_text_ar":"شوف نموذج حي",
+        "cta_text_en":"See a Live Example",
+        "cta_link":"#testimonials"
     },
     "how": {
         "title_ar":"ابدأ في 3 خطوات","title_en":"Start in 3 Steps",
@@ -194,6 +216,25 @@ DEFAULT_LANDING = {
         "subtitle_ar":"انضم لمئات المبدعين اللي بنوا حضورهم الرقمي معنا","subtitle_en":"Join hundreds of creators who built their digital presence with us",
         "btn_text_ar":"ابدأ مجاناً الآن","btn_text_en":"Start Free Now",
         "btn_link":"#pricing"
+    },
+    "stats": {
+        "title_ar":"أرقام بتتكلم","title_en":"Numbers That Speak",
+        "subtitle_ar":"ثقة عملائنا هي اللي بتدفعنا للأمام","subtitle_en":"Our clients' trust drives us forward",
+        "items":[
+            {"number":"100","suffix":"+","label_ar":"عميل سعيد","label_en":"Happy Clients","icon":"fa-users"},
+            {"number":"500","suffix":"+","label_ar":"مشروع منشور","label_en":"Published Projects","icon":"fa-rocket"},
+            {"number":"99","suffix":"%","label_ar":"رضا العملاء","label_en":"Satisfaction","icon":"fa-heart"},
+            {"number":"24","suffix":"/7","label_ar":"دعم فني","label_en":"Support","icon":"fa-headset"}
+        ]
+    },
+    "contact": {
+        "title_ar":"تواصل معنا","title_en":"Get in Touch",
+        "subtitle_ar":"عندك سؤال؟ ابعتلنا وهنرد عليك في أقرب وقت","subtitle_en":"Have a question? Send us a message and we'll get back to you soon",
+        "form_enabled":True,
+        "show_socials":True,
+        "info_email_label_ar":"إيميل","info_email_label_en":"Email",
+        "info_phone_label_ar":"هاتف","info_phone_label_en":"Phone",
+        "info_whatsapp_label_ar":"واتساب","info_whatsapp_label_en":"WhatsApp"
     },
     "footer": {
         "tagline_ar":"منصة البورتفوليو الاحترافي للمبدعين العرب","tagline_en":"Professional portfolio platform for Arab creators",
@@ -633,7 +674,21 @@ def _get_landing(db):
         try:
             stored = json.loads(row['value'])
             # Merge stored over defaults so newly-added fields don't break old saves
-            return _deep_merge(DEFAULT_LANDING, stored)
+            data = _deep_merge(DEFAULT_LANDING, stored)
+            # Auto-migrate sections: add any new default sections that are missing
+            try:
+                existing_ids = {s.get('id') for s in (data.get('sections') or []) if isinstance(s, dict)}
+                for default_sec in DEFAULT_LANDING['sections']:
+                    if default_sec['id'] not in existing_ids:
+                        # Insert in approximate position based on default order
+                        secs = data['sections']
+                        secs.append(dict(default_sec))
+                        # Re-number orders
+                        for i, s in enumerate(secs):
+                            if isinstance(s, dict): s['order'] = i
+                        data['sections'] = secs
+            except Exception as e: print(f'landing sections migration: {e}')
+            return data
         except: pass
     return DEFAULT_LANDING
 
