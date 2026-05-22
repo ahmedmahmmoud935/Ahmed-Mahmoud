@@ -2597,10 +2597,11 @@ def contact_send():
     if '@' not in email or '.' not in email.split('@')[-1]: return jsonify({'error':'البريد الإلكتروني غير صحيح'}), 400
     api_key = os.environ.get('RESEND_API_KEY','')
     if not api_key: return jsonify({'error':'خدمة الإيميل غير مهيأة'}), 500
-    # Recipient: the portfolio owner's own contact email (per-client), else global fallback
+    # Recipient resolution
     to_email = ''
     uid_param = d.get('user_id')
     if uid_param:
+        # Client portfolio — message MUST go to that client's own email (no owner fallback)
         try:
             db = get_db()
             # Primary: the 'contact_email' setting (set from the Social tab)
@@ -2614,10 +2615,14 @@ def contact_send():
                     content = json.loads(row['value'])
                     to_email = ((content.get('contact') or {}).get('email') or '').strip()
         except Exception as e: print(f'contact email lookup: {e}')
-    if not to_email:
+        if not to_email:
+            # Client hasn't configured a recipient — do NOT fall back to the owner's inbox
+            return jsonify({'error':'صاحب الموقع لم يفعّل استقبال الرسائل بعد. برجاء التواصل معه بطريقة أخرى.'}), 400
+    else:
+        # No user_id (e.g. the SaaS landing page) — use the global owner inbox
         to_email = os.environ.get('CONTACT_EMAIL','')
-    if not to_email:
-        return jsonify({'error':'لم يتم تعيين إيميل لاستقبال الرسائل. أضِفه من لوحة التحكم → التواصل'}), 500
+        if not to_email:
+            return jsonify({'error':'خدمة الإيميل غير مهيأة'}), 500
     def esc(s): return html_mod.escape(s).replace('\n','<br>')
     subj = subject or f'رسالة جديدة من {name}'
     html_body = f'<div style="font-family:Arial;max-width:600px;margin:0 auto;padding:20px;background:#f5f5f5;"><div style="background:#fff;padding:24px;border-radius:8px;border-top:4px solid #ff6b35;"><h2 style="color:#ff6b35;margin-top:0;">📬 رسالة جديدة</h2><p><b>الاسم:</b> {esc(name)}</p><p><b>الإيميل:</b> {esc(email)}</p><p><b>الرسالة:</b><br>{esc(message)}</p></div></div>'
