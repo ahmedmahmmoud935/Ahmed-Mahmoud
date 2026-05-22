@@ -2617,18 +2617,30 @@ def contact_send():
     if not to_email:
         to_email = os.environ.get('CONTACT_EMAIL','')
     if not to_email:
-        return jsonify({'error':'لم يتم تعيين إيميل لاستقبال الرسائل. أضِفه من لوحة التحكم → المحتوى → التواصل'}), 500
+        return jsonify({'error':'لم يتم تعيين إيميل لاستقبال الرسائل. أضِفه من لوحة التحكم → التواصل'}), 500
     def esc(s): return html_mod.escape(s).replace('\n','<br>')
     subj = subject or f'رسالة جديدة من {name}'
     html_body = f'<div style="font-family:Arial;max-width:600px;margin:0 auto;padding:20px;background:#f5f5f5;"><div style="background:#fff;padding:24px;border-radius:8px;border-top:4px solid #ff6b35;"><h2 style="color:#ff6b35;margin-top:0;">📬 رسالة جديدة</h2><p><b>الاسم:</b> {esc(name)}</p><p><b>الإيميل:</b> {esc(email)}</p><p><b>الرسالة:</b><br>{esc(message)}</p></div></div>'
+    # FROM address — configurable via RESEND_FROM env var.
+    # Default is Resend's shared test domain (only sends to your own account email).
+    # After verifying your domain in Resend, set RESEND_FROM="ViralPX <noreply@viralpx.com>".
+    from_addr = os.environ.get('RESEND_FROM', 'Portfolio <onboarding@resend.dev>')
     try:
-        req = urllib.request.Request('https://api.resend.com/emails', data=json.dumps({'from':'Portfolio <onboarding@resend.dev>','to':[to_email],'reply_to':email,'subject':subj,'html':html_body}).encode(),
+        req = urllib.request.Request('https://api.resend.com/emails', data=json.dumps({'from':from_addr,'to':[to_email],'reply_to':email,'subject':subj,'html':html_body}).encode(),
             headers={'Authorization':f'Bearer {api_key}','Content-Type':'application/json','User-Agent':'Mozilla/5.0'}, method='POST')
         with urllib.request.urlopen(req, timeout=10) as r:
             result = json.loads(r.read().decode())
             if result.get('id'): _crate[ip].append(now); return jsonify({'ok':True})
             return jsonify({'error':'فشل الإرسال'}), 500
-    except Exception as e: print(f'Contact error: {e}'); return jsonify({'error':'حدث خطأ'}), 500
+    except urllib.error.HTTPError as he:
+        # Surface Resend's actual error (e.g. test-domain restriction)
+        try: detail = json.loads(he.read().decode()).get('message','')
+        except: detail = ''
+        print(f'Contact error (Resend {he.code}): {detail}')
+        if 'verify a domain' in detail.lower() or 'testing emails' in detail.lower() or 'own email' in detail.lower():
+            return jsonify({'error':'إيميل الاستقبال غير مسموح. يجب تفعيل (verify) دومينك في Resend لإرسال الرسائل لأي إيميل.'}), 500
+        return jsonify({'error': detail or 'فشل الإرسال'}), 500
+    except Exception as e: print(f'Contact error: {e}'); return jsonify({'error':'حدث خطأ في الاتصال'}), 500
 
 # ── USER PORTFOLIO ROUTING ──
 def _lookup_domain_owner(db, raw_host):
