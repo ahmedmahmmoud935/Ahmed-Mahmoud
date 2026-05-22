@@ -3219,6 +3219,11 @@ async function initApp(){
   refreshCategoryDropdowns();
   // Apply custom project tab labels/icons/visibility
   if(typeof applyProjTabLabels==='function') applyProjTabLabels();
+  // Warn (temporary toast) if no contact email is set — visitors' messages won't arrive
+  const hasEmail = (S.contact_email||'').trim() || ((S.content&&S.content.contact&&S.content.contact.email)||'').trim();
+  if(!hasEmail){
+    setTimeout(()=>toast('⚠️ لم تُضِف إيميل استقبال الرسائل — فورم التواصل لن يعمل. أضِفه من تبويب «التواصل»', 7000), 1400);
+  }
 }
 
 // ══ TABS ══
@@ -6073,7 +6078,7 @@ async function changeCredentials(){
   }catch{toast('خطأ في الاتصال');}
 }
 
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
+function toast(msg,dur){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.remove('show'),dur||3500);}
 
 // ══ CLOSE ON OVERLAY CLICK ══
 document.getElementById('projModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
