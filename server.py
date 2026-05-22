@@ -1208,6 +1208,10 @@ def get_settings():
     for r in rows:
         try: out[r['key']] = json.loads(r['value'])
         except: out[r['key']] = r['value']
+    # Expose username + id so the portfolio can build self-referencing links (e.g. feedback form)
+    urow = db.execute('SELECT username FROM users WHERE id=?', (user_id,)).fetchone()
+    out['_username'] = urow['username'] if urow else ''
+    out['_user_id'] = user_id
 
     # Auto-migrate sections: add logos & testimonials if missing (for existing users)
     try:
@@ -1268,6 +1272,9 @@ def update_settings():
             url = save_dataurl(img, ALLOWED_IMG, user_id)
             if url and url != '__STORAGE_LIMIT__':
                 db.execute('INSERT OR REPLACE INTO settings(user_id,key,value) VALUES(?,?,?)', (user_id,k.replace('upload','url'),url))
+        elif img and img.startswith('/uploads/'):
+            # Already uploaded via /api/upload (efficient path, used by mobile)
+            db.execute('INSERT OR REPLACE INTO settings(user_id,key,value) VALUES(?,?,?)', (user_id,k.replace('upload','url'),img))
         elif img == '':
             db.execute('INSERT OR REPLACE INTO settings(user_id,key,value) VALUES(?,?,?)', (user_id,k.replace('upload','url'),''))
     for k, v in d.items():
@@ -2588,8 +2595,22 @@ def contact_send():
     message = (d.get('message') or '').strip()[:5000]
     if not name or not email or not message: return jsonify({'error':'الاسم والإيميل والرسالة مطلوبة'}), 400
     if '@' not in email or '.' not in email.split('@')[-1]: return jsonify({'error':'البريد الإلكتروني غير صحيح'}), 400
-    api_key = os.environ.get('RESEND_API_KEY',''); to_email = os.environ.get('CONTACT_EMAIL','')
-    if not api_key or not to_email: return jsonify({'error':'خدمة الإيميل غير مهيأة'}), 500
+    api_key = os.environ.get('RESEND_API_KEY','')
+    if not api_key: return jsonify({'error':'خدمة الإيميل غير مهيأة'}), 500
+    # Recipient: the portfolio owner's own contact email (per-client), else global fallback
+    to_email = ''
+    uid_param = d.get('user_id')
+    if uid_param:
+        try:
+            row = get_db().execute("SELECT value FROM settings WHERE user_id=? AND key='content'", (int(uid_param),)).fetchone()
+            if row and row['value']:
+                content = json.loads(row['value'])
+                to_email = ((content.get('contact') or {}).get('email') or '').strip()
+        except Exception as e: print(f'contact email lookup: {e}')
+    if not to_email:
+        to_email = os.environ.get('CONTACT_EMAIL','')
+    if not to_email:
+        return jsonify({'error':'لم يتم تعيين إيميل لاستقبال الرسائل. أضِفه من لوحة التحكم → المحتوى → التواصل'}), 500
     def esc(s): return html_mod.escape(s).replace('\n','<br>')
     subj = subject or f'رسالة جديدة من {name}'
     html_body = f'<div style="font-family:Arial;max-width:600px;margin:0 auto;padding:20px;background:#f5f5f5;"><div style="background:#fff;padding:24px;border-radius:8px;border-top:4px solid #ff6b35;"><h2 style="color:#ff6b35;margin-top:0;">📬 رسالة جديدة</h2><p><b>الاسم:</b> {esc(name)}</p><p><b>الإيميل:</b> {esc(email)}</p><p><b>الرسالة:</b><br>{esc(message)}</p></div></div>'

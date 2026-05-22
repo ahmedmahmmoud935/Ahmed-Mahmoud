@@ -245,6 +245,10 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 .sec-drag{color:#444;font-size:16px;}
 .sec-name{flex:1;font-weight:700;font-size:15px;}
 .sec-name small{display:block;color:var(--g2);font-size:12px;font-weight:400;margin-top:2px;}
+.sec-move{display:flex;flex-direction:column;gap:3px;}
+.sec-move button{width:30px;height:22px;border:1px solid #2a2a2a;background:var(--d4);color:var(--g2);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s;padding:0;}
+.sec-move button:hover:not(:disabled){border-color:var(--o);color:var(--o);}
+.sec-move button:disabled{opacity:.3;cursor:not-allowed;}
 .toggle{position:relative;width:44px;height:24px;flex-shrink:0;}
 .toggle input{opacity:0;width:0;height:0;position:absolute;}
 .toggle-track{position:absolute;inset:0;background:#2a2a2a;border-radius:12px;transition:background .3s;cursor:pointer;}
@@ -4504,8 +4508,13 @@ async function saveColors(){
 let secData=[];
 function loadSections(){secData=JSON.parse(JSON.stringify(S.sections||[]));renderSecList();}
 function renderSecList(){
-  document.getElementById('secList').innerHTML=secData.sort((a,b)=>a.order-b.order).map((s,i)=>`
+  const sorted=secData.sort((a,b)=>a.order-b.order);
+  document.getElementById('secList').innerHTML=sorted.map((s,i)=>`
     <div class="sec-item" draggable="true" data-id="${s.id}" ondragstart="dragStart(event,${i})" ondragover="dragOver(event,${i})" ondrop="drop(event,${i})" ondragend="dragEnd()">
+      <div class="sec-move" draggable="false">
+        <button type="button" onclick="event.stopPropagation();moveSec(${i},-1)" ${i===0?'disabled':''} title="لأعلى"><i class="fa-solid fa-chevron-up"></i></button>
+        <button type="button" onclick="event.stopPropagation();moveSec(${i},1)" ${i===sorted.length-1?'disabled':''} title="لأسفل"><i class="fa-solid fa-chevron-down"></i></button>
+      </div>
       <div class="sec-drag"><i class="fa-solid fa-grip-vertical"></i></div>
       <div class="sec-name">${s.label_ar}<small>${s.label_en}</small></div>
       <label class="toggle">
@@ -4513,6 +4522,16 @@ function renderSecList(){
         <div class="toggle-track"></div><div class="toggle-thumb"></div>
       </label>
     </div>`).join('');
+}
+// Move a section up (-1) or down (+1) — works on touch devices where drag-drop fails
+function moveSec(i,dir){
+  const sorted=secData.sort((a,b)=>a.order-b.order);
+  const j=i+dir;
+  if(j<0||j>=sorted.length)return;
+  [sorted[i],sorted[j]]=[sorted[j],sorted[i]];
+  sorted.forEach((s,idx)=>s.order=idx);
+  secData=sorted;
+  renderSecList();
 }
 let dragIdx=null;
 function dragStart(e,i){dragIdx=i;setTimeout(()=>{const el=document.querySelectorAll('.sec-item')[i];if(el)el.classList.add('dragging');},0);}
@@ -4552,6 +4571,11 @@ function buildContentTabs(){
     const bp=document.getElementById('brandLogoPreview');
     if(bp) bp.innerHTML=`<img src="${S.brand_logo_url}" style="max-width:100%;max-height:100%;object-fit:contain;">`;
   }
+  // Restore brand logo size/position sliders
+  const blSize=document.getElementById('bl_size'), blX=document.getElementById('bl_x'), blY=document.getElementById('bl_y');
+  if(blSize){ blSize.value=S.brand_logo_size||'32'; document.getElementById('blSizeV').textContent=blSize.value; }
+  if(blX){ blX.value=S.brand_logo_offset_x||'0'; document.getElementById('blXV').textContent=blX.value; }
+  if(blY){ blY.value=S.brand_logo_offset_y||'0'; document.getElementById('blYV').textContent=blY.value; }
   // Restore favicon preview
   if(S.favicon_url){
     const fp=document.getElementById('faviconPreview');
@@ -4609,6 +4633,24 @@ function buildCSec(id){
           </div>
         </div>
         <p style="color:#666;font-size:11px;margin-top:6px;">💡 الأبعاد المثالية: عرض 160-200 بكسل، خلفية شفافة (PNG)</p>
+        <!-- Logo size + position controls -->
+        <div style="margin-top:14px;background:#0d0d0d;border:1px solid #1f1f1f;border-radius:10px;padding:14px;">
+          <div style="font-size:12px;font-weight:700;color:var(--g2);margin-bottom:12px;"><i class="fa-solid fa-sliders" style="margin-left:6px;color:var(--o);"></i> حجم وموضع الشعار</div>
+          <div class="fg" style="margin-bottom:10px;">
+            <label class="fl" style="font-size:12px;">الحجم: <span id="blSizeV">32</span> بكسل</label>
+            <input type="range" id="bl_size" min="20" max="90" value="32" style="width:100%;accent-color:var(--o);" oninput="document.getElementById('blSizeV').textContent=this.value">
+          </div>
+          <div class="frow">
+            <div class="fg" style="margin-bottom:0;">
+              <label class="fl" style="font-size:12px;">يمين/شمال: <span id="blXV">0</span></label>
+              <input type="range" id="bl_x" min="-60" max="60" value="0" style="width:100%;accent-color:var(--o);" oninput="document.getElementById('blXV').textContent=this.value">
+            </div>
+            <div class="fg" style="margin-bottom:0;">
+              <label class="fl" style="font-size:12px;">فوق/تحت: <span id="blYV">0</span></label>
+              <input type="range" id="bl_y" min="-30" max="30" value="0" style="width:100%;accent-color:var(--o);" oninput="document.getElementById('blYV').textContent=this.value">
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Favicon (browser tab icon) -->
@@ -4650,6 +4692,12 @@ function buildCSec(id){
     case'contact':return`<div class="card"><div class="card-title">${getSecLabel('contact')}</div>
       <div class="frow"><div class="fg"><label class="fl">العنوان (عربي)</label><input class="fi" id="co_title_ar" value="${e(c.title_ar||'تواصل معي')}"></div><div class="fg"><label class="fl">Title (EN)</label><input class="fi" id="co_title_en" value="${e(c.title_en||"Let's Work Together")}"></div></div>
       <div class="frow"><div class="fg"><label class="fl">العنوان الفرعي (عربي)</label><input class="fi" id="co_sub_ar" value="${e(c.subtitle_ar||'')}"></div><div class="fg"><label class="fl">Subtitle (EN)</label><input class="fi" id="co_sub_en" value="${e(c.subtitle_en||'')}"></div></div>
+      <div class="fg" style="margin-top:6px;background:rgba(249,115,22,.08);padding:12px;border-radius:8px;border:1px solid rgba(249,115,22,.2);">
+        <label class="fl"><i class="fa-solid fa-envelope" style="margin-left:6px;color:var(--o);"></i> الإيميل اللي هتستقبل عليه رسائل الزوار <span style="color:#ef4444;">*</span></label>
+        <input class="fi" id="co_email" type="email" dir="ltr" value="${e(c.email||'')}" placeholder="you@example.com">
+        <p style="color:#888;font-size:11px;margin-top:5px;">رسائل فورم التواصل في موقعك هتوصلك على الإيميل ده. لو فاضي، الفورم مش هيشتغل.</p>
+      </div>
+      <div class="fg"><label class="fl">رقم الهاتف (اختياري)</label><input class="fi" id="co_phone" dir="ltr" value="${e(c.phone||'')}" placeholder="+20 100 000 0000"></div>
       </div>`;
     default:return`<div class="card"><p style="color:var(--g2);">لا توجد إعدادات</p></div>`;
   }
@@ -4675,6 +4723,7 @@ function expertiseItem(it,i){
     <div id="expsvc_prev_${i}" style="width:50px;height:50px;border-radius:50%;border:2px solid var(--o);background:rgba(249,115,22,.08);display:flex;align-items:center;justify-content:center;color:var(--o);font-size:18px;overflow:hidden;flex-shrink:0;">
       ${existImg?`<img src="${existImg}" style="width:100%;height:100%;object-fit:contain;">`:`<i class="${it.icon||'fa-solid fa-star'}"></i>`}
     </div>
+    <input type="hidden" id="expsvc_imgurl_${i}" value="${e(existImg)}">
     <div style="flex:1;min-width:200px;">
       <div class="frow">
         <div class="fg"><label class="fl">أيقونة FontAwesome</label><input class="fi" id="expsvc_icon_${i}" value="${e(it.icon||'')}" placeholder="fa-solid fa-pen-nib" oninput="prevIcon(${i})"></div>
@@ -4701,8 +4750,13 @@ function prevIcon(i){
   if(prev&&!expSvcImgUploads[i])prev.innerHTML=`<i class="${icon}"></i>`;
 }
 async function handleExpImg(inp,i){
-  const f=inp.files[0];if(!f)return;const data=await b64(f);expSvcImgUploads[i]=data;
+  const f=inp.files[0];if(!f)return;
+  toast('⏳ جاري رفع الأيقونة...');
+  const data=await uploadFile(f,'image'); // efficient upload (works on mobile)
+  expSvcImgUploads[i]=data;
+  const hid=document.getElementById(`expsvc_imgurl_${i}`); if(hid) hid.value=data;
   document.getElementById(`expsvc_prev_${i}`).innerHTML=`<img src="${data}" style="width:100%;height:100%;object-fit:contain;">`;
+  toast('✓ تم رفع الأيقونة');
 }
 function addExpertise(){const list=document.getElementById('expertiseList');const i=list.children.length;list.insertAdjacentHTML('beforeend',expertiseItem({},i));}
 function delExpertise(i){const el=document.getElementById('expsvc-'+i);if(el){el.remove();delete expSvcImgUploads[i];}}
@@ -4710,7 +4764,7 @@ function getExpertiseItems(){
   const items=[];
   document.querySelectorAll('[id^="expsvc-"]').forEach(el=>{
     const i=el.id.split('-')[1];
-    items.push({title_ar:v(`expsvc_title_ar_${i}`),title_en:v(`expsvc_title_en_${i}`),icon:v(`expsvc_icon_${i}`),img_url:expSvcImgUploads[i]||'',points_ar:v(`expsvc_pts_ar_${i}`),points_en:v(`expsvc_pts_en_${i}`)});
+    items.push({title_ar:v(`expsvc_title_ar_${i}`),title_en:v(`expsvc_title_en_${i}`),icon:v(`expsvc_icon_${i}`),img_url:expSvcImgUploads[i]||v(`expsvc_imgurl_${i}`)||'',points_ar:v(`expsvc_pts_ar_${i}`),points_en:v(`expsvc_pts_en_${i}`)});
   });return items;
 }
 
@@ -4755,7 +4809,14 @@ function toolItem(it,i){
   </div>
   <div class="frow"><div class="fg"><label class="fl">اسم الأداة</label><input class="fi" id="tool_name_${i}" value="${e(it.name||'')}"></div><div class="fg"><label class="fl">أيقونة FontAwesome (احتياطي)</label><input class="fi" id="tool_icon_${i}" value="${e(it.icon||'')}" placeholder="fa-brands fa-adobe"></div></div>
 </div>`;}
-async function handleToolImg(inp,i){const f=inp.files[0];if(!f)return;const data=await b64(f);toolImgUploads[i]=data;document.getElementById(`tool_prev_${i}`).innerHTML=`<img src="${data}" style="width:100%;height:100%;object-fit:contain;">`;}
+async function handleToolImg(inp,i){
+  const f=inp.files[0];if(!f)return;
+  toast('⏳ جاري رفع الأيقونة...');
+  const data=await uploadFile(f,'image'); // efficient upload (works on mobile, no huge base64)
+  toolImgUploads[i]=data;
+  document.getElementById(`tool_prev_${i}`).innerHTML=`<img src="${data}" style="width:100%;height:100%;object-fit:contain;">`;
+  toast('✓ تم رفع الأيقونة');
+}
 function addTool(){const list=document.getElementById('toolList');const i=list.children.length;list.insertAdjacentHTML('beforeend',toolItem({},i));}
 function delTool(i){const el=document.getElementById('tool-'+i);if(el){el.remove();delete toolImgUploads[i];}}
 function getToolItems(){const items=[];document.querySelectorAll('[id^="tool-"]').forEach(el=>{const i=el.id.split('-')[1];items.push({name:v(`tool_name_${i}`),icon:v(`tool_icon_${i}`)});});return items;}
@@ -4802,7 +4863,7 @@ function gatherContent(){
   try{ct.tools={items:JSON.stringify(getToolItems())};}catch{}
   try{ct.experience={items:JSON.stringify(getExpItems())};}catch{}
   try{ct.projects={title_ar:v('pj_title_ar'),title_en:v('pj_title_en'),subtitle_ar:v('pj_sub_ar'),subtitle_en:v('pj_sub_en')};}catch{}
-  try{ct.contact={title_ar:v('co_title_ar'),title_en:v('co_title_en'),subtitle_ar:v('co_sub_ar'),subtitle_en:v('co_sub_en')};}catch{}
+  try{ct.contact={title_ar:v('co_title_ar'),title_en:v('co_title_en'),subtitle_ar:v('co_sub_ar'),subtitle_en:v('co_sub_en'),email:v('co_email'),phone:v('co_phone')};}catch{}
   return ct;
 }
 async function saveContent(){
@@ -4822,6 +4883,11 @@ async function saveContent(){
   if(photoData!==null)payload.photo_upload=photoData;
   if(brandLogoData!==null)payload.brand_logo_upload=brandLogoData;
   if(faviconData!==null)payload.favicon_upload=faviconData;
+  // Brand logo size + position
+  const blSize=document.getElementById('bl_size'),blX=document.getElementById('bl_x'),blY=document.getElementById('bl_y');
+  if(blSize)payload.brand_logo_size=blSize.value;
+  if(blX)payload.brand_logo_offset_x=blX.value;
+  if(blY)payload.brand_logo_offset_y=blY.value;
   const sizeSel=document.getElementById('h_cover_size');
   const ov=document.getElementById('h_overlay');
   const px=document.getElementById('h_posx');
@@ -4845,6 +4911,9 @@ async function saveContent(){
       if(px)S.hero_cover_pos_x=px.value;
       if(py)S.hero_cover_pos_y=py.value;
       if(hh)S.hero_height=hh.value;
+      if(blSize)S.brand_logo_size=blSize.value;
+      if(blX)S.brand_logo_offset_x=blX.value;
+      if(blY)S.brand_logo_offset_y=blY.value;
       if(heroCoverData && heroCoverData.startsWith('/uploads/')) S.hero_cover_url=heroCoverData;
       if(heroCoverData==='') S.hero_cover_url='';
       if(photoData && photoData.startsWith('/uploads/')) S.photo_url=photoData;

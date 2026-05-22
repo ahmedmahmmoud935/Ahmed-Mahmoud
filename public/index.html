@@ -112,6 +112,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
 .t-name{font-weight:700;font-size:13.5px;color:var(--text);}
 .t-role{font-size:11.5px;color:var(--sub);margin-top:2px;}
 @media(max-width:600px){.testimonials-grid{grid-template-columns:1fr;}.t-card{padding:20px;}}
+.t-feedback-wrap{text-align:center;margin-top:36px;}
+.t-feedback-btn{display:inline-flex;align-items:center;gap:10px;background:var(--accent);color:#fff;padding:14px 30px;border-radius:11px;font-weight:700;font-size:14px;text-decoration:none;transition:all .25s;box-shadow:0 8px 22px rgba(var(--accent-rgb,249,115,22),.32);}
+.t-feedback-btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(var(--accent-rgb,249,115,22),.45);}
+.t-empty{text-align:center;color:var(--sub);font-size:14px;padding:30px 20px;}
 
 .edu-icon{color:var(--accent);font-size:22px;margin-top:2px;}
 .edu-degree{font-family:'Montserrat',sans-serif;font-weight:700;font-size:16px;margin-bottom:5px;}
@@ -1443,12 +1447,44 @@ function initCustomCursor(){
 }
 
 function setupAnimations(){
-  if(document.body.dataset.anim === 'none') return;
-  if(!('IntersectionObserver' in window)){ document.querySelectorAll('section').forEach(s=>s.classList.add('in-view')); return; }
-  const obs = new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in-view'); obs.unobserve(e.target); } });
-  }, { threshold: 0.08, rootMargin: '0px 0px -50px 0px' });
-  document.querySelectorAll('section').forEach(s=>{ if(s.id!=='hero') obs.observe(s); else s.classList.add('in-view'); });
+  if(!('IntersectionObserver' in window)){
+    document.querySelectorAll('section').forEach(s=>s.classList.add('in-view'));
+    document.querySelectorAll('.ach-value[data-val]').forEach(el=>el.textContent=el.dataset.val);
+    return;
+  }
+  if(document.body.dataset.anim !== 'none'){
+    const obs = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in-view'); obs.unobserve(e.target); } });
+    }, { threshold: 0.08, rootMargin: '0px 0px -50px 0px' });
+    document.querySelectorAll('section').forEach(s=>{ if(s.id!=='hero') obs.observe(s); else s.classList.add('in-view'); });
+  }
+  // Animated counters for achievements (runs regardless of anim setting)
+  const counterObs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ animateCounter(e.target); counterObs.unobserve(e.target); } });
+  }, { threshold: 0.4 });
+  document.querySelectorAll('.ach-value[data-val]').forEach(el=>counterObs.observe(el));
+}
+
+// Counts up a number while preserving any prefix/suffix (e.g. "+50", "99%", "10K+")
+function animateCounter(el){
+  const raw = el.dataset.val || el.textContent || '';
+  const m = raw.match(/^(\D*?)([\d.,]+)(\D*)$/);
+  if(!m){ el.textContent = raw; return; }
+  const prefix = m[1], suffix = m[3];
+  const numStr = m[2].replace(/,/g,'');
+  const target = parseFloat(numStr) || 0;
+  const decimals = (numStr.split('.')[1]||'').length;
+  if(!target){ el.textContent = raw; return; }
+  const dur = 1500, start = performance.now();
+  function tick(now){
+    const t = Math.min(1, (now-start)/dur);
+    const eased = 1 - Math.pow(1-t, 3);
+    const val = target * eased;
+    el.textContent = prefix + (decimals ? val.toFixed(decimals) : Math.floor(val).toLocaleString()) + suffix;
+    if(t < 1) requestAnimationFrame(tick);
+    else el.textContent = raw;
+  }
+  requestAnimationFrame(tick);
 }
 
 function applyLang(){
@@ -1460,13 +1496,27 @@ function applyLang(){
   const waBtn=document.getElementById('waFloat');
   if(waBtn){
     const visible = Array.isArray(S.social_visible) ? S.social_visible : ['whatsapp','behance','instagram','linkedin','vimeo'];
-    if(S.whatsapp && visible.includes('whatsapp')){
-      waBtn.href = S.whatsapp;
+    const waUrl = normalizeWhatsApp(S.whatsapp);
+    if(waUrl && visible.includes('whatsapp')){
+      waBtn.href = waUrl;
       waBtn.style.display = 'flex';
     } else {
       waBtn.style.display = 'none';
     }
   }
+}
+// Normalize a WhatsApp value (number or link) to a proper https://wa.me/ URL
+function normalizeWhatsApp(val){
+  if(!val) return '';
+  let s = String(val).trim();
+  if(!s) return '';
+  // Already a full URL
+  if(/^https?:\/\//i.test(s)) return s;
+  // wa.me / api.whatsapp.com without protocol
+  if(/^(wa\.me|api\.whatsapp\.com|whatsapp\.com)/i.test(s)) return 'https://' + s;
+  // Otherwise treat as a phone number
+  const num = s.replace(/[^\d]/g, '');
+  return num ? 'https://wa.me/' + num : '';
 }
 function toggleLang(){LANG=ar()?'en':'ar';localStorage.setItem('lang',LANG);applyStyle();applyLang();buildPage();setupAnimations();}
 
@@ -1485,7 +1535,10 @@ function buildPage(){
   const navLogo = document.querySelector('.nav-logo');
   if(navLogo){
     if(S.brand_logo_url){
-      navLogo.innerHTML = `<img src="${S.brand_logo_url}" alt="${nm}">`;
+      const sz = parseInt(S.brand_logo_size) || 32;
+      const ox = parseInt(S.brand_logo_offset_x) || 0;
+      const oy = parseInt(S.brand_logo_offset_y) || 0;
+      navLogo.innerHTML = `<img src="${S.brand_logo_url}" alt="${nm}" style="height:${sz}px;width:auto;max-width:240px;object-fit:contain;transform:translate(${ox}px,${oy}px);">`;
     } else {
       navLogo.innerHTML = `<i class="fa-solid fa-gem"></i> <span id="navName">${nm}</span>`;
     }
@@ -1527,7 +1580,7 @@ function buildAchievements(a){
   const items = window._ACHIEVEMENTS.map(ac=>`
     <div class="ach-card">
       ${ac.icon_url ? `<div class="ach-icon"><img src="${ac.icon_url}" alt="${ac.title}"></div>` : `<div class="ach-icon ach-icon-ph"><i class="fa-solid fa-chart-bar"></i></div>`}
-      <div class="ach-value">${ac.value}</div>
+      <div class="ach-value" data-val="${(ac.value||'').replace(/"/g,'&quot;')}">${ac.value}</div>
       <div class="ach-label">${(!a && ac.title_en) ? ac.title_en : ac.title}</div>
     </div>`).join('');
   return `<section id="achievements" class="sw"><div class="sh"><h2>${title}</h2><div class="sl"></div></div>
@@ -1548,8 +1601,23 @@ function buildLogos(a){
 }
 
 function buildTestimonials(a){
-  if(!window._TESTIMONIALS || !window._TESTIMONIALS.length) return '';
+  const hasItems = window._TESTIMONIALS && window._TESTIMONIALS.length;
   const title = a ? 'آراء العملاء' : 'Testimonials';
+  // Feedback button — opens the public testimonial submission form
+  const uname = S._username || '';
+  const fbBtn = uname
+    ? `<div class="t-feedback-wrap">
+         <a href="/testimonial/${encodeURIComponent(uname)}" class="t-feedback-btn">
+           <i class="fa-solid fa-pen-to-square"></i> ${a?'شارك رأيك':'Share Your Feedback'}
+         </a>
+       </div>`
+    : '';
+  if(!hasItems){
+    // Still show the section (with the feedback button) so visitors can leave the first review
+    return `<section id="testimonials" class="sw alt"><div class="sh"><h2>${title}</h2><div class="sl"></div></div>
+      <div class="t-empty">${a?'لا توجد آراء بعد — كن أول من يشارك رأيه':'No testimonials yet — be the first to share'}</div>
+      ${fbBtn}</section>`;
+  }
   const items = window._TESTIMONIALS.map(t => {
     const stars = '★'.repeat(t.rating) + '☆'.repeat(5-t.rating);
     const role = [t.role,t.company].filter(Boolean).join(' · ');
@@ -1569,7 +1637,8 @@ function buildTestimonials(a){
     </div>`;
   }).join('');
   return `<section id="testimonials" class="sw alt"><div class="sh"><h2>${title}</h2><div class="sl"></div></div>
-    <div class="testimonials-grid">${items}</div></section>`;
+    <div class="testimonials-grid">${items}</div>
+    ${fbBtn}</section>`;
 }
 
 function buildExpertise(c,a){
@@ -2777,7 +2846,8 @@ async function sendMsg(){
         name: name.trim(),
         email: email.trim(),
         subject: subject.trim(),
-        message: message.trim()
+        message: message.trim(),
+        user_id: window.__currentUserId || null
       })
     });
     const data = await r.json().catch(() => ({}));
