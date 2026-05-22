@@ -4583,6 +4583,7 @@ function buildContentTabs(){
   if(blZoom){ blZoom.value=S.brand_logo_scale||'100'; document.getElementById('blZoomV').textContent=blZoom.value; }
   if(blX){ blX.value=S.brand_logo_offset_x||'0'; document.getElementById('blXV').textContent=blX.value; }
   if(blY){ blY.value=S.brand_logo_offset_y||'0'; document.getElementById('blYV').textContent=blY.value; }
+  updateLogoPreview();
   // Restore favicon preview
   if(S.favicon_url){
     const fp=document.getElementById('faviconPreview');
@@ -4645,16 +4646,16 @@ function buildCSec(id){
           <div style="font-size:12px;font-weight:700;color:var(--g2);margin-bottom:12px;"><i class="fa-solid fa-sliders" style="margin-left:6px;color:var(--o);"></i> حجم وموضع الشعار</div>
           <div class="fg" style="margin-bottom:10px;">
             <label class="fl" style="font-size:12px;">الزوم (تكبير / تصغير): <span id="blZoomV">100</span>%</label>
-            <input type="range" id="bl_zoom" min="40" max="260" step="5" value="100" style="width:100%;accent-color:var(--o);" oninput="document.getElementById('blZoomV').textContent=this.value">
+            <input type="range" id="bl_zoom" min="40" max="260" step="5" value="100" style="width:100%;accent-color:var(--o);" oninput="document.getElementById('blZoomV').textContent=this.value;updateLogoPreview()">
           </div>
           <div class="frow">
             <div class="fg" style="margin-bottom:0;">
               <label class="fl" style="font-size:12px;">يمين/شمال: <span id="blXV">0</span></label>
-              <input type="range" id="bl_x" min="-60" max="60" value="0" style="width:100%;accent-color:var(--o);" oninput="document.getElementById('blXV').textContent=this.value">
+              <input type="range" id="bl_x" min="-60" max="60" value="0" style="width:100%;accent-color:var(--o);" oninput="document.getElementById('blXV').textContent=this.value;updateLogoPreview()">
             </div>
             <div class="fg" style="margin-bottom:0;">
               <label class="fl" style="font-size:12px;">فوق/تحت: <span id="blYV">0</span></label>
-              <input type="range" id="bl_y" min="-30" max="30" value="0" style="width:100%;accent-color:var(--o);" oninput="document.getElementById('blYV').textContent=this.value">
+              <input type="range" id="bl_y" min="-30" max="30" value="0" style="width:100%;accent-color:var(--o);" oninput="document.getElementById('blYV').textContent=this.value;updateLogoPreview()">
             </div>
           </div>
         </div>
@@ -4954,7 +4955,20 @@ async function handleBrandLogo(inp){
   brandLogoData = await uploadFile(f,'image');
   const prev=document.getElementById('brandLogoPreview');
   if(prev) prev.innerHTML=`<img src="${brandLogoData}" style="max-width:100%;max-height:100%;object-fit:contain;">`;
+  updateLogoPreview();
   toast('✓ تم رفع الشعار');
+}
+// Live preview — applies zoom + position to the dashboard logo preview box
+function updateLogoPreview(){
+  const prev=document.getElementById('brandLogoPreview');
+  if(!prev)return;
+  const img=prev.querySelector('img');
+  if(!img)return;
+  const zoom=(parseInt((document.getElementById('bl_zoom')||{}).value)||100)/100;
+  const ox=parseInt((document.getElementById('bl_x')||{}).value)||0;
+  const oy=parseInt((document.getElementById('bl_y')||{}).value)||0;
+  img.style.transform=`translate(${ox}px,${oy}px) scale(${zoom})`;
+  img.style.transformOrigin='center';
 }
 function removeBrandLogo(){
   if(!confirm('حذف الشعار؟'))return;
