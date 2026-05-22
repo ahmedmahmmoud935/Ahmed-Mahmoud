@@ -2602,10 +2602,17 @@ def contact_send():
     uid_param = d.get('user_id')
     if uid_param:
         try:
-            row = get_db().execute("SELECT value FROM settings WHERE user_id=? AND key='content'", (int(uid_param),)).fetchone()
+            db = get_db()
+            # Primary: the 'contact_email' setting (set from the Social tab)
+            row = db.execute("SELECT value FROM settings WHERE user_id=? AND key='contact_email'", (int(uid_param),)).fetchone()
             if row and row['value']:
-                content = json.loads(row['value'])
-                to_email = ((content.get('contact') or {}).get('email') or '').strip()
+                to_email = row['value'].strip()
+            # Legacy fallback: content.contact.email
+            if not to_email:
+                row = db.execute("SELECT value FROM settings WHERE user_id=? AND key='content'", (int(uid_param),)).fetchone()
+                if row and row['value']:
+                    content = json.loads(row['value'])
+                    to_email = ((content.get('contact') or {}).get('email') or '').strip()
         except Exception as e: print(f'contact email lookup: {e}')
     if not to_email:
         to_email = os.environ.get('CONTACT_EMAIL','')

@@ -1283,6 +1283,13 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
       </div>
     </div>
 
+    <div class="card-title" style="margin-top:24px;border-top:1px solid var(--d4);padding-top:20px;"><i class="fa-solid fa-envelope" style="color:var(--o);margin-left:8px;"></i> إيميل استقبال الرسائل</div>
+    <div class="fg" style="background:#0a0a0a;border:1px solid #1f1f1f;border-radius:8px;padding:14px;">
+      <label class="fl">الإيميل اللي هتستقبل عليه رسائل فورم التواصل <span style="color:#ef4444;">*</span></label>
+      <input class="fi" id="sContactEmail" type="email" dir="ltr" placeholder="you@example.com">
+      <p style="color:#888;font-size:11.5px;margin-top:6px;line-height:1.7;">رسائل فورم "تواصل معي" في موقعك هتوصلك على الإيميل ده. <b style="color:#ef4444;">لو فاضي، الفورم مش هيشتغل</b> وهيظهر خطأ للزائر.</p>
+    </div>
+
     <div class="card-title" style="margin-top:24px;"><i class="fa-brands fa-vimeo-v" style="color:#1ab7ea;margin-left:8px;"></i><span data-i18n="social.vimeoToken">Vimeo Access Token (للاستيراد)</span></div>
     <div class="fg">
       <label class="fl">Personal Access Token</label>
@@ -4638,7 +4645,7 @@ function buildCSec(id){
           <div style="font-size:12px;font-weight:700;color:var(--g2);margin-bottom:12px;"><i class="fa-solid fa-sliders" style="margin-left:6px;color:var(--o);"></i> حجم وموضع الشعار</div>
           <div class="fg" style="margin-bottom:10px;">
             <label class="fl" style="font-size:12px;">الحجم: <span id="blSizeV">32</span> بكسل</label>
-            <input type="range" id="bl_size" min="20" max="90" value="32" style="width:100%;accent-color:var(--o);" oninput="document.getElementById('blSizeV').textContent=this.value">
+            <input type="range" id="bl_size" min="18" max="56" value="32" style="width:100%;accent-color:var(--o);" oninput="document.getElementById('blSizeV').textContent=this.value">
           </div>
           <div class="frow">
             <div class="fg" style="margin-bottom:0;">
@@ -4692,12 +4699,7 @@ function buildCSec(id){
     case'contact':return`<div class="card"><div class="card-title">${getSecLabel('contact')}</div>
       <div class="frow"><div class="fg"><label class="fl">العنوان (عربي)</label><input class="fi" id="co_title_ar" value="${e(c.title_ar||'تواصل معي')}"></div><div class="fg"><label class="fl">Title (EN)</label><input class="fi" id="co_title_en" value="${e(c.title_en||"Let's Work Together")}"></div></div>
       <div class="frow"><div class="fg"><label class="fl">العنوان الفرعي (عربي)</label><input class="fi" id="co_sub_ar" value="${e(c.subtitle_ar||'')}"></div><div class="fg"><label class="fl">Subtitle (EN)</label><input class="fi" id="co_sub_en" value="${e(c.subtitle_en||'')}"></div></div>
-      <div class="fg" style="margin-top:6px;background:rgba(249,115,22,.08);padding:12px;border-radius:8px;border:1px solid rgba(249,115,22,.2);">
-        <label class="fl"><i class="fa-solid fa-envelope" style="margin-left:6px;color:var(--o);"></i> الإيميل اللي هتستقبل عليه رسائل الزوار <span style="color:#ef4444;">*</span></label>
-        <input class="fi" id="co_email" type="email" dir="ltr" value="${e(c.email||'')}" placeholder="you@example.com">
-        <p style="color:#888;font-size:11px;margin-top:5px;">رسائل فورم التواصل في موقعك هتوصلك على الإيميل ده. لو فاضي، الفورم مش هيشتغل.</p>
-      </div>
-      <div class="fg"><label class="fl">رقم الهاتف (اختياري)</label><input class="fi" id="co_phone" dir="ltr" value="${e(c.phone||'')}" placeholder="+20 100 000 0000"></div>
+      <p style="color:var(--o);font-size:12px;margin-top:6px;background:rgba(249,115,22,.08);padding:10px;border-radius:8px;border:1px solid rgba(249,115,22,.2);"><i class="fa-solid fa-info-circle" style="margin-left:6px;"></i> إيميل استقبال الرسائل موجود في تبويب <b>التواصل</b></p>
       </div>`;
     default:return`<div class="card"><p style="color:var(--g2);">لا توجد إعدادات</p></div>`;
   }
@@ -4863,7 +4865,7 @@ function gatherContent(){
   try{ct.tools={items:JSON.stringify(getToolItems())};}catch{}
   try{ct.experience={items:JSON.stringify(getExpItems())};}catch{}
   try{ct.projects={title_ar:v('pj_title_ar'),title_en:v('pj_title_en'),subtitle_ar:v('pj_sub_ar'),subtitle_en:v('pj_sub_en')};}catch{}
-  try{ct.contact={title_ar:v('co_title_ar'),title_en:v('co_title_en'),subtitle_ar:v('co_sub_ar'),subtitle_en:v('co_sub_en'),email:v('co_email'),phone:v('co_phone')};}catch{}
+  try{const pc=(S.content&&S.content.contact)||{};ct.contact={title_ar:v('co_title_ar'),title_en:v('co_title_en'),subtitle_ar:v('co_sub_ar'),subtitle_en:v('co_sub_en'),email:pc.email||'',phone:pc.phone||''};}catch{}
   return ct;
 }
 async function saveContent(){
@@ -5027,6 +5029,7 @@ function loadSocial(){
   document.getElementById('sLi').value=S.linkedin||'';
   document.getElementById('sFb').value=S.facebook||'';
   const sVi=document.getElementById('sVi');if(sVi)sVi.value=S.vimeo||'';
+  const sCE=document.getElementById('sContactEmail');if(sCE)sCE.value=S.contact_email||'';
   document.getElementById('sVimeoToken').value=S.vimeo_token||'';
   // Visibility checkboxes
   const visible = Array.isArray(S.social_visible) ? S.social_visible : ['whatsapp','behance','instagram','linkedin','vimeo'];
@@ -5045,7 +5048,8 @@ async function saveSocial(){
     whatsapp:v('sWa'),instagram:v('sIg'),behance:v('sBe'),
     linkedin:v('sLi'),facebook:v('sFb'),
     vimeo: sVi?sVi.value.trim():'',
-    vimeo_token:v('sVimeoToken')
+    vimeo_token:v('sVimeoToken'),
+    contact_email:v('sContactEmail')
   };
   // Collect visibility
   const visible = [];
@@ -6078,7 +6082,7 @@ document.getElementById('behanceModal').addEventListener('click',function(e){if(
       // Update "View Site" link based on user
       const vsLink = document.getElementById('viewSiteLink');
       if(vsLink){
-        vsLink.href = r.is_owner ? '/' : ('/u/' + encodeURIComponent(r.username));
+        vsLink.href = '/' + encodeURIComponent(r.username);
       }
       // Show owner-only items
       if(r.is_owner){

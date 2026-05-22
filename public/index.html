@@ -47,7 +47,7 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
 nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:center;justify-content:space-between;padding:0 60px;height:70px;background:rgba(10,10,10,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:box-shadow .3s;}
 .nav-logo{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:700;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px;}
 .nav-logo i{color:var(--accent);}
-.nav-logo img{height:32px;width:auto;max-width:160px;object-fit:contain;display:block;}
+.nav-logo img{height:32px;width:auto;max-width:none;display:block;}
 .nav-links{display:flex;gap:30px;list-style:none;}
 .nav-links a{color:var(--sub);text-decoration:none;font-size:14px;font-weight:600;font-family:'Montserrat',sans-serif;transition:color .3s;letter-spacing:.5px;}
 .nav-links a:hover{color:var(--text);}
@@ -1535,10 +1535,12 @@ function buildPage(){
   const navLogo = document.querySelector('.nav-logo');
   if(navLogo){
     if(S.brand_logo_url){
-      const sz = parseInt(S.brand_logo_size) || 32;
+      let sz = parseInt(S.brand_logo_size) || 32;
+      sz = Math.max(18, Math.min(56, sz)); // keep within navbar bounds
       const ox = parseInt(S.brand_logo_offset_x) || 0;
       const oy = parseInt(S.brand_logo_offset_y) || 0;
-      navLogo.innerHTML = `<img src="${S.brand_logo_url}" alt="${nm}" style="height:${sz}px;width:auto;max-width:240px;object-fit:contain;transform:translate(${ox}px,${oy}px);">`;
+      // height-only scaling = clean proportional resize (no crop/zoom)
+      navLogo.innerHTML = `<img src="${S.brand_logo_url}" alt="${nm}" style="height:${sz}px;width:auto;display:block;transform:translate(${ox}px,${oy}px);">`;
     } else {
       navLogo.innerHTML = `<i class="fa-solid fa-gem"></i> <span id="navName">${nm}</span>`;
     }
