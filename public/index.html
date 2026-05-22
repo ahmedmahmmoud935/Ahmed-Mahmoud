@@ -1535,12 +1535,12 @@ function buildPage(){
   const navLogo = document.querySelector('.nav-logo');
   if(navLogo){
     if(S.brand_logo_url){
-      let sz = parseInt(S.brand_logo_size) || 32;
-      sz = Math.max(18, Math.min(56, sz)); // keep within navbar bounds
+      let scale = parseInt(S.brand_logo_scale) || 100;
+      scale = Math.max(40, Math.min(260, scale)) / 100; // zoom factor
       const ox = parseInt(S.brand_logo_offset_x) || 0;
       const oy = parseInt(S.brand_logo_offset_y) || 0;
-      // height-only scaling = clean proportional resize (no crop/zoom)
-      navLogo.innerHTML = `<img src="${S.brand_logo_url}" alt="${nm}" style="height:${sz}px;width:auto;display:block;transform:translate(${ox}px,${oy}px);">`;
+      // base height 32px, zoom via transform scale, move via translate
+      navLogo.innerHTML = `<img src="${S.brand_logo_url}" alt="${nm}" style="height:32px;width:auto;display:block;transform:translate(${ox}px,${oy}px) scale(${scale});transform-origin:center;">`;
     } else {
       navLogo.innerHTML = `<i class="fa-solid fa-gem"></i> <span id="navName">${nm}</span>`;
     }

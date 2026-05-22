@@ -4578,9 +4578,9 @@ function buildContentTabs(){
     const bp=document.getElementById('brandLogoPreview');
     if(bp) bp.innerHTML=`<img src="${S.brand_logo_url}" style="max-width:100%;max-height:100%;object-fit:contain;">`;
   }
-  // Restore brand logo size/position sliders
-  const blSize=document.getElementById('bl_size'), blX=document.getElementById('bl_x'), blY=document.getElementById('bl_y');
-  if(blSize){ blSize.value=S.brand_logo_size||'32'; document.getElementById('blSizeV').textContent=blSize.value; }
+  // Restore brand logo zoom/position sliders
+  const blZoom=document.getElementById('bl_zoom'), blX=document.getElementById('bl_x'), blY=document.getElementById('bl_y');
+  if(blZoom){ blZoom.value=S.brand_logo_scale||'100'; document.getElementById('blZoomV').textContent=blZoom.value; }
   if(blX){ blX.value=S.brand_logo_offset_x||'0'; document.getElementById('blXV').textContent=blX.value; }
   if(blY){ blY.value=S.brand_logo_offset_y||'0'; document.getElementById('blYV').textContent=blY.value; }
   // Restore favicon preview
@@ -4644,8 +4644,8 @@ function buildCSec(id){
         <div style="margin-top:14px;background:#0d0d0d;border:1px solid #1f1f1f;border-radius:10px;padding:14px;">
           <div style="font-size:12px;font-weight:700;color:var(--g2);margin-bottom:12px;"><i class="fa-solid fa-sliders" style="margin-left:6px;color:var(--o);"></i> حجم وموضع الشعار</div>
           <div class="fg" style="margin-bottom:10px;">
-            <label class="fl" style="font-size:12px;">الحجم: <span id="blSizeV">32</span> بكسل</label>
-            <input type="range" id="bl_size" min="18" max="56" value="32" style="width:100%;accent-color:var(--o);" oninput="document.getElementById('blSizeV').textContent=this.value">
+            <label class="fl" style="font-size:12px;">الزوم (تكبير / تصغير): <span id="blZoomV">100</span>%</label>
+            <input type="range" id="bl_zoom" min="40" max="260" step="5" value="100" style="width:100%;accent-color:var(--o);" oninput="document.getElementById('blZoomV').textContent=this.value">
           </div>
           <div class="frow">
             <div class="fg" style="margin-bottom:0;">
@@ -4885,9 +4885,9 @@ async function saveContent(){
   if(photoData!==null)payload.photo_upload=photoData;
   if(brandLogoData!==null)payload.brand_logo_upload=brandLogoData;
   if(faviconData!==null)payload.favicon_upload=faviconData;
-  // Brand logo size + position
-  const blSize=document.getElementById('bl_size'),blX=document.getElementById('bl_x'),blY=document.getElementById('bl_y');
-  if(blSize)payload.brand_logo_size=blSize.value;
+  // Brand logo zoom + position
+  const blZoom=document.getElementById('bl_zoom'),blX=document.getElementById('bl_x'),blY=document.getElementById('bl_y');
+  if(blZoom)payload.brand_logo_scale=blZoom.value;
   if(blX)payload.brand_logo_offset_x=blX.value;
   if(blY)payload.brand_logo_offset_y=blY.value;
   const sizeSel=document.getElementById('h_cover_size');
@@ -4913,7 +4913,7 @@ async function saveContent(){
       if(px)S.hero_cover_pos_x=px.value;
       if(py)S.hero_cover_pos_y=py.value;
       if(hh)S.hero_height=hh.value;
-      if(blSize)S.brand_logo_size=blSize.value;
+      if(blZoom)S.brand_logo_scale=blZoom.value;
       if(blX)S.brand_logo_offset_x=blX.value;
       if(blY)S.brand_logo_offset_y=blY.value;
       if(heroCoverData && heroCoverData.startsWith('/uploads/')) S.hero_cover_url=heroCoverData;
