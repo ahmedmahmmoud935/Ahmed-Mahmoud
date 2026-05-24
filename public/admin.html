@@ -573,15 +573,13 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 .tsw-card:hover:not(.active){border-color:#444;transform:translateY(-2px);}
 .tsw-preview{height:120px;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:14px;overflow:hidden;}
 .tsw-preview-default{background:repeating-linear-gradient(45deg,#0a0a0a,#0a0a0a 10px,#0e0e0e 10px,#0e0e0e 20px);}
-.tsw-preview-kinetic{background:linear-gradient(135deg,#020617,#0c1f2a,#001a14);background-size:200% 200%;animation:adm-au-bg 4s ease infinite;position:relative;overflow:hidden;}
-.tsw-preview-kinetic::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 60%,rgba(6,182,212,.35),transparent 50%),radial-gradient(circle at 70% 30%,rgba(16,185,129,.25),transparent 50%);animation:adm-au-bg 6s ease infinite reverse;}
-.tsw-preview-kinetic .tsw-title{background:linear-gradient(90deg,#fff,#22d3ee,#34d399,#fff);background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:adm-au-bg 3s linear infinite;position:relative;z-index:1;}
-.tsw-preview-kinetic .tsw-sub{position:relative;z-index:1;}
+.tsw-preview-aurora{background:linear-gradient(135deg,#0d0d1a,#1a0d2e,#0d1a2e);background-size:200% 200%;animation:adm-au-bg 4s ease infinite;}
 .tsw-bar{position:absolute;top:0;left:0;right:0;height:24px;background:rgba(255,255,255,.04);}
 .tsw-bar::before{content:'';position:absolute;top:8px;inset-inline-start:12px;width:30px;height:8px;background:rgba(255,255,255,.2);border-radius:2px;}
 .tsw-bar::after{content:'';position:absolute;top:8px;inset-inline-end:12px;width:60px;height:8px;background:rgba(255,255,255,.15);border-radius:2px;}
 .tsw-content{position:relative;z-index:1;}
 .tsw-title{font-size:20px;font-weight:900;color:#fff;line-height:1;}
+.tsw-preview-aurora .tsw-title{background:linear-gradient(90deg,#fff,#a78bfa,#f0abfc);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
 .tsw-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:3px;}
 .tsw-info{padding:14px 16px;}
 .tsw-name{font-size:14px;font-weight:800;color:#fff;margin-bottom:4px;}
@@ -827,20 +825,20 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
         <div class="tsw-tags"><span>تخطيطات</span><span>خطوط</span><span>ألوان</span><span>حركات</span></div>
       </div>
     </div>
-    <!-- Kinetic — motion-driven theme -->
-    <div class="tsw-card" id="tsw-kinetic" onclick="switchDesignTheme('kinetic',true)">
-      <input type="radio" name="style_theme" value="kinetic" style="display:none">
-      <div class="tsw-preview tsw-preview-kinetic">
+    <!-- Aurora -->
+    <div class="tsw-card" id="tsw-aurora" onclick="switchDesignTheme('aurora',true)">
+      <input type="radio" name="style_theme" value="aurora" style="display:none">
+      <div class="tsw-preview tsw-preview-aurora">
         <div class="tsw-bar"></div>
         <div class="tsw-content">
-          <div class="tsw-title">Kinetic</div>
-          <div class="tsw-sub">حركة وتفاعل حي</div>
+          <div class="tsw-title">Aurora</div>
+          <div class="tsw-sub">تصميم مختلف كلياً</div>
         </div>
       </div>
       <div class="tsw-info">
-        <div class="tsw-name">⚡ كينيتك (Kinetic)</div>
-        <div class="tsw-desc">ثيم احترافي مليان أنيميشن وتفاعل — يشتغل مع أي تخطيط تختاره</div>
-        <div class="tsw-tags"><span>scroll-reveal</span><span>magnetic</span><span>parallax</span><span>marquee</span></div>
+        <div class="tsw-name">✨ أورورا</div>
+        <div class="tsw-desc">تصميم مختلف كلياً — hero، about، skills، تايم لاين</div>
+        <div class="tsw-tags"><span>أنيميشن</span><span>جلاس</span><span>توهج</span><span>تايم لاين</span></div>
       </div>
     </div>
   </div>
@@ -3400,10 +3398,16 @@ function switchDesignTheme(themeId, isUserAction){
   document.querySelectorAll('.tsw-card').forEach(c=>c.classList.remove('active'));
   const card=document.getElementById('tsw-'+themeId);
   if(card) card.classList.add('active');
-  // All themes now use standard layouts — show layouts tab for all
+  // Layouts tab: Aurora has fixed layouts so hide it
   const layoutsBtn=document.getElementById('dsnbtn-layouts');
-  if(layoutsBtn) layoutsBtn.style.display='';
-  if(layoutsBtn) setDsn('layouts', layoutsBtn);
+  const isAurora=(themeId==='aurora');
+  if(layoutsBtn) layoutsBtn.style.display=isAurora?'none':'';
+  // Switch to default section for this theme
+  const defaultSec=isAurora?'typo':'layouts';
+  const defaultBtn=isAurora
+    ? document.querySelector('#design-subnav .dsn-btn:not([style*="none"])')
+    : layoutsBtn;
+  if(defaultBtn) setDsn(defaultSec, defaultBtn);
 }
 
 function loadDesign(){
