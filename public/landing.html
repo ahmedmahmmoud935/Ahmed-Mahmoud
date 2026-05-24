@@ -295,6 +295,120 @@ html[dir="ltr"] .wa-float{left:auto;right:24px}
 .toast.success{background:#22c55e;color:#fff}
 .toast.error{background:#ef4444;color:#fff}
 
+/* ═══════════════════════════════════════════════════════════
+   DESIGN PRESETS — completely different visual identities.
+   Applied via [data-design="..."] on <body>
+   ═══════════════════════════════════════════════════════════ */
+
+/* ─── MINIMAL: ultra clean, no decoration, lots of whitespace ─── */
+body[data-design="minimal"] .hero::before{display:none}
+body[data-design="minimal"] #projects::before,
+body[data-design="minimal"] #projects::after{display:none}
+body[data-design="minimal"] .sec{padding:120px 0}
+body[data-design="minimal"] .hero{padding:160px 0 120px}
+body[data-design="minimal"] .btn{border-radius:4px;font-weight:600;letter-spacing:.5px;padding:14px 28px}
+body[data-design="minimal"] .btn-pri{box-shadow:none;background:var(--tx);color:var(--bg)}
+body[data-design="minimal"] .btn-pri:hover{background:var(--tx);opacity:.85;transform:none}
+body[data-design="minimal"] .feature-card,
+body[data-design="minimal"] .plan,
+body[data-design="minimal"] .testi-card,
+body[data-design="minimal"] .stat-card,
+body[data-design="minimal"] .ex-card,
+body[data-design="minimal"] .faq-item{border-radius:4px;background:transparent;border-width:1px}
+body[data-design="minimal"] .feature-card::before,
+body[data-design="minimal"] .stat-card::before{display:none}
+body[data-design="minimal"] .feature-icon,
+body[data-design="minimal"] .stat-icon{background:transparent;border:1px solid var(--brd);border-radius:4px}
+body[data-design="minimal"] .sec-title{font-weight:600;letter-spacing:-1.5px}
+body[data-design="minimal"] .grad-text{background:none;color:var(--o);-webkit-background-clip:initial;background-clip:initial}
+body[data-design="minimal"] .plan.popular{transform:none;border-color:var(--tx)}
+body[data-design="minimal"] .plan.popular::before{background:var(--tx);color:var(--bg)}
+body[data-design="minimal"] .cta-box{background:transparent;border:2px solid var(--o);box-shadow:none;border-radius:4px}
+body[data-design="minimal"] .cta-box::before,
+body[data-design="minimal"] .cta-box::after{display:none}
+body[data-design="minimal"] .cta-title,body[data-design="minimal"] .cta-sub{color:var(--tx)}
+body[data-design="minimal"] .cta-btn{background:var(--o);color:#fff}
+
+/* ─── BOLD: huge typography, sharp corners, brutalist energy ─── */
+body[data-design="bold"]{letter-spacing:-.5px}
+body[data-design="bold"] .hero h1{font-size:clamp(48px,8vw,96px);font-weight:900;line-height:.95;letter-spacing:-3px}
+body[data-design="bold"] .sec-title{font-size:clamp(36px,5.5vw,60px);font-weight:900;letter-spacing:-2px;text-transform:uppercase}
+body[data-design="bold"] .btn{border-radius:0;font-weight:900;text-transform:uppercase;letter-spacing:2px;padding:18px 34px;font-size:14px}
+body[data-design="bold"] .btn-pri{box-shadow:6px 6px 0 var(--tx);border:2px solid var(--tx)}
+body[data-design="bold"] .btn-pri:hover{transform:translate(-3px,-3px);box-shadow:9px 9px 0 var(--tx)}
+body[data-design="bold"] .btn-sec{border-width:2px}
+body[data-design="bold"] .feature-card,
+body[data-design="bold"] .plan,
+body[data-design="bold"] .testi-card,
+body[data-design="bold"] .stat-card,
+body[data-design="bold"] .ex-card,
+body[data-design="bold"] .faq-item,
+body[data-design="bold"] .contact-info,
+body[data-design="bold"] .contact-form,
+body[data-design="bold"] .proj-feat,
+body[data-design="bold"] .proj-media{border-radius:0;border-width:2px}
+body[data-design="bold"] .feature-card:hover{transform:translate(-4px,-4px);box-shadow:8px 8px 0 var(--o)}
+body[data-design="bold"] .feature-icon{border-radius:0;font-weight:900}
+body[data-design="bold"] .stat-icon{border-radius:0}
+body[data-design="bold"] .stat-num{font-size:64px;letter-spacing:-3px}
+body[data-design="bold"] .plan-cta,body[data-design="bold"] .cform-submit,body[data-design="bold"] .cta-btn{border-radius:0;text-transform:uppercase;letter-spacing:2px;font-weight:900}
+body[data-design="bold"] .plan.popular{border-width:3px}
+body[data-design="bold"] .nav{border-bottom-width:2px}
+body[data-design="bold"] .sec-eyebrow{font-size:14px;letter-spacing:4px}
+body[data-design="bold"] .cta-box{border-radius:0;border:3px solid var(--tx)}
+body[data-design="bold"] .proj-highlight{border-radius:0;letter-spacing:2px}
+
+/* ─── SOFT: very rounded, gentle, friendly, pastel touches ─── */
+body[data-design="soft"] .btn,
+body[data-design="soft"] .feature-card,
+body[data-design="soft"] .plan,
+body[data-design="soft"] .testi-card,
+body[data-design="soft"] .stat-card,
+body[data-design="soft"] .ex-card,
+body[data-design="soft"] .faq-item,
+body[data-design="soft"] .contact-info,
+body[data-design="soft"] .contact-form,
+body[data-design="soft"] .proj-feat{border-radius:24px}
+body[data-design="soft"] .btn{padding:16px 32px;font-weight:700}
+body[data-design="soft"] .btn-pri{border-radius:100px;box-shadow:0 12px 30px rgba(var(--o),.25)}
+body[data-design="soft"] .btn-sec{border-radius:100px;border-width:2px}
+body[data-design="soft"] .feature-icon,
+body[data-design="soft"] .stat-icon{border-radius:50%;width:64px;height:64px;background:var(--grad-soft)}
+body[data-design="soft"] .cform-field input,
+body[data-design="soft"] .cform-field textarea{border-radius:14px;padding:15px 18px}
+body[data-design="soft"] .plan-cta,body[data-design="soft"] .cform-submit{border-radius:100px}
+body[data-design="soft"] .cta-btn{border-radius:100px;padding:18px 40px}
+body[data-design="soft"] .cta-box{border-radius:36px}
+body[data-design="soft"] .hero::before{background:radial-gradient(circle,rgba(var(--o),.25) 0%,transparent 60%);width:1200px;height:1200px;top:-400px}
+body[data-design="soft"] .proj-media{border-radius:28px}
+body[data-design="soft"] .ex-thumb{border-radius:18px 18px 0 0}
+body[data-design="soft"] .testi-card{padding:32px}
+body[data-design="soft"] .feature-card:hover{transform:translateY(-6px) scale(1.02)}
+
+/* ─── EDITORIAL: serif typography, magazine-like, sophisticated ─── */
+body[data-design="editorial"]{font-family:'Lora','Cairo',serif!important}
+body[data-design="editorial"] .hero h1,
+body[data-design="editorial"] .sec-title,
+body[data-design="editorial"] .cta-title{font-family:'Playfair Display','Cairo',serif!important;font-weight:700;letter-spacing:-1px;font-style:italic}
+body[data-design="editorial"] .hero h1{font-size:clamp(40px,6vw,72px);line-height:1.1}
+body[data-design="editorial"] .sec-eyebrow{font-style:italic;text-transform:none;letter-spacing:0;font-size:14px;font-weight:400}
+body[data-design="editorial"] .feature-card,
+body[data-design="editorial"] .plan,
+body[data-design="editorial"] .testi-card,
+body[data-design="editorial"] .stat-card,
+body[data-design="editorial"] .ex-card,
+body[data-design="editorial"] .faq-item{border-radius:2px}
+body[data-design="editorial"] .btn{border-radius:2px;font-family:'Playfair Display','Cairo',serif!important;font-style:italic;font-weight:600;padding:14px 32px}
+body[data-design="editorial"] .feature-icon{border-radius:50%;background:transparent;border:1px solid var(--o)}
+body[data-design="editorial"] .stat-num{font-family:'Playfair Display',serif!important;font-style:italic;font-weight:700}
+body[data-design="editorial"] .testi-content{font-style:italic;font-size:17px;line-height:1.85}
+body[data-design="editorial"] .sec-head{max-width:780px}
+body[data-design="editorial"] .nav-logo{font-family:'Playfair Display',serif!important;font-style:italic;font-weight:700}
+body[data-design="editorial"] .plan-name{font-family:'Playfair Display',serif!important;font-style:italic;letter-spacing:0;text-transform:none;font-size:18px}
+body[data-design="editorial"] .cta-box{border-radius:2px}
+
+/* ─── MODERN: current design (default) — no overrides needed ─── */
+
 /* Animation */
 .fade-up{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
 .fade-up.in{opacity:1;transform:translateY(0)}
@@ -354,9 +468,11 @@ function applyLang(){
   document.getElementById('langBtn').textContent = ar() ? 'EN' : 'ع';
 }
 
-// Apply the customizable theme (colors + fonts + radius) by overriding CSS vars
+// Apply the customizable theme (design + colors + fonts) by overriding CSS vars
 function applyStyle(){
   const s = (DATA && DATA.style) || {};
+  // Design preset (changes layout/shapes/typography wholesale)
+  document.body.dataset.design = s.design || 'modern';
   const r = document.documentElement.style;
   if(s.primary_color)      r.setProperty('--o',  s.primary_color);
   if(s.primary_color_dark) r.setProperty('--od', s.primary_color_dark);
@@ -508,10 +624,17 @@ function waLink(val){
 function renderHero(){
   const h = DATA.hero || {};
   const badge = L(h,'badge');
-  // CTA1 default = WhatsApp (auto-link from footer.whatsapp) if no link set
+  // CTA1 = WhatsApp by default (unless user set a custom non-default link)
   const wa = waLink((DATA.footer && DATA.footer.whatsapp) || '');
-  const cta1Link = (h.cta1_link && h.cta1_link.trim()) || wa || '#pricing';
+  const rawCta1 = (h.cta1_link || '').trim();
+  // Treat empty AND any of the legacy defaults as "auto WhatsApp"
+  const cta1Auto = !rawCta1 || /^#?(pricing|contact|examples|testimonials)$/i.test(rawCta1) || rawCta1.toLowerCase() === 'whatsapp';
+  const cta1Link = cta1Auto ? (wa || '#pricing') : rawCta1;
   const cta1IsWA = cta1Link.includes('wa.me');
+  // CTA2 = Live Examples section by default
+  const rawCta2 = (h.cta2_link || '').trim();
+  const cta2Auto = !rawCta2 || /^#?(testimonials|features|pricing)$/i.test(rawCta2);
+  const cta2Link = cta2Auto ? '#examples' : rawCta2;
   // Highlight last 2 words in gradient
   const title = L(h,'title') || '';
   const words = title.split(' ');
@@ -546,7 +669,7 @@ function renderHero(){
       <p class="hero-sub fade-up">${L(h,'subtitle')}</p>
       <div class="hero-actions fade-up">
         <a href="${cta1Link}" ${cta1IsWA?'target="_blank" rel="noopener"':''} class="btn btn-pri">${cta1IsWA?'<i class="fa-brands fa-whatsapp"></i> ':''}${L(h,'cta1_text') || (ar()?'ابدأ الآن':'Get Started')}</a>
-        <a href="${h.cta2_link||'#examples'}" class="btn btn-sec">${L(h,'cta2_text') || (ar()?'اعرف أكتر':'Learn More')}</a>
+        <a href="${cta2Link}" class="btn btn-sec">${L(h,'cta2_text') || (ar()?'اعرف أكتر':'Learn More')}</a>
       </div>
       ${media}
     </div>

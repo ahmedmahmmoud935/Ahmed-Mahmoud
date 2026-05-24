@@ -137,6 +137,7 @@ DEFAULT_LANDING = {
         {"id":"cta",         "label_ar":"دعوة للتسجيل",  "label_en":"CTA",          "visible":True, "order":10}
     ],
     "style": {
+        "design":"modern",        # design preset: modern | minimal | bold | soft | editorial
         "theme":"orange-dark",
         "primary_color":"#F97316",
         "primary_color_dark":"#EA6C0A",
