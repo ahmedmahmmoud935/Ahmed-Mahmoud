@@ -495,10 +495,12 @@ function renderLandingEditor(){
   const html = `
     <div class="landing-sections">
       ${editorBrand()}
+      ${editorStyle()}
       ${editorSectionOrder()}
       ${editorHero()}
       ${editorFeatures()}
       ${editorProjects()}
+      ${editorExamples()}
       ${editorStats()}
       ${editorHow()}
       ${editorPricing()}
@@ -554,6 +556,91 @@ function editorBrand(){
       <div class="fbox"><label>الوصف بالإنجليزي</label><input id="b_tag_en" value="${esc(b.tagline_en)}" dir="ltr"></div>
     </div>
   `);
+}
+
+// ─── STYLE (theme + colors + font) ───
+const THEME_PRESETS = {
+  'orange-dark':   {label:'برتقالي داكن (الافتراضي)', primary_color:'#F97316', primary_color_dark:'#EA6C0A', bg_color:'#0A0A0A', bg_color_alt:'#111111', text_color:'#FFFFFF', text_muted:'#888888'},
+  'blue-dark':     {label:'أزرق داكن',              primary_color:'#3B82F6', primary_color_dark:'#2563EB', bg_color:'#0A0F1E', bg_color_alt:'#111827', text_color:'#FFFFFF', text_muted:'#94A3B8'},
+  'purple-dark':   {label:'بنفسجي داكن',            primary_color:'#A855F7', primary_color_dark:'#7E22CE', bg_color:'#0E0A1A', bg_color_alt:'#1A0F2E', text_color:'#FFFFFF', text_muted:'#A1A1AA'},
+  'green-dark':    {label:'أخضر داكن',              primary_color:'#10B981', primary_color_dark:'#059669', bg_color:'#0A1410', bg_color_alt:'#0F1F18', text_color:'#FFFFFF', text_muted:'#94A3B8'},
+  'gold-dark':     {label:'ذهبي داكن (فاخر)',       primary_color:'#D4A574', primary_color_dark:'#B8895E', bg_color:'#0F0E0B', bg_color_alt:'#1A1814', text_color:'#FAF7F2', text_muted:'#8A857C'},
+  'rose-dark':     {label:'وردي داكن',              primary_color:'#F43F5E', primary_color_dark:'#BE123C', bg_color:'#0F0A0C', bg_color_alt:'#1A1014', text_color:'#FFFFFF', text_muted:'#A1A1AA'},
+  'mono-dark':     {label:'أبيض وأسود (مينيمال)',   primary_color:'#FAFAFA', primary_color_dark:'#D4D4D8', bg_color:'#000000', bg_color_alt:'#0A0A0A', text_color:'#FFFFFF', text_muted:'#71717A'},
+  'light-clean':   {label:'فاتح نظيف',              primary_color:'#0F172A', primary_color_dark:'#1E293B', bg_color:'#FFFFFF', bg_color_alt:'#F8FAFC', text_color:'#0F172A', text_muted:'#64748B'},
+  'custom':        {label:'مخصص (اختر بنفسك)'}
+};
+const FONT_OPTIONS_AR = ['Cairo','Tajawal','Almarai','Noto Kufi Arabic','Readex Pro','IBM Plex Sans Arabic','El Messiri','Markazi Text'];
+const FONT_OPTIONS_EN = ['Montserrat','Inter','Poppins','Roboto','Outfit','Manrope','Space Grotesk','Plus Jakarta Sans','DM Sans','Lexend'];
+
+function editorStyle(){
+  const s = LANDING.style || {};
+  const theme = s.theme || 'orange-dark';
+  const themeOpts = Object.entries(THEME_PRESETS).map(([k,v])=>`<option value="${k}" ${k===theme?'selected':''}>${v.label}</option>`).join('');
+  const arOpts = FONT_OPTIONS_AR.map(f=>`<option value="${f}" ${f===(s.font_ar||'Cairo')?'selected':''}>${f}</option>`).join('');
+  const enOpts = FONT_OPTIONS_EN.map(f=>`<option value="${f}" ${f===(s.font_en||'Montserrat')?'selected':''}>${f}</option>`).join('');
+  return lsec('style','fa-palette','الستايل والثيم (الألوان + الخطوط)', `
+    <div style="background:rgba(249,115,22,.06);border:1px solid rgba(249,115,22,.2);border-radius:10px;padding:14px;margin-bottom:18px;color:var(--g1);font-size:13px;line-height:1.7">
+      <i class="fa-solid fa-wand-magic-sparkles" style="color:var(--o)"></i> اختر ثيم جاهز يطبّق ألوانه كلها مرة واحدة، أو اختر "مخصص" وعدّل كل لون بنفسك.
+    </div>
+    <div class="fbox" style="margin-bottom:14px"><label>الثيم</label>
+      <select id="st_theme" onchange="onThemeChange(this.value)">${themeOpts}</select>
+    </div>
+    <div style="font-weight:700;margin-bottom:12px;color:var(--g2);font-size:13px"><i class="fa-solid fa-droplet" style="margin-left:6px;color:var(--o)"></i> الألوان</div>
+    <div class="frow">
+      <div class="fbox"><label>اللون الأساسي</label>
+        <div style="display:flex;gap:8px;align-items:center"><input type="color" id="st_primary" value="${esc(s.primary_color||'#F97316')}" style="width:50px;height:40px;padding:2px;background:var(--bg);border:1px solid var(--brd);border-radius:8px;cursor:pointer"><input type="text" id="st_primary_text" value="${esc(s.primary_color||'#F97316')}" dir="ltr" style="flex:1" oninput="document.getElementById('st_primary').value=this.value"></div>
+      </div>
+      <div class="fbox"><label>اللون الأساسي الداكن (للـ gradient)</label>
+        <div style="display:flex;gap:8px;align-items:center"><input type="color" id="st_primary_dark" value="${esc(s.primary_color_dark||'#EA6C0A')}" style="width:50px;height:40px;padding:2px;background:var(--bg);border:1px solid var(--brd);border-radius:8px;cursor:pointer"><input type="text" id="st_primary_dark_text" value="${esc(s.primary_color_dark||'#EA6C0A')}" dir="ltr" style="flex:1" oninput="document.getElementById('st_primary_dark').value=this.value"></div>
+      </div>
+    </div>
+    <div class="frow">
+      <div class="fbox"><label>لون الخلفية</label>
+        <div style="display:flex;gap:8px;align-items:center"><input type="color" id="st_bg" value="${esc(s.bg_color||'#0A0A0A')}" style="width:50px;height:40px;padding:2px;background:var(--bg);border:1px solid var(--brd);border-radius:8px;cursor:pointer"><input type="text" id="st_bg_text" value="${esc(s.bg_color||'#0A0A0A')}" dir="ltr" style="flex:1" oninput="document.getElementById('st_bg').value=this.value"></div>
+      </div>
+      <div class="fbox"><label>خلفية بديلة (للأقسام المتناوبة)</label>
+        <div style="display:flex;gap:8px;align-items:center"><input type="color" id="st_bg_alt" value="${esc(s.bg_color_alt||'#111111')}" style="width:50px;height:40px;padding:2px;background:var(--bg);border:1px solid var(--brd);border-radius:8px;cursor:pointer"><input type="text" id="st_bg_alt_text" value="${esc(s.bg_color_alt||'#111111')}" dir="ltr" style="flex:1" oninput="document.getElementById('st_bg_alt').value=this.value"></div>
+      </div>
+    </div>
+    <div class="frow">
+      <div class="fbox"><label>لون النص الأساسي</label>
+        <div style="display:flex;gap:8px;align-items:center"><input type="color" id="st_text" value="${esc(s.text_color||'#FFFFFF')}" style="width:50px;height:40px;padding:2px;background:var(--bg);border:1px solid var(--brd);border-radius:8px;cursor:pointer"><input type="text" id="st_text_text" value="${esc(s.text_color||'#FFFFFF')}" dir="ltr" style="flex:1" oninput="document.getElementById('st_text').value=this.value"></div>
+      </div>
+      <div class="fbox"><label>لون النص الفرعي (وصف)</label>
+        <div style="display:flex;gap:8px;align-items:center"><input type="color" id="st_muted" value="${esc(s.text_muted||'#888888')}" style="width:50px;height:40px;padding:2px;background:var(--bg);border:1px solid var(--brd);border-radius:8px;cursor:pointer"><input type="text" id="st_muted_text" value="${esc(s.text_muted||'#888888')}" dir="ltr" style="flex:1" oninput="document.getElementById('st_muted').value=this.value"></div>
+      </div>
+    </div>
+    <div style="height:1px;background:var(--brd);margin:20px 0"></div>
+    <div style="font-weight:700;margin-bottom:12px;color:var(--g2);font-size:13px"><i class="fa-solid fa-font" style="margin-left:6px;color:var(--o)"></i> الخطوط</div>
+    <div class="frow">
+      <div class="fbox"><label>خط النصوص العربية</label>
+        <select id="st_font_ar">${arOpts}</select>
+      </div>
+      <div class="fbox"><label>خط النصوص الإنجليزية</label>
+        <select id="st_font_en" dir="ltr">${enOpts}</select>
+      </div>
+    </div>
+  `);
+}
+
+// Apply preset colors when theme dropdown changes
+function onThemeChange(name){
+  const p = THEME_PRESETS[name];
+  if(!p || name === 'custom') return;
+  const map = {
+    'st_primary':'primary_color', 'st_primary_dark':'primary_color_dark',
+    'st_bg':'bg_color', 'st_bg_alt':'bg_color_alt',
+    'st_text':'text_color', 'st_muted':'text_muted'
+  };
+  Object.entries(map).forEach(([id,key])=>{
+    if(p[key]){
+      const el = document.getElementById(id);
+      const tx = document.getElementById(id+'_text');
+      if(el){ el.value = p[key]; }
+      if(tx){ tx.value = p[key]; }
+    }
+  });
 }
 
 // ─── SECTION ORDER (drag-drop) ───
@@ -612,7 +699,10 @@ function editorHero(){
       <div class="fbox"><label>زر أساسي (AR)</label><input id="h_cta1_ar" value="${esc(h.cta1_text_ar)}"></div>
       <div class="fbox"><label>Primary CTA (EN)</label><input id="h_cta1_en" value="${esc(h.cta1_text_en)}" dir="ltr"></div>
     </div>
-    <div class="fbox" style="margin-bottom:14px"><label>رابط الزر الأساسي</label><input id="h_cta1_link" value="${esc(h.cta1_link)}" dir="ltr" placeholder="#pricing أو رابط كامل"></div>
+    <div class="fbox" style="margin-bottom:14px"><label>رابط الزر الأساسي</label>
+      <input id="h_cta1_link" value="${esc(h.cta1_link)}" dir="ltr" placeholder="اتركه فاضي ليفتح WhatsApp تلقائياً">
+      <span class="hint">💡 لو فاضي → الزر هيفتح واتساب تلقائياً (من رقم Footer). أو حط أي رابط (#pricing, https://...)</span>
+    </div>
     <div class="frow">
       <div class="fbox"><label>زر ثانوي (AR)</label><input id="h_cta2_ar" value="${esc(h.cta2_text_ar)}"></div>
       <div class="fbox"><label>Secondary CTA (EN)</label><input id="h_cta2_en" value="${esc(h.cta2_text_en)}" dir="ltr"></div>
@@ -759,11 +849,48 @@ function editorProjects(){
     <div class="items-list" id="projectsList">${feats}</div>
     <button class="btn-add-item" onclick="addItem('projects',{icon:'fa-star',title_ar:'',title_en:'',desc_ar:'',desc_en:''})"><i class="fa-solid fa-plus"></i> إضافة ميزة</button>
     <div style="height:1px;background:var(--brd);margin:18px 0"></div>
-    <div class="frow">
-      <div class="fbox"><label>نص الزر (AR)</label><input id="pr_cta_ar" value="${esc(p.cta_text_ar)}"></div>
-      <div class="fbox"><label>CTA Text (EN)</label><input id="pr_cta_en" value="${esc(p.cta_text_en)}" dir="ltr"></div>
+    <div class="fbox"><label><i class="fa-solid fa-photo-film" style="margin-left:6px;color:var(--o)"></i> صورة أو فيديو يظهر جنب القسم</label>
+      ${uploadInput('pr_media', p.media_url||'')}
+      <span class="hint">يقبل: صورة (jpg/png) أو رابط فيديو (YouTube / Vimeo / mp4). اتركه فاضي لإخفاء جزء الميديا.</span>
     </div>
-    <div class="fbox"><label>رابط الزر</label><input id="pr_cta_link" value="${esc(p.cta_link)}" dir="ltr"></div>
+  `);
+}
+
+// ─── EXAMPLES (live client portfolios) ───
+function editorExamples(){
+  const e = LANDING.examples || {};
+  const items = (e.items || []).map((it, i) => `
+    <div class="item-card" data-examples-idx="${i}">
+      <div class="item-num">${i+1}</div>
+      <button class="item-del" onclick="delItem('examples',${i})"><i class="fa-solid fa-trash"></i></button>
+      <div class="frow">
+        <div class="fbox"><label>اسم العميل / الموقع</label><input data-f="name" value="${esc(it.name)}"></div>
+        <div class="fbox"><label>الرابط الكامل</label><input data-f="url" value="${esc(it.url)}" dir="ltr" placeholder="https://example.com"></div>
+      </div>
+      <div class="fbox" style="margin-bottom:12px"><label>صورة معاينة (Preview)</label>
+        ${uploadInput('ex_prev_'+i, it.preview_url||'', 'preview_url')}
+      </div>
+      <div class="frow">
+        <div class="fbox"><label>وصف بسيط (AR) — اختياري</label><input data-f="description_ar" value="${esc(it.description_ar)}"></div>
+        <div class="fbox"><label>Short description (EN)</label><input data-f="description_en" value="${esc(it.description_en)}" dir="ltr"></div>
+      </div>
+    </div>
+  `).join('');
+  return lsec('examples','fa-globe','نماذج من العملاء (Live Examples)', `
+    <div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:14px;margin-bottom:18px;color:var(--g1);font-size:13px;line-height:1.7">
+      <i class="fa-solid fa-lightbulb" style="color:#22c55e"></i> ضيف نماذج حقيقية لعملاء استخدموا منصتك. الصورة الـ preview هتظهر بشكل احترافي + زرار يفتح الموقع في tab جديد.
+    </div>
+    <div class="frow">
+      <div class="fbox"><label>عنوان القسم (AR)</label><input id="ex_title_ar" value="${esc(e.title_ar)}"></div>
+      <div class="fbox"><label>Title (EN)</label><input id="ex_title_en" value="${esc(e.title_en)}" dir="ltr"></div>
+    </div>
+    <div class="frow">
+      <div class="fbox"><label>الوصف (AR)</label><textarea id="ex_sub_ar">${esc(e.subtitle_ar)}</textarea></div>
+      <div class="fbox"><label>Subtitle (EN)</label><textarea id="ex_sub_en" dir="ltr">${esc(e.subtitle_en)}</textarea></div>
+    </div>
+    <div style="height:1px;background:var(--brd);margin:18px 0"></div>
+    <div class="items-list" id="examplesList">${items}</div>
+    <button class="btn-add-item" onclick="addItem('examples',{name:'',url:'',preview_url:'',description_ar:'',description_en:''})"><i class="fa-solid fa-plus"></i> إضافة نموذج</button>
   `);
 }
 
@@ -1123,7 +1250,25 @@ function gatherLanding(){
     subtitle_ar:v('pr_sub_ar'), subtitle_en:v('pr_sub_en'),
     highlight_ar:v('pr_hl_ar'), highlight_en:v('pr_hl_en'),
     features: gatherCardItems('projectsList'),
-    cta_text_ar:v('pr_cta_ar'), cta_text_en:v('pr_cta_en'), cta_link:v('pr_cta_link')
+    media_url: v('pr_media')
+  };
+  // Examples (live client portfolios)
+  out.examples = {
+    title_ar:v('ex_title_ar'), title_en:v('ex_title_en'),
+    subtitle_ar:v('ex_sub_ar'), subtitle_en:v('ex_sub_en'),
+    items: gatherCardItems('examplesList')
+  };
+  // Style (theme + colors + fonts)
+  out.style = {
+    theme: v('st_theme') || 'orange-dark',
+    primary_color: v('st_primary'),
+    primary_color_dark: v('st_primary_dark'),
+    bg_color: v('st_bg'),
+    bg_color_alt: v('st_bg_alt'),
+    text_color: v('st_text'),
+    text_muted: v('st_muted'),
+    font_ar: v('st_font_ar') || 'Cairo',
+    font_en: v('st_font_en') || 'Montserrat'
   };
   // How
   out.how = {

@@ -123,23 +123,27 @@ html[dir="ltr"] .proj-feat:hover{transform:translateX(4px)}
 .proj-feat-icon{width:48px;height:48px;border-radius:11px;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;box-shadow:0 6px 16px rgba(249,115,22,.3)}
 .proj-feat-text h4{font-size:16px;font-weight:800;margin-bottom:6px}
 .proj-feat-text p{font-size:13px;color:var(--tx3);line-height:1.7}
-/* Mockup preview */
-.proj-mockup{position:relative;perspective:1500px}
-.proj-mockup-frame{background:linear-gradient(135deg,#1a1a1a,#0d0d0d);border:1px solid var(--brd2);border-radius:20px;padding:18px;box-shadow:0 40px 80px rgba(0,0,0,.6),0 0 40px rgba(249,115,22,.1);transform:rotateY(-6deg) rotateX(3deg);transition:transform .4s}
-html[dir="ltr"] .proj-mockup-frame{transform:rotateY(6deg) rotateX(3deg)}
-.proj-mockup-frame:hover{transform:rotateY(0) rotateX(0)}
-.proj-mockup-bar{display:flex;gap:6px;margin-bottom:14px}
-.proj-mockup-dot{width:11px;height:11px;border-radius:50%;background:#333}
-.proj-mockup-dot:nth-child(1){background:#ff5f57}
-.proj-mockup-dot:nth-child(2){background:#febc2e}
-.proj-mockup-dot:nth-child(3){background:#28c840}
-.proj-mockup-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.proj-mockup-cell{aspect-ratio:1;border-radius:8px;background:var(--bg3);position:relative;overflow:hidden}
-.proj-mockup-cell::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(249,115,22,.3),rgba(234,108,10,.1))}
-.proj-mockup-cell:nth-child(odd)::before{background:linear-gradient(135deg,rgba(59,130,246,.3),rgba(16,185,129,.1))}
-.proj-mockup-cell:nth-child(3n)::before{background:linear-gradient(135deg,rgba(168,85,247,.3),rgba(236,72,153,.1))}
-.proj-cta{margin-top:36px;display:inline-flex;align-items:center;gap:10px;background:var(--grad);color:#fff;padding:14px 28px;border-radius:11px;font-weight:800;font-size:14px;box-shadow:0 10px 24px rgba(249,115,22,.35);transition:transform .2s}
-.proj-cta:hover{transform:translateY(-2px)}
+/* Project media (image or video) */
+.proj-media{position:relative;border-radius:20px;overflow:hidden;aspect-ratio:4/3;background:var(--bg2);box-shadow:0 30px 70px rgba(0,0,0,.5)}
+.proj-media img,.proj-media video,.proj-media iframe{display:block;width:100%;height:100%}
+
+/* Examples gallery */
+.ex-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+@media(max-width:900px){.ex-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.ex-grid{grid-template-columns:1fr}}
+.ex-card{background:var(--bg2);border:1px solid var(--brd);border-radius:16px;overflow:hidden;text-decoration:none;color:inherit;transition:all .3s;display:flex;flex-direction:column}
+.ex-card:hover{transform:translateY(-4px);border-color:var(--o);box-shadow:0 20px 40px rgba(0,0,0,.4)}
+.ex-thumb{position:relative;aspect-ratio:16/10;background:var(--bg3);overflow:hidden}
+.ex-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.ex-card:hover .ex-thumb img{transform:scale(1.05)}
+.ex-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--tx4);font-size:42px;background:linear-gradient(135deg,var(--bg3),var(--bg))}
+.ex-overlay{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:9px;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;opacity:0;transform:translateY(-4px);transition:.25s}
+html[dir="ltr"] .ex-overlay{right:auto;left:12px}
+.ex-card:hover .ex-overlay{opacity:1;transform:translateY(0)}
+.ex-info{padding:18px 20px}
+.ex-name{font-weight:800;font-size:16px;margin-bottom:4px}
+.ex-desc{color:var(--tx3);font-size:13px;line-height:1.6;margin-bottom:8px}
+.ex-url{color:var(--o);font-size:12px;font-weight:600;direction:ltr;text-align:start;word-break:break-all}
 
 /* ─── HOW IT WORKS ─── */
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;position:relative}
@@ -350,6 +354,38 @@ function applyLang(){
   document.getElementById('langBtn').textContent = ar() ? 'EN' : 'ع';
 }
 
+// Apply the customizable theme (colors + fonts + radius) by overriding CSS vars
+function applyStyle(){
+  const s = (DATA && DATA.style) || {};
+  const r = document.documentElement.style;
+  if(s.primary_color)      r.setProperty('--o',  s.primary_color);
+  if(s.primary_color_dark) r.setProperty('--od', s.primary_color_dark);
+  if(s.bg_color)           r.setProperty('--bg', s.bg_color);
+  if(s.bg_color_alt)       r.setProperty('--bg2', s.bg_color_alt);
+  if(s.text_color)         r.setProperty('--tx', s.text_color);
+  if(s.text_muted)         r.setProperty('--tx3', s.text_muted);
+  // Gradient + soft variant follow the primary
+  if(s.primary_color && s.primary_color_dark){
+    r.setProperty('--grad', `linear-gradient(135deg,${s.primary_color} 0%,${s.primary_color_dark} 100%)`);
+  }
+  // Font family
+  if(s.font_ar || s.font_en){
+    const fa = s.font_ar || 'Cairo', fe = s.font_en || 'Montserrat';
+    document.body.style.fontFamily = ar() ? `'${fa}',sans-serif` : `'${fe}','${fa}',sans-serif`;
+    // Lazy-load Google Font (only once per family)
+    [fa, fe].forEach(fname => {
+      if(!fname) return;
+      const id = 'gf-' + fname.replace(/[^a-z0-9]/gi,'').toLowerCase();
+      if(document.getElementById(id)) return;
+      const link = document.createElement('link');
+      link.id = id;
+      link.rel = 'stylesheet';
+      link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fname)}:wght@400;600;700;800;900&display=swap`;
+      document.head.appendChild(link);
+    });
+  }
+}
+
 function toggleLang(){
   LANG = ar() ? 'en' : 'ar';
   localStorage.setItem('lang', LANG);
@@ -369,6 +405,7 @@ function toggleMobMenu(){
 
 function render(){
   if(!DATA) return;
+  applyStyle();
   renderNav();
   renderMain();
   renderFooter();
@@ -432,6 +469,7 @@ function buildSection(s){
     case 'hero':         return renderHero();
     case 'features':     return renderFeatures();
     case 'projects':     return renderProjects();
+    case 'examples':     return renderExamples();
     case 'stats':        return renderStats();
     case 'how':          return renderHow();
     case 'pricing':      return renderPricing();
@@ -457,9 +495,23 @@ function toEmbedUrl(url){
   return url;
 }
 
+// Normalize WhatsApp number/link to https://wa.me/ URL
+function waLink(val){
+  if(!val) return '';
+  const s = String(val).trim();
+  if(/^https?:\/\//i.test(s)) return s;
+  if(/^(wa\.me|api\.whatsapp\.com|whatsapp\.com)/i.test(s)) return 'https://' + s;
+  const num = s.replace(/[^\d]/g,'');
+  return num ? 'https://wa.me/' + num : '';
+}
+
 function renderHero(){
   const h = DATA.hero || {};
   const badge = L(h,'badge');
+  // CTA1 default = WhatsApp (auto-link from footer.whatsapp) if no link set
+  const wa = waLink((DATA.footer && DATA.footer.whatsapp) || '');
+  const cta1Link = (h.cta1_link && h.cta1_link.trim()) || wa || '#pricing';
+  const cta1IsWA = cta1Link.includes('wa.me');
   // Highlight last 2 words in gradient
   const title = L(h,'title') || '';
   const words = title.split(' ');
@@ -493,8 +545,8 @@ function renderHero(){
       <h1 class="fade-up">${titleHtml}</h1>
       <p class="hero-sub fade-up">${L(h,'subtitle')}</p>
       <div class="hero-actions fade-up">
-        <a href="${h.cta1_link||'#pricing'}" class="btn btn-pri">${L(h,'cta1_text') || (ar()?'ابدأ الآن':'Get Started')}</a>
-        <a href="${h.cta2_link||'#features'}" class="btn btn-sec">${L(h,'cta2_text') || (ar()?'اعرف أكتر':'Learn More')}</a>
+        <a href="${cta1Link}" ${cta1IsWA?'target="_blank" rel="noopener"':''} class="btn btn-pri">${cta1IsWA?'<i class="fa-brands fa-whatsapp"></i> ':''}${L(h,'cta1_text') || (ar()?'ابدأ الآن':'Get Started')}</a>
+        <a href="${h.cta2_link||'#examples'}" class="btn btn-sec">${L(h,'cta2_text') || (ar()?'اعرف أكتر':'Learn More')}</a>
       </div>
       ${media}
     </div>
@@ -547,8 +599,24 @@ function renderProjects(){
         <p>${L(f,'desc')}</p>
       </div>
     </div>`).join('');
-  // Mockup cells (6 placeholder cells for visual interest)
-  const mockupCells = Array(6).fill(0).map(() => `<div class="proj-mockup-cell"></div>`).join('');
+  // Media on the right — image or video (or empty placeholder)
+  const url = (p.media_url||'').trim();
+  let mediaHtml = '';
+  if(url){
+    const isVideo = /\.(mp4|webm|ogg)(\?|$)/i.test(url) || /youtube\.com|youtu\.be|vimeo\.com/i.test(url);
+    if(isVideo){
+      const embed = toEmbedUrl(url);
+      if(/\.(mp4|webm|ogg)(\?|$)/i.test(embed)){
+        mediaHtml = `<video src="${embed}" autoplay loop muted playsinline style="width:100%;height:100%;object-fit:cover;border-radius:18px;"></video>`;
+      } else {
+        mediaHtml = `<iframe src="${embed}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="width:100%;height:100%;border:none;border-radius:18px;"></iframe>`;
+      }
+    } else {
+      mediaHtml = `<img src="${url}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:18px;">`;
+    }
+  } else {
+    mediaHtml = `<div style="width:100%;aspect-ratio:4/3;border:2px dashed var(--brd2);border-radius:18px;display:flex;align-items:center;justify-content:center;color:var(--tx4);font-size:14px;text-align:center;padding:30px;">${ar()?'أضف صورة أو فيديو من لوحة التحكم':'Add an image or video from the dashboard'}</div>`;
+  }
   const highlight = L(p,'highlight');
   return `
   <section id="projects" class="sec">
@@ -560,18 +628,41 @@ function renderProjects(){
       </div>
       <div class="proj-grid">
         <div class="proj-features">${feats}</div>
-        <div class="proj-mockup fade-up">
-          <div class="proj-mockup-frame">
-            <div class="proj-mockup-bar">
-              <div class="proj-mockup-dot"></div><div class="proj-mockup-dot"></div><div class="proj-mockup-dot"></div>
-            </div>
-            <div class="proj-mockup-grid">${mockupCells}</div>
+        <div class="proj-media fade-up">${mediaHtml}</div>
+      </div>
+    </div>
+  </section>`;
+}
+
+function renderExamples(){
+  const e = DATA.examples || {};
+  const items = (e.items || []);
+  const cards = items.length
+    ? items.map(it => {
+        const preview = (it.preview_url || '').trim();
+        const visual = preview
+          ? `<img src="${preview}" alt="${esc(it.name||'')}" loading="lazy">`
+          : `<div class="ex-ph"><i class="fa-solid fa-globe"></i></div>`;
+        return `
+        <a class="ex-card fade-up" href="${esc(it.url||'#')}" target="_blank" rel="noopener">
+          <div class="ex-thumb">${visual}<div class="ex-overlay"><i class="fa-solid fa-arrow-up-right-from-square"></i></div></div>
+          <div class="ex-info">
+            <div class="ex-name">${esc(it.name||'')}</div>
+            ${L(it,'description') ? `<div class="ex-desc">${L(it,'description')}</div>` : ''}
+            <div class="ex-url">${esc((it.url||'').replace(/^https?:\/\//,''))}</div>
           </div>
-        </div>
+        </a>`;
+      }).join('')
+    : `<div style="grid-column:1/-1;text-align:center;color:var(--tx4);padding:50px 20px">${ar()?'لم تُضِف نماذج بعد':'No examples added yet'}</div>`;
+  return `
+  <section id="examples" class="sec">
+    <div class="wrap">
+      <div class="sec-head fade-up">
+        <div class="sec-eyebrow">${ar()?'نماذج حية':'Live Examples'}</div>
+        <h2 class="sec-title">${L(e,'title')}</h2>
+        <p class="sec-sub">${L(e,'subtitle')}</p>
       </div>
-      <div style="text-align:center" class="fade-up">
-        <a href="${p.cta_link||'#testimonials'}" class="proj-cta">${L(p,'cta_text') || (ar()?'شوف مثال':'See Example')} <i class="fa-solid fa-arrow-${ar()?'left':'right'}"></i></a>
-      </div>
+      <div class="ex-grid">${cards}</div>
     </div>
   </section>`;
 }

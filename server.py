@@ -127,14 +127,27 @@ DEFAULT_LANDING = {
         {"id":"hero",        "label_ar":"الرئيسية",      "label_en":"Hero",         "visible":True, "order":0},
         {"id":"features",    "label_ar":"المميزات",      "label_en":"Features",     "visible":True, "order":1},
         {"id":"projects",    "label_ar":"عرض المشاريع",   "label_en":"Projects Showcase","visible":True,"order":2},
-        {"id":"stats",       "label_ar":"إحصائيات",       "label_en":"Stats",        "visible":True, "order":3},
-        {"id":"how",         "label_ar":"كيف تعمل",      "label_en":"How It Works", "visible":True, "order":4},
-        {"id":"pricing",     "label_ar":"الأسعار",        "label_en":"Pricing",      "visible":True, "order":5},
-        {"id":"testimonials","label_ar":"آراء العملاء",  "label_en":"Testimonials", "visible":True, "order":6},
-        {"id":"faq",         "label_ar":"أسئلة شائعة",   "label_en":"FAQ",          "visible":True, "order":7},
-        {"id":"contact",     "label_ar":"تواصل معنا",    "label_en":"Contact",      "visible":True, "order":8},
-        {"id":"cta",         "label_ar":"دعوة للتسجيل",  "label_en":"CTA",          "visible":True, "order":9}
+        {"id":"examples",    "label_ar":"نماذج من عملائنا","label_en":"Live Examples","visible":True, "order":3},
+        {"id":"stats",       "label_ar":"إحصائيات",       "label_en":"Stats",        "visible":True, "order":4},
+        {"id":"how",         "label_ar":"كيف تعمل",      "label_en":"How It Works", "visible":True, "order":5},
+        {"id":"pricing",     "label_ar":"الأسعار",        "label_en":"Pricing",      "visible":True, "order":6},
+        {"id":"testimonials","label_ar":"آراء العملاء",  "label_en":"Testimonials", "visible":True, "order":7},
+        {"id":"faq",         "label_ar":"أسئلة شائعة",   "label_en":"FAQ",          "visible":True, "order":8},
+        {"id":"contact",     "label_ar":"تواصل معنا",    "label_en":"Contact",      "visible":True, "order":9},
+        {"id":"cta",         "label_ar":"دعوة للتسجيل",  "label_en":"CTA",          "visible":True, "order":10}
     ],
+    "style": {
+        "theme":"orange-dark",
+        "primary_color":"#F97316",
+        "primary_color_dark":"#EA6C0A",
+        "bg_color":"#0A0A0A",
+        "bg_color_alt":"#111111",
+        "text_color":"#FFFFFF",
+        "text_muted":"#888888",
+        "font_ar":"Cairo",
+        "font_en":"Montserrat",
+        "border_radius":"16"
+    },
     "hero": {
         "badge_ar":"جديد", "badge_en":"New",
         "title_ar":"اعرض موهبتك للعالم في دقائق",
@@ -142,9 +155,9 @@ DEFAULT_LANDING = {
         "subtitle_ar":"منصة بناء بورتفوليو احترافي للمصممين والمبدعين. بدون كود، بدون تعقيد.",
         "subtitle_en":"A professional portfolio platform for designers and creators. No code, no complexity.",
         "cta1_text_ar":"ابدأ مجاناً", "cta1_text_en":"Get Started Free",
-        "cta1_link":"#pricing",
+        "cta1_link":"",  # empty = auto-link to WhatsApp (from footer.whatsapp)
         "cta2_text_ar":"شاهد الأمثلة", "cta2_text_en":"View Examples",
-        "cta2_link":"#testimonials",
+        "cta2_link":"#examples",
         "image_url":"",
         "cover_url":"",     # background image for hero section
         "video_url":""      # promotional video (YouTube/Vimeo/mp4)
@@ -170,15 +183,21 @@ DEFAULT_LANDING = {
         "subtitle_en":"Showcase your work in a stunning way — with categories, filters, and interactive galleries",
         "highlight_ar":"الميزة التنافسية اللي بتميّز موقعك عن الباقي",
         "highlight_en":"The competitive edge that sets your site apart",
+        "media_url":"",       # image or video URL (mp4 or YouTube/Vimeo)
+        "media_type":"auto",  # 'image' | 'video' | 'auto'
         "features":[
             {"icon":"fa-images","title_ar":"معرض صور احترافي","title_en":"Professional Image Gallery","desc_ar":"تصفّح بإيقاع سينمائي مع تكبير full-screen","desc_en":"Cinematic browsing with full-screen lightbox"},
             {"icon":"fa-video","title_ar":"دعم الفيديو والريلز","title_en":"Video & Reels Support","desc_ar":"اعرض فيديوهاتك بـ aspect ratios مختلفة","desc_en":"Display videos in different aspect ratios"},
             {"icon":"fa-filter","title_ar":"تصنيفات وفلاتر","title_en":"Categories & Filters","desc_ar":"نظّم أعمالك واجعل الزائر يلاقي اللي بيدور عليه","desc_en":"Organize your work so visitors find what they need"},
             {"icon":"fa-mobile-screen-button","title_ar":"تجربة موبايل سلسة","title_en":"Smooth Mobile UX","desc_ar":"swipe بأصابعك بين المشاريع","desc_en":"Swipe between projects with your fingers"}
-        ],
-        "cta_text_ar":"شوف نموذج حي",
-        "cta_text_en":"See a Live Example",
-        "cta_link":"#testimonials"
+        ]
+    },
+    "examples": {
+        "title_ar":"نماذج حيّة من عملائنا",
+        "title_en":"Live Examples from Our Clients",
+        "subtitle_ar":"شوف بنفسك إيه اللي مبدعينا قدروا يبنوه — اضغط على أي نموذج لزيارة موقعه",
+        "subtitle_en":"See for yourself what our creators built — click any example to visit",
+        "items":[]
     },
     "how": {
         "title_ar":"ابدأ في 3 خطوات","title_en":"Start in 3 Steps",
