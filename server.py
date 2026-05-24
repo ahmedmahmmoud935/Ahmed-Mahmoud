@@ -161,7 +161,9 @@ DEFAULT_LANDING = {
         "cta2_link":"#examples",
         "image_url":"",
         "cover_url":"",     # background image for hero section
-        "video_url":""      # promotional video (YouTube/Vimeo/mp4)
+        "video_url":"",     # promotional video (YouTube/Vimeo/mp4)
+        "title_size":"default",   # default | small | large | xlarge
+        "align":"center"          # center | start | end
     },
     "features": {
         "title_ar":"كل ما تحتاجه لبورتفوليو احترافي",
@@ -715,7 +717,83 @@ def _get_landing(db):
 @app.route('/api/landing', methods=['GET'])
 def get_landing():
     """Public — returns the landing page data for rendering."""
-    return jsonify(_get_landing(get_db()))
+    data = _get_landing(get_db())
+    # Hide moderation queue from non-owner responses
+    if not session.get('owner_panel'):
+        if isinstance(data.get('testimonials'), dict):
+            data['testimonials'] = {k:v for k,v in data['testimonials'].items() if k != 'pending_items'}
+    return jsonify(data)
+
+# ── Landing testimonials — public submit + owner moderation ──
+_landing_test_rate = {}
+@app.route('/api/landing/testimonials/submit', methods=['POST'])
+def submit_landing_testimonial():
+    ip = request.headers.get('X-Forwarded-For', request.remote_addr or 'x').split(',')[0].strip()
+    now = time.time()
+    _landing_test_rate.setdefault(ip, [])
+    _landing_test_rate[ip] = [t for t in _landing_test_rate[ip] if now-t < 3600]
+    if len(_landing_test_rate[ip]) >= 3:
+        return jsonify({'error':'تم تجاوز الحد المسموح. حاول لاحقاً.'}), 429
+    d = request.get_json() or {}
+    name    = (d.get('name') or '').strip()[:100]
+    role    = (d.get('role') or '').strip()[:100]
+    content = (d.get('content') or '').strip()[:1500]
+    if not name or len(content) < 10:
+        return jsonify({'error':'الاسم والرأي مطلوبان (الرأي 10 أحرف على الأقل)'}), 400
+    db = get_db()
+    landing = _get_landing(db)
+    if not isinstance(landing.get('testimonials'), dict): landing['testimonials'] = {}
+    landing['testimonials'].setdefault('pending_items', [])
+    landing['testimonials']['pending_items'].append({
+        'id': uuid.uuid4().hex[:12],
+        'name': name,
+        'role_ar': role, 'role_en': role,
+        'content_ar': content, 'content_en': content,
+        'photo_url': '',
+        'submitted_at': time.strftime('%Y-%m-%d %H:%M:%S')
+    })
+    db.execute("INSERT OR REPLACE INTO settings(user_id,key,value) VALUES(0,?,?)",
+               (LANDING_KEY, json.dumps(landing, ensure_ascii=False)))
+    db.commit()
+    _landing_test_rate[ip].append(now)
+    return jsonify({'ok': True})
+
+@app.route('/api/landing/testimonials/approve', methods=['POST'])
+@owner_panel_required
+def approve_landing_testimonial():
+    item_id = ((request.get_json() or {}).get('id') or '').strip()
+    db = get_db()
+    landing = _get_landing(db)
+    if not isinstance(landing.get('testimonials'), dict): return jsonify({'error':'not found'}), 404
+    pending = landing['testimonials'].get('pending_items') or []
+    items = landing['testimonials'].get('items') or []
+    found = next((it for it in pending if it.get('id') == item_id), None)
+    if not found: return jsonify({'error':'not found'}), 404
+    new_pending = [it for it in pending if it.get('id') != item_id]
+    clean = {k: v for k, v in found.items() if k not in ('id', 'submitted_at')}
+    items.append(clean)
+    landing['testimonials']['pending_items'] = new_pending
+    landing['testimonials']['items'] = items
+    db.execute("INSERT OR REPLACE INTO settings(user_id,key,value) VALUES(0,?,?)",
+               (LANDING_KEY, json.dumps(landing, ensure_ascii=False)))
+    db.commit()
+    return jsonify({'ok': True})
+
+@app.route('/api/landing/testimonials/reject', methods=['POST'])
+@owner_panel_required
+def reject_landing_testimonial():
+    item_id = ((request.get_json() or {}).get('id') or '').strip()
+    db = get_db()
+    landing = _get_landing(db)
+    if not isinstance(landing.get('testimonials'), dict): return jsonify({'error':'not found'}), 404
+    pending = landing['testimonials'].get('pending_items') or []
+    new_pending = [it for it in pending if it.get('id') != item_id]
+    if len(new_pending) == len(pending): return jsonify({'error':'not found'}), 404
+    landing['testimonials']['pending_items'] = new_pending
+    db.execute("INSERT OR REPLACE INTO settings(user_id,key,value) VALUES(0,?,?)",
+               (LANDING_KEY, json.dumps(landing, ensure_ascii=False)))
+    db.commit()
+    return jsonify({'ok': True})
 
 @app.route('/api/landing', methods=['PUT'])
 @owner_panel_required
