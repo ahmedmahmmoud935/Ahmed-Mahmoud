@@ -1304,53 +1304,100 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
   </div>
 </div>
 
-<!-- ARTICLE EDITOR MODAL (client) -->
-<div class="modal-overlay" id="cArtModal" style="display:none;" onclick="if(event.target===this)closeClientArticleEditor()">
-  <div class="modal-box" style="max-width:920px;max-height:92vh;display:flex;flex-direction:column">
-    <div class="modal-header"><span id="cArtModalTitle">مقال جديد</span><button class="modal-close" onclick="closeClientArticleEditor()">✕</button></div>
-    <div style="padding:20px;overflow-y:auto;flex:1">
-      <div class="form-group" style="margin-bottom:14px"><label class="form-label">العنوان (عربي)</label><input class="form-input" id="cart_title_ar" oninput="cArtAutoSlug()"></div>
-      <div class="form-group" style="margin-bottom:14px"><label class="form-label">Title (English)</label><input class="form-input" id="cart_title_en" dir="ltr" oninput="cArtAutoSlug()"></div>
-      <div class="form-group" style="margin-bottom:14px"><label class="form-label">رابط مختصر (slug)</label><input class="form-input" id="cart_slug" dir="ltr" placeholder="auto"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
-        <div class="form-group" style="margin-bottom:0"><label class="form-label">مقتطف (AR)</label><textarea class="form-input" id="cart_excerpt_ar" maxlength="500" style="min-height:60px"></textarea></div>
-        <div class="form-group" style="margin-bottom:0"><label class="form-label">Excerpt (EN)</label><textarea class="form-input" id="cart_excerpt_en" dir="ltr" maxlength="500" style="min-height:60px"></textarea></div>
+<!-- ARTICLE EDITOR MODAL (client) — clean modern layout -->
+<div class="modal-overlay" id="cArtModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:10000;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)closeClientArticleEditor()">
+  <div class="modal-box" style="background:#0e0e0e;border:1px solid #1f1f1f;border-radius:18px;width:100%;max-width:1100px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,.7);">
+    <!-- Sticky header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid #1f1f1f;flex-shrink:0">
+      <div style="display:flex;align-items:center;gap:12px"><i class="fa-solid fa-pen-to-square" style="color:var(--o);font-size:18px"></i><span id="cArtModalTitle" style="font-size:17px;font-weight:800">مقال جديد</span></div>
+      <button class="modal-close" onclick="closeClientArticleEditor()" style="background:transparent;border:none;color:#888;font-size:20px;cursor:pointer;padding:6px 12px;border-radius:8px;transition:.2s" onmouseover="this.style.background='#1a1a1a';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='#888'">✕</button>
+    </div>
+    <!-- Scrollable body — two-column layout (editor + sidebar) -->
+    <div style="overflow-y:auto;flex:1;padding:24px;display:grid;grid-template-columns:1fr 320px;gap:24px;align-items:start;" id="cArtBody">
+      <!-- Left: main editor -->
+      <div style="display:flex;flex-direction:column;gap:18px">
+        <!-- Title block -->
+        <div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;padding:16px">
+          <input class="form-input" id="cart_title_ar" placeholder="عنوان المقال بالعربي..." style="background:transparent;border:none;font-size:22px;font-weight:800;padding:4px 0;color:#fff" oninput="cArtAutoSlug()">
+          <input class="form-input" id="cart_title_en" dir="ltr" placeholder="Title in English..." style="background:transparent;border:none;font-size:18px;font-weight:600;padding:4px 0;color:#bbb;border-top:1px solid #1a1a1a;margin-top:8px;padding-top:10px" oninput="cArtAutoSlug()">
+        </div>
+        <!-- Content editor -->
+        <div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;overflow:hidden">
+          <div style="padding:10px 14px;background:#0e0e0e;border-bottom:1px solid #1a1a1a;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#888"><i class="fa-solid fa-code" style="color:var(--o)"></i> <span>محتوى المقال</span></div>
+            <select class="form-input" id="cart_mode" style="font-size:11.5px;padding:5px 10px;width:auto;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:6px;color:#ccc">
+              <option value="markdown">Markdown (موصى به)</option>
+              <option value="paste">Paste HTML</option>
+            </select>
+          </div>
+          <textarea class="form-input" id="cart_content" style="min-height:380px;background:#0a0a0a;border:none;border-radius:0;font-family:'Menlo','Monaco',monospace;font-size:13.5px;line-height:1.8;padding:18px;color:#e0e0e0;resize:vertical" placeholder="# عنوان رئيسي&#10;&#10;اكتب فقرتك الأولى هنا...&#10;&#10;## عنوان فرعي&#10;&#10;> اقتباس مهم يلفت الانتباه&#10;&#10;- نقطة أولى&#10;- نقطة ثانية&#10;&#10;**نص bold** و [رابط](https://example.com)"></textarea>
+          <div style="padding:10px 14px;background:#0e0e0e;border-top:1px solid #1a1a1a;font-size:11px;color:#666;line-height:1.7">
+            <code style="background:#1a1a1a;padding:1px 6px;border-radius:3px;color:var(--o);font-size:10.5px">#</code> عناوين ·
+            <code style="background:#1a1a1a;padding:1px 6px;border-radius:3px;color:var(--o);font-size:10.5px">**bold**</code> ·
+            <code style="background:#1a1a1a;padding:1px 6px;border-radius:3px;color:var(--o);font-size:10.5px">&gt;</code> اقتباس ·
+            <code style="background:#1a1a1a;padding:1px 6px;border-radius:3px;color:var(--o);font-size:10.5px">- عنصر</code> قائمة ·
+            <code style="background:#1a1a1a;padding:1px 6px;border-radius:3px;color:var(--o);font-size:10.5px">[نص](url)</code> رابط ·
+            <code style="background:#1a1a1a;padding:1px 6px;border-radius:3px;color:var(--o);font-size:10.5px">![alt](url)</code> صورة
+          </div>
+        </div>
+        <!-- Excerpts -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label" style="font-size:11px;color:#888;margin-bottom:6px;display:block">مقتطف (AR) — يظهر في القائمة</label>
+            <textarea class="form-input" id="cart_excerpt_ar" maxlength="500" style="min-height:60px;font-size:13px;line-height:1.6;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:10px" placeholder="وصف قصير للمقال..."></textarea>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label" style="font-size:11px;color:#888;margin-bottom:6px;display:block">Excerpt (EN)</label>
+            <textarea class="form-input" id="cart_excerpt_en" dir="ltr" maxlength="500" style="min-height:60px;font-size:13px;line-height:1.6;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:10px" placeholder="Short summary..."></textarea>
+          </div>
+        </div>
       </div>
-      <div class="form-group" style="margin-bottom:14px">
-        <label class="form-label">صورة الغلاف</label>
-        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-          <div id="cart_cover_preview" style="width:120px;height:72px;border-radius:8px;background:#0a0a0a;border:1px dashed #333;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#555;font-size:20px;flex-shrink:0">
+      <!-- Right: sidebar (cover, settings) -->
+      <aside style="display:flex;flex-direction:column;gap:14px;position:sticky;top:0">
+        <!-- Cover image -->
+        <div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;padding:14px">
+          <label style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:10px"><i class="fa-solid fa-image" style="color:var(--o)"></i> صورة الغلاف</label>
+          <div id="cart_cover_preview" style="width:100%;aspect-ratio:16/10;border-radius:8px;background:#0a0a0a;border:1px dashed #2a2a2a;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#444;font-size:32px;margin-bottom:10px">
             <i class="fa-solid fa-image"></i>
           </div>
           <input type="hidden" id="cart_cover_url" value="">
           <input type="file" id="cart_cover_file" accept="image/*" style="display:none" onchange="cArtUploadCover(this)">
-          <button type="button" onclick="document.getElementById('cart_cover_file').click()" style="background:#1a1a1a;border:1px solid #333;color:#fff;padding:9px 18px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px"><i class="fa-solid fa-upload"></i> رفع صورة</button>
-          <button type="button" onclick="cArtClearCover()" style="background:transparent;border:1px solid #333;color:#888;padding:9px 14px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:12px"><i class="fa-solid fa-xmark"></i></button>
+          <div style="display:flex;gap:6px">
+            <button type="button" onclick="document.getElementById('cart_cover_file').click()" style="flex:1;background:var(--o);border:none;color:#fff;padding:9px;border-radius:7px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700"><i class="fa-solid fa-upload"></i> رفع</button>
+            <button type="button" onclick="cArtClearCover()" style="background:transparent;border:1px solid #333;color:#888;padding:9px 12px;border-radius:7px;cursor:pointer;font-family:inherit;font-size:12px" title="حذف"><i class="fa-solid fa-trash"></i></button>
+          </div>
         </div>
-      </div>
-      <div class="form-group" style="margin-bottom:14px">
-        <label class="form-label">وضع الكتابة</label>
-        <select class="form-input" id="cart_mode">
-          <option value="markdown">Markdown — تصميم HTML احترافي تلقائي (موصى به)</option>
-          <option value="paste">Paste — لصق نص/HTML كما هو</option>
-        </select>
-        <p style="color:#888;font-size:11px;margin-top:6px;line-height:1.6">استخدم <code style="background:#1a1a1a;padding:2px 6px;border-radius:4px;color:var(--o)">#</code> للعناوين، <code style="background:#1a1a1a;padding:2px 6px;border-radius:4px;color:var(--o)">**نص**</code> للـ bold، <code style="background:#1a1a1a;padding:2px 6px;border-radius:4px;color:var(--o)">&gt;</code> للاقتباس</p>
-      </div>
-      <div class="form-group" style="margin-bottom:14px">
-        <label class="form-label">المحتوى</label>
-        <textarea class="form-input" id="cart_content" style="min-height:300px;font-family:Menlo,monospace;font-size:13px" placeholder="# عنوان رئيسي&#10;&#10;فقرتك الأولى..."></textarea>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
-        <div class="form-group" style="margin-bottom:0"><label class="form-label">Tags (افصل بفاصلة)</label><input class="form-input" id="cart_tags" placeholder="design, seo"></div>
-        <div class="form-group" style="margin-bottom:0"><label class="form-label">الحالة</label><select class="form-input" id="cart_published"><option value="1">منشور</option><option value="0">مسودة</option></select></div>
-      </div>
-      <div style="display:flex;gap:10px;margin-top:14px">
-        <button class="btn-add" style="flex:1" onclick="saveClientArticle()"><i class="fa-solid fa-floppy-disk"></i> حفظ المقال</button>
-        <button onclick="closeClientArticleEditor()" style="flex:1;background:#1a1a1a;border:1px solid #333;color:#aaa;padding:10px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px">إلغاء</button>
-      </div>
+        <!-- Slug -->
+        <div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;padding:14px">
+          <label style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:8px"><i class="fa-solid fa-link" style="color:var(--o)"></i> رابط مختصر</label>
+          <input class="form-input" id="cart_slug" dir="ltr" placeholder="auto" style="background:#0e0e0e;border:1px solid #1a1a1a;border-radius:7px;padding:8px 10px;font-size:12px;font-family:Menlo,monospace;color:#ccc">
+        </div>
+        <!-- Tags -->
+        <div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;padding:14px">
+          <label style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:8px"><i class="fa-solid fa-tags" style="color:var(--o)"></i> الوسوم</label>
+          <input class="form-input" id="cart_tags" placeholder="design, seo, branding" style="background:#0e0e0e;border:1px solid #1a1a1a;border-radius:7px;padding:8px 10px;font-size:12px">
+          <p style="font-size:10.5px;color:#666;margin-top:5px">افصل بفاصلة (،)</p>
+        </div>
+        <!-- Status -->
+        <div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;padding:14px">
+          <label style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:8px"><i class="fa-solid fa-eye" style="color:var(--o)"></i> الحالة</label>
+          <select class="form-input" id="cart_published" style="background:#0e0e0e;border:1px solid #1a1a1a;border-radius:7px;padding:8px 10px;font-size:12px;width:100%">
+            <option value="1">✓ منشور — مرئي للزوار</option>
+            <option value="0">⊘ مسودة — مخفي</option>
+          </select>
+        </div>
+      </aside>
+    </div>
+    <!-- Sticky footer with actions -->
+    <div style="padding:14px 24px;border-top:1px solid #1f1f1f;display:flex;gap:10px;flex-shrink:0;background:#0a0a0a">
+      <button class="btn-add" style="flex:1" onclick="saveClientArticle()"><i class="fa-solid fa-floppy-disk"></i> حفظ المقال</button>
+      <button onclick="closeClientArticleEditor()" style="background:transparent;border:1px solid #2a2a2a;color:#aaa;padding:11px 28px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600">إلغاء</button>
     </div>
   </div>
 </div>
+<style>
+@media(max-width:880px){#cArtBody{grid-template-columns:1fr!important}}
+</style>
 
 <!-- SOCIAL TAB -->
 <div id="tab-social" style="display:none;">
@@ -2003,6 +2050,7 @@ const I18N = {
     'nav.logos': 'العملاء',
     'nav.achievements': 'الإنجازات',
     'nav.testimonials': 'آراء العملاء',
+    'nav.articles': 'المقالات',
     'nav.social': 'التواصل',
     'nav.users': 'إدارة العملاء',
     'page.ach.title': 'الإنجازات والإحصائيات',
@@ -2612,6 +2660,7 @@ const I18N = {
     'nav.logos': 'Clients',
     'nav.achievements': 'Achievements',
     'nav.testimonials': 'Testimonials',
+    'nav.articles': 'Articles',
     'nav.social': 'Social',
     'nav.users': 'Manage Clients',
     'page.ach.title': 'Achievements & Stats',
@@ -3354,6 +3403,8 @@ async function initApp(){
 // ══ TABS ══
 function setTab(tab,el){
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));el.classList.add('active');
+  // Close any open modals when switching tabs (prevents modal bleeding into other tabs)
+  document.querySelectorAll('.modal-overlay').forEach(m=>{ if(m.style.display==='flex') m.style.display='none'; });
   ['projects','analytics','categories','colors','design','sections','navbar','content','logos','achievements','testimonials','articles','social','users'].forEach(t=>{
     const d=document.getElementById('tab-'+t);if(d)d.style.display=t===tab?'block':'none';
   });
