@@ -853,6 +853,43 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
     </div>
   </div>
 
+  <!-- Kinetic Advanced Options (only visible when Kinetic theme is selected) -->
+  <div id="kinetic-options" style="display:none;background:linear-gradient(135deg,rgba(34,211,238,.06),rgba(34,211,238,.02));border:1px solid rgba(34,211,238,.2);border-radius:14px;padding:18px;margin-bottom:18px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;"><i class="fa-solid fa-sliders" style="color:#22d3ee;font-size:16px;"></i><span style="font-weight:800;font-size:15px;">إعدادات Kinetic المتقدمة</span></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;">
+      <div class="fg" style="margin-bottom:0;">
+        <label class="fl" style="font-size:12px;">قوة تأثير الزجاج</label>
+        <select id="kin_glass" class="fi" style="padding:8px;font-size:13px;">
+          <option value="subtle">خفيف (أنظف)</option>
+          <option value="default" selected>متوسط</option>
+          <option value="strong">قوي (مظهر زجاجي صريح)</option>
+        </select>
+      </div>
+      <div class="fg" style="margin-bottom:0;">
+        <label class="fl" style="font-size:12px;">حدود الكاردز (Borders)</label>
+        <select id="kin_borders" class="fi" style="padding:8px;font-size:13px;">
+          <option value="on" selected>ظاهرة</option>
+          <option value="off">مخفية (Borderless)</option>
+        </select>
+      </div>
+      <div class="fg" style="margin-bottom:0;">
+        <label class="fl" style="font-size:12px;">الخلفية المتحركة</label>
+        <select id="kin_bg" class="fi" style="padding:8px;font-size:13px;">
+          <option value="on" selected>مفعّلة</option>
+          <option value="off">مطفّاة (سادة)</option>
+        </select>
+      </div>
+      <div class="fg" style="margin-bottom:0;">
+        <label class="fl" style="font-size:12px;">شكل الزوايا (Radius)</label>
+        <select id="kin_radius" class="fi" style="padding:8px;font-size:13px;">
+          <option value="sharp">حادة (مربعة)</option>
+          <option value="default" selected>متوسطة</option>
+          <option value="pill">مدوّرة جداً (ناعمة)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
   <!-- Contextual Sub-navigation -->
   <div class="design-subnav" id="design-subnav">
     <button class="dsn-btn active" id="dsnbtn-layouts" onclick="setDsn('layouts',this)"><i class="fa-solid fa-table-layout"></i> <span data-i18n="design.layouts">التخطيطات</span></button>
@@ -3415,6 +3452,9 @@ function switchDesignTheme(themeId, isUserAction){
   const layoutsBtn=document.getElementById('dsnbtn-layouts');
   if(layoutsBtn) layoutsBtn.style.display='';
   if(layoutsBtn) setDsn('layouts', layoutsBtn);
+  // Show Kinetic-specific options only when Kinetic theme is selected
+  const kinPanel = document.getElementById('kinetic-options');
+  if(kinPanel) kinPanel.style.display = (themeId === 'kinetic') ? 'block' : 'none';
 }
 
 function loadDesign(){
@@ -3434,6 +3474,13 @@ function loadDesign(){
   setRadio('style_bg_type',   S.style_bg_type,   'solid');
   setRadio('style_cursor',    S.style_cursor,    'default');
   setRadio('style_anim',      S.style_anim,      'fade-up');
+
+  // Kinetic-specific options
+  const setSelect = (id, val, fallback) => { const el = document.getElementById(id); if(el) el.value = val || fallback; };
+  setSelect('kin_glass',   S.kin_glass,   'default');
+  setSelect('kin_borders', S.kin_borders, 'on');
+  setSelect('kin_bg',      S.kin_bg,      'on');
+  setSelect('kin_radius',  S.kin_radius,  'default');
 
   // Theme change handler — when user picks a theme, mark customizations as not custom
   document.querySelectorAll('input[name="style_theme"]').forEach(r=>{
@@ -3596,6 +3643,11 @@ async function saveDesign(){
     hero_cover_pos_x:   elVal('h_posx')       || '50',
     hero_cover_pos_y:   elVal('h_posy')       || '50',
     hero_height:        elVal('h_height')     || '85',
+    // Kinetic-specific advanced options
+    kin_glass:   elVal('kin_glass')   || 'default',
+    kin_borders: elVal('kin_borders') || 'on',
+    kin_bg:      elVal('kin_bg')      || 'on',
+    kin_radius:  elVal('kin_radius')  || 'default',
   };
 
   // Hero cover image upload (if changed)

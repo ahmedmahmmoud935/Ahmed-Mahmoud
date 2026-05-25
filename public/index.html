@@ -790,22 +790,21 @@ body[data-theme="kinetic"]{
   position:relative;
 }
 body[data-theme="kinetic"]::before{
-  content:'';position:fixed;inset:-10%;z-index:-2;pointer-events:none;
+  content:'';position:fixed;inset:-20%;z-index:-2;pointer-events:none;
+  /* Single soft hue with very low opacity — easy on the eyes */
   background:
-    radial-gradient(ellipse 60% 50% at 25% 20%,rgba(var(--accent-rgb,34,211,238),.35),transparent 60%),
-    radial-gradient(ellipse 50% 40% at 85% 30%,rgba(139,92,246,.22),transparent 65%),
-    radial-gradient(ellipse 55% 45% at 50% 80%,rgba(244,114,182,.18),transparent 60%),
-    radial-gradient(ellipse 45% 55% at 15% 90%,rgba(var(--accent-rgb,34,211,238),.20),transparent 65%);
-  background-size:200% 200%,200% 200%,200% 200%,200% 200%;
+    radial-gradient(ellipse 70% 55% at 30% 25%,rgba(var(--accent-rgb,34,211,238),.08),transparent 70%),
+    radial-gradient(ellipse 60% 50% at 75% 70%,rgba(var(--accent-rgb,34,211,238),.06),transparent 70%);
+  background-size:180% 180%,180% 180%;
   background-attachment:fixed;
-  animation:kin-gradient-flow 30s ease-in-out infinite;
-  filter:blur(2px);
+  animation:kin-gradient-flow 60s ease-in-out infinite;
+  filter:blur(40px);
 }
-/* Subtle film grain overlay — gives texture and depth */
+/* Subtle film grain overlay — barely visible, adds depth */
 body[data-theme="kinetic"]::after{
   content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='5'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .35 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-  opacity:.08;
+  opacity:.035;
   mix-blend-mode:overlay;
 }
 body[data-theme="kinetic"] section{
@@ -832,7 +831,7 @@ body[data-theme="kinetic"] .nav-bar{
   -webkit-backdrop-filter:blur(24px) saturate(180%);
   border-bottom:1px solid rgba(255,255,255,.08);
 }
-/* GLASSMORPHISM on all card-like surfaces */
+/* GLASSMORPHISM on all card-like surfaces (intensity controlled via data-kin-glass) */
 body[data-theme="kinetic"] .exp-card,
 body[data-theme="kinetic"] .exp-card-service,
 body[data-theme="kinetic"] .edu-card,
@@ -853,6 +852,68 @@ body[data-theme="kinetic"] footer{
   border-radius:18px!important;
   box-shadow:0 8px 32px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.06)!important;
 }
+/* Borders OFF mode — remove all card borders for minimal look */
+body[data-theme="kinetic"][data-kin-borders="off"] .exp-card,
+body[data-theme="kinetic"][data-kin-borders="off"] .exp-card-service,
+body[data-theme="kinetic"][data-kin-borders="off"] .edu-card,
+body[data-theme="kinetic"][data-kin-borders="off"] .tool-card,
+body[data-theme="kinetic"][data-kin-borders="off"] .ach-card,
+body[data-theme="kinetic"][data-kin-borders="off"] .t-card,
+body[data-theme="kinetic"][data-kin-borders="off"] .logo-card,
+body[data-theme="kinetic"][data-kin-borders="off"] .pg-card,
+body[data-theme="kinetic"][data-kin-borders="off"] .pj-card{border:none!important;}
+/* Glass intensity — Subtle */
+body[data-theme="kinetic"][data-kin-glass="subtle"] .exp-card,
+body[data-theme="kinetic"][data-kin-glass="subtle"] .exp-card-service,
+body[data-theme="kinetic"][data-kin-glass="subtle"] .edu-card,
+body[data-theme="kinetic"][data-kin-glass="subtle"] .tool-card,
+body[data-theme="kinetic"][data-kin-glass="subtle"] .ach-card,
+body[data-theme="kinetic"][data-kin-glass="subtle"] .t-card,
+body[data-theme="kinetic"][data-kin-glass="subtle"] .logo-card,
+body[data-theme="kinetic"][data-kin-glass="subtle"] .pg-card,
+body[data-theme="kinetic"][data-kin-glass="subtle"] .pj-card{
+  background:rgba(255,255,255,.02)!important;
+  backdrop-filter:blur(8px)!important;
+  border-color:rgba(255,255,255,.04)!important;
+}
+/* Glass intensity — Strong (dramatic) */
+body[data-theme="kinetic"][data-kin-glass="strong"] .exp-card,
+body[data-theme="kinetic"][data-kin-glass="strong"] .exp-card-service,
+body[data-theme="kinetic"][data-kin-glass="strong"] .edu-card,
+body[data-theme="kinetic"][data-kin-glass="strong"] .tool-card,
+body[data-theme="kinetic"][data-kin-glass="strong"] .ach-card,
+body[data-theme="kinetic"][data-kin-glass="strong"] .t-card,
+body[data-theme="kinetic"][data-kin-glass="strong"] .logo-card,
+body[data-theme="kinetic"][data-kin-glass="strong"] .pg-card,
+body[data-theme="kinetic"][data-kin-glass="strong"] .pj-card{
+  background:rgba(255,255,255,.08)!important;
+  backdrop-filter:blur(28px) saturate(200%)!important;
+  border-color:rgba(255,255,255,.16)!important;
+}
+/* Animated bg OFF */
+body[data-theme="kinetic"][data-kin-bg="off"]::before{display:none;}
+body[data-theme="kinetic"][data-kin-bg="off"]::after{display:none;}
+/* Card radius — Sharp */
+body[data-theme="kinetic"][data-kin-radius="sharp"] .exp-card,
+body[data-theme="kinetic"][data-kin-radius="sharp"] .exp-card-service,
+body[data-theme="kinetic"][data-kin-radius="sharp"] .edu-card,
+body[data-theme="kinetic"][data-kin-radius="sharp"] .tool-card,
+body[data-theme="kinetic"][data-kin-radius="sharp"] .ach-card,
+body[data-theme="kinetic"][data-kin-radius="sharp"] .t-card,
+body[data-theme="kinetic"][data-kin-radius="sharp"] .logo-card,
+body[data-theme="kinetic"][data-kin-radius="sharp"] .pg-card,
+body[data-theme="kinetic"][data-kin-radius="sharp"] .pj-card,
+body[data-theme="kinetic"][data-kin-radius="sharp"] .form-group input,
+body[data-theme="kinetic"][data-kin-radius="sharp"] .form-group textarea,
+body[data-theme="kinetic"][data-kin-radius="sharp"] .skill-chip{border-radius:4px!important;}
+/* Card radius — Pill (very rounded) */
+body[data-theme="kinetic"][data-kin-radius="pill"] .exp-card,
+body[data-theme="kinetic"][data-kin-radius="pill"] .exp-card-service,
+body[data-theme="kinetic"][data-kin-radius="pill"] .edu-card,
+body[data-theme="kinetic"][data-kin-radius="pill"] .tool-card,
+body[data-theme="kinetic"][data-kin-radius="pill"] .ach-card,
+body[data-theme="kinetic"][data-kin-radius="pill"] .t-card,
+body[data-theme="kinetic"][data-kin-radius="pill"] .pg-card{border-radius:28px!important;}
 body[data-theme="kinetic"] .skill-bar-track{border-radius:8px!important;}
 body[data-theme="kinetic"] .form-group input,
 body[data-theme="kinetic"] .form-group textarea{border-radius:12px!important;padding:14px 16px!important;}
@@ -884,16 +945,20 @@ body[data-theme="kinetic"] .skill-chip:hover{
   border-color:rgba(var(--accent-rgb,34,211,238),.40)!important;
 }
 
-/* Icon containers — glass spheres */
-body[data-theme="kinetic"] .exp-svc-icon,
-body[data-theme="kinetic"] .tool-card .tool-icon,
-body[data-theme="kinetic"] .edu-icon,
+/* Icon containers (ONLY for pure FontAwesome icons, NOT image-based ones) */
+body[data-theme="kinetic"] .exp-svc-icon{
+  background:linear-gradient(135deg,rgba(var(--accent-rgb,34,211,238),.15),rgba(var(--accent-rgb,34,211,238),.04))!important;
+  border:1px solid rgba(var(--accent-rgb,34,211,238),.20)!important;
+}
+/* Image-based icons (Tools, Achievements with image, Edu) — keep them clean, no extra borders */
+body[data-theme="kinetic"] .tool-icon,
+body[data-theme="kinetic"] .tool-card img,
 body[data-theme="kinetic"] .ach-icon,
-body[data-theme="kinetic"] .feature-icon{
-  background:linear-gradient(135deg,rgba(var(--accent-rgb,34,211,238),.18),rgba(var(--accent-rgb,34,211,238),.05))!important;
-  backdrop-filter:blur(10px)!important;
-  border:1px solid rgba(var(--accent-rgb,34,211,238),.25)!important;
-  box-shadow:0 4px 16px rgba(var(--accent-rgb,34,211,238),.15),inset 0 1px 0 rgba(255,255,255,.10)!important;
+body[data-theme="kinetic"] .ach-icon img,
+body[data-theme="kinetic"] .edu-icon{
+  background:transparent!important;
+  border:none!important;
+  box-shadow:none!important;
 }
 
 /* Hero — animated gradient text headline with shimmer */
@@ -1565,6 +1630,11 @@ function applyStyle(){
   const themeId = S.style_theme || 'default';
   const theme = THEMES[themeId];
   body.dataset.theme = themeId;
+  // Kinetic-specific advanced options (controlled via data-attributes)
+  body.dataset.kinGlass   = S.kin_glass   || 'default'; // subtle | default | strong
+  body.dataset.kinBorders = S.kin_borders || 'on';      // on | off
+  body.dataset.kinBg      = S.kin_bg      || 'on';      // on | off
+  body.dataset.kinRadius  = S.kin_radius  || 'default'; // sharp | default | pill
   // Effective settings: theme defaults, but user customizations win
   const eff = (key, fallback) => {
     // If user explicitly customized, use their value
