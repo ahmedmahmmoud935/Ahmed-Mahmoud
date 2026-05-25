@@ -771,25 +771,52 @@ body[data-theme="corporate"] .tool-card{border-radius:8px;background:var(--bg2);
 @keyframes kin-pulse-ring{0%{transform:scale(.85);opacity:.6}100%{transform:scale(1.8);opacity:0}}
 @keyframes kin-text-reveal{from{transform:translateY(110%);opacity:0}to{transform:translateY(0);opacity:1}}
 
-/* Global background — gradient mesh that's NOT plain black */
+/* ─── GLASSMORPHISM BASE ─── */
+@keyframes kin-gradient-flow{
+  0%{background-position:0% 50%,100% 50%,50% 100%}
+  33%{background-position:50% 0%,0% 50%,100% 50%}
+  66%{background-position:100% 100%,50% 100%,0% 0%}
+  100%{background-position:0% 50%,100% 50%,50% 100%}
+}
+@keyframes kin-blob-drift{
+  0%,100%{transform:translate(0,0) scale(1)}
+  33%{transform:translate(40px,-30px) scale(1.08)}
+  66%{transform:translate(-30px,40px) scale(.94)}
+}
+
+/* Body — animated mesh gradient that flows behind everything */
 body[data-theme="kinetic"]{
+  background:var(--bg)!important;
+  position:relative;
+}
+body[data-theme="kinetic"]::before{
+  content:'';position:fixed;inset:-10%;z-index:-2;pointer-events:none;
   background:
-    radial-gradient(ellipse 80% 60% at 20% 0%,rgba(var(--accent-rgb,34,211,238),.18),transparent 60%),
-    radial-gradient(ellipse 60% 80% at 100% 50%,rgba(var(--accent-rgb,34,211,238),.10),transparent 60%),
-    radial-gradient(ellipse 70% 50% at 0% 100%,rgba(var(--accent-rgb,34,211,238),.08),transparent 60%),
-    var(--bg)!important;
-  background-attachment:fixed!important;
+    radial-gradient(ellipse 60% 50% at 25% 20%,rgba(var(--accent-rgb,34,211,238),.35),transparent 60%),
+    radial-gradient(ellipse 50% 40% at 85% 30%,rgba(139,92,246,.22),transparent 65%),
+    radial-gradient(ellipse 55% 45% at 50% 80%,rgba(244,114,182,.18),transparent 60%),
+    radial-gradient(ellipse 45% 55% at 15% 90%,rgba(var(--accent-rgb,34,211,238),.20),transparent 65%);
+  background-size:200% 200%,200% 200%,200% 200%,200% 200%;
+  background-attachment:fixed;
+  animation:kin-gradient-flow 30s ease-in-out infinite;
+  filter:blur(2px);
+}
+/* Subtle film grain overlay — gives texture and depth */
+body[data-theme="kinetic"]::after{
+  content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='5'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .35 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  opacity:.08;
+  mix-blend-mode:overlay;
 }
 body[data-theme="kinetic"] section{
   background:transparent!important;
   position:relative;
   overflow-x:clip;
 }
-/* Alternating section bg with subtle gradient */
+/* Alternating sections — transparent so animated bg shows through */
+body[data-theme="kinetic"] .sw,
 body[data-theme="kinetic"] .sw.alt,
-body[data-theme="kinetic"] section.sw:nth-of-type(even){
-  background:linear-gradient(180deg,transparent,rgba(255,255,255,.015) 50%,transparent)!important;
-}
+body[data-theme="kinetic"] section.sw{background:transparent!important;}
 /* Section divider — animated line that grows on scroll-in */
 body[data-theme="kinetic"] section::before{
   content:'';position:absolute;top:0;inset-inline-start:0;height:1px;width:0;
@@ -798,12 +825,75 @@ body[data-theme="kinetic"] section::before{
 }
 body[data-theme="kinetic"] section.in-view::before{width:100%;}
 
-/* Nav — glassmorphism with accent line on scroll */
+/* Nav — glassmorphism */
 body[data-theme="kinetic"] .nav-bar{
-  background:rgba(10,10,10,.55)!important;
-  backdrop-filter:blur(20px) saturate(180%);
-  -webkit-backdrop-filter:blur(20px) saturate(180%);
-  border-bottom:1px solid rgba(255,255,255,.06);
+  background:rgba(10,10,10,.40)!important;
+  backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+/* GLASSMORPHISM on all card-like surfaces */
+body[data-theme="kinetic"] .exp-card,
+body[data-theme="kinetic"] .exp-card-service,
+body[data-theme="kinetic"] .edu-card,
+body[data-theme="kinetic"] .tool-card,
+body[data-theme="kinetic"] .ach-card,
+body[data-theme="kinetic"] .t-card,
+body[data-theme="kinetic"] .logo-card,
+body[data-theme="kinetic"] .pg-card,
+body[data-theme="kinetic"] .pj-card,
+body[data-theme="kinetic"] .skill-bar-track,
+body[data-theme="kinetic"] .form-group input,
+body[data-theme="kinetic"] .form-group textarea,
+body[data-theme="kinetic"] footer{
+  background:rgba(255,255,255,.04)!important;
+  backdrop-filter:blur(20px) saturate(180%)!important;
+  -webkit-backdrop-filter:blur(20px) saturate(180%)!important;
+  border:1px solid rgba(255,255,255,.10)!important;
+  border-radius:18px!important;
+  box-shadow:0 8px 32px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.06)!important;
+}
+body[data-theme="kinetic"] .skill-bar-track{border-radius:8px!important;}
+body[data-theme="kinetic"] .form-group input,
+body[data-theme="kinetic"] .form-group textarea{border-radius:12px!important;padding:14px 16px!important;}
+body[data-theme="kinetic"] footer{border-radius:0!important;border-left:none!important;border-right:none!important;border-bottom:none!important;}
+
+/* Glass hover — accent glow + lift */
+body[data-theme="kinetic"] .exp-card:hover,
+body[data-theme="kinetic"] .exp-card-service:hover,
+body[data-theme="kinetic"] .edu-card:hover,
+body[data-theme="kinetic"] .tool-card:hover,
+body[data-theme="kinetic"] .ach-card:hover,
+body[data-theme="kinetic"] .t-card:hover,
+body[data-theme="kinetic"] .logo-card:hover{
+  background:rgba(255,255,255,.06)!important;
+  border-color:rgba(var(--accent-rgb,34,211,238),.40)!important;
+  box-shadow:0 14px 40px rgba(var(--accent-rgb,34,211,238),.18),inset 0 1px 0 rgba(255,255,255,.10)!important;
+}
+
+/* Skill chips — small glass pills */
+body[data-theme="kinetic"] .skill-chip{
+  background:rgba(255,255,255,.05)!important;
+  backdrop-filter:blur(12px)!important;
+  -webkit-backdrop-filter:blur(12px)!important;
+  border:1px solid rgba(255,255,255,.10)!important;
+  border-radius:100px!important;
+}
+body[data-theme="kinetic"] .skill-chip:hover{
+  background:rgba(var(--accent-rgb,34,211,238),.12)!important;
+  border-color:rgba(var(--accent-rgb,34,211,238),.40)!important;
+}
+
+/* Icon containers — glass spheres */
+body[data-theme="kinetic"] .exp-svc-icon,
+body[data-theme="kinetic"] .tool-card .tool-icon,
+body[data-theme="kinetic"] .edu-icon,
+body[data-theme="kinetic"] .ach-icon,
+body[data-theme="kinetic"] .feature-icon{
+  background:linear-gradient(135deg,rgba(var(--accent-rgb,34,211,238),.18),rgba(var(--accent-rgb,34,211,238),.05))!important;
+  backdrop-filter:blur(10px)!important;
+  border:1px solid rgba(var(--accent-rgb,34,211,238),.25)!important;
+  box-shadow:0 4px 16px rgba(var(--accent-rgb,34,211,238),.15),inset 0 1px 0 rgba(255,255,255,.10)!important;
 }
 
 /* Hero — animated gradient text headline with shimmer */

@@ -568,7 +568,10 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 @keyframes adm-au-bg{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
 /* ── Theme Switcher ── */
 .theme-switcher{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
-.tsw-card{cursor:pointer;border:2px solid #222;border-radius:14px;overflow:hidden;transition:all .25s;background:#0e0e0e;user-select:none;}
+.tsw-card{cursor:pointer;border:2px solid #222;border-radius:14px;overflow:hidden;transition:all .25s;background:#0e0e0e;user-select:none;position:relative;}
+.tsw-reset{position:absolute;top:8px;inset-inline-end:8px;z-index:5;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);color:#fff;width:30px;height:30px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;opacity:0;transition:all .25s;font-family:inherit;}
+.tsw-card:hover .tsw-reset{opacity:1;}
+.tsw-reset:hover{background:#ef4444;border-color:#ef4444;transform:scale(1.05);}
 .tsw-card.active{border-color:var(--o);box-shadow:0 8px 28px rgba(249,115,22,.2);}
 .tsw-card:hover:not(.active){border-color:#444;transform:translateY(-2px);}
 .tsw-preview{height:120px;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:14px;overflow:hidden;}
@@ -817,6 +820,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
     <!-- Default -->
     <div class="tsw-card active" id="tsw-default" onclick="switchDesignTheme('default',true)">
       <input type="radio" name="style_theme" value="default" checked style="display:none">
+      <button class="tsw-reset" title="إعادة هذا الثيم للافتراضي" onclick="event.stopPropagation();resetThisTheme('default')"><i class="fa-solid fa-rotate-left"></i></button>
       <div class="tsw-preview tsw-preview-default">
         <div class="tsw-bar"></div>
         <div class="tsw-content">
@@ -833,17 +837,18 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
     <!-- Kinetic — motion-driven theme -->
     <div class="tsw-card" id="tsw-kinetic" onclick="switchDesignTheme('kinetic',true)">
       <input type="radio" name="style_theme" value="kinetic" style="display:none">
+      <button class="tsw-reset" title="إعادة هذا الثيم للافتراضي" onclick="event.stopPropagation();resetThisTheme('kinetic')"><i class="fa-solid fa-rotate-left"></i></button>
       <div class="tsw-preview tsw-preview-kinetic">
         <div class="tsw-bar"></div>
         <div class="tsw-content">
           <div class="tsw-title">Kinetic</div>
-          <div class="tsw-sub">حركة وتفاعل حي</div>
+          <div class="tsw-sub">زجاجي + حركة</div>
         </div>
       </div>
       <div class="tsw-info">
         <div class="tsw-name">⚡ كينيتك (Kinetic)</div>
-        <div class="tsw-desc">ثيم احترافي مليان أنيميشن وتفاعل — يشتغل مع أي تخطيط تختاره</div>
-        <div class="tsw-tags"><span>scroll-reveal</span><span>magnetic</span><span>parallax</span><span>marquee</span></div>
+        <div class="tsw-desc">Glassmorphism + خلفية gradient متحركة + grain — ثيم احترافي معتمد على الحركة</div>
+        <div class="tsw-tags"><span>glassmorphism</span><span>animated bg</span><span>grain</span><span>scroll-reveal</span></div>
       </div>
     </div>
   </div>
@@ -3501,10 +3506,19 @@ function toggleCustomBg(){
   // Custom bg removed — function kept as no-op for compatibility
 }
 
-// Reset the current theme to its factory defaults (clear all _custom_* flags + colors)
+// Reset a specific theme to its factory defaults (per-theme reset)
+async function resetThisTheme(themeId){
+  if(!themeId) return;
+  if(!confirm(`هتعيد ثيم "${themeId}" للإعدادات الافتراضية تماماً. مش هتخسر مشاريعك أو محتواك — بس الألوان والتخطيطات هترجع للأصل. متأكد؟`)){return;}
+  await doResetTheme(themeId);
+}
+// Reset the currently-selected theme (the big button at the top)
 async function resetCurrentTheme(){
   const themeId = (document.querySelector('input[name="style_theme"]:checked')||{}).value || S.style_theme || 'default';
   if(!confirm(`هتعيد ثيم "${themeId}" للإعدادات الافتراضية تماماً. مش هتخسر مشاريعك أو محتواك — بس الألوان والتخطيطات هترجع للأصل. متأكد؟`)){return;}
+  await doResetTheme(themeId);
+}
+async function doResetTheme(themeId){
   const reset = {
     style_theme: themeId,
     // clear all customization flags so theme defaults take effect
