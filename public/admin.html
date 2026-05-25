@@ -567,7 +567,11 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 .theme-cinema .theme-preview .tp-content::before{content:'';position:absolute;inset:-50px -20px 0 -20px;background:linear-gradient(to top,rgba(0,0,0,.8),transparent);z-index:-1;}
 @keyframes adm-au-bg{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
 /* ── Theme Switcher ── */
-.theme-switcher{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.theme-switcher{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:14px;}
+/* Design tab section header — labeled steps for clarity */
+.design-step-label{display:flex;align-items:center;gap:10px;margin:18px 0 12px;color:var(--g2);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.design-step-label::before{content:'';width:4px;height:16px;background:var(--o);border-radius:2px;}
+.design-step-label .num{background:rgba(249,115,22,.15);color:var(--o);width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;}
 .tsw-card{cursor:pointer;border:2px solid #222;border-radius:14px;overflow:hidden;transition:all .25s;background:#0e0e0e;user-select:none;position:relative;}
 .tsw-reset{position:absolute;top:8px;inset-inline-end:8px;z-index:5;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);color:#fff;width:30px;height:30px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;opacity:0;transition:all .25s;font-family:inherit;}
 .tsw-card:hover .tsw-reset{opacity:1;}
@@ -815,6 +819,9 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
     </div>
   </div>
 
+  <!-- Step 1: Pick a theme -->
+  <div class="design-step-label"><span class="num">1</span> اختر الثيم — كل ثيم بيحفظ إعداداته منفصلة</div>
+
   <!-- Theme Switcher ─────────────────────────────── -->
   <div class="theme-switcher">
     <!-- Default -->
@@ -889,6 +896,9 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
       </div>
     </div>
   </div>
+
+  <!-- Step 2: Customize this theme -->
+  <div class="design-step-label"><span class="num">2</span> خصّص هذا الثيم — التخطيطات، الخطوط، الألوان، الخلفية</div>
 
   <!-- Contextual Sub-navigation -->
   <div class="design-subnav" id="design-subnav">
@@ -1092,9 +1102,14 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
     <!-- THEME COLORS -->
     <div class="card">
       <div class="card-title"><i class="fa-solid fa-palette" style="color:var(--o);margin-left:6px"></i> <span data-i18n="design.themeColorsTitle">ألوان التيمة</span></div>
-      <p style="color:var(--g2);font-size:13px;margin-bottom:18px;" data-i18n="design.themeColorsCardDesc">اللون المميز يتحكم في الأزرار، الروابط، والعناصر البصرية</p>
+      <p style="color:var(--g2);font-size:13px;margin-bottom:14px;" data-i18n="design.themeColorsCardDesc">اللون المميز يتحكم في الأزرار، الروابط، والعناصر البصرية</p>
+      <!-- Smart Color Palettes — click to apply all colors at once -->
+      <div style="background:rgba(249,115,22,.06);border:1px solid rgba(249,115,22,.18);border-radius:10px;padding:14px;margin-bottom:18px;">
+        <div style="font-size:12px;font-weight:700;color:var(--o);margin-bottom:10px;"><i class="fa-solid fa-wand-magic-sparkles"></i> لوحات ألوان جاهزة (Smart Palettes)</div>
+        <div id="palette-picker" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;"></div>
+      </div>
       <div class="color-grid">
-        <div class="color-item"><span class="color-label" data-i18n="design.colorAccentLabel">⭐ اللون المميّز (Accent)</span><input type="color" class="color-preview" id="cAccent" value="#F97316" oninput="syncHex('cAccent','hAccent')"><input type="text" class="color-hex" id="hAccent" value="#F97316" oninput="syncColor('hAccent','cAccent')" maxlength="7"></div>
+        <div class="color-item"><span class="color-label" data-i18n="design.colorAccentLabel">⭐ اللون المميّز (Accent)</span><input type="color" class="color-preview" id="cAccent" value="#F97316" oninput="syncHex('cAccent','hAccent');suggestPaletteFromAccent()"><input type="text" class="color-hex" id="hAccent" value="#F97316" oninput="syncColor('hAccent','cAccent');suggestPaletteFromAccent()" maxlength="7"></div>
         <div class="color-item"><span class="color-label" data-i18n="design.colorTextLabel">لون النص الأساسي</span><input type="color" class="color-preview" id="cText" value="#FFFFFF" oninput="syncHex('cText','hText')"><input type="text" class="color-hex" id="hText" value="#FFFFFF" oninput="syncColor('hText','cText')" maxlength="7"></div>
         <div class="color-item"><span class="color-label" data-i18n="design.colorSubLabel">لون النص الفرعي</span><input type="color" class="color-preview" id="cSub" value="#999999" oninput="syncHex('cSub','hSub')"><input type="text" class="color-hex" id="hSub" value="#999999" oninput="syncColor('hSub','cSub')" maxlength="7"></div>
       </div>
@@ -3435,12 +3450,116 @@ function setDsn(sec, btn){
   });
 }
 
-function switchDesignTheme(themeId, isUserAction){
-  if(isUserAction){
-    ['style_hero','style_about','style_font','style_bg_preset','style_anim','colors'].forEach(k=>{
-      if(typeof S!=='undefined') S['_custom_'+k]=false;
-    });
+// ─── Smart Color Palettes ───
+const COLOR_PALETTES = [
+  {id:'cyber',   name:'Cyber',   accent:'#22D3EE', text:'#FFFFFF', subtext:'#94A3B8', bg:'#0A0F1A', bg2:'#101828'},
+  {id:'sunset',  name:'Sunset',  accent:'#FB923C', text:'#FFF5EE', subtext:'#C8A8B0', bg:'#1A0F0A', bg2:'#2A1A14'},
+  {id:'forest',  name:'Forest',  accent:'#10B981', text:'#F0FFF5', subtext:'#8AA899', bg:'#0A1410', bg2:'#0F1F18'},
+  {id:'royal',   name:'Royal',   accent:'#A78BFA', text:'#FFFFFF', subtext:'#A1A1AA', bg:'#0E0A1A', bg2:'#1A0F2E'},
+  {id:'rose',    name:'Rose',    accent:'#F43F5E', text:'#FFFFFF', subtext:'#A1A1AA', bg:'#140A0F', bg2:'#221019'},
+  {id:'mono',    name:'Mono',    accent:'#FAFAFA', text:'#FFFFFF', subtext:'#71717A', bg:'#000000', bg2:'#0A0A0A'},
+  {id:'gold',    name:'Gold',    accent:'#D4A574', text:'#FAF7F2', subtext:'#8A857C', bg:'#0F0E0B', bg2:'#1A1814'},
+  {id:'orange',  name:'Orange',  accent:'#F97316', text:'#FFFFFF', subtext:'#999999', bg:'#0A0A0A', bg2:'#111111'},
+];
+function renderPalettePicker(){
+  const wrap = document.getElementById('palette-picker');
+  if(!wrap) return;
+  wrap.innerHTML = COLOR_PALETTES.map(p => `
+    <button type="button" onclick="applyPalette('${p.id}')" title="${p.name}"
+      style="cursor:pointer;background:${p.bg};border:1px solid ${p.bg2};border-radius:9px;padding:10px 12px;display:flex;align-items:center;gap:8px;font-family:inherit;color:${p.text};transition:all .2s;text-align:start;">
+      <span style="display:flex;gap:4px;flex-shrink:0;">
+        <span style="width:14px;height:14px;border-radius:50%;background:${p.accent};box-shadow:0 0 0 2px ${p.bg};"></span>
+        <span style="width:10px;height:14px;border-radius:3px;background:${p.text};opacity:.9"></span>
+        <span style="width:10px;height:14px;border-radius:3px;background:${p.subtext};opacity:.6"></span>
+      </span>
+      <span style="font-size:12px;font-weight:700;">${p.name}</span>
+    </button>
+  `).join('');
+}
+function applyPalette(id){
+  const p = COLOR_PALETTES.find(x => x.id === id);
+  if(!p) return;
+  const setEl = (i, v) => { const el = document.getElementById(i); if(el){ el.value = v; el.dispatchEvent(new Event('input')); }};
+  setEl('cAccent', p.accent); setEl('hAccent', p.accent);
+  setEl('cText',   p.text);   setEl('hText',   p.text);
+  setEl('cSub',    p.subtext); setEl('hSub',   p.subtext);
+  setEl('bgColor1', p.bg);
+  setEl('bgColor2', p.bg2);
+  // Persist into S.colors so changes survive within the session
+  S.colors = Object.assign({}, S.colors||{}, {accent:p.accent, text:p.text, subtext:p.subtext, bg:p.bg, bg2:p.bg2});
+  S._custom_colors = true;
+  showToast(`✓ تم تطبيق لوحة "${p.name}" — احفظ لتطبيقها على الموقع`);
+}
+// Auto-suggest palette match when user picks an accent
+function suggestPaletteFromAccent(){ /* placeholder for future smart matching */ }
+
+// ─── Per-theme isolated settings ───
+// Snapshot the entire design-tab UI into a plain object
+function gatherDesignUIState(){
+  const get = name => (document.querySelector(`input[name="${name}"]:checked`)||{}).value || '';
+  const elVal = id => { const el=document.getElementById(id); return el ? el.value : ''; };
+  return {
+    style_hero: get('style_hero') || 'centered',
+    style_about: get('style_about') || 'classic',
+    style_font: get('style_font') || 'default',
+    style_direction: get('style_direction') || 'auto',
+    style_bg_preset: get('style_bg_preset') || 'dark',
+    style_bg_type: get('style_bg_type') || 'solid',
+    style_bg_color1: elVal('bgColor1') || '#0a0a0a',
+    style_bg_color2: elVal('bgColor2') || '#1a1a1a',
+    style_cursor: get('style_cursor') || 'default',
+    style_anim: get('style_anim') || 'fade-up',
+    colors: {
+      accent:  elVal('cAccent') || '#F97316',
+      text:    elVal('cText')   || '#FFFFFF',
+      subtext: elVal('cSub')    || '#999999',
+      bg:      (S.colors && S.colors.bg)  || '#0A0A0A',
+      bg2:     (S.colors && S.colors.bg2) || '#111111',
+    },
+    kin_glass:   elVal('kin_glass')   || 'default',
+    kin_borders: elVal('kin_borders') || 'on',
+    kin_bg:      elVal('kin_bg')      || 'on',
+    kin_radius:  elVal('kin_radius')  || 'default',
+  };
+}
+
+// Apply a saved design state object back into the UI controls
+function applyDesignUIState(state){
+  if(!state) return;
+  const setR = (name, val) => { if(!val) return; const r = document.querySelector(`input[name="${name}"][value="${val}"]`); if(r) r.checked = true; };
+  const setEl = (id, val) => { if(val == null) return; const el = document.getElementById(id); if(el) el.value = val; };
+  setR('style_hero',      state.style_hero);
+  setR('style_about',     state.style_about);
+  setR('style_font',      state.style_font);
+  setR('style_direction', state.style_direction);
+  setR('style_bg_preset', state.style_bg_preset);
+  setR('style_bg_type',   state.style_bg_type);
+  setR('style_cursor',    state.style_cursor);
+  setR('style_anim',      state.style_anim);
+  setEl('bgColor1', state.style_bg_color1);
+  setEl('bgColor2', state.style_bg_color2);
+  if(state.colors){
+    setEl('cAccent', state.colors.accent);
+    setEl('cText',   state.colors.text);
+    setEl('cSub',    state.colors.subtext);
   }
+  setEl('kin_glass',   state.kin_glass);
+  setEl('kin_borders', state.kin_borders);
+  setEl('kin_bg',      state.kin_bg);
+  setEl('kin_radius',  state.kin_radius);
+}
+
+// Track which theme is currently selected in the UI (used for snapshotting on switch)
+let _currentDesignTheme = null;
+
+function switchDesignTheme(themeId, isUserAction){
+  // 1. Snapshot the OUTGOING theme's UI state (so it persists if user comes back)
+  if(_currentDesignTheme && _currentDesignTheme !== themeId){
+    if(!S.theme_overrides || typeof S.theme_overrides !== 'object') S.theme_overrides = {};
+    S.theme_overrides[_currentDesignTheme] = gatherDesignUIState();
+  }
+  // 2. Mark current
+  _currentDesignTheme = themeId;
   // Update hidden radio
   const radio=document.querySelector(`input[name="style_theme"][value="${themeId}"]`);
   if(radio) radio.checked=true;
@@ -3448,16 +3567,24 @@ function switchDesignTheme(themeId, isUserAction){
   document.querySelectorAll('.tsw-card').forEach(c=>c.classList.remove('active'));
   const card=document.getElementById('tsw-'+themeId);
   if(card) card.classList.add('active');
-  // All themes now use standard layouts — show layouts tab for all
+  // 3. If theme has saved overrides, load them; otherwise leave defaults
+  const saved = (S.theme_overrides || {})[themeId];
+  if(saved) applyDesignUIState(saved);
+  // Layouts tab always available
   const layoutsBtn=document.getElementById('dsnbtn-layouts');
   if(layoutsBtn) layoutsBtn.style.display='';
-  if(layoutsBtn) setDsn('layouts', layoutsBtn);
+  if(layoutsBtn && isUserAction) setDsn('layouts', layoutsBtn);
   // Show Kinetic-specific options only when Kinetic theme is selected
   const kinPanel = document.getElementById('kinetic-options');
   if(kinPanel) kinPanel.style.display = (themeId === 'kinetic') ? 'block' : 'none';
+  if(isUserAction && saved){
+    showToast('✓ تم استرجاع إعداداتك السابقة للثيم ده — احفظ لتطبيقها');
+  }
 }
 
 function loadDesign(){
+  // Render the smart palette picker
+  renderPalettePicker();
   // Set radios from S
   const setRadio = (name, val, fallback) => {
     const v = val || fallback;
@@ -3649,6 +3776,11 @@ async function saveDesign(){
     kin_bg:      elVal('kin_bg')      || 'on',
     kin_radius:  elVal('kin_radius')  || 'default',
   };
+  // Save current UI state into the per-theme overrides map
+  const currentTheme = payload.style_theme || 'default';
+  if(!S.theme_overrides || typeof S.theme_overrides !== 'object') S.theme_overrides = {};
+  S.theme_overrides[currentTheme] = gatherDesignUIState();
+  payload.theme_overrides = S.theme_overrides;
 
   // Hero cover image upload (if changed)
   if(typeof heroCoverData !== 'undefined' && heroCoverData !== null){
