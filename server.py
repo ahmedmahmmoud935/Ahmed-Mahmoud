@@ -303,6 +303,20 @@ def default_settings(user_id, db):
         ('freegrid_cols_mobile','1'), ('freegrid_cols_desktop','2'),
     ]:
         db.execute('INSERT OR IGNORE INTO settings(user_id,key,value) VALUES(?,?,?)', (user_id,k,v))
+    # Seed example achievements (so new users see what this section is for)
+    existing_ach = db.execute("SELECT COUNT(*) FROM achievements WHERE user_id=?", (user_id,)).fetchone()[0]
+    if existing_ach == 0:
+        default_achievements = [
+            ('مشاريع منجزة',   'Completed Projects', '50+',  0),
+            ('عملاء سعداء',    'Happy Clients',      '30+',  1),
+            ('سنوات خبرة',     'Years of Experience','5+',   2),
+            ('نسبة الرضا',     'Satisfaction Rate',  '99%',  3),
+        ]
+        for title_ar, title_en, value, order in default_achievements:
+            db.execute(
+                "INSERT INTO achievements(user_id, icon_url, title, title_en, value, sort_order) VALUES(?,?,?,?,?,?)",
+                (user_id, '', title_ar, title_en, value, order)
+            )
     db.commit()
 
 # ── INIT DB ──

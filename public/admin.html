@@ -806,7 +806,10 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 <div id="tab-design" style="display:none;">
   <div class="ph">
     <div><div class="pt" data-i18n="page.design.title">🎨 التصميم</div><div class="ps" data-i18n="page.design.sub">خصص شكل موقعك بالكامل</div></div>
-    <button class="btn-add" onclick="saveDesign()"><i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn.saveDesign">حفظ التصميم</span></button>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <button onclick="resetCurrentTheme()" style="background:transparent;border:1px solid #5a1414;color:#ff6b6b;cursor:pointer;padding:10px 18px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;transition:.2s" onmouseover="this.style.background='#3a1010'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-rotate-left"></i> إعادة الثيم للافتراضي</button>
+      <button class="btn-add" onclick="saveDesign()"><i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn.saveDesign">حفظ التصميم</span></button>
+    </div>
   </div>
 
   <!-- Theme Switcher ─────────────────────────────── -->
@@ -3496,6 +3499,45 @@ function loadDesign(){
 
 function toggleCustomBg(){
   // Custom bg removed — function kept as no-op for compatibility
+}
+
+// Reset the current theme to its factory defaults (clear all _custom_* flags + colors)
+async function resetCurrentTheme(){
+  const themeId = (document.querySelector('input[name="style_theme"]:checked')||{}).value || S.style_theme || 'default';
+  if(!confirm(`هتعيد ثيم "${themeId}" للإعدادات الافتراضية تماماً. مش هتخسر مشاريعك أو محتواك — بس الألوان والتخطيطات هترجع للأصل. متأكد؟`)){return;}
+  const reset = {
+    style_theme: themeId,
+    // clear all customization flags so theme defaults take effect
+    _custom_style_hero:'0', _custom_style_about:'0', _custom_style_font:'0',
+    _custom_style_bg_preset:'0', _custom_style_anim:'0', _custom_colors:'0',
+    // explicitly clear style overrides
+    style_hero:'', style_about:'', style_skills:'', style_tools:'',
+    style_exp:'', style_projects:'', style_contact:'',
+    style_font:'', style_bg_preset:'', style_bg_type:'',
+    style_bg_color1:'', style_bg_color2:'',
+    style_cursor:'', style_anim:'',
+    // reset colors to empty so theme accent shows through
+    colors: {},
+    // reset hero cover styling
+    hero_cover_size:'cover', hero_cover_overlay:'55',
+    hero_cover_pos_x:'50', hero_cover_pos_y:'50', hero_height:'85',
+    // reset brand logo scale/offset
+    brand_logo_scale:'100', brand_logo_offset_x:'0', brand_logo_offset_y:'0',
+    // reset footer alignment to defaults
+    footer_logo_size:'48', footer_logo_align:'start',
+    footer_socials_align:'center', footer_copy_align:'center'
+  };
+  try{
+    const r = await fetch('/api/settings', {method:'PUT', credentials:'include', headers:{'Content-Type':'application/json'}, body: JSON.stringify(reset)});
+    if(r.ok){
+      Object.assign(S, reset);
+      showToast(`✓ تم إعادة ثيم "${themeId}" للافتراضي — جاري إعادة التحميل...`);
+      setTimeout(()=>location.reload(), 1100);
+    } else {
+      const e = await r.json().catch(()=>({}));
+      showToast(e.error || 'فشل الحفظ', 'error');
+    }
+  }catch(err){ showToast('خطأ في الاتصال', 'error'); }
 }
 
 async function saveDesign(){

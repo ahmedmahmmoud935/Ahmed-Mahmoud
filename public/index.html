@@ -888,16 +888,6 @@ body[data-theme="kinetic"] .pg-overlay{
 }
 body[data-theme="kinetic"] .pg-card:hover .pg-info,
 body[data-theme="kinetic"] .pg-card:hover .pg-overlay{transform:translateY(0);opacity:1;}
-/* Project grid stagger entrance on scroll */
-body[data-theme="kinetic"] .proj-grid .pg-card{opacity:0;transform:translateY(40px) scale(.95);transition:opacity .7s cubic-bezier(.25,.46,.45,.94),transform .7s cubic-bezier(.25,.46,.45,.94);}
-body[data-theme="kinetic"] section.in-view .proj-grid .pg-card{opacity:1;transform:translateY(0) scale(1);}
-body[data-theme="kinetic"] section.in-view .proj-grid .pg-card:nth-child(1){transition-delay:.05s}
-body[data-theme="kinetic"] section.in-view .proj-grid .pg-card:nth-child(2){transition-delay:.12s}
-body[data-theme="kinetic"] section.in-view .proj-grid .pg-card:nth-child(3){transition-delay:.19s}
-body[data-theme="kinetic"] section.in-view .proj-grid .pg-card:nth-child(4){transition-delay:.26s}
-body[data-theme="kinetic"] section.in-view .proj-grid .pg-card:nth-child(5){transition-delay:.33s}
-body[data-theme="kinetic"] section.in-view .proj-grid .pg-card:nth-child(6){transition-delay:.40s}
-body[data-theme="kinetic"] section.in-view .proj-grid .pg-card:nth-child(n+7){transition-delay:.45s}
 /* Project tabs/filters — pill design with active glow */
 body[data-theme="kinetic"] .proj-tabs button,
 body[data-theme="kinetic"] .pft-btn{
@@ -1002,18 +992,12 @@ body[data-theme="kinetic"] .nav-logo:hover img{transform:scale(1.1);}
 .kin-line-1{top:15%;inset-inline-start:-30px;width:240px;transform:rotate(-12deg);}
 .kin-line-2{bottom:25%;inset-inline-end:-40px;width:200px;transform:rotate(8deg);}
 
-/* SCROLL-TRIGGERED entrance animations for cards in any section */
-body[data-theme="kinetic"] .exp-card,
-body[data-theme="kinetic"] .exp-card-service,
-body[data-theme="kinetic"] .edu-card,
-body[data-theme="kinetic"] .tool-card,
-body[data-theme="kinetic"] .ach-card,
-body[data-theme="kinetic"] .t-card,
-body[data-theme="kinetic"] .skill-chip,
-body[data-theme="kinetic"] .logo-card{
-  opacity:0;transform:translateY(36px);
-  transition:opacity .65s cubic-bezier(.25,.46,.45,.94),transform .65s cubic-bezier(.25,.46,.45,.94);
-}
+/* ENTRANCE ANIMATIONS — play ONCE on .in-view, elements visible by default */
+@keyframes kin-enter-up{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes kin-enter-scale{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+@keyframes kin-title-reveal{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+
+/* When a section enters view, animate its cards/chips IN (visible by default — no hiding) */
 body[data-theme="kinetic"] section.in-view .exp-card,
 body[data-theme="kinetic"] section.in-view .exp-card-service,
 body[data-theme="kinetic"] section.in-view .edu-card,
@@ -1021,69 +1005,27 @@ body[data-theme="kinetic"] section.in-view .tool-card,
 body[data-theme="kinetic"] section.in-view .ach-card,
 body[data-theme="kinetic"] section.in-view .t-card,
 body[data-theme="kinetic"] section.in-view .skill-chip,
-body[data-theme="kinetic"] section.in-view .logo-card{
-  opacity:1;transform:translateY(0);
+body[data-theme="kinetic"] section.in-view .logo-card,
+body[data-theme="kinetic"] section.in-view .pg-card{
+  animation:kin-enter-up .65s cubic-bezier(.25,.46,.45,.94) backwards;
 }
-/* Stagger via nth-child */
-body[data-theme="kinetic"] section.in-view .exp-card:nth-child(n),
-body[data-theme="kinetic"] section.in-view .exp-card-service:nth-child(n),
-body[data-theme="kinetic"] section.in-view .edu-card:nth-child(n),
-body[data-theme="kinetic"] section.in-view .tool-card:nth-child(n),
-body[data-theme="kinetic"] section.in-view .ach-card:nth-child(n),
-body[data-theme="kinetic"] section.in-view .t-card:nth-child(n),
-body[data-theme="kinetic"] section.in-view .skill-chip:nth-child(n),
-body[data-theme="kinetic"] section.in-view .logo-card:nth-child(n){transition-delay:calc(var(--i,0) * 60ms);}
-body[data-theme="kinetic"] section.in-view .exp-card:nth-child(1),body[data-theme="kinetic"] section.in-view .exp-card-service:nth-child(1),body[data-theme="kinetic"] section.in-view .edu-card:nth-child(1),body[data-theme="kinetic"] section.in-view .tool-card:nth-child(1),body[data-theme="kinetic"] section.in-view .ach-card:nth-child(1),body[data-theme="kinetic"] section.in-view .t-card:nth-child(1),body[data-theme="kinetic"] section.in-view .skill-chip:nth-child(1),body[data-theme="kinetic"] section.in-view .logo-card:nth-child(1){transition-delay:.05s;}
-body[data-theme="kinetic"] section.in-view .exp-card:nth-child(2),body[data-theme="kinetic"] section.in-view .exp-card-service:nth-child(2),body[data-theme="kinetic"] section.in-view .edu-card:nth-child(2),body[data-theme="kinetic"] section.in-view .tool-card:nth-child(2),body[data-theme="kinetic"] section.in-view .ach-card:nth-child(2),body[data-theme="kinetic"] section.in-view .t-card:nth-child(2),body[data-theme="kinetic"] section.in-view .skill-chip:nth-child(2),body[data-theme="kinetic"] section.in-view .logo-card:nth-child(2){transition-delay:.12s;}
-body[data-theme="kinetic"] section.in-view .exp-card:nth-child(3),body[data-theme="kinetic"] section.in-view .exp-card-service:nth-child(3),body[data-theme="kinetic"] section.in-view .edu-card:nth-child(3),body[data-theme="kinetic"] section.in-view .tool-card:nth-child(3),body[data-theme="kinetic"] section.in-view .ach-card:nth-child(3),body[data-theme="kinetic"] section.in-view .t-card:nth-child(3),body[data-theme="kinetic"] section.in-view .skill-chip:nth-child(3),body[data-theme="kinetic"] section.in-view .logo-card:nth-child(3){transition-delay:.19s;}
-body[data-theme="kinetic"] section.in-view .exp-card:nth-child(4),body[data-theme="kinetic"] section.in-view .exp-card-service:nth-child(4),body[data-theme="kinetic"] section.in-view .edu-card:nth-child(4),body[data-theme="kinetic"] section.in-view .tool-card:nth-child(4),body[data-theme="kinetic"] section.in-view .ach-card:nth-child(4),body[data-theme="kinetic"] section.in-view .t-card:nth-child(4),body[data-theme="kinetic"] section.in-view .skill-chip:nth-child(4),body[data-theme="kinetic"] section.in-view .logo-card:nth-child(4){transition-delay:.26s;}
-body[data-theme="kinetic"] section.in-view .exp-card:nth-child(5),body[data-theme="kinetic"] section.in-view .exp-card-service:nth-child(5),body[data-theme="kinetic"] section.in-view .edu-card:nth-child(5),body[data-theme="kinetic"] section.in-view .tool-card:nth-child(5),body[data-theme="kinetic"] section.in-view .ach-card:nth-child(5),body[data-theme="kinetic"] section.in-view .t-card:nth-child(5),body[data-theme="kinetic"] section.in-view .skill-chip:nth-child(5),body[data-theme="kinetic"] section.in-view .logo-card:nth-child(5){transition-delay:.33s;}
+body[data-theme="kinetic"] section.in-view .exp-card:nth-child(2),body[data-theme="kinetic"] section.in-view .exp-card-service:nth-child(2),body[data-theme="kinetic"] section.in-view .edu-card:nth-child(2),body[data-theme="kinetic"] section.in-view .tool-card:nth-child(2),body[data-theme="kinetic"] section.in-view .ach-card:nth-child(2),body[data-theme="kinetic"] section.in-view .t-card:nth-child(2),body[data-theme="kinetic"] section.in-view .skill-chip:nth-child(2),body[data-theme="kinetic"] section.in-view .logo-card:nth-child(2),body[data-theme="kinetic"] section.in-view .pg-card:nth-child(2){animation-delay:.07s}
+body[data-theme="kinetic"] section.in-view .exp-card:nth-child(3),body[data-theme="kinetic"] section.in-view .exp-card-service:nth-child(3),body[data-theme="kinetic"] section.in-view .edu-card:nth-child(3),body[data-theme="kinetic"] section.in-view .tool-card:nth-child(3),body[data-theme="kinetic"] section.in-view .ach-card:nth-child(3),body[data-theme="kinetic"] section.in-view .t-card:nth-child(3),body[data-theme="kinetic"] section.in-view .skill-chip:nth-child(3),body[data-theme="kinetic"] section.in-view .logo-card:nth-child(3),body[data-theme="kinetic"] section.in-view .pg-card:nth-child(3){animation-delay:.14s}
+body[data-theme="kinetic"] section.in-view .exp-card:nth-child(4),body[data-theme="kinetic"] section.in-view .exp-card-service:nth-child(4),body[data-theme="kinetic"] section.in-view .edu-card:nth-child(4),body[data-theme="kinetic"] section.in-view .tool-card:nth-child(4),body[data-theme="kinetic"] section.in-view .ach-card:nth-child(4),body[data-theme="kinetic"] section.in-view .t-card:nth-child(4),body[data-theme="kinetic"] section.in-view .skill-chip:nth-child(4),body[data-theme="kinetic"] section.in-view .logo-card:nth-child(4),body[data-theme="kinetic"] section.in-view .pg-card:nth-child(4){animation-delay:.21s}
+body[data-theme="kinetic"] section.in-view .exp-card:nth-child(5),body[data-theme="kinetic"] section.in-view .exp-card-service:nth-child(5),body[data-theme="kinetic"] section.in-view .edu-card:nth-child(5),body[data-theme="kinetic"] section.in-view .tool-card:nth-child(5),body[data-theme="kinetic"] section.in-view .ach-card:nth-child(5),body[data-theme="kinetic"] section.in-view .t-card:nth-child(5),body[data-theme="kinetic"] section.in-view .skill-chip:nth-child(5),body[data-theme="kinetic"] section.in-view .logo-card:nth-child(5),body[data-theme="kinetic"] section.in-view .pg-card:nth-child(5){animation-delay:.28s}
+body[data-theme="kinetic"] section.in-view .exp-card:nth-child(n+6),body[data-theme="kinetic"] section.in-view .exp-card-service:nth-child(n+6),body[data-theme="kinetic"] section.in-view .edu-card:nth-child(n+6),body[data-theme="kinetic"] section.in-view .tool-card:nth-child(n+6),body[data-theme="kinetic"] section.in-view .ach-card:nth-child(n+6),body[data-theme="kinetic"] section.in-view .t-card:nth-child(n+6),body[data-theme="kinetic"] section.in-view .skill-chip:nth-child(n+6),body[data-theme="kinetic"] section.in-view .logo-card:nth-child(n+6),body[data-theme="kinetic"] section.in-view .pg-card:nth-child(n+6){animation-delay:.35s}
 
-/* Section title — Big text-reveal effect */
-body[data-theme="kinetic"] .sh,
-body[data-theme="kinetic"] .section-header{position:relative;overflow:hidden;}
-body[data-theme="kinetic"] .sh h2,
-body[data-theme="kinetic"] .section-title{
-  display:inline-block;opacity:0;transform:translateY(60%);
-  transition:opacity .9s cubic-bezier(.16,1,.3,1) .1s,transform .9s cubic-bezier(.16,1,.3,1) .1s;
-}
+/* Section title — animate in when section enters view (visible by default) */
 body[data-theme="kinetic"] section.in-view .sh h2,
-body[data-theme="kinetic"] section.in-view .section-title{opacity:1;transform:translateY(0);}
-
-/* Hero name char/word reveal */
-body[data-theme="kinetic"] .hero-name{display:inline-block;overflow:visible;}
-body[data-theme="kinetic"] .hero-name .first,
-body[data-theme="kinetic"] .hero-name .last{display:inline-block;opacity:0;transform:translateY(100%);animation:kin-text-reveal 1s cubic-bezier(.16,1,.3,1) .2s forwards;}
-body[data-theme="kinetic"] .hero-name .last{animation-delay:.4s;}
-body[data-theme="kinetic"] .hero-sub{opacity:0;transform:translateY(20px);animation:kin-text-reveal .8s cubic-bezier(.16,1,.3,1) .7s forwards;}
-body[data-theme="kinetic"] .hero-actions,
-body[data-theme="kinetic"] .hero-cta{opacity:0;transform:translateY(20px);animation:kin-text-reveal .8s cubic-bezier(.16,1,.3,1) .9s forwards;}
-
-/* Parallax on photo (subtle) */
-body[data-theme="kinetic"] .about-img-wrap,
-body[data-theme="kinetic"] .about-visual-img{
-  overflow:hidden;position:relative;
+body[data-theme="kinetic"] section.in-view .section-title{
+  animation:kin-title-reveal .9s cubic-bezier(.16,1,.3,1) backwards;
 }
-body[data-theme="kinetic"] .about-img-wrap img,
-body[data-theme="kinetic"] .about-visual-img img{
-  transition:transform 1.2s cubic-bezier(.2,.8,.2,1);
-  will-change:transform;
-}
-body[data-theme="kinetic"] section.in-view .about-img-wrap img,
-body[data-theme="kinetic"] section.in-view .about-visual-img img{
-  transform:scale(1.04);
-}
-
-/* About text fade-up */
-body[data-theme="kinetic"] .about-text,
-body[data-theme="kinetic"] .tags-row{opacity:0;transform:translateY(30px);transition:opacity .8s .3s,transform .8s .3s;}
-body[data-theme="kinetic"] section.in-view .about-text,
-body[data-theme="kinetic"] section.in-view .tags-row{opacity:1;transform:translateY(0);}
 
 /* Big animated number that fades in beside about section */
+body[data-theme="kinetic"] #about{position:relative;}
 body[data-theme="kinetic"] #about::after{
   content:'01';position:absolute;font-size:clamp(8rem,18vw,16rem);font-weight:900;
-  inset-inline-end:-2%;top:30%;color:rgba(var(--accent-rgb,34,211,238),.04);
+  inset-inline-end:2%;top:20%;color:rgba(var(--accent-rgb,34,211,238),.05);
   pointer-events:none;line-height:1;letter-spacing:-8px;z-index:0;
   font-family:'Montserrat',sans-serif;
 }
