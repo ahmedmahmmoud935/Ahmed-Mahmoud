@@ -83,18 +83,18 @@ def get_db():
 
 DEFAULT_COLORS   = json.dumps({"accent":"#F97316","bg":"#0A0A0A","bg2":"#111111","text":"#FFFFFF","subtext":"#999999"})
 DEFAULT_SECTIONS = json.dumps([
-    {"id":"hero",         "label_ar":"الرئيسية",   "label_en":"Hero",          "visible":True,"order":0},
-    {"id":"about",        "label_ar":"عن النفس",    "label_en":"About",         "visible":True,"order":1},
-    {"id":"expertise",    "label_ar":"الخدمات",     "label_en":"Key Expertise", "visible":True,"order":2},
-    {"id":"education",    "label_ar":"التعليم",      "label_en":"Education",     "visible":True,"order":3},
-    {"id":"skills",       "label_ar":"المهارات",     "label_en":"Skills",        "visible":True,"order":4},
-    {"id":"tools",        "label_ar":"الأدوات",      "label_en":"Tools",         "visible":True,"order":5},
-    {"id":"experience",   "label_ar":"الخبرات",      "label_en":"Experience",    "visible":True,"order":6},
-    {"id":"projects",     "label_ar":"المشاريع",     "label_en":"Projects",      "visible":True,"order":7},
-    {"id":"logos",        "label_ar":"العملاء",      "label_en":"Clients",       "visible":True,"order":8},
-    {"id":"testimonials",  "label_ar":"آراء العملاء","label_en":"Testimonials",  "visible":True,"order":9},
-    {"id":"achievements",  "label_ar":"الإنجازات",   "label_en":"Achievements",  "visible":True,"order":10},
-    {"id":"contact",       "label_ar":"تواصل معي",   "label_en":"Contact",       "visible":True,"order":11},
+    {"id":"hero",         "label_ar":"الرئيسية",      "label_en":"Hero",          "visible":True,"order":0},
+    {"id":"about",        "label_ar":"عن النفس",       "label_en":"About Me",      "visible":True,"order":1},
+    {"id":"projects",     "label_ar":"المشاريع",       "label_en":"Selected Work", "visible":True,"order":2},
+    {"id":"achievements", "label_ar":"الإنجازات",      "label_en":"Achievements",  "visible":True,"order":3},
+    {"id":"expertise",    "label_ar":"الخدمات",        "label_en":"Key Expertise", "visible":True,"order":4},
+    {"id":"testimonials", "label_ar":"آراء العملاء",   "label_en":"Testimonials",  "visible":True,"order":5},
+    {"id":"logos",        "label_ar":"العملاء",        "label_en":"Our Clients",   "visible":True,"order":6},
+    {"id":"experience",   "label_ar":"الخبرات",        "label_en":"Experience",    "visible":True,"order":7},
+    {"id":"tools",        "label_ar":"الأدوات",        "label_en":"Tools & Software","visible":True,"order":8},
+    {"id":"education",    "label_ar":"التعليم",         "label_en":"Education",     "visible":True,"order":9},
+    {"id":"skills",       "label_ar":"المهارات",        "label_en":"Soft Skills",   "visible":True,"order":10},
+    {"id":"contact",      "label_ar":"تواصل معي",      "label_en":"Let's Work Together","visible":True,"order":11},
 ])
 DEFAULT_CONTENT = json.dumps({
     "hero":{"name_en":"Your Name","name_ar":"اسمك","title_en":"Graphic Designer","title_ar":"مصمم جرافيك","btn1_en":"View Work","btn1_ar":"أعمالي","btn2_en":"Get In Touch","btn2_ar":"تواصل معي"},

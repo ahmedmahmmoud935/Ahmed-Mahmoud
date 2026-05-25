@@ -401,17 +401,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
 .form-group textarea{min-height:120px;}
 .btn-submit{background:var(--accent);color:#fff;border:none;padding:13px;border-radius:8px;font-family:'Cairo',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s;width:100%;margin-top:8px;}
 .btn-submit:hover{background:var(--accent2);transform:translateY(-2px);}
-footer{background:var(--bg2);border-top:1px solid var(--border);padding:32px 60px 28px;display:flex;flex-direction:column;align-items:center;gap:20px;}
-.footer-top{display:flex;align-items:center;justify-content:space-between;width:100%;gap:14px;}
-.footer-logo{font-family:'Montserrat',sans-serif;font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px;color:var(--text);}
-.footer-logo i{color:var(--accent);}
-.footer-wa{width:44px;height:44px;border-radius:50%;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;text-decoration:none;transition:transform .25s,box-shadow .25s;}
-.footer-wa:hover{transform:scale(1.08);box-shadow:0 6px 18px rgba(37,211,102,.45);}
-.footer-wa-spacer{width:44px;height:44px;visibility:hidden;}
-.footer-socials{display:flex;gap:14px;justify-content:center;}
-.footer-socials a{color:var(--sub);font-size:18px;transition:color .25s,transform .25s;}
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 60px 28px;display:flex;flex-direction:column;gap:18px;}
+.footer-row{display:flex;align-items:center;width:100%;}
+.footer-logo{font-family:'Montserrat',sans-serif;font-weight:700;display:flex;align-items:center;gap:8px;color:var(--text);}
+.footer-socials{display:flex;gap:18px;width:100%;}
+.footer-socials a{color:var(--sub);font-size:18px;transition:color .25s,transform .25s;text-decoration:none;}
 .footer-socials a:hover{color:var(--accent);transform:translateY(-2px);}
-.footer-copy{color:var(--sub);font-size:12px;text-align:center;}
+.footer-copy{color:var(--sub);font-size:12px;}
 .footer-copy a{color:var(--accent);text-decoration:none;font-weight:700;}
 .footer-copy a:hover{text-decoration:underline;}
 .social-links{display:flex;gap:12px;}
@@ -1560,9 +1556,17 @@ function applyStyle(){
     body,.btn-primary,.btn-outline,.form-group input,.form-group textarea{font-family:'${fp.ar}',sans-serif !important;}
     /* Display elements default to EN font (Latin display look) */
     .hero-name,.section-title,.sh h2,.nav-logo,.nav-links a,.hero-sub,.exp-svc-title,.tool-name,.edu-degree,.exp-company,.pg-name,.pg-title-nav,.pp-title,.gallery-title,.footer-logo,.footer-copy,.footer-col h4{font-family:'${fp.en}',sans-serif !important;}
-    /* When the page is Arabic, force ALL text (including display) to the Arabic font */
-    [lang="ar"],[lang="ar"] body,[lang="ar"] *{font-family:'${fp.ar}',sans-serif !important;}
-    [lang="ar"] .nav-logo i,[lang="ar"] .footer-logo i,[lang="ar"] i[class*="fa-"]{font-family:'Font Awesome 6 Free','Font Awesome 6 Brands' !important;}
+    /* When the page is Arabic, force ALL text to the Arabic font — high specificity to beat theme rules */
+    html[lang="ar"] body[data-theme] *:not(i):not([class*="fa-"]){font-family:'${fp.ar}',sans-serif !important;letter-spacing:normal !important;}
+    html[lang="ar"] body[data-theme]{font-family:'${fp.ar}',sans-serif !important;}
+    /* Preserve Font Awesome icons */
+    html[lang="ar"] body[data-theme] i[class*="fa-"],
+    html[lang="ar"] body[data-theme] .fa,
+    html[lang="ar"] body[data-theme] [class^="fa-"]{font-family:inherit !important;}
+    html[lang="ar"] body[data-theme] .fa-brands,html[lang="ar"] body[data-theme] [class*="fa-brands"]{font-family:'Font Awesome 6 Brands' !important;}
+    html[lang="ar"] body[data-theme] .fa-solid,html[lang="ar"] body[data-theme] .fa-regular,html[lang="ar"] body[data-theme] [class*="fa-solid"],html[lang="ar"] body[data-theme] [class*="fa-regular"]{font-family:'Font Awesome 6 Free' !important;}
+    /* Arabic word wrapping fix — prevent word-break mid-word */
+    html[lang="ar"] *{word-break:normal !important;overflow-wrap:break-word;hyphens:none !important;}
   `;
   document.head.appendChild(styleEl);
 
@@ -2225,26 +2229,25 @@ function footerInner(a){
   const ch=(S.content||{}).hero||{};const nm=a?(ch.name_ar||''):(ch.name_en||'Portfolio');
   const icons={whatsapp:'fa-whatsapp',behance:'fa-behance',instagram:'fa-instagram',linkedin:'fa-linkedin-in',vimeo:'fa-vimeo-v',facebook:'fa-facebook-f'};
   const visible = Array.isArray(S.social_visible) ? S.social_visible : ['whatsapp','behance','instagram','linkedin','vimeo'];
-  // Social icons WITHOUT whatsapp (whatsapp goes on the opposite side of the logo)
+  // Social icons — WhatsApp NOT shown in footer (it has its own floating button)
   const sl = visible
     .filter(k => k !== 'whatsapp' && icons[k] && S[k])
     .map(k=>`<a href="${S[k]}" target="_blank" rel="noopener" aria-label="${k}"><i class="fa-brands ${icons[k]}"></i></a>`)
     .join('');
+  // Footer logo — size and positioning controlled from dashboard
+  const sz   = parseInt(S.footer_logo_size) || 48;
+  const lAlign  = S.footer_logo_align    || 'start'; // start | center | end
+  const sAlign  = S.footer_socials_align || 'center';
+  const cAlign  = S.footer_copy_align    || 'center';
   const logoHtml = S.brand_logo_url
-    ? `<img src="${S.brand_logo_url}" alt="${nm}" style="height:32px;width:auto;max-width:160px;object-fit:contain;">`
-    : `<i class="fa-solid fa-gem"></i> ${nm}`;
-  // WhatsApp on opposite side — normalize the value to a wa.me URL
-  const waUrl = (typeof normalizeWhatsApp === 'function') ? normalizeWhatsApp(S.whatsapp) : (S.whatsapp || '');
-  const waBlock = (waUrl && visible.includes('whatsapp'))
-    ? `<a class="footer-wa" href="${waUrl}" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>`
-    : `<span class="footer-wa-spacer"></span>`;
+    ? `<img src="${S.brand_logo_url}" alt="${nm}" style="height:${sz}px;width:auto;max-width:280px;object-fit:contain;display:block;">`
+    : `<span style="font-size:${Math.max(14, sz*0.42)}px;display:inline-flex;align-items:center;gap:8px;"><i class="fa-solid fa-gem" style="color:var(--accent);font-size:${Math.max(14, sz*0.55)}px;"></i> ${nm}</span>`;
   return `
-    <div class="footer-top">
+    <div class="footer-row footer-logo-row" style="justify-content:${lAlign==='center'?'center':lAlign==='end'?'flex-end':'flex-start'}">
       <div class="footer-logo">${logoHtml}</div>
-      ${waBlock}
     </div>
-    ${sl ? `<div class="social-links footer-socials">${sl}</div>` : ''}
-    <div class="footer-copy">© ${new Date().getFullYear()} ViralPX · ${a?'صُنع بواسطة':'Built with'} <a href="https://viralpx.com" target="_blank" rel="noopener">ViralPX</a></div>`;
+    ${sl ? `<div class="social-links footer-socials" style="justify-content:${sAlign==='center'?'center':sAlign==='end'?'flex-end':'flex-start'}">${sl}</div>` : ''}
+    <div class="footer-copy" style="text-align:${cAlign}">© ${new Date().getFullYear()} ViralPX · ${a?'صُنع بواسطة':'Built with'} <a href="https://viralpx.com" target="_blank" rel="noopener">ViralPX</a></div>`;
 }
 function buildFooter(a){return`<footer>${footerInner(a)}</footer>`;}
 

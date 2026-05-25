@@ -3095,6 +3095,9 @@ function setLang(lang){
   document.documentElement.setAttribute('lang', lang);
   document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
   applyI18n();
+  // Re-render dynamic lists that contain bilingual labels
+  if(typeof renderSecList === 'function' && document.getElementById('secList')) renderSecList();
+  if(typeof renderNavbarList === 'function' && document.getElementById('navbarList')) renderNavbarList();
 }
 
 function applyI18n(){
@@ -4524,7 +4527,7 @@ function renderSecList(){
         <button type="button" onclick="event.stopPropagation();moveSec(${i},1)" ${i===sorted.length-1?'disabled':''} title="لأسفل"><i class="fa-solid fa-chevron-down"></i></button>
       </div>
       <div class="sec-drag"><i class="fa-solid fa-grip-vertical"></i></div>
-      <div class="sec-name">${s.label_ar}<small>${s.label_en}</small></div>
+      <div class="sec-name">${currentLang==='en'?(s.label_en||s.label_ar):(s.label_ar||s.label_en)}<small>${currentLang==='en'?(s.label_ar||''):(s.label_en||'')}</small></div>
       <label class="toggle">
         <input type="checkbox" ${s.visible?'checked':''} onchange="toggleSec('${s.id}',this.checked)">
         <div class="toggle-track"></div><div class="toggle-thumb"></div>
@@ -4584,6 +4587,13 @@ function buildContentTabs(){
   if(blZoom){ blZoom.value=S.brand_logo_scale||'100'; document.getElementById('blZoomV').textContent=blZoom.value; }
   if(blX){ blX.value=S.brand_logo_offset_x||'0'; document.getElementById('blXV').textContent=blX.value; }
   if(blY){ blY.value=S.brand_logo_offset_y||'0'; document.getElementById('blYV').textContent=blY.value; }
+  // Footer settings
+  const flSize=document.getElementById('fl_size'), flAlign=document.getElementById('fl_align'),
+        fsAlign=document.getElementById('fs_align'), fcAlign=document.getElementById('fc_align');
+  if(flSize){ flSize.value=S.footer_logo_size||'48'; document.getElementById('flSizeV').textContent=flSize.value; }
+  if(flAlign) flAlign.value=S.footer_logo_align||'start';
+  if(fsAlign) fsAlign.value=S.footer_socials_align||'center';
+  if(fcAlign) fcAlign.value=S.footer_copy_align||'center';
   updateLogoPreview();
   // Restore favicon preview
   if(S.favicon_url){
@@ -4659,6 +4669,44 @@ function buildCSec(id){
               <input type="range" id="bl_y" min="-30" max="30" value="0" style="width:100%;accent-color:var(--o);" oninput="document.getElementById('blYV').textContent=this.value;updateLogoPreview()">
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Footer Customization -->
+      <div class="fg" style="margin-top:18px;">
+        <label class="fl"><i class="fa-solid fa-grip-lines" style="margin-left:6px;color:var(--o);"></i> تخصيص الفوتر (الجزء السفلي للموقع)</label>
+        <div style="background:#0d0d0d;border:1px solid #1f1f1f;border-radius:10px;padding:14px;">
+          <div class="fg" style="margin-bottom:14px;">
+            <label class="fl" style="font-size:12px;">حجم اللوجو في الفوتر: <span id="flSizeV">48</span> بكسل</label>
+            <input type="range" id="fl_size" min="24" max="120" step="2" value="48" style="width:100%;accent-color:var(--o);" oninput="document.getElementById('flSizeV').textContent=this.value">
+          </div>
+          <div class="frow">
+            <div class="fg" style="margin-bottom:0;">
+              <label class="fl" style="font-size:12px;">موضع اللوجو</label>
+              <select id="fl_align" class="fi" style="padding:8px;font-size:13px;">
+                <option value="start">في البداية (يمين/شمال حسب اللغة)</option>
+                <option value="center">في المنتصف</option>
+                <option value="end">في النهاية</option>
+              </select>
+            </div>
+            <div class="fg" style="margin-bottom:0;">
+              <label class="fl" style="font-size:12px;">موضع أيقونات السوشيال</label>
+              <select id="fs_align" class="fi" style="padding:8px;font-size:13px;">
+                <option value="start">في البداية</option>
+                <option value="center" selected>في المنتصف</option>
+                <option value="end">في النهاية</option>
+              </select>
+            </div>
+            <div class="fg" style="margin-bottom:0;">
+              <label class="fl" style="font-size:12px;">موضع حقوق النشر</label>
+              <select id="fc_align" class="fi" style="padding:8px;font-size:13px;">
+                <option value="start">في البداية</option>
+                <option value="center" selected>في المنتصف</option>
+                <option value="end">في النهاية</option>
+              </select>
+            </div>
+          </div>
+          <p style="color:#666;font-size:11px;margin-top:8px;">💡 أيقونة واتساب لا تظهر في الفوتر — لها زرار عائم خاص بها في كل الصفحة</p>
         </div>
       </div>
 
@@ -4892,6 +4940,13 @@ async function saveContent(){
   if(blZoom)payload.brand_logo_scale=blZoom.value;
   if(blX)payload.brand_logo_offset_x=blX.value;
   if(blY)payload.brand_logo_offset_y=blY.value;
+  // Footer customization
+  const flSize=document.getElementById('fl_size'),flAlign=document.getElementById('fl_align'),
+        fsAlign=document.getElementById('fs_align'),fcAlign=document.getElementById('fc_align');
+  if(flSize) payload.footer_logo_size=flSize.value;
+  if(flAlign) payload.footer_logo_align=flAlign.value;
+  if(fsAlign) payload.footer_socials_align=fsAlign.value;
+  if(fcAlign) payload.footer_copy_align=fcAlign.value;
   const sizeSel=document.getElementById('h_cover_size');
   const ov=document.getElementById('h_overlay');
   const px=document.getElementById('h_posx');
@@ -4918,6 +4973,10 @@ async function saveContent(){
       if(blZoom)S.brand_logo_scale=blZoom.value;
       if(blX)S.brand_logo_offset_x=blX.value;
       if(blY)S.brand_logo_offset_y=blY.value;
+      if(flSize)S.footer_logo_size=flSize.value;
+      if(flAlign)S.footer_logo_align=flAlign.value;
+      if(fsAlign)S.footer_socials_align=fsAlign.value;
+      if(fcAlign)S.footer_copy_align=fcAlign.value;
       if(heroCoverData && heroCoverData.startsWith('/uploads/')) S.hero_cover_url=heroCoverData;
       if(heroCoverData==='') S.hero_cover_url='';
       if(photoData && photoData.startsWith('/uploads/')) S.photo_url=photoData;
