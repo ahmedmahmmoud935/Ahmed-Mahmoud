@@ -10,11 +10,17 @@
 <link rel="apple-touch-icon" id="dynFaviconApple" href="/favicon.png">
 <title id="pageTitle">Portfolio</title>
 <meta name="description" id="metaDesc" content="Portfolio">
+<link rel="canonical" id="canonicalLink" href="">
+<!-- Open Graph -->
 <meta property="og:title" id="ogTitle" content="Portfolio">
 <meta property="og:description" id="ogDesc" content="Portfolio">
 <meta property="og:type" content="profile">
 <meta property="og:url" id="ogUrl" content="">
-<meta name="twitter:card" content="summary">
+<meta property="og:site_name" content="ViralPX">
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" id="twTitle" content="Portfolio">
+<meta name="twitter:description" id="twDesc" content="Portfolio">
 <script type="application/ld+json" id="schemaLD">{}</script>
 
 <!-- Preconnect to external origins (start TCP/TLS handshake early) -->
@@ -44,7 +50,7 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
 /* In LTR (English): push button further left from links; in RTL (Arabic): push further right */
 [dir="ltr"] .nav-lang-btn{margin-left:28px;}
 [dir="rtl"] .nav-lang-btn{margin-right:28px;}
-nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:center;justify-content:space-between;padding:0 60px;height:70px;background:rgba(10,10,10,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:box-shadow .3s;}
+nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:center;justify-content:space-between;padding:0 60px;height:70px;background:rgba(var(--bg-rgb,10,10,10),.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:background .4s,box-shadow .3s;}
 .nav-logo{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:700;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px;}
 .nav-logo i{color:var(--accent);}
 .nav-logo img{height:32px;width:auto;max-width:none;display:block;}
@@ -401,9 +407,14 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
 .form-group textarea{min-height:120px;}
 .btn-submit{background:var(--accent);color:#fff;border:none;padding:13px;border-radius:8px;font-family:'Cairo',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s;width:100%;margin-top:8px;}
 .btn-submit:hover{background:var(--accent2);transform:translateY(-2px);}
-footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 60px 28px;display:flex;flex-direction:column;gap:18px;}
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 60px 28px;display:flex;flex-direction:column;gap:22px;align-items:center;}
 .footer-row{display:flex;align-items:center;width:100%;}
+.footer-logo-block{display:flex;flex-direction:column;align-items:center;gap:10px;}
 .footer-logo{font-family:'Montserrat',sans-serif;font-weight:700;display:flex;align-items:center;gap:8px;color:var(--text);}
+.footer-owner-name{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:700;color:var(--text);letter-spacing:.5px;}
+/* When logo-row is start/end aligned, the inner block aligns too */
+.footer-logo-row[style*="flex-start"] .footer-logo-block{align-items:flex-start;}
+.footer-logo-row[style*="flex-end"]   .footer-logo-block{align-items:flex-end;}
 .footer-socials{display:flex;gap:18px;width:100%;}
 .footer-socials a{color:var(--sub);font-size:18px;transition:color .25s,transform .25s;text-decoration:none;}
 .footer-socials a:hover{color:var(--accent);transform:translateY(-2px);}
@@ -816,13 +827,7 @@ body[data-theme="kinetic"] section{
 body[data-theme="kinetic"] .sw,
 body[data-theme="kinetic"] .sw.alt,
 body[data-theme="kinetic"] section.sw{background:transparent!important;}
-/* Section divider — animated line that grows on scroll-in */
-body[data-theme="kinetic"] section::before{
-  content:'';position:absolute;top:0;inset-inline-start:0;height:1px;width:0;
-  background:linear-gradient(90deg,transparent,var(--accent),transparent);
-  transition:width 1.4s cubic-bezier(.25,.46,.45,.94);
-}
-body[data-theme="kinetic"] section.in-view::before{width:100%;}
+/* (Removed section top-line divider — was creating visible stripe across cards) */
 
 /* Nav — glassmorphism */
 body[data-theme="kinetic"] .nav-bar{
@@ -1016,6 +1021,7 @@ body[data-theme="kinetic"] .pg-card::before{
   content:'';position:absolute;inset:0;z-index:2;pointer-events:none;
   background:linear-gradient(135deg,transparent 60%,rgba(var(--accent-rgb,34,211,238),.18));
   opacity:0;transition:opacity .4s;
+  border-radius:inherit;
 }
 body[data-theme="kinetic"] .pg-card::after{
   content:'';position:absolute;top:14px;inset-inline-end:14px;z-index:3;
@@ -1067,22 +1073,16 @@ body[data-theme="kinetic"] .skill-chip:hover{
   box-shadow:0 8px 20px rgba(var(--accent-rgb,99,102,241),.25);
 }
 
-/* Expertise cards — directional slide + accent corner */
+/* Expertise cards — clean lift on hover (no top line, no rectangular stroke) */
 body[data-theme="kinetic"] .exp-card-service{
   transition:transform .35s cubic-bezier(.2,.8,.2,1),border-color .3s,box-shadow .3s;
-  position:relative;overflow:hidden;
-}
-body[data-theme="kinetic"] .exp-card-service::after{
-  content:'';position:absolute;top:0;inset-inline-end:0;
-  width:0;height:3px;background:var(--accent);
-  transition:width .45s cubic-bezier(.25,.46,.45,.94);
+  position:relative;
 }
 body[data-theme="kinetic"] .exp-card-service:hover{
   transform:translateY(-6px);
-  border-color:var(--accent)!important;
-  box-shadow:0 18px 40px rgba(0,0,0,.4);
+  border-color:rgba(var(--accent-rgb,34,211,238),.45)!important;
+  box-shadow:0 18px 40px rgba(0,0,0,.4),0 0 0 1px rgba(var(--accent-rgb,34,211,238),.25);
 }
-body[data-theme="kinetic"] .exp-card-service:hover::after{width:100%;}
 
 /* Education / Tool cards — subtle lift */
 body[data-theme="kinetic"] .edu-card,
@@ -1511,7 +1511,7 @@ function applyColors(){
     if(theme && theme.accent) accent = theme.accent;
   }
   if(accent){r.style.setProperty('--accent',accent);r.style.setProperty('--accent2',dk(accent,15));setAccentRGB(accent);}
-  if(c.bg){r.style.setProperty('--bg',c.bg);}
+  if(c.bg){r.style.setProperty('--bg',c.bg);setBgRGB(c.bg);}
   if(c.bg2){r.style.setProperty('--bg2',c.bg2);r.style.setProperty('--bg3',lk(c.bg2,5));}
   if(c.text)r.style.setProperty('--text',c.text);
   if(c.subtext)r.style.setProperty('--sub',c.subtext);
@@ -1837,14 +1837,16 @@ function setupKineticEffects(){
 }
 
 // Set --accent-rgb whenever accent changes (for rgba() use in kinetic styles)
-function setAccentRGB(hex){
+function setAccentRGB(hex){ _setColorRGB(hex, '--accent-rgb'); }
+function setBgRGB(hex){ _setColorRGB(hex, '--bg-rgb'); }
+function _setColorRGB(hex, varName){
   if(!hex) return;
   const m = hex.replace('#','').match(/^([0-9a-f]{6}|[0-9a-f]{3})$/i);
   if(!m) return;
   let h = m[1];
   if(h.length===3) h = h.split('').map(c=>c+c).join('');
   const r = parseInt(h.slice(0,2),16), g = parseInt(h.slice(2,4),16), b = parseInt(h.slice(4,6),16);
-  document.documentElement.style.setProperty('--accent-rgb', `${r}, ${g}, ${b}`);
+  document.documentElement.style.setProperty(varName, `${r}, ${g}, ${b}`);
 }
 
 // Counts up a number while preserving any prefix/suffix (e.g. "+50", "99%", "10K+")
@@ -1907,9 +1909,15 @@ function buildPage(){
   const ct=S.content||{};const a=ar();
   // nav links — use navbar_links setting if available, else fall back to sections
   const navItems=(S.navbar_links||secs.filter(s=>s.id!=='hero')).filter(s=>s.visible!==false);
-  document.getElementById('navLinks').innerHTML=navItems.map(s=>
+  let _navHtml = navItems.map(s=>
     `<li><a href="#${s.id}">${a?(s.label_ar||s.label_en):(s.label_en||s.label_ar)}</a></li>`
   ).join('');
+  // Append Articles link (always shown — links to /<username>/articles)
+  const _uname = S._username || (window.location.pathname.match(/^\/(?:u\/)?([^\/]+)/) || [])[1] || '';
+  if(_uname){
+    _navHtml += `<li><a href="/${encodeURIComponent(_uname)}/articles">${a?'المقالات':'Articles'}</a></li>`;
+  }
+  document.getElementById('navLinks').innerHTML = _navHtml;
   const ch=ct.hero||{};
   const nm=a?(ch.name_ar||''):(ch.name_en||'Portfolio');
   document.title=nm;
@@ -2340,17 +2348,24 @@ function footerInner(a){
     .filter(k => k !== 'whatsapp' && icons[k] && S[k])
     .map(k=>`<a href="${S[k]}" target="_blank" rel="noopener" aria-label="${k}"><i class="fa-brands ${icons[k]}"></i></a>`)
     .join('');
-  // Footer logo — size and positioning controlled from dashboard
-  const sz   = parseInt(S.footer_logo_size) || 48;
-  const lAlign  = S.footer_logo_align    || 'start'; // start | center | end
+  // Footer logo — size & alignment controlled from dashboard (defaults to bigger + centered)
+  const sz   = parseInt(S.footer_logo_size) || 64;
+  const lAlign  = S.footer_logo_align    || 'center';
   const sAlign  = S.footer_socials_align || 'center';
   const cAlign  = S.footer_copy_align    || 'center';
   const logoHtml = S.brand_logo_url
     ? `<img src="${S.brand_logo_url}" alt="${nm}" style="height:${sz}px;width:auto;max-width:280px;object-fit:contain;display:block;">`
-    : `<span style="font-size:${Math.max(14, sz*0.42)}px;display:inline-flex;align-items:center;gap:8px;"><i class="fa-solid fa-gem" style="color:var(--accent);font-size:${Math.max(14, sz*0.55)}px;"></i> ${nm}</span>`;
+    : `<i class="fa-solid fa-gem" style="color:var(--accent);font-size:${sz}px;line-height:1;"></i>`;
+  // Owner name under the logo (always visible)
+  const ownerName = nm
+    ? `<div class="footer-owner-name">${nm}</div>`
+    : '';
   return `
     <div class="footer-row footer-logo-row" style="justify-content:${lAlign==='center'?'center':lAlign==='end'?'flex-end':'flex-start'}">
-      <div class="footer-logo">${logoHtml}</div>
+      <div class="footer-logo-block">
+        <div class="footer-logo">${logoHtml}</div>
+        ${ownerName}
+      </div>
     </div>
     ${sl ? `<div class="social-links footer-socials" style="justify-content:${sAlign==='center'?'center':sAlign==='end'?'flex-end':'flex-start'}">${sl}</div>` : ''}
     <div class="footer-copy" style="text-align:${cAlign}">© ${new Date().getFullYear()} ViralPX · ${a?'صُنع بواسطة':'Built with'} <a href="https://viralpx.com" target="_blank" rel="noopener">ViralPX</a></div>`;

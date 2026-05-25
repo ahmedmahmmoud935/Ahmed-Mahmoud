@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title id="pageTitle">Articles</title>
+<meta name="description" id="metaDesc" content="Articles">
+<link rel="canonical" id="canonicalLink" href="">
+<meta property="og:type" content="article">
+<meta property="og:title" id="ogTitle" content="Articles">
+<meta property="og:description" id="ogDesc" content="Articles">
+<meta property="og:url" id="ogUrl" content="">
+<meta property="og:site_name" content="ViralPX">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" id="twTitle" content="Articles">
+<meta name="twitter:description" id="twDesc" content="Articles">
+<script type="application/ld+json" id="schemaLD">{}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --o:#F97316;--od:#EA6C0A;--ol:#FB923C;
+  --bg:#0A0A0A;--bg2:#111;--bg3:#161616;--bg4:#1e1e1e;
+  --tx:#fff;--tx2:#ccc;--tx3:#888;--tx4:#666;
+  --brd:#1f1f1f;--brd2:#2a2a2a;
+  --grad:linear-gradient(135deg,#F97316 0%,#EA6C0A 100%);
+  --grad-soft:linear-gradient(135deg,rgba(249,115,22,.12),rgba(234,108,10,.04));
+  --max:1180px;
+  --max-article:780px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--tx);overflow-x:hidden;line-height:1.6;min-height:100vh;display:flex;flex-direction:column}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 24px;width:100%}
+
+/* ─── NAVBAR (consistent with landing/portfolio) ─── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(var(--bg-rgb,10,10,10),.85);backdrop-filter:blur(14px);border-bottom:1px solid var(--brd);transition:all .3s}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;max-width:var(--max);margin:0 auto}
+.nav-logo{display:flex;align-items:center;gap:10px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:18px}
+.nav-logo i{color:var(--o);font-size:20px}
+.nav-logo img{height:36px;width:auto;max-width:240px;object-fit:contain}
+.nav-links{display:flex;align-items:center;gap:28px;list-style:none}
+.nav-links a{font-size:14px;font-weight:600;color:var(--tx2);transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--o)}
+.nav-cta{display:flex;align-items:center;gap:10px}
+.lang-btn{background:transparent;color:var(--tx2);font-size:13px;font-weight:700;padding:8px 12px;border-radius:8px;border:1px solid var(--brd2);transition:all .2s;cursor:pointer;font-family:inherit}
+.lang-btn:hover{border-color:var(--o);color:var(--o)}
+.nav-burger{display:none;background:transparent;color:var(--tx);font-size:20px;padding:8px;cursor:pointer}
+@media(max-width:900px){.nav-links{display:none}.nav-burger{display:block}}
+
+/* ─── ARTICLES LIST ─── */
+main{flex:1;padding-top:140px;padding-bottom:80px}
+.page-head{text-align:center;max-width:780px;margin:0 auto 60px;padding:0 24px}
+.page-eyebrow{display:inline-block;color:var(--o);font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px}
+.page-title{font-size:clamp(34px,5vw,52px);font-weight:900;line-height:1.15;margin-bottom:16px}
+.page-sub{color:var(--tx2);font-size:17px;line-height:1.7}
+
+.art-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px}
+@media(max-width:600px){.art-grid{grid-template-columns:1fr}}
+.art-card{background:var(--bg2);border:1px solid var(--brd);border-radius:18px;overflow:hidden;transition:transform .35s cubic-bezier(.2,.8,.2,1),border-color .3s,box-shadow .3s;display:flex;flex-direction:column}
+.art-card:hover{transform:translateY(-4px);border-color:var(--o);box-shadow:0 20px 40px rgba(0,0,0,.3)}
+.art-card a{display:block;color:inherit}
+.art-cover{aspect-ratio:16/9;background:linear-gradient(135deg,var(--bg3),var(--bg));position:relative;overflow:hidden}
+.art-cover img{width:100%;height:100%;object-fit:cover;transition:transform .6s}
+.art-card:hover .art-cover img{transform:scale(1.04)}
+.art-cover-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--tx4);font-size:36px;background:linear-gradient(135deg,var(--bg3),var(--bg))}
+.art-body{padding:22px 24px;flex:1;display:flex;flex-direction:column}
+.art-meta{font-size:12px;color:var(--tx3);margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.art-meta i{font-size:10px}
+.art-title{font-size:19px;font-weight:800;line-height:1.4;margin-bottom:10px;color:var(--tx)}
+.art-card a:hover .art-title{color:var(--o)}
+.art-excerpt{font-size:14px;color:var(--tx2);line-height:1.7;flex:1}
+.art-tag{display:inline-block;background:var(--bg3);color:var(--tx3);font-size:11px;padding:4px 9px;border-radius:6px;margin-top:12px;margin-inline-end:5px}
+.art-card.draft{opacity:.55;border-style:dashed}
+.art-draft-badge{background:#f59e0b;color:#000;font-size:10px;font-weight:800;padding:3px 8px;border-radius:5px;margin-inline-start:6px}
+
+.art-empty{text-align:center;color:var(--tx4);padding:80px 20px;font-size:15px}
+.art-empty i{font-size:42px;margin-bottom:16px;display:block;color:var(--tx4)}
+
+/* ─── SINGLE ARTICLE ─── */
+.article-hero{max-width:var(--max-article);margin:0 auto 50px;padding:0 24px;text-align:center}
+.article-hero .back-link{display:inline-flex;align-items:center;gap:6px;color:var(--tx3);font-size:13px;font-weight:600;margin-bottom:30px;transition:color .2s}
+.article-hero .back-link:hover{color:var(--o)}
+.article-hero h1{font-size:clamp(32px,4.8vw,52px);font-weight:900;line-height:1.2;margin-bottom:22px;letter-spacing:-.5px}
+.article-meta{display:flex;align-items:center;justify-content:center;gap:14px;font-size:13px;color:var(--tx3);margin-bottom:30px;flex-wrap:wrap}
+.article-meta span{display:inline-flex;align-items:center;gap:6px}
+.article-cover{max-width:var(--max);margin:0 auto 50px;padding:0 24px}
+.article-cover img{width:100%;border-radius:18px;border:1px solid var(--brd2);box-shadow:0 30px 70px rgba(0,0,0,.5)}
+.article-content{max-width:var(--max-article);margin:0 auto;padding:0 24px;font-size:18px;line-height:1.9;color:var(--tx2)}
+.article-content p{margin-bottom:1.4em}
+.article-content h1,.article-content h2,.article-content h3,.article-content h4{color:var(--tx);font-weight:800;letter-spacing:-.3px;margin:2em 0 .7em;line-height:1.3}
+.article-content h1{font-size:34px}
+.article-content h2{font-size:28px}
+.article-content h3{font-size:22px}
+.article-content h4{font-size:18px}
+.article-content > p:first-of-type::first-letter{font-size:3.5em;font-weight:900;float:start;line-height:.9;margin-inline-end:8px;margin-top:8px;color:var(--o);font-family:'Montserrat',sans-serif}
+.article-content blockquote{border-inline-start:4px solid var(--o);padding:18px 24px;background:var(--bg2);margin:2em 0;border-radius:10px;font-size:1.1em;color:var(--tx);font-weight:500;font-style:italic}
+.article-content code{background:var(--bg3);padding:2px 8px;border-radius:5px;font-size:.9em;color:var(--ol);font-family:'Menlo',monospace}
+.article-content pre{background:var(--bg2);border:1px solid var(--brd);padding:18px;border-radius:12px;overflow-x:auto;margin:1.8em 0}
+.article-content pre code{background:transparent;padding:0;color:var(--tx2)}
+.article-content ul,.article-content ol{padding-inline-start:28px;margin-bottom:1.4em}
+.article-content li{margin-bottom:.6em}
+.article-content a{color:var(--o);border-bottom:1px solid rgba(249,115,22,.4);transition:border-color .2s}
+.article-content a:hover{border-bottom-color:var(--o)}
+.article-content img{border-radius:12px;margin:1.5em auto;border:1px solid var(--brd)}
+.article-content hr{border:none;height:1px;background:var(--brd);margin:2.5em 0}
+.article-content strong{color:var(--tx);font-weight:800}
+.article-tags-row{max-width:var(--max-article);margin:50px auto 0;padding:0 24px;display:flex;gap:8px;flex-wrap:wrap}
+.article-tag{background:var(--bg2);border:1px solid var(--brd);color:var(--tx2);font-size:12px;padding:6px 12px;border-radius:8px;font-weight:600}
+
+/* ─── FOOTER (mini) ─── */
+.footer-mini{background:var(--bg2);border-top:1px solid var(--brd);padding:32px 24px;text-align:center;margin-top:80px}
+.footer-mini-copy{color:var(--tx3);font-size:12px}
+.footer-mini-copy a{color:var(--o);font-weight:700}
+
+/* ─── KINETIC THEME OVERRIDES (matches landing/portfolio Kinetic) ─── */
+@keyframes art-gradient-flow{0%,100%{background-position:0% 50%,100% 50%}50%{background-position:100% 50%,0% 50%}}
+body[data-design="kinetic"]{position:relative;background:var(--bg)!important}
+body[data-design="kinetic"]::before{
+  content:'';position:fixed;inset:-20%;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 55% at 25% 25%,rgba(var(--accent-rgb,249,115,22),.10),transparent 70%),
+    radial-gradient(ellipse 60% 50% at 80% 75%,rgba(var(--accent-rgb,249,115,22),.08),transparent 70%);
+  background-size:180% 180%,180% 180%;background-attachment:fixed;
+  animation:art-gradient-flow 60s ease-in-out infinite;filter:blur(40px)
+}
+body[data-design="kinetic"]::after{
+  content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='5'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .35 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  opacity:.035;mix-blend-mode:overlay
+}
+body[data-design="kinetic"] .nav{background:rgba(var(--bg-rgb,10,10,10),.55)!important;backdrop-filter:blur(24px) saturate(180%)}
+body[data-design="kinetic"] .art-card{background:rgba(255,255,255,.04)!important;backdrop-filter:blur(20px) saturate(180%);border:1px solid rgba(255,255,255,.10);box-shadow:0 8px 32px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.06)}
+body[data-design="kinetic"] .art-card:hover{background:rgba(255,255,255,.06)!important;border-color:rgba(var(--accent-rgb,249,115,22),.40);box-shadow:0 14px 40px rgba(var(--accent-rgb,249,115,22),.18)}
+body[data-design="kinetic"] .article-cover img{border:1px solid rgba(255,255,255,.10);box-shadow:0 30px 80px rgba(0,0,0,.4)}
+body[data-design="kinetic"] .article-content blockquote{background:rgba(255,255,255,.04);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.06);border-inline-start:4px solid var(--o)}
+body[data-design="kinetic"] .article-content pre{background:rgba(255,255,255,.03);backdrop-filter:blur(10px);border-color:rgba(255,255,255,.08)}
+body[data-design="kinetic"] .footer-mini{background:rgba(var(--bg-rgb,10,10,10),.60)!important;backdrop-filter:blur(16px)}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo" id="navLogo"><i class="fa-solid fa-gem"></i> <span>ViralPX</span></a>
+    <ul class="nav-links" id="navLinks"></ul>
+    <div class="nav-cta">
+      <button class="lang-btn" onclick="toggleLang()" id="langBtn">EN</button>
+      <button class="nav-burger" onclick="toggleMobMenu()" aria-label="menu"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+</nav>
+
+<main id="main"></main>
+
+<footer class="footer-mini">
+  <div class="footer-mini-copy">© <span id="yr"></span> ViralPX · <span id="ftCredit">Built with</span> <a href="https://viralpx.com" target="_blank">ViralPX</a></div>
+</footer>
+
+<script>
+// ─── State ───
+const _PATH = window.location.pathname;
+let LANG = localStorage.getItem('lang') || 'ar';
+const ar = () => LANG === 'ar';
+let DATA = null;        // landing or portfolio settings (for theme + nav)
+let ARTICLES = [];      // list view
+let CURRENT_ARTICLE = null;  // single article view
+let MODE = 'list';      // 'list' | 'single'
+let OWNER_USERNAME = ''; // empty for landing, else portfolio username
+
+// ─── Boot ───
+async function init(){
+  // Detect mode + owner from URL
+  // /articles                      → landing list
+  // /articles/<slug>               → landing single
+  // /<username>/articles           → portfolio list
+  // /<username>/articles/<slug>    → portfolio single
+  const m = _PATH.match(/^\/(?:([^\/]+)\/)?articles(?:\/([^\/]+))?\/?$/);
+  if(!m){ renderNotFound(); return; }
+  OWNER_USERNAME = m[1] || '';
+  const slug = m[2] || '';
+  MODE = slug ? 'single' : 'list';
+  await loadData();
+  await loadArticles(slug);
+  applyLang();
+  render();
+}
+
+async function loadData(){
+  try{
+    if(OWNER_USERNAME){
+      // Portfolio: settings via /api/settings?user_id=
+      const r = await fetch(`/api/resolve-user?username=${encodeURIComponent(OWNER_USERNAME)}`).then(r=>r.json());
+      const uid = r.user_id;
+      if(uid){
+        DATA = await fetch(`/api/settings?user_id=${uid}`).then(r=>r.json());
+        DATA.__type = 'portfolio';
+        DATA.__user_id = uid;
+      }
+    } else {
+      // Landing
+      DATA = await fetch('/api/landing').then(r=>r.json());
+      DATA.__type = 'landing';
+    }
+  }catch(e){ DATA = {}; }
+}
+
+async function loadArticles(slug){
+  const url = OWNER_USERNAME
+    ? `/api/articles?username=${encodeURIComponent(OWNER_USERNAME)}`
+    : '/api/articles';
+  try{
+    const r = await fetch(url).then(r=>r.json());
+    ARTICLES = r.articles || [];
+  }catch{ ARTICLES = []; }
+  if(MODE === 'single'){
+    CURRENT_ARTICLE = ARTICLES.find(a => a.slug === slug);
+    if(!CURRENT_ARTICLE){
+      // Try fetching unpublished too via direct id lookup is not slug-based — show 404
+      CURRENT_ARTICLE = null;
+    }
+  }
+}
+
+// ─── Lang ───
+function applyLang(){
+  document.documentElement.lang = LANG;
+  document.documentElement.dir = ar()?'rtl':'ltr';
+  const lb = document.getElementById('langBtn'); if(lb) lb.textContent = ar()?'EN':'ع';
+  document.getElementById('ftCredit').textContent = ar()?'صُنع بواسطة':'Built with';
+}
+function toggleLang(){
+  LANG = ar()?'en':'ar';
+  localStorage.setItem('lang', LANG);
+  applyLang();
+  render();
+}
+
+// ─── Theme application (matches landing/portfolio) ───
+function applyTheme(){
+  if(!DATA) return;
+  const root = document.documentElement.style;
+  function _hexToRGB(hex){
+    if(!hex) return ''; const m = hex.replace('#','').match(/^([0-9a-f]{6}|[0-9a-f]{3})$/i);
+    if(!m) return ''; let h=m[1]; if(h.length===3) h=h.split('').map(c=>c+c).join('');
+    return `${parseInt(h.slice(0,2),16)}, ${parseInt(h.slice(2,4),16)}, ${parseInt(h.slice(4,6),16)}`;
+  }
+  if(DATA.__type === 'landing'){
+    const s = DATA.style || {};
+    document.body.dataset.design = s.design || 'modern';
+    if(s.primary_color){ root.setProperty('--o', s.primary_color); const r=_hexToRGB(s.primary_color); if(r) root.setProperty('--accent-rgb', r);}
+    if(s.bg_color){ root.setProperty('--bg', s.bg_color); const r=_hexToRGB(s.bg_color); if(r) root.setProperty('--bg-rgb', r);}
+    if(s.bg_color_alt) root.setProperty('--bg2', s.bg_color_alt);
+    if(s.text_color)   root.setProperty('--tx', s.text_color);
+    if(s.text_muted)   root.setProperty('--tx3', s.text_muted);
+  } else if(DATA.__type === 'portfolio'){
+    const colors = DATA.colors || {};
+    if(colors.accent){ root.setProperty('--o', colors.accent); const r=_hexToRGB(colors.accent); if(r) root.setProperty('--accent-rgb', r);}
+    if(colors.bg){ root.setProperty('--bg', colors.bg); const r=_hexToRGB(colors.bg); if(r) root.setProperty('--bg-rgb', r);}
+    if(colors.bg2) root.setProperty('--bg2', colors.bg2);
+    if(colors.text) root.setProperty('--tx', colors.text);
+    if(colors.subtext) root.setProperty('--tx3', colors.subtext);
+    // Theme preset → use 'kinetic' as design when style_theme is 'kinetic'
+    document.body.dataset.design = (DATA.style_theme === 'kinetic') ? 'kinetic' : 'modern';
+  }
+}
+
+// ─── Navbar ───
+function renderNav(){
+  const navLogo = document.getElementById('navLogo');
+  const navLinks = document.getElementById('navLinks');
+  let logoHtml = '<i class="fa-solid fa-gem"></i> <span>ViralPX</span>';
+  let homeUrl = '/';
+  if(DATA && DATA.__type === 'landing'){
+    const brand = DATA.brand || {};
+    if(brand.logo_url) logoHtml = `<img src="${brand.logo_url}" alt="${brand.name||'logo'}">`;
+    else logoHtml = `<i class="fa-solid fa-gem"></i> <span>${brand.name || 'ViralPX'}</span>`;
+    homeUrl = '/';
+    // Build link list (visible landing sections, on home with hash)
+    const secs = (DATA.sections || []).filter(s => s.visible && s.id !== 'hero').sort((a,b)=>a.order-b.order);
+    const links = secs.map(s => `<li><a href="/#${s.id}">${ar()?(s.label_ar||s.label_en):(s.label_en||s.label_ar)}</a></li>`);
+    links.push(`<li><a href="/articles" class="active">${ar()?'المقالات':'Articles'}</a></li>`);
+    navLinks.innerHTML = links.join('');
+  } else if(DATA && DATA.__type === 'portfolio'){
+    const nm = ((DATA.content||{}).hero||{}).name_en || ((DATA.content||{}).hero||{}).name_ar || OWNER_USERNAME;
+    if(DATA.brand_logo_url){
+      const sz = parseInt(DATA.brand_logo_scale)||100;
+      const ox = parseInt(DATA.brand_logo_offset_x)||0;
+      const oy = parseInt(DATA.brand_logo_offset_y)||0;
+      logoHtml = `<img src="${DATA.brand_logo_url}" alt="${nm}" style="height:32px;width:auto;display:block;transform:translate(${ox}px,${oy}px) scale(${Math.max(.4,Math.min(2.6,sz/100))})">`;
+    } else {
+      logoHtml = `<i class="fa-solid fa-gem"></i> <span>${nm}</span>`;
+    }
+    homeUrl = '/' + encodeURIComponent(OWNER_USERNAME);
+    const secs = (DATA.sections || []).filter(s => s.visible && s.id !== 'hero').sort((a,b)=>a.order-b.order);
+    const links = secs.slice(0,5).map(s => `<li><a href="${homeUrl}#${s.id}">${ar()?(s.label_ar||s.label_en):(s.label_en||s.label_ar)}</a></li>`);
+    links.push(`<li><a href="${homeUrl}/articles" class="active">${ar()?'المقالات':'Articles'}</a></li>`);
+    navLinks.innerHTML = links.join('');
+  } else {
+    navLinks.innerHTML = `<li><a href="/articles" class="active">${ar()?'المقالات':'Articles'}</a></li>`;
+  }
+  navLogo.innerHTML = logoHtml;
+  navLogo.href = homeUrl;
+}
+
+// ─── Render ───
+function render(){
+  applyTheme();
+  renderNav();
+  document.getElementById('yr').textContent = new Date().getFullYear();
+  const main = document.getElementById('main');
+  if(MODE === 'single'){
+    if(!CURRENT_ARTICLE){ renderNotFound(); return; }
+    main.innerHTML = renderSingle(CURRENT_ARTICLE);
+    injectArticleSEO(CURRENT_ARTICLE);
+  } else {
+    main.innerHTML = renderList();
+    injectListSEO();
+  }
+}
+
+function renderList(){
+  const headerTitle = ar() ? 'المقالات' : 'Articles';
+  const headerSub = OWNER_USERNAME
+    ? (ar() ? 'مقالات ورؤى من المدوّنة' : 'Articles and insights from the blog')
+    : (ar() ? 'مقالات تساعدك في بناء حضورك الرقمي' : 'Articles to help you build your digital presence');
+  const published = ARTICLES.filter(a => a.published);
+  if(!published.length){
+    return `
+    <div class="page-head">
+      <div class="page-eyebrow">${ar()?'مدوّنة':'Blog'}</div>
+      <h1 class="page-title">${headerTitle}</h1>
+      <p class="page-sub">${headerSub}</p>
+    </div>
+    <div class="wrap">
+      <div class="art-empty">
+        <i class="fa-solid fa-pen-to-square"></i>
+        ${ar()?'لا توجد مقالات بعد':'No articles yet'}
+      </div>
+    </div>`;
+  }
+  const baseUrl = OWNER_USERNAME ? `/${encodeURIComponent(OWNER_USERNAME)}/articles` : '/articles';
+  const cards = published.map(a => {
+    const title = ar()?(a.title_ar||a.title_en):(a.title_en||a.title_ar);
+    const excerpt = ar()?(a.excerpt_ar||a.excerpt_en):(a.excerpt_en||a.excerpt_ar);
+    const cover = a.cover_url
+      ? `<img src="${a.cover_url}" alt="${esc(title)}" loading="lazy">`
+      : `<div class="art-cover-ph"><i class="fa-solid fa-newspaper"></i></div>`;
+    const dateStr = (a.created_at||'').slice(0,10);
+    const tags = (a.tags || []).slice(0,3).map(t=>`<span class="art-tag">${esc(t)}</span>`).join('');
+    return `
+    <article class="art-card">
+      <a href="${baseUrl}/${encodeURIComponent(a.slug)}">
+        <div class="art-cover">${cover}</div>
+        <div class="art-body">
+          <div class="art-meta">
+            <span><i class="fa-solid fa-calendar"></i> ${dateStr}</span>
+            <span>·</span>
+            <span><i class="fa-solid fa-clock"></i> ${a.read_min||3} ${ar()?'دقايق':'min read'}</span>
+          </div>
+          <h3 class="art-title">${esc(title)}</h3>
+          ${excerpt ? `<p class="art-excerpt">${esc(excerpt)}</p>` : ''}
+          ${tags}
+        </div>
+      </a>
+    </article>`;
+  }).join('');
+  return `
+    <div class="page-head">
+      <div class="page-eyebrow">${ar()?'مدوّنة':'Blog'}</div>
+      <h1 class="page-title">${headerTitle}</h1>
+      <p class="page-sub">${headerSub}</p>
+    </div>
+    <div class="wrap">
+      <div class="art-grid">${cards}</div>
+    </div>`;
+}
+
+function renderSingle(a){
+  const title = ar()?(a.title_ar||a.title_en):(a.title_en||a.title_ar);
+  const dateStr = (a.created_at||'').slice(0,10);
+  const baseUrl = OWNER_USERNAME ? `/${encodeURIComponent(OWNER_USERNAME)}/articles` : '/articles';
+  const contentHtml = (a.mode === 'html' || a.mode === 'paste')
+    ? sanitizeAndKeep(a.content || '')
+    : markdownToHtml(a.content || '');
+  const tags = (a.tags || []).map(t=>`<span class="article-tag">${esc(t)}</span>`).join('');
+  const cover = a.cover_url
+    ? `<div class="article-cover"><img src="${a.cover_url}" alt="${esc(title)}"></div>`
+    : '';
+  return `
+    <div class="article-hero">
+      <a href="${baseUrl}" class="back-link"><i class="fa-solid fa-arrow-${ar()?'right':'left'}"></i> ${ar()?'كل المقالات':'All articles'}</a>
+      <h1>${esc(title)}</h1>
+      <div class="article-meta">
+        <span><i class="fa-solid fa-calendar"></i> ${dateStr}</span>
+        <span>·</span>
+        <span><i class="fa-solid fa-clock"></i> ${a.read_min||3} ${ar()?'دقايق قراءة':'min read'}</span>
+      </div>
+    </div>
+    ${cover}
+    <article class="article-content">${contentHtml}</article>
+    ${tags ? `<div class="article-tags-row">${tags}</div>` : ''}`;
+}
+
+function renderNotFound(){
+  document.getElementById('main').innerHTML = `
+    <div class="wrap" style="padding:120px 24px;text-align:center">
+      <h1 style="font-size:48px;font-weight:900;margin-bottom:14px">404</h1>
+      <p style="color:var(--tx3);font-size:16px;margin-bottom:24px">${ar()?'لم يتم العثور على المقال':'Article not found'}</p>
+      <a href="${OWNER_USERNAME?'/'+encodeURIComponent(OWNER_USERNAME):''}/articles" style="background:var(--o);color:#fff;padding:12px 26px;border-radius:10px;font-weight:700">← ${ar()?'كل المقالات':'Back to articles'}</a>
+    </div>`;
+}
+
+// ─── Markdown renderer (lightweight, safe) ───
+function esc(s){ if(s==null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function markdownToHtml(md){
+  if(!md) return '';
+  let s = String(md).replace(/\r\n/g,'\n');
+  // Code blocks ```...```
+  s = s.replace(/```([\s\S]*?)```/g, (m,c) => `<pre><code>${esc(c.replace(/^\n|\n$/g,''))}</code></pre>`);
+  // Inline code `...`
+  s = s.replace(/`([^`\n]+)`/g, (m,c)=>`<code>${esc(c)}</code>`);
+  // Process line by line for headings/lists/quotes/paragraphs
+  const lines = s.split('\n');
+  const out = [];
+  let inUl=false, inOl=false, inBq=false, paraBuf=[];
+  function flushPara(){ if(paraBuf.length){ out.push(`<p>${inlines(paraBuf.join(' '))}</p>`); paraBuf=[]; } }
+  function closeLists(){ if(inUl){ out.push('</ul>'); inUl=false; } if(inOl){ out.push('</ol>'); inOl=false; } if(inBq){ out.push('</blockquote>'); inBq=false; } }
+  function inlines(text){
+    // Bold **x**, italic *x*, link [t](u), images ![alt](src)
+    text = text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (m,alt,src)=>`<img src="${esc(src)}" alt="${esc(alt)}">`);
+    text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m,t,u)=>`<a href="${esc(u)}" rel="noopener">${esc(t)}</a>`);
+    text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    return text;
+  }
+  for(let raw of lines){
+    const line = raw.trim();
+    if(line === ''){ closeLists(); flushPara(); continue; }
+    // Headings
+    let m = line.match(/^(#{1,6})\s+(.+)$/);
+    if(m){ closeLists(); flushPara(); const lvl=m[1].length; out.push(`<h${lvl}>${inlines(m[2])}</h${lvl}>`); continue; }
+    // Horizontal rule
+    if(/^(---|\*\*\*|___)$/.test(line)){ closeLists(); flushPara(); out.push('<hr>'); continue; }
+    // Blockquote
+    if(line.startsWith('>')){ flushPara(); if(!inBq){ out.push('<blockquote>'); inBq=true; } out.push(`<p>${inlines(line.slice(1).trim())}</p>`); continue; }
+    // Ordered list
+    if(/^\d+\.\s+/.test(line)){ if(inBq){out.push('</blockquote>');inBq=false;} flushPara(); if(!inOl){ closeLists(); out.push('<ol>'); inOl=true; } out.push(`<li>${inlines(line.replace(/^\d+\.\s+/,''))}</li>`); continue; }
+    // Unordered list
+    if(/^[-*+]\s+/.test(line)){ if(inBq){out.push('</blockquote>');inBq=false;} flushPara(); if(!inUl){ closeLists(); out.push('<ul>'); inUl=true; } out.push(`<li>${inlines(line.slice(2))}</li>`); continue; }
+    // Regular paragraph line
+    paraBuf.push(line);
+  }
+  closeLists(); flushPara();
+  return out.join('\n');
+}
+// For 'paste'/'html' modes: keep formatting but strip dangerous tags/scripts
+function sanitizeAndKeep(html){
+  if(!html) return '';
+  let s = String(html);
+  // Strip <script>, <style>, on* handlers, javascript: links
+  s = s.replace(/<script[\s\S]*?<\/script>/gi,'');
+  s = s.replace(/<style[\s\S]*?<\/style>/gi,'');
+  s = s.replace(/\son\w+="[^"]*"/gi,'');
+  s = s.replace(/\son\w+='[^']*'/gi,'');
+  s = s.replace(/javascript:/gi,'');
+  return s;
+}
+
+// ─── SEO injection ───
+function injectListSEO(){
+  const title = OWNER_USERNAME
+    ? `${OWNER_USERNAME} — ${ar()?'مقالات':'Articles'}`
+    : (ar() ? 'مقالات ViralPX' : 'ViralPX Articles');
+  const desc = ar() ? 'مقالات ورؤى لمساعدتك في بناء حضورك الرقمي' : 'Articles and insights to help you build your digital presence';
+  setSEO(title, desc, window.location.href);
+}
+function injectArticleSEO(a){
+  const title = ar()?(a.title_ar||a.title_en):(a.title_en||a.title_ar);
+  const desc  = ar()?(a.excerpt_ar||a.excerpt_en):(a.excerpt_en||a.excerpt_ar);
+  setSEO(title, desc, window.location.href, a.cover_url || '');
+  const ld = {
+    '@context':'https://schema.org','@type':'BlogPosting',
+    'headline': title,
+    'description': desc,
+    'datePublished': (a.created_at||'').slice(0,10),
+    'dateModified': (a.updated_at||a.created_at||'').slice(0,10),
+    'url': window.location.href,
+  };
+  if(a.cover_url) ld.image = a.cover_url.startsWith('/') ? (window.location.origin+a.cover_url) : a.cover_url;
+  document.getElementById('schemaLD').textContent = JSON.stringify(ld);
+}
+function setSEO(title, desc, url, image){
+  document.title = title;
+  const set = (id, attr, v)=>{ if(!v) return; const el=document.getElementById(id); if(el) el.setAttribute(attr,v); };
+  set('pageTitle','content',title);
+  set('metaDesc','content',desc);
+  set('ogTitle','content',title);
+  set('ogDesc','content',desc);
+  set('ogUrl','content',url);
+  set('twTitle','content',title);
+  set('twDesc','content',desc);
+  set('canonicalLink','href',url);
+  if(image){
+    const img = image.startsWith('/') ? (window.location.origin+image) : image;
+    const ensure = (name,prop)=>{
+      let el = document.querySelector(`meta[${prop}="${name}"]`);
+      if(!el){ el=document.createElement('meta'); el.setAttribute(prop,name); document.head.appendChild(el); }
+      el.setAttribute('content', img);
+    };
+    ensure('og:image','property');
+    ensure('twitter:image','name');
+  }
+}
+
+function toggleMobMenu(){
+  const links = document.getElementById('navLinks');
+  if(getComputedStyle(links).display === 'none'){
+    links.style.cssText='display:flex;position:fixed;top:62px;inset-inline:0;background:var(--bg2);flex-direction:column;padding:20px;gap:14px;border-bottom:1px solid var(--brd);z-index:99';
+  } else {
+    links.style.cssText='';
+  }
+}
+
+init();
+</script>
+</body>
+</html>

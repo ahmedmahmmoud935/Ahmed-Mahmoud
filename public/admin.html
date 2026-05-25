@@ -639,6 +639,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
     <div class="ni" onclick="setTab('logos',this)"><i class="fa-solid fa-buildings"></i> <span data-i18n="nav.logos">العملاء</span></div>
     <div class="ni" onclick="setTab('achievements',this)"><i class="fa-solid fa-trophy"></i> <span data-i18n="nav.achievements">الإنجازات</span></div>
     <div class="ni" onclick="setTab('testimonials',this)"><i class="fa-solid fa-quote-right"></i> <span data-i18n="nav.testimonials">آراء العملاء</span></div>
+    <div class="ni" onclick="setTab('articles',this)"><i class="fa-solid fa-newspaper"></i> <span data-i18n="nav.articles">المقالات</span></div>
     <div class="ni" onclick="setTab('social',this)"><i class="fa-solid fa-share-nodes"></i> <span data-i18n="nav.social">التواصل</span></div>
     <!-- يظهر فقط للمالك -->
     <div class="ni owner-only" id="usersNavItem" onclick="setTab('users',this)" style="display:none"><i class="fa-solid fa-users"></i> <span data-i18n="nav.users">إدارة العملاء</span></div>
@@ -1288,6 +1289,65 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
       <i class="fa-solid fa-quote-right" style="font-size:42px;color:#333;margin-bottom:14px;"></i>
       <div style="font-size:14px;" data-i18n="test.empty">لا توجد آراء بعد</div>
       <div style="font-size:12px;color:#888;margin-top:4px;" data-i18n="test.emptyHint">اضغط "إضافة رأي" أو فعّل ميزة استقبال الآراء</div>
+    </div>
+  </div>
+</div>
+
+<!-- ARTICLES TAB (client) -->
+<div id="tab-articles" style="display:none;">
+  <div class="ph">
+    <div><div class="pt"><i class="fa-solid fa-newspaper"></i> المقالات</div><div class="ps">مدوّنتك الخاصة — كل مقال صفحة جديدة في موقعك تساعد على SEO</div></div>
+    <button class="btn-add" onclick="openClientArticleEditor(null)"><i class="fa-solid fa-plus"></i> مقال جديد</button>
+  </div>
+  <div class="card">
+    <div id="clientArticlesList"></div>
+  </div>
+</div>
+
+<!-- ARTICLE EDITOR MODAL (client) -->
+<div class="modal-overlay" id="cArtModal" style="display:none;" onclick="if(event.target===this)closeClientArticleEditor()">
+  <div class="modal-box" style="max-width:920px;max-height:92vh;display:flex;flex-direction:column">
+    <div class="modal-header"><span id="cArtModalTitle">مقال جديد</span><button class="modal-close" onclick="closeClientArticleEditor()">✕</button></div>
+    <div style="padding:20px;overflow-y:auto;flex:1">
+      <div class="form-group" style="margin-bottom:14px"><label class="form-label">العنوان (عربي)</label><input class="form-input" id="cart_title_ar" oninput="cArtAutoSlug()"></div>
+      <div class="form-group" style="margin-bottom:14px"><label class="form-label">Title (English)</label><input class="form-input" id="cart_title_en" dir="ltr" oninput="cArtAutoSlug()"></div>
+      <div class="form-group" style="margin-bottom:14px"><label class="form-label">رابط مختصر (slug)</label><input class="form-input" id="cart_slug" dir="ltr" placeholder="auto"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+        <div class="form-group" style="margin-bottom:0"><label class="form-label">مقتطف (AR)</label><textarea class="form-input" id="cart_excerpt_ar" maxlength="500" style="min-height:60px"></textarea></div>
+        <div class="form-group" style="margin-bottom:0"><label class="form-label">Excerpt (EN)</label><textarea class="form-input" id="cart_excerpt_en" dir="ltr" maxlength="500" style="min-height:60px"></textarea></div>
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">صورة الغلاف</label>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <div id="cart_cover_preview" style="width:120px;height:72px;border-radius:8px;background:#0a0a0a;border:1px dashed #333;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#555;font-size:20px;flex-shrink:0">
+            <i class="fa-solid fa-image"></i>
+          </div>
+          <input type="hidden" id="cart_cover_url" value="">
+          <input type="file" id="cart_cover_file" accept="image/*" style="display:none" onchange="cArtUploadCover(this)">
+          <button type="button" onclick="document.getElementById('cart_cover_file').click()" style="background:#1a1a1a;border:1px solid #333;color:#fff;padding:9px 18px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px"><i class="fa-solid fa-upload"></i> رفع صورة</button>
+          <button type="button" onclick="cArtClearCover()" style="background:transparent;border:1px solid #333;color:#888;padding:9px 14px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:12px"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">وضع الكتابة</label>
+        <select class="form-input" id="cart_mode">
+          <option value="markdown">Markdown — تصميم HTML احترافي تلقائي (موصى به)</option>
+          <option value="paste">Paste — لصق نص/HTML كما هو</option>
+        </select>
+        <p style="color:#888;font-size:11px;margin-top:6px;line-height:1.6">استخدم <code style="background:#1a1a1a;padding:2px 6px;border-radius:4px;color:var(--o)">#</code> للعناوين، <code style="background:#1a1a1a;padding:2px 6px;border-radius:4px;color:var(--o)">**نص**</code> للـ bold، <code style="background:#1a1a1a;padding:2px 6px;border-radius:4px;color:var(--o)">&gt;</code> للاقتباس</p>
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">المحتوى</label>
+        <textarea class="form-input" id="cart_content" style="min-height:300px;font-family:Menlo,monospace;font-size:13px" placeholder="# عنوان رئيسي&#10;&#10;فقرتك الأولى..."></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+        <div class="form-group" style="margin-bottom:0"><label class="form-label">Tags (افصل بفاصلة)</label><input class="form-input" id="cart_tags" placeholder="design, seo"></div>
+        <div class="form-group" style="margin-bottom:0"><label class="form-label">الحالة</label><select class="form-input" id="cart_published"><option value="1">منشور</option><option value="0">مسودة</option></select></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:14px">
+        <button class="btn-add" style="flex:1" onclick="saveClientArticle()"><i class="fa-solid fa-floppy-disk"></i> حفظ المقال</button>
+        <button onclick="closeClientArticleEditor()" style="flex:1;background:#1a1a1a;border:1px solid #333;color:#aaa;padding:10px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px">إلغاء</button>
+      </div>
     </div>
   </div>
 </div>
@@ -3294,7 +3354,7 @@ async function initApp(){
 // ══ TABS ══
 function setTab(tab,el){
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));el.classList.add('active');
-  ['projects','analytics','categories','colors','design','sections','navbar','content','logos','achievements','testimonials','social','users'].forEach(t=>{
+  ['projects','analytics','categories','colors','design','sections','navbar','content','logos','achievements','testimonials','articles','social','users'].forEach(t=>{
     const d=document.getElementById('tab-'+t);if(d)d.style.display=t===tab?'block':'none';
   });
   if(tab==='navbar')renderNavbarList();
@@ -3306,7 +3366,120 @@ function setTab(tab,el){
   if(tab==='logos')loadLogos();
   if(tab==='achievements')loadAchievements();
   if(tab==='testimonials')loadTestimonials();
+  if(tab==='articles')loadClientArticles();
   if(window.innerWidth<=900)toggleSidebar(false);
+}
+
+// ══ ARTICLES (Client) ══
+let _cArticles = [], _cEditingId = null;
+async function loadClientArticles(){
+  const wrap = document.getElementById('clientArticlesList');
+  if(!wrap) return;
+  wrap.innerHTML = '<div style="text-align:center;padding:40px;color:#888"><i class="fa-solid fa-spinner fa-spin"></i> جاري التحميل...</div>';
+  try{
+    const r = await fetch('/api/articles', {credentials:'include'}).then(r=>r.json());
+    _cArticles = r.articles || [];
+    if(!_cArticles.length){
+      wrap.innerHTML = '<div style="text-align:center;padding:60px;color:#888"><i class="fa-solid fa-newspaper" style="font-size:36px;color:#333;margin-bottom:14px;display:block"></i><div style="font-size:14px">لا توجد مقالات بعد</div><div style="font-size:12px;color:#888;margin-top:4px">اضغط "مقال جديد" لكتابة أول مقال</div></div>';
+      return;
+    }
+    wrap.innerHTML = _cArticles.map(a => {
+      const title = a.title_ar || a.title_en || '(بدون عنوان)';
+      const date = (a.created_at||'').slice(0,10);
+      const cover = a.cover_url
+        ? `<img src="${a.cover_url}" style="width:72px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0">`
+        : `<div style="width:72px;height:48px;background:#1a1a1a;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#555;flex-shrink:0"><i class="fa-solid fa-newspaper"></i></div>`;
+      const badge = a.published
+        ? '<span style="background:rgba(34,197,94,.15);color:#22c55e;font-size:10px;padding:2px 7px;border-radius:4px;font-weight:700">منشور</span>'
+        : '<span style="background:rgba(245,158,11,.15);color:#f59e0b;font-size:10px;padding:2px 7px;border-radius:4px;font-weight:700">مسودة</span>';
+      const username = window._username || '';
+      return `<div style="background:var(--d2);border:1px solid var(--d4);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        ${cover}
+        <div style="flex:1;min-width:200px">
+          <div style="font-weight:800;font-size:14px;margin-bottom:4px">${title}</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;color:#888;font-size:11.5px">
+            ${badge}<span>${date}</span><span>·</span><span><i class="fa-solid fa-clock"></i> ${a.read_min||3} د</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:5px">
+          ${username?`<a href="/${encodeURIComponent(username)}/articles/${encodeURIComponent(a.slug)}" target="_blank" class="be" title="معاينة" style="text-decoration:none;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-eye"></i></a>`:''}
+          <button class="be" title="تعديل" onclick="openClientArticleEditor(${a.id})"><i class="fa-solid fa-pen"></i></button>
+          <button class="bd" title="حذف" onclick="deleteClientArticle(${a.id})"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){ wrap.innerHTML = `<div style="color:#ef4444;padding:30px;text-align:center">${e.message}</div>`; }
+}
+
+async function openClientArticleEditor(id){
+  _cEditingId = id;
+  ['cart_title_ar','cart_title_en','cart_slug','cart_excerpt_ar','cart_excerpt_en','cart_content','cart_tags'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
+  document.getElementById('cart_cover_url').value='';
+  document.getElementById('cart_cover_preview').innerHTML='<i class="fa-solid fa-image"></i>';
+  document.getElementById('cart_mode').value='markdown';
+  document.getElementById('cart_published').value='1';
+  document.getElementById('cArtModalTitle').textContent = id ? 'تعديل مقال' : 'مقال جديد';
+  if(id){
+    try{
+      const a = await fetch(`/api/articles/${id}`,{credentials:'include'}).then(r=>r.json());
+      document.getElementById('cart_title_ar').value=a.title_ar||'';
+      document.getElementById('cart_title_en').value=a.title_en||'';
+      document.getElementById('cart_slug').value=a.slug||'';
+      document.getElementById('cart_excerpt_ar').value=a.excerpt_ar||'';
+      document.getElementById('cart_excerpt_en').value=a.excerpt_en||'';
+      document.getElementById('cart_content').value=a.content||'';
+      document.getElementById('cart_mode').value=a.mode||'markdown';
+      document.getElementById('cart_tags').value=(a.tags||[]).join(', ');
+      document.getElementById('cart_published').value=a.published?'1':'0';
+      if(a.cover_url){document.getElementById('cart_cover_url').value=a.cover_url;document.getElementById('cart_cover_preview').innerHTML=`<img src="${a.cover_url}" style="width:100%;height:100%;object-fit:cover">`;}
+    }catch{ toast('خطأ في التحميل'); return; }
+  }
+  document.getElementById('cArtModal').style.display='flex';
+}
+function closeClientArticleEditor(){document.getElementById('cArtModal').style.display='none';_cEditingId=null;}
+function cArtAutoSlug(){
+  if(_cEditingId) return;
+  const t = document.getElementById('cart_title_en').value||document.getElementById('cart_title_ar').value;
+  if(t) document.getElementById('cart_slug').value = t.toLowerCase().trim().replace(/\s+/g,'-').replace(/[^\w؀-ۿ\-]/g,'').slice(0,80);
+}
+async function cArtUploadCover(input){
+  const f=input.files[0]; if(!f) return;
+  const fd=new FormData(); fd.append('file',f); fd.append('kind','image');
+  toast('⏳ جاري الرفع...');
+  try{
+    const r=await fetch('/api/upload',{method:'POST',credentials:'include',body:fd}).then(r=>r.json());
+    if(r.url){document.getElementById('cart_cover_url').value=r.url;document.getElementById('cart_cover_preview').innerHTML=`<img src="${r.url}" style="width:100%;height:100%;object-fit:cover">`;toast('✓ تم');}
+    else toast(r.error||'فشل');
+  }catch{ toast('خطأ'); }
+}
+function cArtClearCover(){document.getElementById('cart_cover_url').value='';document.getElementById('cart_cover_preview').innerHTML='<i class="fa-solid fa-image"></i>';}
+async function saveClientArticle(){
+  const p={
+    title_ar: document.getElementById('cart_title_ar').value.trim(),
+    title_en: document.getElementById('cart_title_en').value.trim(),
+    slug: document.getElementById('cart_slug').value.trim(),
+    excerpt_ar: document.getElementById('cart_excerpt_ar').value.trim(),
+    excerpt_en: document.getElementById('cart_excerpt_en').value.trim(),
+    cover_url: document.getElementById('cart_cover_url').value.trim(),
+    content: document.getElementById('cart_content').value,
+    mode: document.getElementById('cart_mode').value,
+    tags: document.getElementById('cart_tags').value.trim(),
+    published: document.getElementById('cart_published').value==='1',
+  };
+  if(!p.title_ar && !p.title_en){ toast('العنوان مطلوب'); return; }
+  const url = _cEditingId ? `/api/articles/${_cEditingId}` : '/api/articles';
+  const method = _cEditingId ? 'PUT' : 'POST';
+  try{
+    const r=await fetch(url,{method,credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});
+    const d=await r.json().catch(()=>({}));
+    if(r.ok&&d.ok){ toast('✓ تم الحفظ'); closeClientArticleEditor(); loadClientArticles(); }
+    else toast(d.error||'فشل الحفظ');
+  }catch{ toast('خطأ'); }
+}
+async function deleteClientArticle(id){
+  if(!confirm('حذف هذا المقال؟')) return;
+  try{ const r=await fetch(`/api/articles/${id}`,{method:'DELETE',credentials:'include'}); if(r.ok){toast('✓ تم');loadClientArticles();} else toast('فشل'); }
+  catch{ toast('خطأ'); }
 }
 
 // ══ DESIGN TAB ══
@@ -3712,7 +3885,7 @@ async function doResetTheme(themeId){
     // reset brand logo scale/offset
     brand_logo_scale:'100', brand_logo_offset_x:'0', brand_logo_offset_y:'0',
     // reset footer alignment to defaults
-    footer_logo_size:'48', footer_logo_align:'start',
+    footer_logo_size:'64', footer_logo_align:'center',
     footer_socials_align:'center', footer_copy_align:'center'
   };
   try{
@@ -4830,8 +5003,8 @@ function buildContentTabs(){
   // Footer settings
   const flSize=document.getElementById('fl_size'), flAlign=document.getElementById('fl_align'),
         fsAlign=document.getElementById('fs_align'), fcAlign=document.getElementById('fc_align');
-  if(flSize){ flSize.value=S.footer_logo_size||'48'; document.getElementById('flSizeV').textContent=flSize.value; }
-  if(flAlign) flAlign.value=S.footer_logo_align||'start';
+  if(flSize){ flSize.value=S.footer_logo_size||'64'; document.getElementById('flSizeV').textContent=flSize.value; }
+  if(flAlign) flAlign.value=S.footer_logo_align||'center';
   if(fsAlign) fsAlign.value=S.footer_socials_align||'center';
   if(fcAlign) fcAlign.value=S.footer_copy_align||'center';
   updateLogoPreview();
@@ -4917,15 +5090,15 @@ function buildCSec(id){
         <label class="fl"><i class="fa-solid fa-grip-lines" style="margin-left:6px;color:var(--o);"></i> تخصيص الفوتر (الجزء السفلي للموقع)</label>
         <div style="background:#0d0d0d;border:1px solid #1f1f1f;border-radius:10px;padding:14px;">
           <div class="fg" style="margin-bottom:14px;">
-            <label class="fl" style="font-size:12px;">حجم اللوجو في الفوتر: <span id="flSizeV">48</span> بكسل</label>
-            <input type="range" id="fl_size" min="24" max="120" step="2" value="48" style="width:100%;accent-color:var(--o);" oninput="document.getElementById('flSizeV').textContent=this.value">
+            <label class="fl" style="font-size:12px;">حجم اللوجو في الفوتر: <span id="flSizeV">64</span> بكسل</label>
+            <input type="range" id="fl_size" min="24" max="120" step="2" value="64" style="width:100%;accent-color:var(--o);" oninput="document.getElementById('flSizeV').textContent=this.value">
           </div>
           <div class="frow">
             <div class="fg" style="margin-bottom:0;">
               <label class="fl" style="font-size:12px;">موضع اللوجو</label>
               <select id="fl_align" class="fi" style="padding:8px;font-size:13px;">
                 <option value="start">في البداية (يمين/شمال حسب اللغة)</option>
-                <option value="center">في المنتصف</option>
+                <option value="center" selected>في المنتصف</option>
                 <option value="end">في النهاية</option>
               </select>
             </div>

@@ -409,6 +409,25 @@ def init_db():
                 sort_order INTEGER DEFAULT 0
             );
             CREATE INDEX IF NOT EXISTS idx_ach_user ON achievements(user_id, sort_order);
+            CREATE TABLE IF NOT EXISTS articles (
+                id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id     INTEGER NOT NULL,
+                slug        TEXT NOT NULL,
+                title_ar    TEXT DEFAULT '',
+                title_en    TEXT DEFAULT '',
+                excerpt_ar  TEXT DEFAULT '',
+                excerpt_en  TEXT DEFAULT '',
+                cover_url   TEXT DEFAULT '',
+                content     TEXT DEFAULT '',
+                mode        TEXT DEFAULT 'markdown',
+                tags        TEXT DEFAULT '',
+                published   INTEGER DEFAULT 1,
+                read_min    INTEGER DEFAULT 3,
+                created_at  TEXT DEFAULT (datetime('now')),
+                updated_at  TEXT DEFAULT (datetime('now'))
+            );
+            CREATE INDEX IF NOT EXISTS idx_articles_user ON articles(user_id, created_at DESC);
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_articles_slug ON articles(user_id, slug);
         ''')
 
         # settings table with user_id
@@ -464,6 +483,9 @@ def init_db():
         # Apply default settings to ALL users so new keys (proj_tabs, freegrid, etc.) propagate
         for u in db.execute("SELECT id FROM users").fetchall():
             default_settings(u['id'], db)
+        # Seed default landing articles (only first-run)
+        try: _seed_landing_articles(db)
+        except Exception as e: print(f'seed landing articles: {e}')
 
 init_db()
 
@@ -587,6 +609,8 @@ def create_user():
     db.commit()
     new_id = cur.lastrowid
     default_settings(new_id, db)
+    try: _seed_client_welcome_article(db, new_id)
+    except Exception as e: print(f'seed welcome article: {e}')
     return jsonify({'ok':True,'id':new_id,'username':username}), 201
 
 @app.route('/api/owner/users/<int:uid_>', methods=['DELETE'])
@@ -727,6 +751,355 @@ def _get_landing(db):
             return data
         except: pass
     return DEFAULT_LANDING
+
+# ═════════════════════════ ARTICLES ═════════════════════════
+# user_id = 0 → landing articles (owner-managed)
+# user_id = N → client portfolio articles
+LANDING_ARTICLES_UID = 0
+
+def _slugify(text, fallback='article'):
+    """Make a URL-safe slug from any text (Arabic or English)."""
+    if not text: return fallback
+    s = str(text).strip().lower()
+    # Replace whitespace + punctuation with hyphens
+    s = re.sub(r'[\s ]+', '-', s)
+    s = re.sub(r'[^\w؀-ۿ\-]', '', s)  # keep word chars, Arabic, hyphens
+    s = re.sub(r'-+', '-', s).strip('-')
+    return s[:80] or fallback
+
+def _unique_slug(db, user_id, base_slug, exclude_id=None):
+    """Find a unique slug for this user (append -2, -3 if needed)."""
+    slug = base_slug
+    i = 1
+    while True:
+        q = "SELECT id FROM articles WHERE user_id=? AND slug=?"
+        params = [user_id, slug]
+        if exclude_id:
+            q += " AND id<>?"; params.append(exclude_id)
+        row = db.execute(q, params).fetchone()
+        if not row: return slug
+        i += 1
+        slug = f"{base_slug}-{i}"
+
+def _calc_read_min(content):
+    """Roughly estimate reading time in minutes (avg 220 wpm)."""
+    if not content: return 1
+    word_count = len(re.findall(r'\S+', content))
+    return max(1, round(word_count / 220))
+
+def _article_to_dict(row):
+    d = dict(row)
+    if d.get('tags'):
+        try: d['tags'] = [t.strip() for t in d['tags'].split(',') if t.strip()]
+        except: d['tags'] = []
+    else: d['tags'] = []
+    return d
+
+# Default articles seeded once for the landing (user_id=0)
+DEFAULT_LANDING_ARTICLES = [
+    {
+        'slug': 'how-to-build-a-portfolio',
+        'title_ar': 'كيف تبني بورتفوليو احترافي يجذب العملاء',
+        'title_en': 'How to Build a Pro Portfolio That Attracts Clients',
+        'excerpt_ar': 'دليل عملي خطوة بخطوة لإنشاء بورتفوليو يعرض موهبتك ويجذب فرص حقيقية.',
+        'excerpt_en': 'A practical step-by-step guide to creating a portfolio that shows your talent.',
+        'cover_url': '',
+        'content': '''# كيف تبني بورتفوليو احترافي
+
+بورتفوليوك هو واجهتك الرقمية للعالم. مش مجرد معرض لأعمالك — هو **القصة اللي بتقولها عن نفسك**.
+
+## 1. ابدأ بالأساسيات
+
+قبل أي تصميم أو لون، فكر:
+- مين الجمهور المستهدف؟
+- إيه أحسن 3 مشاريع تمثلك فعلاً؟
+- إيه القيمة اللي بتقدمها للعميل؟
+
+> "الجودة أهم من الكمية. 5 مشاريع متقنة أفضل من 50 متوسطة."
+
+## 2. اختر تخطيط واضح
+
+العميل عنده ثواني قليلة قبل ما يقرر يكمل أو يقفل الموقع. اللي بيشده:
+- صورة شخصية احترافية
+- عنوان واضح يقول إنت بتعمل إيه
+- زرار CTA واضح (مثلاً: تواصل معي)
+
+## 3. اعرض مشاريعك بشكل سينمائي
+
+كل مشروع لازم يكون:
+- صورة غلاف عالية الجودة
+- وصف قصير عن التحدي والحل
+- النتيجة اللي حققتها
+
+## الخلاصة
+
+البورتفوليو الناجح بيختصر سنوات من الشغل في تجربة 3 دقايق للزائر. خد وقتك في التفاصيل.''',
+        'mode': 'markdown',
+        'tags': 'portfolio,career,branding'
+    },
+    {
+        'slug': 'personal-branding-for-creatives',
+        'title_ar': 'العلامة الشخصية: لماذا هي ضرورة وليست رفاهية',
+        'title_en': 'Personal Branding: Why It\'s a Necessity, Not a Luxury',
+        'excerpt_ar': 'العلامة الشخصية هي السبب اللي بيخلي العميل يفضّلك على عشرات غيرك.',
+        'excerpt_en': 'Personal branding is the reason clients pick you over dozens of others.',
+        'cover_url': '',
+        'content': '''# العلامة الشخصية: ضرورة العصر
+
+في سوق مليان بالمواهب، العلامة الشخصية هي الفرق بين "حد كويس" و"الخيار الأول".
+
+## إيه هي العلامة الشخصية؟
+
+هي **الصورة الذهنية** اللي بتتكوّن عند الناس عنك. بتشمل:
+- شغلك
+- طريقة تواصلك
+- قيمك ومبادئك
+- استمراريتك في تقديم نفس مستوى الجودة
+
+## ليه مهمة؟
+
+> "الناس بتشتري من اللي بيثقوا فيه، والثقة بتجي من التكرار والاتساق."
+
+العميل مش بيدور على أفضل مصمم في العالم — هو بيدور على المصمم اللي يحس إنه **هيفهمه** ويحقق رؤيته.
+
+## 3 خطوات لبناء علامتك
+
+1. **اعرف نفسك**: إيه نقاط قوتك المختلفة؟
+2. **اختر صوت ثابت**: نفس طريقة الكلام في كل مكان
+3. **كن متواجد**: انشر بانتظام، تفاعل، اظهر شخصيتك
+
+## ابدأ النهارده
+
+علامتك الشخصية مش هتتبني في يوم. لكن كل بوست، كل مشروع، كل تفاعل بيضيف لها طوبة.''',
+        'mode': 'markdown',
+        'tags': 'branding,personal,marketing'
+    },
+    {
+        'slug': 'seo-for-creators',
+        'title_ar': 'الـ SEO للمبدعين: ازاي تخلي جوجل يلاقيك',
+        'title_en': 'SEO for Creators: How to Get Found on Google',
+        'excerpt_ar': 'دليل مبسّط لتحسين ظهور بورتفوليوك في محركات البحث.',
+        'excerpt_en': 'A simple guide to make your portfolio rank in search engines.',
+        'cover_url': '',
+        'content': '''# الـ SEO للمبدعين
+
+أحسن بورتفوليو في العالم مش هينفع لو محدش يلاقيه. الـ SEO هو اللي بيخلي جوجل يعرف موقعك ويعرضه للناس اللي بيدوروا على خدماتك.
+
+## أهم 5 حاجات
+
+### 1. عنوان واضح ومحدد
+
+بدل "بورتفوليو" اكتب: "أحمد محمود — مصمم جرافيك في القاهرة"
+
+### 2. وصف يجذب الانتباه
+
+الـ meta description هو اللي بيظهر في نتايج جوجل. اكتبه بعناية.
+
+### 3. صور بأسماء وصفية
+
+`logo-design-clinic.jpg` أفضل من `IMG_001.jpg`
+
+### 4. سرعة الموقع
+
+موقع بطيء = ترتيب أقل. استخدم صور WebP، lazy loading، وملفات صغيرة.
+
+### 5. محتوى متجدد
+
+> "جوجل بيحب المواقع اللي بتضيف محتوى بانتظام."
+
+ده اللي بيخلي الـ blog/articles مهمين جداً — كل مقال = صفحة جديدة تتـ index.
+
+## ابدأ النهارده
+
+افتح Google Search Console، أضف موقعك، ابعت sitemap، وراقب الأداء.''',
+        'mode': 'markdown',
+        'tags': 'seo,marketing,growth'
+    }
+]
+
+def _seed_landing_articles(db):
+    """Seed default landing articles once (only if no articles for user_id=0)."""
+    existing = db.execute("SELECT COUNT(*) FROM articles WHERE user_id=?", (LANDING_ARTICLES_UID,)).fetchone()[0]
+    if existing > 0: return
+    for a in DEFAULT_LANDING_ARTICLES:
+        content = a['content']
+        db.execute(
+            "INSERT INTO articles(user_id, slug, title_ar, title_en, excerpt_ar, excerpt_en, cover_url, content, mode, tags, published, read_min) VALUES(?,?,?,?,?,?,?,?,?,?,1,?)",
+            (LANDING_ARTICLES_UID, a['slug'], a['title_ar'], a['title_en'], a['excerpt_ar'], a['excerpt_en'], a['cover_url'], content, a['mode'], a['tags'], _calc_read_min(content))
+        )
+    db.commit()
+
+# Seed welcome article for each new client user
+def _seed_client_welcome_article(db, user_id):
+    """Seed a single welcome article for a brand-new client (only if no articles)."""
+    existing = db.execute("SELECT COUNT(*) FROM articles WHERE user_id=?", (user_id,)).fetchone()[0]
+    if existing > 0: return
+    content = '''# مرحباً ببورتفوليوك الجديد
+
+هذا أول مقال في مدوّنتك. تقدر تحذفه أو تعدّله من لوحة التحكم.
+
+## ليه المقالات مهمة؟
+
+المقالات بتضيف لموقعك:
+- صفحات جديدة يتـ index في جوجل
+- محتوى ذو قيمة يشد الزوار
+- فرصة تتكلم عن خبرتك بعمق
+
+> ابدأ بكتابة مقال عن آخر مشروع شغلته أو نصيحة لمبتدئين في مجالك.
+
+استمتع بالكتابة! ✍️'''
+    db.execute(
+        "INSERT INTO articles(user_id, slug, title_ar, title_en, excerpt_ar, excerpt_en, cover_url, content, mode, tags, published, read_min) VALUES(?,?,?,?,?,?,?,?,?,?,1,?)",
+        (user_id, 'welcome', 'مرحباً ببورتفوليوك الجديد', 'Welcome to Your New Portfolio',
+         'أول مقال لك — احذفه أو عدّله من لوحة التحكم.',
+         'Your first article — delete or edit it from the dashboard.',
+         '', content, 'markdown', 'welcome', _calc_read_min(content))
+    )
+    db.commit()
+
+# ── Articles CRUD ──
+@app.route('/api/articles', methods=['GET'])
+def list_articles():
+    """Public list. ?user_id= or ?username= → that user's articles. Default landing."""
+    db = get_db()
+    uid_ = None
+    uname = request.args.get('username','').strip()
+    uid_q = request.args.get('user_id','').strip()
+    if uid_q:
+        try: uid_ = int(uid_q)
+        except: pass
+    elif uname:
+        u = db.execute("SELECT id FROM users WHERE LOWER(username)=?", (uname.lower(),)).fetchone()
+        if u: uid_ = u['id']
+    if uid_ is None: uid_ = LANDING_ARTICLES_UID
+    # Owner can see drafts via session; public sees only published
+    is_owner_view = (session.get('owner_panel') and uid_ == LANDING_ARTICLES_UID) or (session.get('user_id') == uid_)
+    where_published = '' if is_owner_view else ' AND published=1'
+    rows = db.execute(
+        f"SELECT id, slug, title_ar, title_en, excerpt_ar, excerpt_en, cover_url, tags, published, read_min, created_at, updated_at FROM articles WHERE user_id=?{where_published} ORDER BY created_at DESC",
+        (uid_,)
+    ).fetchall()
+    return jsonify({'articles': [_article_to_dict(r) for r in rows]})
+
+@app.route('/api/articles/<int:aid>', methods=['GET'])
+def get_article(aid):
+    db = get_db()
+    row = db.execute("SELECT * FROM articles WHERE id=?", (aid,)).fetchone()
+    if not row: return jsonify({'error':'not found'}), 404
+    return jsonify(_article_to_dict(row))
+
+def _can_edit_articles_for(user_id):
+    """Owner can edit landing articles (user_id=0); a client can edit their own."""
+    if user_id == LANDING_ARTICLES_UID:
+        return bool(session.get('owner_panel'))
+    return session.get('logged_in') and session.get('user_id') == user_id
+
+@app.route('/api/articles', methods=['POST'])
+def create_article():
+    d = request.get_json() or {}
+    target_uid = d.get('user_id')
+    if target_uid is None:
+        # Default to current user (or landing if owner panel)
+        if session.get('owner_panel') and not session.get('logged_in'):
+            target_uid = LANDING_ARTICLES_UID
+        elif session.get('logged_in'):
+            target_uid = session.get('user_id')
+        else:
+            return jsonify({'error':'Unauthorized'}), 401
+    try: target_uid = int(target_uid)
+    except: return jsonify({'error':'invalid user_id'}), 400
+    if not _can_edit_articles_for(target_uid):
+        return jsonify({'error':'Unauthorized'}), 403
+    title_ar = (d.get('title_ar') or '').strip()[:200]
+    title_en = (d.get('title_en') or '').strip()[:200]
+    if not title_ar and not title_en:
+        return jsonify({'error':'العنوان مطلوب (عربي أو إنجليزي)'}), 400
+    content = d.get('content') or ''
+    mode = d.get('mode') or 'markdown'
+    if mode not in ('markdown','paste','html'): mode = 'markdown'
+    cover_data = d.get('cover_upload') or ''
+    cover_url = ''
+    if cover_data:
+        if cover_data.startswith('data:'):
+            saved = save_dataurl(cover_data, ALLOWED_IMG, target_uid if target_uid > 0 else None)
+            if saved and saved != '__STORAGE_LIMIT__': cover_url = saved
+        elif cover_data.startswith('/uploads/'):
+            cover_url = cover_data
+    elif d.get('cover_url'):
+        cover_url = d['cover_url']
+    db = get_db()
+    base_slug = _slugify(d.get('slug') or title_en or title_ar)
+    slug = _unique_slug(db, target_uid, base_slug)
+    cur = db.execute(
+        "INSERT INTO articles(user_id, slug, title_ar, title_en, excerpt_ar, excerpt_en, cover_url, content, mode, tags, published, read_min) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+        (target_uid, slug, title_ar, title_en,
+         (d.get('excerpt_ar') or '')[:500], (d.get('excerpt_en') or '')[:500],
+         cover_url, content, mode, (d.get('tags') or '')[:200],
+         1 if d.get('published', True) else 0,
+         _calc_read_min(content))
+    )
+    db.commit()
+    return jsonify({'ok': True, 'id': cur.lastrowid, 'slug': slug})
+
+@app.route('/api/articles/<int:aid>', methods=['PUT'])
+def update_article(aid):
+    db = get_db()
+    row = db.execute("SELECT user_id, slug, cover_url FROM articles WHERE id=?", (aid,)).fetchone()
+    if not row: return jsonify({'error':'not found'}), 404
+    if not _can_edit_articles_for(row['user_id']):
+        return jsonify({'error':'Unauthorized'}), 403
+    d = request.get_json() or {}
+    title_ar = (d.get('title_ar') or '').strip()[:200]
+    title_en = (d.get('title_en') or '').strip()[:200]
+    if not title_ar and not title_en:
+        return jsonify({'error':'العنوان مطلوب'}), 400
+    content = d.get('content') or ''
+    mode = d.get('mode') or 'markdown'
+    cover_data = d.get('cover_upload')
+    cover_url = row['cover_url']
+    if cover_data is not None:
+        if cover_data == '':
+            # explicit removal
+            if cover_url: delete_file(cover_url, row['user_id'] if row['user_id'] > 0 else None)
+            cover_url = ''
+        elif cover_data.startswith('data:'):
+            saved = save_dataurl(cover_data, ALLOWED_IMG, row['user_id'] if row['user_id'] > 0 else None)
+            if saved and saved != '__STORAGE_LIMIT__':
+                if row['cover_url']: delete_file(row['cover_url'], row['user_id'] if row['user_id'] > 0 else None)
+                cover_url = saved
+        elif cover_data.startswith('/uploads/'):
+            cover_url = cover_data
+    # Slug: keep unless user changed title and didn't set explicit slug
+    new_slug = d.get('slug')
+    if new_slug:
+        new_slug = _slugify(new_slug)
+        if new_slug != row['slug']:
+            new_slug = _unique_slug(db, row['user_id'], new_slug, exclude_id=aid)
+    else:
+        new_slug = row['slug']
+    db.execute(
+        "UPDATE articles SET slug=?, title_ar=?, title_en=?, excerpt_ar=?, excerpt_en=?, cover_url=?, content=?, mode=?, tags=?, published=?, read_min=?, updated_at=datetime('now') WHERE id=?",
+        (new_slug, title_ar, title_en,
+         (d.get('excerpt_ar') or '')[:500], (d.get('excerpt_en') or '')[:500],
+         cover_url, content, mode if mode in ('markdown','paste','html') else 'markdown',
+         (d.get('tags') or '')[:200],
+         1 if d.get('published', True) else 0,
+         _calc_read_min(content), aid)
+    )
+    db.commit()
+    return jsonify({'ok': True, 'slug': new_slug})
+
+@app.route('/api/articles/<int:aid>', methods=['DELETE'])
+def delete_article(aid):
+    db = get_db()
+    row = db.execute("SELECT user_id, cover_url FROM articles WHERE id=?", (aid,)).fetchone()
+    if not row: return jsonify({'error':'not found'}), 404
+    if not _can_edit_articles_for(row['user_id']):
+        return jsonify({'error':'Unauthorized'}), 403
+    if row['cover_url']: delete_file(row['cover_url'], row['user_id'] if row['user_id'] > 0 else None)
+    db.execute("DELETE FROM articles WHERE id=?", (aid,))
+    db.commit()
+    return jsonify({'ok': True})
 
 @app.route('/api/landing', methods=['GET'])
 def get_landing():
@@ -2837,6 +3210,216 @@ def editor_page(pid):
     if not session.get('logged_in'): return redirect('/admin')
     return send_from_directory(app.static_folder, 'editor.html')
 
+# ─────────────────────────────────────────────────────────────
+# SSR SEO — inject meta tags into HTML before sending to browser.
+# This way social media crawlers (Twitter, Facebook, WhatsApp, LinkedIn)
+# get the correct preview WITHOUT needing to run JavaScript.
+# ─────────────────────────────────────────────────────────────
+_HTML_CACHE = {}
+def _load_html(filename):
+    """Read an HTML file from the static folder, with file-mtime invalidation."""
+    path = os.path.join(app.static_folder, filename)
+    if not os.path.exists(path): return ''
+    try: mtime = os.path.getmtime(path)
+    except: mtime = 0
+    cached = _HTML_CACHE.get(filename)
+    if cached and cached.get('mtime') == mtime:
+        return cached['content']
+    with open(path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    _HTML_CACHE[filename] = {'content': content, 'mtime': mtime}
+    return content
+
+def _esc_attr(s):
+    """Escape for HTML attribute values."""
+    if s is None: return ''
+    return html_mod.escape(str(s)).replace('"', '&quot;')
+
+def _replace_meta_by_id(html, tag_id, attr, value):
+    """Replace the attr value of a tag with id=tag_id (e.g. ogTitle, metaDesc)."""
+    if not value: return html
+    pattern = re.compile(
+        r'(<(?:meta|link|title)[^>]*\bid=["\']' + re.escape(tag_id) + r'["\'][^>]*?\b' + re.escape(attr) + r'=")[^"]*(")',
+        re.IGNORECASE
+    )
+    return pattern.sub(lambda m: m.group(1) + _esc_attr(value) + m.group(2), html, count=1)
+
+def _replace_title(html, new_title):
+    if not new_title: return html
+    return re.sub(
+        r'<title[^>]*>.*?</title>',
+        f'<title>{html_mod.escape(new_title)}</title>',
+        html, count=1, flags=re.DOTALL
+    )
+
+def _inject_before_head_close(html, snippet):
+    """Insert a snippet right before </head>."""
+    if not snippet: return html
+    return html.replace('</head>', snippet + '\n</head>', 1)
+
+def _inject_seo(html, seo):
+    """
+    seo = {
+      title, description, url, image, lang, hreflang_pairs,
+      schema_ld (dict or list of dicts to add as JSON-LD scripts)
+    }
+    """
+    if not seo: return html
+    # Title
+    if seo.get('title'):
+        html = _replace_title(html, seo['title'])
+        html = _replace_meta_by_id(html, 'pageTitle', 'content', seo['title'])
+        html = _replace_meta_by_id(html, 'ogTitle',   'content', seo['title'])
+        html = _replace_meta_by_id(html, 'twTitle',   'content', seo['title'])
+    # Description
+    if seo.get('description'):
+        html = _replace_meta_by_id(html, 'metaDesc', 'content', seo['description'])
+        html = _replace_meta_by_id(html, 'ogDesc',   'content', seo['description'])
+        html = _replace_meta_by_id(html, 'twDesc',   'content', seo['description'])
+    # Canonical + og:url
+    if seo.get('url'):
+        html = _replace_meta_by_id(html, 'ogUrl',          'content', seo['url'])
+        html = _replace_meta_by_id(html, 'canonicalLink',  'href',    seo['url'])
+    # Image (og:image + twitter:image) — injected as new tags before </head>
+    extra = ''
+    if seo.get('image'):
+        img_url = seo['image']
+        if img_url.startswith('/'):
+            img_url = f"{request.scheme}://{request.host}{img_url}"
+        extra += f'<meta property="og:image" content="{_esc_attr(img_url)}">\n'
+        extra += f'<meta property="og:image:width" content="1200">\n'
+        extra += f'<meta property="og:image:height" content="630">\n'
+        extra += f'<meta name="twitter:image" content="{_esc_attr(img_url)}">\n'
+    # Hreflang pairs
+    for code, href in (seo.get('hreflang_pairs') or []):
+        extra += f'<link rel="alternate" hreflang="{_esc_attr(code)}" href="{_esc_attr(href)}">\n'
+    # Extra JSON-LD schemas
+    for ld in (seo.get('schema_ld') or []):
+        try:
+            extra += f'<script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>\n'
+        except Exception as e: print(f'ld inject error: {e}')
+    if extra:
+        html = _inject_before_head_close(html, extra)
+    return html
+
+def _build_user_seo(username, host, scheme):
+    """Build SEO data for a client portfolio."""
+    db = get_db()
+    user = db.execute("SELECT id, username FROM users WHERE LOWER(username)=?", (username.lower(),)).fetchone()
+    if not user: return None
+    uid_ = user['id']
+    rows = db.execute('SELECT key,value FROM settings WHERE user_id=?', (uid_,)).fetchall()
+    settings = {}
+    for r in rows:
+        try: settings[r['key']] = json.loads(r['value'])
+        except: settings[r['key']] = r['value']
+    content = settings.get('content') or {}
+    hero = content.get('hero') or {}
+    about = content.get('about') or {}
+    name_ar = hero.get('name_ar') or username
+    name_en = hero.get('name_en') or username
+    role_ar = hero.get('title_ar') or ''
+    role_en = hero.get('title_en') or ''
+    bio_ar  = (about.get('text_ar') or '')[:200]
+    bio_en  = (about.get('text_en') or '')[:200]
+    name = name_en or name_ar
+    role = role_en or role_ar
+    bio  = bio_en or bio_ar
+    title = f"{name}" + (f" — {role}" if role else '')
+    desc  = (role + ' — ' + bio) if role and bio else (bio or role or f"Portfolio of {name}")
+    url   = f"{scheme}://{host}/{username}"
+    image = settings.get('photo_url') or settings.get('hero_cover_url') or settings.get('brand_logo_url') or ''
+    # Fallback to auto-generated OG image
+    if not image:
+        image = f"/og-image/{username}.png"
+    # Schema.org Person
+    schema = {
+        '@context':'https://schema.org','@type':'Person',
+        'name':name,'url':url,
+    }
+    if role: schema['jobTitle'] = role
+    if bio:  schema['description'] = bio
+    if image and image.startswith('/'):
+        schema['image'] = f"{scheme}://{host}{image}"
+    # Skills
+    sk = content.get('skills') or {}
+    skill_str = sk.get('items_en') or sk.get('items_ar') or ''
+    if skill_str:
+        skills_list = [s.strip() for s in re.split(r'[,،]', skill_str) if s.strip()]
+        if skills_list: schema['knowsAbout'] = skills_list[:20]
+    # Hreflang (same URL with ?lang= hint)
+    hreflangs = [
+        ('ar', f"{url}?lang=ar"),
+        ('en', f"{url}?lang=en"),
+        ('x-default', url),
+    ]
+    return {
+        'title': title, 'description': desc, 'url': url, 'image': image,
+        'schema_ld': [schema],
+        'hreflang_pairs': hreflangs,
+    }
+
+def _build_landing_seo(host, scheme):
+    """Build SEO data for the SaaS landing page."""
+    db = get_db()
+    landing = _get_landing(db)
+    brand = landing.get('brand') or {}
+    hero  = landing.get('hero')  or {}
+    name = brand.get('name') or 'ViralPX'
+    tagline = brand.get('tagline_en') or brand.get('tagline_ar') or ''
+    htitle = hero.get('title_en') or hero.get('title_ar') or ''
+    hsub   = hero.get('subtitle_en') or hero.get('subtitle_ar') or ''
+    title = f"{name} — {htitle or tagline}" if (htitle or tagline) else name
+    desc  = hsub or tagline or f"{name} platform"
+    url   = f"{scheme}://{host}/"
+    image = (hero.get('image_url') or hero.get('cover_url') or brand.get('logo_url') or '').strip()
+    # Fallback to auto-generated OG image for landing
+    if not image:
+        image = "/og-image/_landing.png"
+    # SoftwareApplication schema
+    schema = {
+        '@context':'https://schema.org','@type':'SoftwareApplication',
+        'name': name,'applicationCategory':'BusinessApplication',
+        'operatingSystem':'Web','url': url,'description': desc,
+        'creator':{'@type':'Organization','name':name},
+    }
+    plans = ((landing.get('pricing') or {}).get('plans') or [])
+    if plans:
+        schema['offers'] = [{
+            '@type':'Offer',
+            'name': p.get('name_en') or p.get('name_ar') or '',
+            'price': str(p.get('price') or ''),
+            'priceCurrency': p.get('currency_en') or 'EGP',
+        } for p in plans]
+    schemas = [schema]
+    # FAQ Page schema
+    faq_items = ((landing.get('faq') or {}).get('items') or [])
+    if faq_items:
+        schemas.append({
+            '@context':'https://schema.org','@type':'FAQPage',
+            'mainEntity':[{
+                '@type':'Question',
+                'name': it.get('q_en') or it.get('q_ar') or '',
+                'acceptedAnswer':{'@type':'Answer','text': it.get('a_en') or it.get('a_ar') or ''}
+            } for it in faq_items if (it.get('q_en') or it.get('q_ar'))]
+        })
+    # Organization schema
+    schemas.append({
+        '@context':'https://schema.org','@type':'Organization',
+        'name': name, 'url': url,
+        **({'logo': (f"{scheme}://{host}{brand['logo_url']}" if brand.get('logo_url','').startswith('/') else brand.get('logo_url'))} if brand.get('logo_url') else {}),
+    })
+    hreflangs = [
+        ('ar', f"{url}?lang=ar"),
+        ('en', f"{url}?lang=en"),
+        ('x-default', url),
+    ]
+    return {
+        'title': title, 'description': desc, 'url': url, 'image': image,
+        'schema_ld': schemas,
+        'hreflang_pairs': hreflangs,
+    }
+
 @app.route('/u/<username>')
 @app.route('/u/<username>/')
 def user_portfolio(username):
@@ -2846,7 +3429,13 @@ def user_portfolio(username):
             return Response(md, mimetype='text/markdown; charset=utf-8',
                             headers={'x-markdown-tokens': 'true'})
         return Response("# Not Found\n\nUser not found.", status=404, mimetype='text/markdown')
-    return send_from_directory(app.static_folder, 'index.html')
+    # SSR meta injection — replaces meta tags with user-specific data
+    html = _load_html('index.html')
+    try:
+        seo = _build_user_seo(username, request.host, request.scheme)
+        if seo: html = _inject_seo(html, seo)
+    except Exception as e: print(f'SSR SEO (user) error: {e}')
+    return Response(html, mimetype='text/html; charset=utf-8')
 
 # ── AGENT-READY ENDPOINTS ──
 
@@ -2891,9 +3480,25 @@ def llms_txt():
 def sitemap_xml():
     db = get_db()
     host = request.host_url.rstrip('/')
-    usernames = db.execute("SELECT username FROM users WHERE username IS NOT NULL").fetchall()
-    urls = [f'  <url><loc>{host}/u/{u["username"]}</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>'
-            for u in usernames]
+    urls = [
+        f'  <url><loc>{host}/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>',
+        f'  <url><loc>{host}/articles</loc><changefreq>daily</changefreq><priority>0.9</priority></url>',
+    ]
+    # Landing articles
+    for a in db.execute("SELECT slug, updated_at FROM articles WHERE user_id=? AND published=1", (LANDING_ARTICLES_UID,)).fetchall():
+        date = (a['updated_at'] or '')[:10]
+        urls.append(f'  <url><loc>{host}/articles/{a["slug"]}</loc><lastmod>{date}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>')
+    # Client portfolios
+    for u in db.execute("SELECT id, username FROM users WHERE username IS NOT NULL").fetchall():
+        un = u['username']
+        urls.append(f'  <url><loc>{host}/{un}</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>')
+        # Their articles
+        arts = db.execute("SELECT slug, updated_at FROM articles WHERE user_id=? AND published=1", (u['id'],)).fetchall()
+        if arts:
+            urls.append(f'  <url><loc>{host}/{un}/articles</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>')
+            for a in arts:
+                date = (a['updated_at'] or '')[:10]
+                urls.append(f'  <url><loc>{host}/{un}/articles/{a["slug"]}</loc><lastmod>{date}</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>')
     body = (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
@@ -3057,11 +3662,195 @@ def _portfolio_markdown(username):
 
 # Reserved top-level paths that can NEVER be a username
 _RESERVED_PATHS = {
-    'admin','owner','api','uploads','u','testimonial','editor','landing',
+    'admin','owner','api','uploads','u','testimonial','editor','landing','articles','og-image',
     'robots.txt','llms.txt','sitemap.xml','openapi.json','favicon.ico',
     '.well-known','manifest.json','index.html','admin.html','owner.html',
-    'editor.html','testimonial.html','landing.html','static','assets','public'
+    'editor.html','testimonial.html','landing.html','articles.html','static','assets','public'
 }
+
+# ─── OG Image generator (1200×630 social preview) ──────────────────
+@app.route('/og-image/<path:slug>.png')
+def og_image(slug):
+    """Generate a Twitter/Open Graph preview image. slug = username or '_landing'."""
+    if not HAS_PIL:
+        return Response('PIL not available', status=503)
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+    except ImportError:
+        return Response('PIL not available', status=503)
+    # Determine title, subtitle, accent color
+    if slug in ('_landing', 'landing'):
+        db = get_db()
+        L = _get_landing(db)
+        title = (L.get('brand') or {}).get('name') or 'ViralPX'
+        subtitle = (L.get('brand') or {}).get('tagline_en') or (L.get('brand') or {}).get('tagline_ar') or 'Portfolio Builder'
+        accent = ((L.get('style') or {}).get('primary_color')) or '#F97316'
+        bg = ((L.get('style') or {}).get('bg_color')) or '#0A0A0A'
+    else:
+        db = get_db()
+        user = db.execute("SELECT id, username FROM users WHERE LOWER(username)=?", (slug.lower(),)).fetchone()
+        if not user: abort(404)
+        rows = db.execute('SELECT key,value FROM settings WHERE user_id=?', (user['id'],)).fetchall()
+        s = {}
+        for r in rows:
+            try: s[r['key']] = json.loads(r['value'])
+            except: s[r['key']] = r['value']
+        content = s.get('content') or {}
+        hero = content.get('hero') or {}
+        title = hero.get('name_en') or hero.get('name_ar') or user['username']
+        subtitle = hero.get('title_en') or hero.get('title_ar') or 'Portfolio'
+        accent = (s.get('colors') or {}).get('accent') or '#F97316'
+        bg = (s.get('colors') or {}).get('bg') or '#0A0A0A'
+    # Convert hex to RGB
+    def hex2rgb(h, alpha=255):
+        h = h.lstrip('#')
+        if len(h) == 3: h = ''.join([c*2 for c in h])
+        return (int(h[:2],16), int(h[2:4],16), int(h[4:6],16), alpha)
+    bg_rgb = hex2rgb(bg)[:3]
+    accent_rgb = hex2rgb(accent)[:3]
+    # Build the image
+    W, H = 1200, 630
+    img = Image.new('RGB', (W, H), bg_rgb)
+    draw = ImageDraw.Draw(img, 'RGBA')
+    # Decorative accent gradient corner
+    for i in range(0, 400, 2):
+        a = int(60 * (1 - i/400))
+        draw.ellipse([(W-200-i, -200+i//2), (W+200-i, 200-i//2)], fill=(*accent_rgb, a))
+    # Bottom accent stripe
+    draw.rectangle([(0, H-8), (W, H)], fill=accent_rgb)
+    # Brand label (top-left)
+    try:
+        font_brand = ImageFont.truetype('/System/Library/Fonts/Helvetica.ttc', 28)
+    except:
+        try: font_brand = ImageFont.truetype('DejaVuSans.ttf', 28)
+        except: font_brand = ImageFont.load_default()
+    draw.text((60, 60), 'VIRALPX', font=font_brand, fill=accent_rgb)
+    # Title (big)
+    try:
+        font_title = ImageFont.truetype('/System/Library/Fonts/Helvetica.ttc', 84)
+    except:
+        try: font_title = ImageFont.truetype('DejaVuSans-Bold.ttf', 84)
+        except: font_title = ImageFont.load_default()
+    # Word wrap title to fit
+    title_str = title[:60]
+    lines = []
+    words = title_str.split()
+    cur = ''
+    for w in words:
+        test = (cur + ' ' + w).strip()
+        bbox = draw.textbbox((0,0), test, font=font_title)
+        if (bbox[2] - bbox[0]) > 1000 and cur:
+            lines.append(cur); cur = w
+        else: cur = test
+    if cur: lines.append(cur)
+    y = H//2 - (len(lines) * 96)//2 - 30
+    for line in lines[:3]:
+        draw.text((60, y), line, font=font_title, fill=(255,255,255))
+        y += 96
+    # Subtitle
+    try:
+        font_sub = ImageFont.truetype('/System/Library/Fonts/Helvetica.ttc', 36)
+    except:
+        try: font_sub = ImageFont.truetype('DejaVuSans.ttf', 36)
+        except: font_sub = ImageFont.load_default()
+    sub_str = subtitle[:120]
+    draw.text((60, y + 30), sub_str, font=font_sub, fill=(180,180,180))
+    # Output
+    buf = io.BytesIO()
+    img.save(buf, format='PNG', optimize=True)
+    buf.seek(0)
+    return Response(buf.getvalue(), mimetype='image/png', headers={'Cache-Control':'public, max-age=3600'})
+
+def _serve_articles_html(username=None, slug=None):
+    """Serve articles.html with SSR meta injection for list or single view."""
+    html = _load_html('articles.html')
+    try:
+        db = get_db()
+        uid_ = LANDING_ARTICLES_UID
+        owner_name = ''
+        if username:
+            u = db.execute("SELECT id, username FROM users WHERE LOWER(username)=?", (username.lower(),)).fetchone()
+            if not u: abort(404)
+            uid_ = u['id']
+            owner_name = u['username']
+        url = f"{request.scheme}://{request.host}{request.path}"
+        if slug:
+            art = db.execute("SELECT * FROM articles WHERE user_id=? AND slug=? AND published=1", (uid_, slug)).fetchone()
+            if not art: abort(404)
+            a = dict(art)
+            title = a.get('title_en') or a.get('title_ar') or 'Article'
+            if owner_name:
+                title = f"{title} — {owner_name}"
+            desc = a.get('excerpt_en') or a.get('excerpt_ar') or title
+            image = a.get('cover_url') or ''
+            schemas = [{
+                '@context':'https://schema.org','@type':'BlogPosting',
+                'headline': title, 'description': desc,
+                'datePublished': (a.get('created_at') or '')[:10],
+                'dateModified':  (a.get('updated_at') or a.get('created_at') or '')[:10],
+                'url': url,
+                **({'image': (f"{request.scheme}://{request.host}{image}" if image.startswith('/') else image)} if image else {}),
+                'author': {'@type':'Person' if owner_name else 'Organization', 'name': owner_name or 'ViralPX'},
+            }]
+            html = _inject_seo(html, {
+                'title': title, 'description': desc, 'url': url, 'image': image,
+                'schema_ld': schemas,
+                'hreflang_pairs': [('ar', f"{url}?lang=ar"), ('en', f"{url}?lang=en"), ('x-default', url)],
+            })
+        else:
+            # List view
+            title = f"{owner_name} — Articles" if owner_name else "ViralPX Articles"
+            desc = "Articles and insights"
+            html = _inject_seo(html, {
+                'title': title, 'description': desc, 'url': url,
+                'hreflang_pairs': [('ar', f"{url}?lang=ar"), ('en', f"{url}?lang=en"), ('x-default', url)],
+            })
+    except Exception as e:
+        if hasattr(e, 'code') and e.code in (404,): raise
+        print(f'SSR SEO (articles) error: {e}')
+    return Response(html, mimetype='text/html; charset=utf-8')
+
+# Landing articles routes
+@app.route('/articles')
+@app.route('/articles/')
+def landing_articles_list():
+    return _serve_articles_html()
+
+@app.route('/articles/<slug>')
+@app.route('/articles/<slug>/')
+def landing_article_single(slug):
+    return _serve_articles_html(slug=slug)
+
+# Portfolio articles routes
+@app.route('/<username>/articles')
+@app.route('/<username>/articles/')
+def portfolio_articles_list(username):
+    if username.lower() in _RESERVED_PATHS: abort(404)
+    return _serve_articles_html(username=username)
+
+@app.route('/<username>/articles/<slug>')
+@app.route('/<username>/articles/<slug>/')
+def portfolio_article_single(username, slug):
+    if username.lower() in _RESERVED_PATHS: abort(404)
+    return _serve_articles_html(username=username, slug=slug)
+
+def _serve_portfolio_html(username):
+    """Serve index.html with SSR meta injection for the given user."""
+    html = _load_html('index.html')
+    try:
+        seo = _build_user_seo(username, request.host, request.scheme)
+        if seo: html = _inject_seo(html, seo)
+    except Exception as e: print(f'SSR SEO (portfolio) error: {e}')
+    return Response(html, mimetype='text/html; charset=utf-8')
+
+def _serve_landing_html():
+    """Serve landing.html with SSR meta injection."""
+    html = _load_html('landing.html')
+    try:
+        seo = _build_landing_seo(request.host, request.scheme)
+        if seo: html = _inject_seo(html, seo)
+    except Exception as e: print(f'SSR SEO (landing) error: {e}')
+    return Response(html, mimetype='text/html; charset=utf-8')
 
 @app.route('/', defaults={'path':''})
 @app.route('/<path:path>')
@@ -3074,15 +3863,16 @@ def serve(path):
     if path and '/' not in path and '.' not in path:
         first = path.split('/')[0].lower()
         if first not in _RESERVED_PATHS:
-            user = db.execute("SELECT id FROM users WHERE LOWER(username)=?", (first,)).fetchone()
+            user = db.execute("SELECT username FROM users WHERE LOWER(username)=?", (first,)).fetchone()
             if user:
-                return send_from_directory(app.static_folder, 'index.html')
-    # Fallback: serve landing page (root acts as SaaS marketing page)
-    # If the host is a custom domain mapped to a client, serve their portfolio instead
+                return _serve_portfolio_html(user['username'])
+    # Custom-domain client portfolio
     client_uid = _lookup_domain_owner(db, request.host)
     if client_uid:
-        return send_from_directory(app.static_folder, 'index.html')
-    return send_from_directory(app.static_folder, 'landing.html')
+        urow = db.execute("SELECT username FROM users WHERE id=?", (client_uid,)).fetchone()
+        if urow: return _serve_portfolio_html(urow['username'])
+    # Fallback: SaaS landing page with SSR SEO
+    return _serve_landing_html()
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

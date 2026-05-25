@@ -191,6 +191,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div class="top-tabs">
       <button class="top-tab active" data-tab="dashboard" onclick="switchTab('dashboard')"><i class="fa-solid fa-gauge-high"></i> الداش بورد</button>
       <button class="top-tab" data-tab="landing" onclick="switchTab('landing')"><i class="fa-solid fa-rocket"></i> صفحة الهبوط</button>
+      <button class="top-tab" data-tab="articles" onclick="switchTab('articles')"><i class="fa-solid fa-newspaper"></i> المقالات</button>
     </div>
 
     <!-- ═══════ DASHBOARD TAB ═══════ -->
@@ -250,6 +251,93 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div id="landingContent" style="text-align:center;padding:60px;color:var(--g2)">
         <i class="fa-solid fa-spinner fa-spin" style="font-size:24px"></i><br><br>جاري تحميل البيانات...
       </div>
+    </div>
+
+    <!-- ═══════ ARTICLES TAB (landing articles) ═══════ -->
+    <div class="tab-panel" id="tab-articles">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:20px">
+        <div>
+          <h2 style="font-size:22px;font-weight:800;margin-bottom:4px">مقالات المدوّنة</h2>
+          <p style="color:var(--g2);font-size:13px">المقالات بتساعد على SEO وبتظهر في صفحة <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;color:var(--o)">/articles</code></p>
+        </div>
+        <button class="btn-add" onclick="openArticleEditor(0,null)"><i class="fa-solid fa-plus"></i> مقال جديد</button>
+      </div>
+      <div id="articlesList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ ARTICLE EDITOR MODAL ═══════ -->
+<div class="modal-overlay" id="articleModal" style="display:none">
+  <div class="modal" style="max-width:920px;max-height:92vh;display:flex;flex-direction:column">
+    <div class="modal-header"><span id="articleModalTitle">مقال جديد</span><button class="modal-close" onclick="closeArticleEditor()">✕</button></div>
+    <div class="modal-body" style="overflow-y:auto;flex:1">
+      <div class="fg">
+        <label class="fl">العنوان بالعربي</label>
+        <input class="fi" id="art_title_ar" placeholder="مثال: كيف تبني بورتفوليو ناجح" oninput="autoUpdateSlug()">
+      </div>
+      <div class="fg">
+        <label class="fl">Title (English)</label>
+        <input class="fi" id="art_title_en" dir="ltr" placeholder="e.g. How to build a winning portfolio" oninput="autoUpdateSlug()">
+      </div>
+      <div class="fg">
+        <label class="fl">رابط مختصر (Slug)</label>
+        <input class="fi" id="art_slug" dir="ltr" placeholder="auto-generated-from-title">
+        <p style="color:#666;font-size:11px;margin-top:4px">يستخدم في رابط المقال: <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;color:var(--o)" id="slugPreview">/articles/your-slug</code></p>
+      </div>
+      <div class="frow">
+        <div class="fg" style="margin-bottom:0">
+          <label class="fl">مقتطف (Excerpt) AR — يظهر في القائمة</label>
+          <textarea class="fta" id="art_excerpt_ar" maxlength="500" style="min-height:60px"></textarea>
+        </div>
+        <div class="fg" style="margin-bottom:0">
+          <label class="fl">Excerpt EN</label>
+          <textarea class="fta" id="art_excerpt_en" dir="ltr" maxlength="500" style="min-height:60px"></textarea>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl"><i class="fa-solid fa-image" style="color:var(--o)"></i> صورة الغلاف</label>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <div id="art_cover_preview" style="width:120px;height:72px;border-radius:8px;background:var(--bg);border:1px dashed var(--brd2);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--g2);font-size:20px;flex-shrink:0">
+            <i class="fa-solid fa-image"></i>
+          </div>
+          <input type="hidden" id="art_cover_url" value="">
+          <input type="file" id="art_cover_file" accept="image/*" style="display:none" onchange="handleArticleCover(this)">
+          <button type="button" onclick="document.getElementById('art_cover_file').click()" style="background:var(--bg3);border:1px solid var(--brd);color:#fff;padding:9px 18px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px"><i class="fa-solid fa-upload"></i> رفع صورة</button>
+          <button type="button" onclick="clearArticleCover()" style="background:transparent;border:1px solid var(--brd);color:var(--g2);padding:9px 14px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:12px"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">وضع الكتابة</label>
+        <select class="fse" id="art_mode" onchange="updateModeHint()">
+          <option value="markdown">Markdown — يولّد تصميم HTML احترافي تلقائياً (الموصى به)</option>
+          <option value="paste">Paste — لصق نص عادي/HTML كما هو</option>
+        </select>
+        <p id="modeHint" style="color:#666;font-size:11px;margin-top:6px;line-height:1.6">
+          استخدم <code>#</code> للعناوين، <code>**نص**</code> للـ bold، <code>&gt;</code> للاقتباس، <code>- عنصر</code> للقوايم، <code>[نص](رابط)</code> للينك.
+        </p>
+      </div>
+      <div class="fg">
+        <label class="fl">المحتوى</label>
+        <textarea class="fta" id="art_content" style="min-height:340px;font-family:Menlo,monospace;font-size:13px;line-height:1.7" placeholder="# عنوان رئيسي&#10;&#10;فقرتك الأولى هنا...&#10;&#10;## عنوان فرعي&#10;&#10;> اقتباس مهم&#10;&#10;- نقطة 1&#10;- نقطة 2"></textarea>
+      </div>
+      <div class="frow">
+        <div class="fg" style="margin-bottom:0">
+          <label class="fl">Tags (افصل بفاصلة)</label>
+          <input class="fi" id="art_tags" placeholder="design, seo, branding">
+        </div>
+        <div class="fg" style="margin-bottom:0">
+          <label class="fl">الحالة</label>
+          <select class="fse" id="art_published">
+            <option value="1">منشور</option>
+            <option value="0">مسودة (مخفي عن الزوار)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-add" style="flex:1" onclick="saveArticle()"><i class="fa-solid fa-floppy-disk"></i> حفظ المقال</button>
+      <button class="btn-cancel" onclick="closeArticleEditor()">إلغاء</button>
     </div>
   </div>
 </div>
@@ -473,6 +561,175 @@ function switchTab(tab){
   document.querySelectorAll('.top-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-'+tab));
   if(tab === 'landing' && !LANDING) loadLanding();
+  if(tab === 'articles') loadArticlesList(0);
+}
+
+// ═══════════════════ ARTICLES (Landing) ═══════════════════
+let _articlesCache = [];
+let _editingArticleId = null;
+let _editingArticleUserId = 0;   // 0 = landing
+async function loadArticlesList(userId){
+  _editingArticleUserId = userId;
+  const wrap = document.getElementById('articlesList');
+  wrap.innerHTML = '<div style="text-align:center;padding:40px;color:var(--g2)"><i class="fa-solid fa-spinner fa-spin"></i> جاري التحميل...</div>';
+  try{
+    const r = await fetch(`/api/articles?user_id=${userId}`, {credentials:'include'}).then(r=>r.json());
+    _articlesCache = r.articles || [];
+    if(!_articlesCache.length){
+      wrap.innerHTML = `<div style="text-align:center;padding:60px;background:var(--bg2);border:1px dashed var(--brd);border-radius:12px;color:var(--g2)"><i class="fa-solid fa-newspaper" style="font-size:32px;margin-bottom:14px;display:block"></i>لا توجد مقالات بعد<br><br><button class="btn-add" onclick="openArticleEditor(${userId}, null)"><i class="fa-solid fa-plus"></i> أضف أول مقال</button></div>`;
+      return;
+    }
+    wrap.innerHTML = _articlesCache.map(a => {
+      const title = a.title_ar || a.title_en || '(بدون عنوان)';
+      const date = (a.created_at||'').slice(0,10);
+      const tags = (a.tags || []).map(t=>`<span style="background:var(--bg3);color:var(--g2);font-size:11px;padding:3px 8px;border-radius:5px">${t}</span>`).join(' ');
+      const cover = a.cover_url
+        ? `<img src="${a.cover_url}" style="width:80px;height:54px;object-fit:cover;border-radius:8px;flex-shrink:0">`
+        : `<div style="width:80px;height:54px;background:var(--bg3);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--g2);flex-shrink:0"><i class="fa-solid fa-newspaper"></i></div>`;
+      const publishedBadge = a.published
+        ? '<span style="background:rgba(34,197,94,.15);color:#22c55e;font-size:11px;padding:3px 8px;border-radius:5px;font-weight:700">منشور</span>'
+        : '<span style="background:rgba(245,158,11,.15);color:#f59e0b;font-size:11px;padding:3px 8px;border-radius:5px;font-weight:700">مسودة</span>';
+      return `<div style="background:var(--bg2);border:1px solid var(--brd);border-radius:12px;padding:16px;margin-bottom:12px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        ${cover}
+        <div style="flex:1;min-width:200px">
+          <div style="font-weight:800;font-size:15px;margin-bottom:4px">${title}</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;color:var(--g2);font-size:12px">
+            ${publishedBadge}
+            <span>${date}</span>
+            <span>·</span>
+            <span><i class="fa-solid fa-clock"></i> ${a.read_min||3} دقايق</span>
+            ${tags}
+          </div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <a href="/articles/${encodeURIComponent(a.slug)}" target="_blank" class="btn-icon" title="معاينة" style="text-decoration:none;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-eye"></i></a>
+          <button class="btn-icon" title="تعديل" onclick="openArticleEditor(${userId}, ${a.id})"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn-icon danger" title="حذف" onclick="deleteArticle(${a.id})"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){
+    wrap.innerHTML = `<div style="color:var(--red);text-align:center;padding:40px">خطأ في التحميل: ${e.message}</div>`;
+  }
+}
+
+async function openArticleEditor(userId, articleId){
+  _editingArticleUserId = userId;
+  _editingArticleId = articleId;
+  // Clear form
+  ['art_title_ar','art_title_en','art_slug','art_excerpt_ar','art_excerpt_en','art_content','art_tags'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('art_cover_url').value = '';
+  document.getElementById('art_cover_preview').innerHTML = '<i class="fa-solid fa-image"></i>';
+  document.getElementById('art_mode').value = 'markdown';
+  document.getElementById('art_published').value = '1';
+  document.getElementById('articleModalTitle').textContent = articleId ? 'تعديل مقال' : 'مقال جديد';
+  if(articleId){
+    try{
+      const a = await fetch(`/api/articles/${articleId}`, {credentials:'include'}).then(r=>r.json());
+      document.getElementById('art_title_ar').value = a.title_ar || '';
+      document.getElementById('art_title_en').value = a.title_en || '';
+      document.getElementById('art_slug').value = a.slug || '';
+      document.getElementById('art_excerpt_ar').value = a.excerpt_ar || '';
+      document.getElementById('art_excerpt_en').value = a.excerpt_en || '';
+      document.getElementById('art_content').value = a.content || '';
+      document.getElementById('art_mode').value = a.mode || 'markdown';
+      document.getElementById('art_tags').value = (a.tags || []).join(', ');
+      document.getElementById('art_published').value = a.published ? '1' : '0';
+      if(a.cover_url){
+        document.getElementById('art_cover_url').value = a.cover_url;
+        document.getElementById('art_cover_preview').innerHTML = `<img src="${a.cover_url}" style="width:100%;height:100%;object-fit:cover">`;
+      }
+    }catch(e){ toast('خطأ في تحميل المقال','error'); return; }
+  }
+  updateSlugPreview();
+  updateModeHint();
+  document.getElementById('articleModal').style.display = 'flex';
+}
+
+function closeArticleEditor(){
+  document.getElementById('articleModal').style.display = 'none';
+  _editingArticleId = null;
+}
+
+function autoUpdateSlug(){
+  const slugEl = document.getElementById('art_slug');
+  if(slugEl.value && _editingArticleId) return; // don't overwrite when editing
+  const title = document.getElementById('art_title_en').value || document.getElementById('art_title_ar').value;
+  if(title) slugEl.value = title.toLowerCase().trim().replace(/\s+/g,'-').replace(/[^\w؀-ۿ\-]/g,'').slice(0,80);
+  updateSlugPreview();
+}
+function updateSlugPreview(){
+  const s = document.getElementById('art_slug').value || 'your-slug';
+  const prefix = _editingArticleUserId === 0 ? '/articles/' : `/${window._username||'user'}/articles/`;
+  document.getElementById('slugPreview').textContent = prefix + s;
+}
+document.addEventListener('input', e => { if(e.target.id === 'art_slug') updateSlugPreview(); });
+
+function updateModeHint(){
+  const m = document.getElementById('art_mode').value;
+  const hint = document.getElementById('modeHint');
+  if(m === 'markdown'){
+    hint.innerHTML = 'استخدم <code>#</code> للعناوين، <code>**نص**</code> للـ bold، <code>&gt;</code> للاقتباس، <code>- عنصر</code> للقوايم، <code>[نص](رابط)</code> للينك. أول فقرة هتظهر بحرف أول كبير (drop cap).';
+  } else {
+    hint.innerHTML = 'اكتب أو الصق HTML كما هو. الـ scripts ستزال تلقائياً لأسباب أمنية.';
+  }
+}
+
+async function handleArticleCover(input){
+  const f = input.files[0]; if(!f) return;
+  const fd = new FormData(); fd.append('file', f); fd.append('kind', 'image');
+  toast('⏳ جاري رفع الصورة...');
+  try{
+    const r = await fetch('/api/upload', {method:'POST', credentials:'include', body:fd}).then(r=>r.json());
+    if(r.url){
+      document.getElementById('art_cover_url').value = r.url;
+      document.getElementById('art_cover_preview').innerHTML = `<img src="${r.url}" style="width:100%;height:100%;object-fit:cover">`;
+      toast('✓ تم رفع الصورة');
+    } else { toast(r.error||'فشل','error'); }
+  }catch{ toast('خطأ في الاتصال','error'); }
+}
+function clearArticleCover(){
+  document.getElementById('art_cover_url').value = '';
+  document.getElementById('art_cover_preview').innerHTML = '<i class="fa-solid fa-image"></i>';
+}
+
+async function saveArticle(){
+  const payload = {
+    user_id: _editingArticleUserId,
+    title_ar: document.getElementById('art_title_ar').value.trim(),
+    title_en: document.getElementById('art_title_en').value.trim(),
+    slug: document.getElementById('art_slug').value.trim(),
+    excerpt_ar: document.getElementById('art_excerpt_ar').value.trim(),
+    excerpt_en: document.getElementById('art_excerpt_en').value.trim(),
+    cover_url: document.getElementById('art_cover_url').value.trim(),
+    content: document.getElementById('art_content').value,
+    mode: document.getElementById('art_mode').value,
+    tags: document.getElementById('art_tags').value.trim(),
+    published: document.getElementById('art_published').value === '1',
+  };
+  if(!payload.title_ar && !payload.title_en){ toast('العنوان مطلوب', 'error'); return; }
+  const url = _editingArticleId ? `/api/articles/${_editingArticleId}` : '/api/articles';
+  const method = _editingArticleId ? 'PUT' : 'POST';
+  try{
+    const r = await fetch(url, {method, credentials:'include', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+    const d = await r.json().catch(()=>({}));
+    if(r.ok && d.ok){
+      toast('✓ تم الحفظ');
+      closeArticleEditor();
+      loadArticlesList(_editingArticleUserId);
+    } else {
+      toast(d.error || 'فشل الحفظ', 'error');
+    }
+  }catch{ toast('خطأ في الاتصال', 'error'); }
+}
+
+async function deleteArticle(id){
+  if(!confirm('حذف هذا المقال نهائياً؟')) return;
+  try{
+    const r = await fetch(`/api/articles/${id}`, {method:'DELETE', credentials:'include'});
+    if(r.ok){ toast('✓ تم الحذف'); loadArticlesList(_editingArticleUserId); }
+    else toast('فشل الحذف', 'error');
+  }catch{ toast('خطأ', 'error'); }
 }
 
 // ══════════════════ LANDING EDITOR ══════════════════
@@ -579,7 +836,8 @@ const DESIGN_PRESETS = {
   minimal:   {label:'Minimal — مينيمال نظيف',       desc:'بدون زخارف، مساحات بيضاء واسعة، حواف حادة'},
   bold:      {label:'Bold — جريء بروتاليست',        desc:'خطوط عملاقة، حواف صارمة، ظلال offset، CAPS LOCK'},
   soft:      {label:'Soft — ناعم ودود',              desc:'حواف مدوّرة جداً (capsules)، شكل ودي'},
-  editorial: {label:'Editorial — صحافي راقي',         desc:'خطوط serif إيطالية، شكل مجلة فاخرة'}
+  editorial: {label:'Editorial — صحافي راقي',         desc:'خطوط serif إيطالية، شكل مجلة فاخرة'},
+  kinetic:   {label:'Kinetic — زجاجي فاخر',            desc:'Glassmorphism + خلفية gradient متحركة + grain — مظهر premium حي'}
 };
 
 function editorStyle(){

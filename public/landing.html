@@ -3,8 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>ViralPX — منصة البورتفوليو الاحترافي</title>
-<meta name="description" content="منصة بناء بورتفوليو احترافي للمصممين والمبدعين. بدون كود، بدون تعقيد.">
+<title id="pageTitle">ViralPX — منصة البورتفوليو الاحترافي</title>
+<meta name="description" id="metaDesc" content="منصة بناء بورتفوليو احترافي للمصممين والمبدعين. بدون كود، بدون تعقيد.">
+<meta name="theme-color" content="#0A0A0A">
+<link rel="canonical" id="canonicalLink" href="https://viralpx.com/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ViralPX">
+<meta property="og:title" id="ogTitle" content="ViralPX — منصة البورتفوليو الاحترافي">
+<meta property="og:description" id="ogDesc" content="منصة بناء بورتفوليو احترافي للمصممين والمبدعين. بدون كود، بدون تعقيد.">
+<meta property="og:url" id="ogUrl" content="https://viralpx.com/">
+<meta property="og:locale" content="ar_AR">
+<meta property="og:locale:alternate" content="en_US">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" id="twTitle" content="ViralPX — منصة البورتفوليو الاحترافي">
+<meta name="twitter:description" id="twDesc" content="منصة بناء بورتفوليو احترافي للمصممين والمبدعين.">
+
+<!-- JSON-LD Organization schema -->
+<script type="application/ld+json" id="schemaLD">
+{
+  "@context":"https://schema.org",
+  "@type":"SoftwareApplication",
+  "name":"ViralPX",
+  "applicationCategory":"BusinessApplication",
+  "operatingSystem":"Web",
+  "url":"https://viralpx.com/",
+  "description":"منصة بناء بورتفوليو احترافي للمصممين والمبدعين",
+  "offers":{"@type":"Offer","priceCurrency":"EGP"},
+  "creator":{"@type":"Organization","name":"ViralPX"}
+}
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -31,10 +63,11 @@ button{font-family:inherit;cursor:pointer;border:none}
 
 /* ─── NAVBAR ─── */
 .nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,10,.85);backdrop-filter:blur(14px);border-bottom:1px solid var(--brd);transition:all .3s}
-.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;max-width:var(--max);margin:0 auto}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;max-width:var(--max);margin:0 auto;min-height:76px}
 .nav-logo{display:flex;align-items:center;gap:10px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:18px}
 .nav-logo i{color:var(--o);font-size:20px}
-.nav-logo img{height:32px;width:auto}
+.nav-logo img{height:48px;width:auto;max-width:280px;object-fit:contain;display:block}
+@media(max-width:600px){.nav-logo img{height:40px;max-width:200px}}
 .nav-links{display:flex;align-items:center;gap:32px;list-style:none}
 .nav-links a{font-size:14px;font-weight:600;color:var(--tx2);transition:color .2s}
 .nav-links a:hover{color:var(--o)}
@@ -446,6 +479,137 @@ body[data-design="editorial"] .cta-box{border-radius:2px}
 
 /* ─── MODERN: current design (default) — no overrides needed ─── */
 
+/* ═══════════════════════════════════════════════════════════
+   KINETIC — Glassmorphism + animated gradient + premium feel
+   ═══════════════════════════════════════════════════════════ */
+@keyframes kl-gradient-flow{
+  0%,100%{background-position:0% 50%,100% 50%}
+  50%{background-position:100% 50%,0% 50%}
+}
+body[data-design="kinetic"]{position:relative;background:var(--bg)!important;}
+body[data-design="kinetic"]::before{
+  content:'';position:fixed;inset:-20%;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 55% at 25% 25%,rgba(var(--accent-rgb,249,115,22),.10),transparent 70%),
+    radial-gradient(ellipse 60% 50% at 80% 75%,rgba(var(--accent-rgb,249,115,22),.08),transparent 70%);
+  background-size:180% 180%,180% 180%;
+  background-attachment:fixed;
+  animation:kl-gradient-flow 60s ease-in-out infinite;
+  filter:blur(40px);
+}
+body[data-design="kinetic"]::after{
+  content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='5'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .35 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  opacity:.035;mix-blend-mode:overlay;
+}
+/* Glass nav */
+body[data-design="kinetic"] .nav{
+  background:rgba(var(--bg-rgb,10,10,10),.55)!important;
+  backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+/* Hero — luxury layout: title left-aligned with generous spacing, image/video on the right */
+body[data-design="kinetic"] .hero{padding:160px 0 110px;}
+body[data-design="kinetic"] .hero::before{display:none;}
+body[data-design="kinetic"] .hero-inner{text-align:start;max-width:780px;margin:0;}
+body[data-design="kinetic"] .hero-inner.align-center{text-align:center;margin:0 auto;}
+body[data-design="kinetic"] .hero-inner.align-end{text-align:end;margin-inline-start:auto;margin-inline-end:0;}
+body[data-design="kinetic"] .hero-actions{justify-content:flex-start;}
+body[data-design="kinetic"] .hero-inner.align-center .hero-actions{justify-content:center;}
+body[data-design="kinetic"] .hero-inner.align-end .hero-actions{justify-content:flex-end;}
+body[data-design="kinetic"] .hero-sub{margin-left:0;margin-right:0;max-width:560px;}
+body[data-design="kinetic"] .hero-inner.align-center .hero-sub{margin:0 auto 38px;}
+body[data-design="kinetic"] h1{letter-spacing:-1.5px;}
+body[data-design="kinetic"] .hero-badge{
+  background:rgba(255,255,255,.05);backdrop-filter:blur(12px);
+  border:1px solid rgba(var(--accent-rgb,249,115,22),.30);
+}
+body[data-design="kinetic"] .hero-image,
+body[data-design="kinetic"] .hero-video-wrap{
+  border:1px solid rgba(255,255,255,.10)!important;
+  box-shadow:0 30px 80px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.06);
+  border-radius:22px;
+}
+
+/* Glassmorphism on all cards */
+body[data-design="kinetic"] .feature-card,
+body[data-design="kinetic"] .plan,
+body[data-design="kinetic"] .testi-card,
+body[data-design="kinetic"] .stat-card,
+body[data-design="kinetic"] .ex-card,
+body[data-design="kinetic"] .faq-item,
+body[data-design="kinetic"] .contact-info,
+body[data-design="kinetic"] .contact-form,
+body[data-design="kinetic"] .proj-feat,
+body[data-design="kinetic"] .cform-field input,
+body[data-design="kinetic"] .cform-field textarea{
+  background:rgba(255,255,255,.04)!important;
+  backdrop-filter:blur(20px) saturate(180%)!important;
+  -webkit-backdrop-filter:blur(20px) saturate(180%)!important;
+  border:1px solid rgba(255,255,255,.10)!important;
+  border-radius:18px!important;
+  box-shadow:0 8px 32px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.06)!important;
+}
+body[data-design="kinetic"] .feature-card:hover,
+body[data-design="kinetic"] .plan:hover,
+body[data-design="kinetic"] .testi-card:hover,
+body[data-design="kinetic"] .stat-card:hover,
+body[data-design="kinetic"] .ex-card:hover,
+body[data-design="kinetic"] .proj-feat:hover{
+  background:rgba(255,255,255,.06)!important;
+  border-color:rgba(var(--accent-rgb,249,115,22),.40)!important;
+  box-shadow:0 14px 40px rgba(var(--accent-rgb,249,115,22),.18),inset 0 1px 0 rgba(255,255,255,.10)!important;
+}
+/* Card-decoration overrides */
+body[data-design="kinetic"] .feature-card::before,
+body[data-design="kinetic"] .stat-card::before{display:none;}
+body[data-design="kinetic"] .plan.popular{
+  border-color:rgba(var(--accent-rgb,249,115,22),.50)!important;
+  background:linear-gradient(180deg,rgba(var(--accent-rgb,249,115,22),.08),rgba(255,255,255,.04) 40%)!important;
+}
+/* Sections — transparent so animated bg shows through */
+body[data-design="kinetic"] .sec{background:transparent!important;}
+body[data-design="kinetic"] #features,
+body[data-design="kinetic"] #pricing,
+body[data-design="kinetic"] #contact,
+body[data-design="kinetic"] #faq{background:transparent!important;}
+/* Project showcase media frame */
+body[data-design="kinetic"] .proj-media{
+  background:rgba(255,255,255,.03)!important;
+  backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:0 30px 70px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.06);
+}
+/* Icon containers — glass spheres */
+body[data-design="kinetic"] .feature-icon,
+body[data-design="kinetic"] .stat-icon,
+body[data-design="kinetic"] .proj-feat-icon{
+  background:linear-gradient(135deg,rgba(var(--accent-rgb,249,115,22),.18),rgba(var(--accent-rgb,249,115,22),.04))!important;
+  border:1px solid rgba(var(--accent-rgb,249,115,22),.25)!important;
+  box-shadow:0 4px 16px rgba(var(--accent-rgb,249,115,22),.12),inset 0 1px 0 rgba(255,255,255,.08)!important;
+}
+/* Buttons — glass + accent ring */
+body[data-design="kinetic"] .btn-pri{
+  box-shadow:0 12px 30px rgba(var(--accent-rgb,249,115,22),.32),inset 0 1px 0 rgba(255,255,255,.10);
+}
+body[data-design="kinetic"] .btn-sec{
+  background:rgba(255,255,255,.04);
+  backdrop-filter:blur(12px);
+  border-color:rgba(255,255,255,.18);
+}
+body[data-design="kinetic"] .btn-sec:hover{
+  background:rgba(255,255,255,.08);
+  border-color:var(--o);
+}
+/* Footer glass */
+body[data-design="kinetic"] .footer{
+  background:rgba(var(--bg-rgb,10,10,10),.60)!important;
+  backdrop-filter:blur(20px);
+  border-top:1px solid rgba(255,255,255,.06);
+}
+/* Helper: --accent-rgb + --bg-rgb derived from style colors. Set via JS in applyStyle */
+
 /* Animation */
 .fade-up{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
 .fade-up.in{opacity:1;transform:translateY(0)}
@@ -522,12 +686,25 @@ function applyLang(){
   document.getElementById('langBtn').textContent = ar() ? 'EN' : 'ع';
 }
 
+// Convert hex → r,g,b string for use in rgba()
+function _hexToRGB(hex){
+  if(!hex) return '';
+  const m = hex.replace('#','').match(/^([0-9a-f]{6}|[0-9a-f]{3})$/i);
+  if(!m) return '';
+  let h = m[1];
+  if(h.length===3) h = h.split('').map(c=>c+c).join('');
+  return `${parseInt(h.slice(0,2),16)}, ${parseInt(h.slice(2,4),16)}, ${parseInt(h.slice(4,6),16)}`;
+}
+
 // Apply the customizable theme (design + colors + fonts) by overriding CSS vars
 function applyStyle(){
   const s = (DATA && DATA.style) || {};
   // Design preset (changes layout/shapes/typography wholesale)
   document.body.dataset.design = s.design || 'modern';
   const r = document.documentElement.style;
+  // RGB versions for rgba() use in glassmorphism rules
+  if(s.primary_color){const rgb = _hexToRGB(s.primary_color); if(rgb) r.setProperty('--accent-rgb', rgb);}
+  if(s.bg_color)     {const rgb = _hexToRGB(s.bg_color);      if(rgb) r.setProperty('--bg-rgb',     rgb);}
   if(s.primary_color)      r.setProperty('--o',  s.primary_color);
   if(s.primary_color_dark) r.setProperty('--od', s.primary_color_dark);
   if(s.bg_color)           r.setProperty('--bg', s.bg_color);
@@ -580,6 +757,69 @@ function render(){
   renderMain();
   renderFooter();
   renderWhatsAppFloat();
+  injectLandingSEO();
+}
+
+// Update SEO meta tags + structured data from current landing settings
+function injectLandingSEO(){
+  try{
+    const brand = DATA.brand || {};
+    const hero  = DATA.hero  || {};
+    const a = ar();
+    const name = brand.name || 'ViralPX';
+    const tagline = (a?(brand.tagline_ar):(brand.tagline_en)) || '';
+    const heroTitle = (a?(hero.title_ar):(hero.title_en)) || '';
+    const heroSub   = (a?(hero.subtitle_ar):(hero.subtitle_en)) || '';
+    const title = heroTitle ? `${name} — ${heroTitle}` : (tagline?`${name} — ${tagline}`:name);
+    const desc  = heroSub || tagline || (a?'منصة بناء بورتفوليو احترافي':'Professional portfolio builder');
+    const url   = location.href.split('#')[0];
+    const img   = (hero.image_url || hero.cover_url || brand.logo_url || '').trim();
+    const set = (id,attr,v) => { const el=document.getElementById(id); if(el && v) el.setAttribute(attr,v); };
+    document.title = title;
+    set('pageTitle','content',title);
+    set('metaDesc','content',desc);
+    set('ogTitle','content',title);
+    set('ogDesc','content',desc);
+    set('ogUrl','content',url);
+    set('twTitle','content',title);
+    set('twDesc','content',desc);
+    set('canonicalLink','href',url);
+    // Add og:image and twitter:image if we have one
+    if(img){
+      const ensureMeta = (name, prop, val) => {
+        let el = document.querySelector(`meta[${prop}="${name}"]`);
+        if(!el){ el = document.createElement('meta'); el.setAttribute(prop, name); document.head.appendChild(el); }
+        el.setAttribute('content', val);
+      };
+      ensureMeta('og:image','property',img);
+      ensureMeta('twitter:image','name',img);
+    }
+    // Update JSON-LD
+    const ldEl = document.getElementById('schemaLD');
+    if(ldEl){
+      const ld = {
+        '@context':'https://schema.org',
+        '@type':'SoftwareApplication',
+        'name':name,
+        'applicationCategory':'BusinessApplication',
+        'operatingSystem':'Web',
+        'url':url,
+        'description':desc,
+        'creator':{'@type':'Organization','name':name}
+      };
+      // Add pricing if available
+      const plans = (DATA.pricing && DATA.pricing.plans) || [];
+      if(plans.length){
+        ld.offers = plans.map(p => ({
+          '@type':'Offer',
+          'name':(a?p.name_ar:p.name_en) || '',
+          'price':p.price || '',
+          'priceCurrency':(a?p.currency_ar:p.currency_en) || 'EGP'
+        }));
+      }
+      ldEl.textContent = JSON.stringify(ld, null, 2);
+    }
+  }catch(e){ console.warn('SEO inject error:', e); }
 }
 
 function renderWhatsAppFloat(){
@@ -615,14 +855,16 @@ function renderNav(){
   } else {
     logo.innerHTML = `<i class="fa-solid fa-gem"></i> <span>${brand.name || 'ViralPX'}</span>`;
   }
-  // Links — only visible sections except hero
+  // Links — only visible sections except hero, + Articles
   const secs = (DATA.sections || []).filter(s => s.visible && s.id !== 'hero').sort((a,b)=>a.order-b.order);
-  const links = secs.map(s => `<li><a href="#${s.id}">${L(s,'label')}</a></li>`).join('');
+  let links = secs.map(s => `<li><a href="#${s.id}">${L(s,'label')}</a></li>`).join('');
+  links += `<li><a href="/articles">${ar()?'المقالات':'Articles'}</a></li>`;
   document.getElementById('navLinks').innerHTML = links;
   // Mobile menu
   const mobMenu = document.getElementById('mobMenu');
   const cta = DATA.hero || {};
   mobMenu.innerHTML = secs.map(s=>`<a href="#${s.id}" onclick="toggleMobMenu()">${L(s,'label')}</a>`).join('')
+    + `<a href="/articles" onclick="toggleMobMenu()">${ar()?'المقالات':'Articles'}</a>`
     + `<a href="${cta.cta1_link||'#pricing'}" class="btn-primary" onclick="toggleMobMenu()">${L(cta,'cta1_text') || (ar()?'ابدأ مجاناً':'Get Started')}</a>`;
   // Nav CTA
   document.getElementById('navCta').textContent = L(cta,'cta1_text') || (ar()?'ابدأ مجاناً':'Get Started');
@@ -1116,6 +1358,12 @@ function renderFaq(){
 }
 
 function renderCta(){
+  const cWa = waLink((DATA.footer && DATA.footer.whatsapp) || '');
+  const rawCtaLink = ((DATA.cta && DATA.cta.btn_link) || '').trim();
+  // Treat empty AND legacy default '#pricing' as auto-WhatsApp
+  const ctaAuto = !rawCtaLink || /^#?(pricing|contact)$/i.test(rawCtaLink);
+  const ctaLink = ctaAuto ? (cWa || '#pricing') : rawCtaLink;
+  const ctaIsWA = ctaLink.includes('wa.me');
   const c = DATA.cta || {};
   return `
   <section id="cta" class="sec">
@@ -1123,7 +1371,7 @@ function renderCta(){
       <div class="cta-box fade-up">
         <h2 class="cta-title">${L(c,'title')}</h2>
         <p class="cta-sub">${L(c,'subtitle')}</p>
-        <a href="${c.btn_link||'#pricing'}" class="cta-btn">${L(c,'btn_text') || (ar()?'ابدأ الآن':'Start Now')} <i class="fa-solid fa-arrow-${ar()?'left':'right'}"></i></a>
+        <a href="${ctaLink}" ${ctaIsWA?'target="_blank" rel="noopener"':''} class="cta-btn">${ctaIsWA?'<i class="fa-brands fa-whatsapp"></i> ':''}${L(c,'btn_text') || (ar()?(ctaIsWA?'تواصل الآن':'ابدأ الآن'):(ctaIsWA?'Contact Now':'Start Now'))}${!ctaIsWA?` <i class="fa-solid fa-arrow-${ar()?'left':'right'}"></i>`:''}</a>
       </div>
     </div>
   </section>`;
