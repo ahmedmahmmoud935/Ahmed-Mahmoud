@@ -1556,15 +1556,19 @@ function applyStyle(){
     body,.btn-primary,.btn-outline,.form-group input,.form-group textarea{font-family:'${fp.ar}',sans-serif !important;}
     /* Display elements default to EN font (Latin display look) */
     .hero-name,.section-title,.sh h2,.nav-logo,.nav-links a,.hero-sub,.exp-svc-title,.tool-name,.edu-degree,.exp-company,.pg-name,.pg-title-nav,.pp-title,.gallery-title,.footer-logo,.footer-copy,.footer-col h4{font-family:'${fp.en}',sans-serif !important;}
-    /* When the page is Arabic, force ALL text to the Arabic font — high specificity to beat theme rules */
-    html[lang="ar"] body[data-theme] *:not(i):not([class*="fa-"]){font-family:'${fp.ar}',sans-serif !important;letter-spacing:normal !important;}
+    /* Arabic — force Arabic font on text elements, EXCLUDING all Font Awesome icons */
+    html[lang="ar"] body[data-theme] *:not(i):not(svg):not(.fa):not(.fas):not(.far):not(.fal):not(.fab):not([class*="fa-"]){font-family:'${fp.ar}',sans-serif !important;letter-spacing:normal !important;}
     html[lang="ar"] body[data-theme]{font-family:'${fp.ar}',sans-serif !important;}
-    /* Preserve Font Awesome icons */
-    html[lang="ar"] body[data-theme] i[class*="fa-"],
-    html[lang="ar"] body[data-theme] .fa,
-    html[lang="ar"] body[data-theme] [class^="fa-"]{font-family:inherit !important;}
-    html[lang="ar"] body[data-theme] .fa-brands,html[lang="ar"] body[data-theme] [class*="fa-brands"]{font-family:'Font Awesome 6 Brands' !important;}
-    html[lang="ar"] body[data-theme] .fa-solid,html[lang="ar"] body[data-theme] .fa-regular,html[lang="ar"] body[data-theme] [class*="fa-solid"],html[lang="ar"] body[data-theme] [class*="fa-regular"]{font-family:'Font Awesome 6 Free' !important;}
+    /* Re-assert Font Awesome font-family on icons (must beat any inherited overrides) */
+    html[lang="ar"] body[data-theme] .fa-solid,
+    html[lang="ar"] body[data-theme] .fas,
+    html[lang="ar"] body[data-theme] i[class*="fa-solid"]{font-family:'Font Awesome 6 Free' !important;font-weight:900 !important;}
+    html[lang="ar"] body[data-theme] .fa-regular,
+    html[lang="ar"] body[data-theme] .far,
+    html[lang="ar"] body[data-theme] i[class*="fa-regular"]{font-family:'Font Awesome 6 Free' !important;font-weight:400 !important;}
+    html[lang="ar"] body[data-theme] .fa-brands,
+    html[lang="ar"] body[data-theme] .fab,
+    html[lang="ar"] body[data-theme] i[class*="fa-brands"]{font-family:'Font Awesome 6 Brands' !important;font-weight:400 !important;}
     /* Arabic word wrapping fix — prevent word-break mid-word */
     html[lang="ar"] *{word-break:normal !important;overflow-wrap:break-word;hyphens:none !important;}
   `;
