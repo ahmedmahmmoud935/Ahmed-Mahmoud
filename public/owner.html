@@ -705,19 +705,25 @@ async function saveArticle(){
     excerpt_ar: document.getElementById('art_excerpt_ar').value.trim(),
     excerpt_en: document.getElementById('art_excerpt_en').value.trim(),
     cover_url: document.getElementById('art_cover_url').value.trim(),
-    content: document.getElementById('art_content').value,
+    content: document.getElementById('art_content').value.trim(),
     mode: document.getElementById('art_mode').value,
     tags: document.getElementById('art_tags').value.trim(),
     published: document.getElementById('art_published').value === '1',
   };
-  if(!payload.title_ar && !payload.title_en){ toast('العنوان مطلوب', 'error'); return; }
+  // Validation with clear flash
+  const missing = [];
+  const flash = id => { const el=document.getElementById(id); if(!el) return; const old=el.style.border; el.style.border='2px solid #ef4444'; setTimeout(()=>{el.style.border=old;}, 3000); };
+  if(!payload.title_ar && !payload.title_en){ missing.push('العنوان (AR أو EN)'); flash('art_title_ar'); flash('art_title_en'); }
+  if(!payload.content){ missing.push('المحتوى'); flash('art_content'); }
+  else if(payload.content.length < 30){ missing.push('المحتوى قصير جداً (30 حرف على الأقل)'); flash('art_content'); }
+  if(missing.length){ toast('⚠️ مطلوب: ' + missing.join(' · '), 'error'); return; }
   const url = _editingArticleId ? `/api/articles/${_editingArticleId}` : '/api/articles';
   const method = _editingArticleId ? 'PUT' : 'POST';
   try{
     const r = await fetch(url, {method, credentials:'include', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
     const d = await r.json().catch(()=>({}));
     if(r.ok && d.ok){
-      toast('✓ تم الحفظ');
+      toast('✓ تم الحفظ — '+(payload.published?'منشور':'مسودة'));
       closeArticleEditor();
       loadArticlesList(_editingArticleUserId);
     } else {

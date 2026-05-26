@@ -960,23 +960,26 @@ def _seed_client_welcome_article(db, user_id):
 # ── Articles CRUD ──
 @app.route('/api/articles', methods=['GET'])
 def list_articles():
-    """Public list. ?user_id= or ?username= → that user's articles. Default landing."""
+    """List articles. Priority: ?username= > ?user_id= > logged-in client's own > landing."""
     db = get_db()
     uid_ = None
     uname = request.args.get('username','').strip()
     uid_q = request.args.get('user_id','').strip()
-    if uid_q:
-        try: uid_ = int(uid_q)
-        except: pass
-    elif uname:
+    if uname:
         u = db.execute("SELECT id FROM users WHERE LOWER(username)=?", (uname.lower(),)).fetchone()
         if u: uid_ = u['id']
+    elif uid_q:
+        try: uid_ = int(uid_q)
+        except: pass
+    elif session.get('logged_in') and session.get('user_id'):
+        # Client dashboard viewing own articles
+        uid_ = session.get('user_id')
     if uid_ is None: uid_ = LANDING_ARTICLES_UID
     # Owner can see drafts via session; public sees only published
     is_owner_view = (session.get('owner_panel') and uid_ == LANDING_ARTICLES_UID) or (session.get('user_id') == uid_)
     where_published = '' if is_owner_view else ' AND published=1'
     rows = db.execute(
-        f"SELECT id, slug, title_ar, title_en, excerpt_ar, excerpt_en, cover_url, tags, published, read_min, created_at, updated_at FROM articles WHERE user_id=?{where_published} ORDER BY created_at DESC",
+        f"SELECT id, slug, title_ar, title_en, excerpt_ar, excerpt_en, cover_url, content, mode, tags, published, read_min, created_at, updated_at FROM articles WHERE user_id=?{where_published} ORDER BY created_at DESC",
         (uid_,)
     ).fetchall()
     return jsonify({'articles': [_article_to_dict(r) for r in rows]})
@@ -1014,7 +1017,11 @@ def create_article():
     title_en = (d.get('title_en') or '').strip()[:200]
     if not title_ar and not title_en:
         return jsonify({'error':'العنوان مطلوب (عربي أو إنجليزي)'}), 400
-    content = d.get('content') or ''
+    content = (d.get('content') or '').strip()
+    if not content:
+        return jsonify({'error':'محتوى المقال مطلوب'}), 400
+    if len(content) < 30:
+        return jsonify({'error':'المحتوى قصير جداً — على الأقل 30 حرف'}), 400
     mode = d.get('mode') or 'markdown'
     if mode not in ('markdown','paste','html'): mode = 'markdown'
     cover_data = d.get('cover_upload') or ''
@@ -1052,8 +1059,12 @@ def update_article(aid):
     title_ar = (d.get('title_ar') or '').strip()[:200]
     title_en = (d.get('title_en') or '').strip()[:200]
     if not title_ar and not title_en:
-        return jsonify({'error':'العنوان مطلوب'}), 400
-    content = d.get('content') or ''
+        return jsonify({'error':'العنوان مطلوب (عربي أو إنجليزي)'}), 400
+    content = (d.get('content') or '').strip()
+    if not content:
+        return jsonify({'error':'محتوى المقال مطلوب'}), 400
+    if len(content) < 30:
+        return jsonify({'error':'المحتوى قصير جداً — على الأقل 30 حرف'}), 400
     mode = d.get('mode') or 'markdown'
     cover_data = d.get('cover_upload')
     cover_url = row['cover_url']

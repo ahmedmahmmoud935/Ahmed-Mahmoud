@@ -3512,20 +3512,29 @@ async function saveClientArticle(){
     excerpt_ar: document.getElementById('cart_excerpt_ar').value.trim(),
     excerpt_en: document.getElementById('cart_excerpt_en').value.trim(),
     cover_url: document.getElementById('cart_cover_url').value.trim(),
-    content: document.getElementById('cart_content').value,
+    content: document.getElementById('cart_content').value.trim(),
     mode: document.getElementById('cart_mode').value,
     tags: document.getElementById('cart_tags').value.trim(),
     published: document.getElementById('cart_published').value==='1',
   };
-  if(!p.title_ar && !p.title_en){ toast('العنوان مطلوب'); return; }
+  // Validation — clear messages for each missing field
+  const missing = [];
+  const flash = (id) => { const el=document.getElementById(id); if(!el) return; el.style.border='2px solid #ef4444'; setTimeout(()=>{el.style.border='';}, 3000); };
+  if(!p.title_ar && !p.title_en){ missing.push('العنوان (عربي أو إنجليزي)'); flash('cart_title_ar'); flash('cart_title_en'); }
+  if(!p.content){ missing.push('محتوى المقال'); flash('cart_content'); }
+  if(p.content && p.content.length < 30){ missing.push('المحتوى قصير جداً (على الأقل 30 حرف)'); flash('cart_content'); }
+  if(missing.length){
+    toast('⚠️ مطلوب: ' + missing.join(' · '), 'error');
+    return;
+  }
   const url = _cEditingId ? `/api/articles/${_cEditingId}` : '/api/articles';
   const method = _cEditingId ? 'PUT' : 'POST';
   try{
     const r=await fetch(url,{method,credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});
     const d=await r.json().catch(()=>({}));
-    if(r.ok&&d.ok){ toast('✓ تم الحفظ'); closeClientArticleEditor(); loadClientArticles(); }
-    else toast(d.error||'فشل الحفظ');
-  }catch{ toast('خطأ'); }
+    if(r.ok&&d.ok){ toast('✓ تم الحفظ — '+(p.published?'منشور':'مسودة')); closeClientArticleEditor(); loadClientArticles(); }
+    else toast(d.error||'فشل الحفظ', 'error');
+  }catch{ toast('خطأ في الاتصال', 'error'); }
 }
 async function deleteClientArticle(id){
   if(!confirm('حذف هذا المقال؟')) return;
