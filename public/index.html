@@ -163,7 +163,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
 .projects-grid.mode-video .project-card{aspect-ratio:9/16;width:100%;}
 /* Horizontal video card (when cover image is wider than tall) */
 .projects-grid.mode-video .project-card.horizontal{aspect-ratio:4/5;}
-.project-card{position:relative;overflow:hidden;cursor:pointer;background:#111;transform:translateZ(0);-webkit-transform:translateZ(0);backface-visibility:hidden;-webkit-backface-visibility:hidden;min-height:1px;}
+.project-card{position:relative;overflow:hidden;cursor:pointer;background:#111;min-height:1px;contain:layout paint;}
 /* Safety: ensure cards never collapse — applies even if mode-* class missing */
 .projects-grid .project-card{min-height:120px;}
 .projects-grid.mode-image .project-card img,.projects-grid.mode-video .project-card img{width:100%;height:100%;object-fit:cover;}
@@ -208,7 +208,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
   }
   .reel-nav-btn{width:36px;height:36px;font-size:14px;}
 }
-.project-card img{width:100%;height:100%;object-fit:cover;transition:transform .45s;display:block;will-change:transform;-webkit-transform:translate3d(0,0,0);transform:translate3d(0,0,0);}
+.project-card img{width:100%;height:100%;object-fit:cover;transition:transform .45s;display:block;}
+@media(hover:hover){.project-card img{will-change:transform;}}
 .project-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,transparent 50%);display:flex;flex-direction:column;justify-content:flex-end;padding:12px;opacity:0;transition:opacity .3s;}
 .project-card:hover .project-overlay{opacity:1;}
 .project-card:hover img{transform:scale(1.05);}
@@ -258,6 +259,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
 [dir=ltr] .pg-back:hover{transform:translateX(3px);}
 .pg-back i{font-size:14px;}
 .pg-title-nav{font-family:'Montserrat',sans-serif;font-weight:700;font-size:15px;color:var(--sub);}
+.pg-back-bottom{display:none;position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:2010;align-items:center;gap:10px;background:var(--accent);color:#fff;font-size:14px;font-weight:700;cursor:pointer;border:none;font-family:'Cairo',sans-serif;padding:13px 30px;border-radius:30px;box-shadow:0 6px 22px rgba(0,0,0,.5),0 4px 14px rgba(249,115,22,.4);}
+.pg-back-bottom i{font-size:14px;}
 .pg-cover{width:100%;max-height:560px;overflow:hidden;position:relative;background:#0a0a0a;}
 .pg-cover img{width:100%;max-height:560px;object-fit:cover;display:block;}
 .pg-cover-ph{width:100%;height:380px;display:flex;align-items:center;justify-content:center;font-size:80px;color:#2a2a2a;}
@@ -329,15 +332,21 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
   .projects-grid.mode-image{grid-template-columns:repeat(2,1fr);max-width:100%;gap:10px;}
   .projects-grid.mode-video{grid-template-columns:repeat(2,1fr);max-width:100%;}
 
-  /* PROJECT PAGE */
+  /* PROJECT PAGE — hide top back on mobile, show bottom floating back */
   .pg-nav{padding:0 14px;height:52px;}
-  .pg-back{font-size:13px;}
-  .pg-title-nav{font-size:13px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .pg-body{padding:24px 16px;}
+  .pg-nav .pg-back{display:none;}
+  .pg-title-nav{font-size:13px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .pg-body{padding:24px 16px;padding-bottom:120px;}
   .pg-name{font-size:22px;}
   .pg-desc{font-size:14px;}
   .pg-cover{max-height:260px;}
   .pg-cover img{max-height:260px;}
+  .pg-back-bottom{display:flex!important;}
+  /* PROJECTS — kill expensive paint/hover effects on mobile to stop scroll flicker */
+  .projects-grid .project-card img{will-change:auto!important;transition:none!important;}
+  .project-card:hover img{transform:none!important;}
+  .project-card:hover .project-overlay{opacity:0!important;}
+  .pg-nav{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:#0a0a0a!important;}
 
   /* CONTACT */
   .form-row{grid-template-columns:1fr;}
@@ -973,10 +982,28 @@ body[data-theme="kinetic"] .hero-name{
   -webkit-background-clip:text;background-clip:text;
   -webkit-text-fill-color:transparent;
   animation:kin-shimmer 6s linear infinite;
+  /* Give enough vertical room so Arabic ascenders/dots aren't clipped */
+  line-height:1.25!important;
+  padding-top:.2em;
+  padding-bottom:.1em;
+  overflow:visible!important;
+}
+body[data-theme="kinetic"] .hero-name .first,
+body[data-theme="kinetic"] .hero-name .last{
+  display:inline-block;
+  padding-top:.15em;
+  padding-bottom:.05em;
+  line-height:1.25;
 }
 /* Hero title font-weight + spacing for impact */
 body[data-theme="kinetic"] .hero-name,
 body[data-theme="kinetic"] .hero-title{letter-spacing:-2px;font-weight:900;}
+/* Arabic specifically — looser tracking + more top room */
+html[lang="ar"] body[data-theme="kinetic"] .hero-name{
+  letter-spacing:0!important;
+  padding-top:.3em;
+  line-height:1.4!important;
+}
 
 /* Section titles — accent underline that grows */
 body[data-theme="kinetic"] .sh h2,
@@ -1352,6 +1379,10 @@ body.bg-light .filter-tab,body.bg-light .cat-filter-btn{border-color:rgba(0,0,0,
     <div class="pg-images" id="pgImages"></div>
   </div>
   <footer id="pgFooter" style="margin-top:60px;"></footer>
+  <button class="pg-back-bottom" onclick="closeProjectPage()" id="pgBackBottom">
+    <i class="fa-solid fa-arrow-right"></i>
+    <span>رجوع</span>
+  </button>
 </div>
 <div class="lightbox" id="lightbox">
   <button class="lb-close" onclick="closeLb()"><i class="fa-solid fa-xmark"></i></button>
@@ -1946,6 +1977,7 @@ function buildPage(){
   document.getElementById('mainPage').innerHTML=secsHtml+buildFooter(a);
   document.getElementById('pgFooter').innerHTML=footerInner(a);
   document.getElementById('pgBackLabel').textContent=a?'رجوع':'Back';
+  const bb=document.getElementById('pgBackBottom'); if(bb) bb.querySelector('span').textContent = a?'رجوع':'Back';
   // Default to first visible project tab (set by buildProjects)
   if(window._defaultProjFilter) currentFilter = window._defaultProjFilter;
   applyLang();renderCategoryFilter();renderProjects();
@@ -2945,7 +2977,7 @@ function openProject(idx){
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;max-width:1100px;margin:0 auto;">
           ${displayImgs.map((src,i)=>`
             <div style="aspect-ratio:4/5;overflow:hidden;cursor:pointer;border-radius:3px;" onclick="openLbFromPage(null,${i})">
-              <img src="${src}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s;">
+              <img src="${src}" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s;">
             </div>`).join('')}
         </div>`;
     } else {
@@ -2961,21 +2993,31 @@ function openProject(idx){
     const allImgs=[...(p.coverImage?[p.coverImage]:[]),...(p.images||[]).filter(s=>s!==p.coverImage)];
     currentGallery=allImgs.map(src=>({type:'image',src}));
     pgImages.innerHTML=allImgs.slice(1).map((src,i)=>
-      `<div class="pg-img-item" onclick="openLbFromPage(${idx},${i+1})"><img src="${src}" alt="" loading="lazy"></div>`
+      `<div class="pg-img-item" onclick="openLbFromPage(${idx},${i+1})"><img src="${src}" alt="" loading="lazy" decoding="async"></div>`
     ).join('');
   }
 
   document.getElementById('projectPage').style.display='block';
   document.getElementById('projectPage').scrollTop=0;
   document.body.style.overflow='hidden';
+  // Push history so browser back closes the project instead of leaving the site
+  try{
+    if(!history.state || !history.state.projectOpen){
+      history.pushState({projectOpen:true, idx}, '', '#p='+(PROJECTS[idx]?.id||idx));
+    }
+  }catch(e){}
 }
+window.addEventListener('popstate', ()=>{
+  const pg = document.getElementById('projectPage');
+  if(pg && pg.style.display==='block') closeProjectPage(true);
+});
 
 function renderModules(mods){
   return mods.map((mod,i)=>{
     const type=mod.type;
     if(type==='image'){
       if(!mod.src) return '';
-      return `<div class="pg-img-item" onclick="openLbByMod(${i})"><img src="${mod.src}" alt="" loading="lazy"></div>`;
+      return `<div class="pg-img-item" onclick="openLbByMod(${i})"><img src="${mod.src}" alt="" loading="lazy" decoding="async"></div>`;
     }
     // photo-grid OR grid (editor uses 'grid')
     // Behance-style: flexbox where all images share the same height,
@@ -2987,7 +3029,7 @@ function renderModules(mods){
       return `<div id="${rowId}" class="pg-flex-row" style="display:flex;gap:4px;margin-bottom:4px;align-items:stretch;min-height:140px;flex-wrap:wrap;">
         ${items.map((it,j)=>`
           <div data-src="${it.src}" style="flex:1 1 0;overflow:hidden;border-radius:4px;cursor:pointer;min-width:0;background:#111;" onclick="openLbByItem(${i},${j})">
-            <img src="${it.src}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;" onload="equalizePgRow('${rowId}')">
+            <img src="${it.src}" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block;" onload="equalizePgRow('${rowId}')">
           </div>`).join('')}
       </div>`;
     }
@@ -3026,8 +3068,8 @@ function renderModules(mods){
       const lblBefore=(mod.labelBefore||'قبل').replace(/"/g,'&quot;');
       const lblAfter=(mod.labelAfter||'بعد').replace(/"/g,'&quot;');
       return `<div class="ba-public" id="${baId}" data-ba="1">
-        <div class="ba-pub-after"><img src="${mod.after}" alt="" loading="lazy"></div>
-        <div class="ba-pub-before"><img src="${mod.before}" alt="" loading="lazy"></div>
+        <div class="ba-pub-after"><img src="${mod.after}" alt="" loading="lazy" decoding="async"></div>
+        <div class="ba-pub-before"><img src="${mod.before}" alt="" loading="lazy" decoding="async"></div>
         <div class="ba-pub-handle"><div class="ba-pub-circle"><i class="fa-solid fa-left-right"></i></div></div>
         <span class="ba-pub-tag ba-pub-tagL">${lblBefore}</span>
         <span class="ba-pub-tag ba-pub-tagR">${lblAfter}</span>
@@ -3093,10 +3135,13 @@ function openLbFromPage(projIdx,imgIdx){
   document.getElementById('lightbox').classList.add('active');
 }
 
-function closeProjectPage(){
+function closeProjectPage(fromPop){
   document.getElementById('projectPage').style.display='none';
   document.body.style.overflow='';
   window.scrollTo({top:_scrollY,behavior:'instant'});
+  if(!fromPop && history.state && history.state.projectOpen){
+    try{ history.back(); }catch(e){}
+  }
 }
 
 function isEmbed(url){

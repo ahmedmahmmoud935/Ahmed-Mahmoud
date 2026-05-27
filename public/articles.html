@@ -296,8 +296,14 @@ function renderNav(){
       logoHtml = `<i class="fa-solid fa-gem"></i> <span>${nm}</span>`;
     }
     homeUrl = '/' + encodeURIComponent(OWNER_USERNAME);
-    const secs = (DATA.sections || []).filter(s => s.visible && s.id !== 'hero').sort((a,b)=>a.order-b.order);
-    const links = secs.slice(0,5).map(s => `<li><a href="${homeUrl}#${s.id}">${ar()?(s.label_ar||s.label_en):(s.label_en||s.label_ar)}</a></li>`);
+    // Use exact same order as the main portfolio nav: navbar_links if set, else sections
+    let navItems;
+    if(Array.isArray(DATA.navbar_links) && DATA.navbar_links.length){
+      navItems = DATA.navbar_links.filter(s => s.visible !== false);
+    } else {
+      navItems = (DATA.sections || []).filter(s => s.visible && s.id !== 'hero').sort((a,b)=>a.order-b.order);
+    }
+    const links = navItems.map(s => `<li><a href="${homeUrl}#${s.id}">${ar()?(s.label_ar||s.label_en):(s.label_en||s.label_ar)}</a></li>`);
     links.push(`<li><a href="${homeUrl}/articles" class="active">${ar()?'المقالات':'Articles'}</a></li>`);
     navLinks.innerHTML = links.join('');
   } else {

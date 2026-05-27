@@ -1304,100 +1304,148 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
   </div>
 </div>
 
-<!-- ARTICLE EDITOR MODAL (client) — clean modern layout -->
-<div class="modal-overlay" id="cArtModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:10000;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)closeClientArticleEditor()">
-  <div class="modal-box" style="background:#0e0e0e;border:1px solid #1f1f1f;border-radius:18px;width:100%;max-width:1100px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,.7);">
-    <!-- Sticky header -->
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid #1f1f1f;flex-shrink:0">
-      <div style="display:flex;align-items:center;gap:12px"><i class="fa-solid fa-pen-to-square" style="color:var(--o);font-size:18px"></i><span id="cArtModalTitle" style="font-size:17px;font-weight:800">مقال جديد</span></div>
-      <button class="modal-close" onclick="closeClientArticleEditor()" style="background:transparent;border:none;color:#888;font-size:20px;cursor:pointer;padding:6px 12px;border-radius:8px;transition:.2s" onmouseover="this.style.background='#1a1a1a';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='#888'">✕</button>
+<!-- ARTICLE EDITOR MODAL (client) — full-screen WYSIWYG -->
+<style>
+.cart-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);backdrop-filter:blur(10px);z-index:10000;align-items:center;justify-content:center;padding:14px}
+.cart-modal.open{display:flex}
+.cart-box{background:#0e0e0e;border:1px solid #1f1f1f;border-radius:16px;width:100%;max-width:1500px;height:92vh;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,.7);overflow:hidden}
+.cart-head{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-bottom:1px solid #1a1a1a;background:#0a0a0a;flex-shrink:0}
+.cart-head-title{display:flex;align-items:center;gap:12px;font-size:16px;font-weight:800}
+.cart-head-title i{color:var(--o);font-size:18px}
+.cart-x{background:transparent;border:none;color:#888;font-size:22px;cursor:pointer;width:38px;height:38px;border-radius:8px;transition:.2s}
+.cart-x:hover{background:#1a1a1a;color:#fff}
+.cart-body{flex:1;display:grid;grid-template-columns:1fr 320px;gap:0;min-height:0}
+@media(max-width:900px){.cart-body{grid-template-columns:1fr}}
+.cart-main{display:flex;flex-direction:column;min-height:0;border-inline-end:1px solid #1a1a1a}
+.cart-titles{padding:18px 22px;border-bottom:1px solid #1a1a1a;background:#0a0a0a;display:flex;flex-direction:column;gap:6px}
+.cart-titles input{background:transparent;border:none;color:#fff;font-family:inherit;outline:none;padding:6px 0;width:100%}
+.cart-titles input.t-ar{font-size:24px;font-weight:800}
+.cart-titles input.t-en{font-size:17px;font-weight:600;color:#bbb;border-top:1px solid #1a1a1a;padding-top:10px;margin-top:4px}
+.cart-toolbar{display:flex;align-items:center;gap:4px;padding:8px 14px;background:#0e0e0e;border-bottom:1px solid #1a1a1a;flex-wrap:wrap;flex-shrink:0}
+.cart-tb-btn{background:transparent;border:1px solid transparent;color:#aaa;width:34px;height:34px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:.15s;font-family:inherit;font-weight:700}
+.cart-tb-btn:hover{background:#1a1a1a;color:#fff;border-color:#2a2a2a}
+.cart-tb-btn.danger:hover{background:#3a1010;color:#ff6b6b;border-color:#5a1414}
+.cart-tb-sep{width:1px;height:20px;background:#2a2a2a;margin:0 4px}
+.cart-tb-select{background:#0a0a0a;border:1px solid #2a2a2a;color:#ccc;padding:6px 10px;border-radius:6px;font-family:inherit;font-size:12px;cursor:pointer;outline:none}
+.cart-editor-wrap{flex:1;overflow:auto;background:#0a0a0a;position:relative}
+.cart-editor{padding:30px 40px;min-height:100%;font-family:'Cairo','Montserrat',sans-serif;font-size:16px;line-height:1.9;color:#e0e0e0;outline:none}
+.cart-editor:empty::before{content:attr(data-placeholder);color:#555;pointer-events:none}
+.cart-editor h1{font-size:30px;font-weight:900;color:#fff;margin:1em 0 .5em}
+.cart-editor h2{font-size:24px;font-weight:800;color:#fff;margin:1em 0 .5em}
+.cart-editor h3{font-size:19px;font-weight:700;color:#fff;margin:1em 0 .4em}
+.cart-editor p{margin-bottom:1em}
+.cart-editor blockquote{border-inline-start:3px solid var(--o);padding:10px 18px;margin:1em 0;color:#fff;background:#111;border-radius:6px;font-style:italic}
+.cart-editor ul,.cart-editor ol{padding-inline-start:30px;margin-bottom:1em}
+.cart-editor li{margin-bottom:.4em}
+.cart-editor a{color:var(--o);border-bottom:1px solid rgba(249,115,22,.4)}
+.cart-editor strong{color:#fff;font-weight:800}
+.cart-editor img{max-width:100%;border-radius:8px;margin:1em 0}
+.cart-editor code{background:#111;color:var(--o);padding:2px 6px;border-radius:4px;font-family:Menlo,monospace;font-size:.9em}
+.cart-html-textarea{padding:20px 30px;width:100%;height:100%;background:#0a0a0a;border:none;color:#e0e0e0;font-family:Menlo,Monaco,monospace;font-size:13px;line-height:1.7;resize:none;outline:none}
+.cart-side{padding:20px;overflow-y:auto;background:#0a0a0a;display:flex;flex-direction:column;gap:14px}
+.cart-side-card{background:#0e0e0e;border:1px solid #1a1a1a;border-radius:10px;padding:14px}
+.cart-side-label{font-size:10.5px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;gap:7px;margin-bottom:10px}
+.cart-side-label i{color:var(--o)}
+.cart-cover-preview{width:100%;aspect-ratio:16/10;border-radius:7px;background:#0a0a0a;border:1px dashed #2a2a2a;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#444;font-size:28px;margin-bottom:8px}
+.cart-cover-preview img{width:100%;height:100%;object-fit:cover}
+.cart-side input,.cart-side textarea,.cart-side select{width:100%;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:7px;padding:8px 10px;font-family:inherit;color:#fff;font-size:13px;outline:none}
+.cart-side input:focus,.cart-side textarea:focus,.cart-side select:focus{border-color:var(--o)}
+.cart-side textarea{resize:vertical;min-height:55px;line-height:1.6}
+.cart-foot{padding:12px 22px;border-top:1px solid #1a1a1a;background:#0a0a0a;display:flex;gap:10px;flex-shrink:0}
+.cart-foot .btn-save{flex:1;background:var(--o);color:#fff;border:none;padding:12px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px}
+.cart-foot .btn-save:hover{background:var(--od)}
+.cart-foot .btn-cancel{background:transparent;border:1px solid #2a2a2a;color:#aaa;padding:12px 26px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600}
+</style>
+
+<div class="cart-modal" id="cArtModal" onclick="if(event.target===this)closeClientArticleEditor()">
+  <div class="cart-box">
+    <div class="cart-head">
+      <div class="cart-head-title"><i class="fa-solid fa-pen-to-square"></i><span id="cArtModalTitle">مقال جديد</span></div>
+      <button class="cart-x" onclick="closeClientArticleEditor()">✕</button>
     </div>
-    <!-- Scrollable body — two-column layout (editor + sidebar) -->
-    <div style="overflow-y:auto;flex:1;padding:24px;display:grid;grid-template-columns:1fr 320px;gap:24px;align-items:start;" id="cArtBody">
-      <!-- Left: main editor -->
-      <div style="display:flex;flex-direction:column;gap:18px">
-        <!-- Title block -->
-        <div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;padding:16px">
-          <input class="form-input" id="cart_title_ar" placeholder="عنوان المقال بالعربي..." style="background:transparent;border:none;font-size:22px;font-weight:800;padding:4px 0;color:#fff" oninput="cArtAutoSlug()">
-          <input class="form-input" id="cart_title_en" dir="ltr" placeholder="Title in English..." style="background:transparent;border:none;font-size:18px;font-weight:600;padding:4px 0;color:#bbb;border-top:1px solid #1a1a1a;margin-top:8px;padding-top:10px" oninput="cArtAutoSlug()">
+    <div class="cart-body">
+      <div class="cart-main">
+        <div class="cart-titles">
+          <input class="t-ar" id="cart_title_ar" placeholder="عنوان المقال بالعربي..." oninput="cArtAutoSlug()">
+          <input class="t-en" id="cart_title_en" dir="ltr" placeholder="Title in English..." oninput="cArtAutoSlug()">
         </div>
-        <!-- Content editor -->
-        <div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;overflow:hidden">
-          <div style="padding:10px 14px;background:#0e0e0e;border-bottom:1px solid #1a1a1a;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#888"><i class="fa-solid fa-code" style="color:var(--o)"></i> <span>محتوى المقال</span></div>
-            <select class="form-input" id="cart_mode" style="font-size:11.5px;padding:5px 10px;width:auto;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:6px;color:#ccc">
-              <option value="markdown">Markdown (موصى به)</option>
-              <option value="paste">Paste HTML</option>
-            </select>
-          </div>
-          <textarea class="form-input" id="cart_content" style="min-height:380px;background:#0a0a0a;border:none;border-radius:0;font-family:'Menlo','Monaco',monospace;font-size:13.5px;line-height:1.8;padding:18px;color:#e0e0e0;resize:vertical" placeholder="# عنوان رئيسي&#10;&#10;اكتب فقرتك الأولى هنا...&#10;&#10;## عنوان فرعي&#10;&#10;> اقتباس مهم يلفت الانتباه&#10;&#10;- نقطة أولى&#10;- نقطة ثانية&#10;&#10;**نص bold** و [رابط](https://example.com)"></textarea>
-          <div style="padding:10px 14px;background:#0e0e0e;border-top:1px solid #1a1a1a;font-size:11px;color:#666;line-height:1.7">
-            <code style="background:#1a1a1a;padding:1px 6px;border-radius:3px;color:var(--o);font-size:10.5px">#</code> عناوين ·
-            <code style="background:#1a1a1a;padding:1px 6px;border-radius:3px;color:var(--o);font-size:10.5px">**bold**</code> ·
-            <code style="background:#1a1a1a;padding:1px 6px;border-radius:3px;color:var(--o);font-size:10.5px">&gt;</code> اقتباس ·
-            <code style="background:#1a1a1a;padding:1px 6px;border-radius:3px;color:var(--o);font-size:10.5px">- عنصر</code> قائمة ·
-            <code style="background:#1a1a1a;padding:1px 6px;border-radius:3px;color:var(--o);font-size:10.5px">[نص](url)</code> رابط ·
-            <code style="background:#1a1a1a;padding:1px 6px;border-radius:3px;color:var(--o);font-size:10.5px">![alt](url)</code> صورة
-          </div>
+        <div class="cart-toolbar" id="cart_rich_toolbar">
+          <select class="cart-tb-select" onchange="cRich('formatBlock', this.value); this.value=''" title="نمط الفقرة">
+            <option value="">نمط...</option>
+            <option value="p">فقرة</option>
+            <option value="h1">عنوان 1</option>
+            <option value="h2">عنوان 2</option>
+            <option value="h3">عنوان 3</option>
+            <option value="blockquote">اقتباس</option>
+            <option value="pre">كود</option>
+          </select>
+          <span class="cart-tb-sep"></span>
+          <button type="button" class="cart-tb-btn" onclick="cRich('bold')" title="Bold" style="font-weight:900">B</button>
+          <button type="button" class="cart-tb-btn" onclick="cRich('italic')" title="Italic" style="font-style:italic">I</button>
+          <button type="button" class="cart-tb-btn" onclick="cRich('underline')" title="Underline" style="text-decoration:underline">U</button>
+          <button type="button" class="cart-tb-btn" onclick="cRich('strikeThrough')" title="Strike" style="text-decoration:line-through">S</button>
+          <span class="cart-tb-sep"></span>
+          <button type="button" class="cart-tb-btn" onclick="cRich('insertUnorderedList')" title="قائمة نقطية"><i class="fa-solid fa-list-ul"></i></button>
+          <button type="button" class="cart-tb-btn" onclick="cRich('insertOrderedList')" title="قائمة مرقمة"><i class="fa-solid fa-list-ol"></i></button>
+          <span class="cart-tb-sep"></span>
+          <button type="button" class="cart-tb-btn" onclick="cRich('justifyRight')" title="يمين"><i class="fa-solid fa-align-right"></i></button>
+          <button type="button" class="cart-tb-btn" onclick="cRich('justifyCenter')" title="وسط"><i class="fa-solid fa-align-center"></i></button>
+          <button type="button" class="cart-tb-btn" onclick="cRich('justifyLeft')" title="يسار"><i class="fa-solid fa-align-left"></i></button>
+          <span class="cart-tb-sep"></span>
+          <button type="button" class="cart-tb-btn" onclick="cRichLink()" title="رابط"><i class="fa-solid fa-link"></i></button>
+          <button type="button" class="cart-tb-btn" onclick="cRichImage()" title="صورة"><i class="fa-solid fa-image"></i></button>
+          <button type="button" class="cart-tb-btn" onclick="cRich('formatBlock','blockquote')" title="اقتباس"><i class="fa-solid fa-quote-right"></i></button>
+          <button type="button" class="cart-tb-btn danger" onclick="cRich('removeFormat')" title="مسح التنسيق"><i class="fa-solid fa-eraser"></i></button>
+          <span class="cart-tb-sep"></span>
+          <button type="button" class="cart-tb-btn" onclick="cToggleMode()" id="cart_mode_btn" title="تبديل بين نص وHTML" style="width:auto;padding:0 10px;font-size:11px">&lt;/&gt; HTML</button>
         </div>
-        <!-- Excerpts -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-          <div class="form-group" style="margin-bottom:0">
-            <label class="form-label" style="font-size:11px;color:#888;margin-bottom:6px;display:block">مقتطف (AR) — يظهر في القائمة</label>
-            <textarea class="form-input" id="cart_excerpt_ar" maxlength="500" style="min-height:60px;font-size:13px;line-height:1.6;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:10px" placeholder="وصف قصير للمقال..."></textarea>
-          </div>
-          <div class="form-group" style="margin-bottom:0">
-            <label class="form-label" style="font-size:11px;color:#888;margin-bottom:6px;display:block">Excerpt (EN)</label>
-            <textarea class="form-input" id="cart_excerpt_en" dir="ltr" maxlength="500" style="min-height:60px;font-size:13px;line-height:1.6;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:10px" placeholder="Short summary..."></textarea>
-          </div>
+        <div class="cart-editor-wrap">
+          <div id="cart_editor_rich" class="cart-editor" contenteditable="true" data-placeholder="ابدأ الكتابة هنا... استخدم الأزرار في الأعلى لإضافة عناوين، Bold، قوائم، روابط، صور..."></div>
+          <textarea id="cart_editor_html" class="cart-html-textarea" style="display:none" placeholder="<h2>عنوان</h2>&#10;<p>الصق كود HTML هنا...</p>"></textarea>
         </div>
+        <input type="hidden" id="cart_content" value="">
+        <input type="hidden" id="cart_mode" value="html">
       </div>
-      <!-- Right: sidebar (cover, settings) -->
-      <aside style="display:flex;flex-direction:column;gap:14px;position:sticky;top:0">
-        <!-- Cover image -->
-        <div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;padding:14px">
-          <label style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:10px"><i class="fa-solid fa-image" style="color:var(--o)"></i> صورة الغلاف</label>
-          <div id="cart_cover_preview" style="width:100%;aspect-ratio:16/10;border-radius:8px;background:#0a0a0a;border:1px dashed #2a2a2a;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#444;font-size:32px;margin-bottom:10px">
-            <i class="fa-solid fa-image"></i>
-          </div>
+      <aside class="cart-side">
+        <div class="cart-side-card">
+          <div class="cart-side-label"><i class="fa-solid fa-image"></i> صورة الغلاف</div>
+          <div id="cart_cover_preview" class="cart-cover-preview"><i class="fa-solid fa-image"></i></div>
           <input type="hidden" id="cart_cover_url" value="">
           <input type="file" id="cart_cover_file" accept="image/*" style="display:none" onchange="cArtUploadCover(this)">
           <div style="display:flex;gap:6px">
-            <button type="button" onclick="document.getElementById('cart_cover_file').click()" style="flex:1;background:var(--o);border:none;color:#fff;padding:9px;border-radius:7px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700"><i class="fa-solid fa-upload"></i> رفع</button>
-            <button type="button" onclick="cArtClearCover()" style="background:transparent;border:1px solid #333;color:#888;padding:9px 12px;border-radius:7px;cursor:pointer;font-family:inherit;font-size:12px" title="حذف"><i class="fa-solid fa-trash"></i></button>
+            <button type="button" onclick="document.getElementById('cart_cover_file').click()" style="flex:1;background:var(--o);border:none;color:#fff;padding:8px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700"><i class="fa-solid fa-upload"></i> رفع</button>
+            <button type="button" onclick="cArtClearCover()" style="background:transparent;border:1px solid #333;color:#888;padding:8px 11px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:12px" title="حذف"><i class="fa-solid fa-trash"></i></button>
           </div>
         </div>
-        <!-- Slug -->
-        <div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;padding:14px">
-          <label style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:8px"><i class="fa-solid fa-link" style="color:var(--o)"></i> رابط مختصر</label>
-          <input class="form-input" id="cart_slug" dir="ltr" placeholder="auto" style="background:#0e0e0e;border:1px solid #1a1a1a;border-radius:7px;padding:8px 10px;font-size:12px;font-family:Menlo,monospace;color:#ccc">
+        <div class="cart-side-card">
+          <div class="cart-side-label"><i class="fa-solid fa-quote-left"></i> مقتطف</div>
+          <textarea id="cart_excerpt_ar" maxlength="500" placeholder="وصف عربي قصير..."></textarea>
+          <textarea id="cart_excerpt_en" dir="ltr" maxlength="500" placeholder="English summary..." style="margin-top:7px"></textarea>
         </div>
-        <!-- Tags -->
-        <div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;padding:14px">
-          <label style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:8px"><i class="fa-solid fa-tags" style="color:var(--o)"></i> الوسوم</label>
-          <input class="form-input" id="cart_tags" placeholder="design, seo, branding" style="background:#0e0e0e;border:1px solid #1a1a1a;border-radius:7px;padding:8px 10px;font-size:12px">
-          <p style="font-size:10.5px;color:#666;margin-top:5px">افصل بفاصلة (،)</p>
+        <div class="cart-side-card">
+          <div class="cart-side-label"><i class="fa-solid fa-link"></i> رابط مختصر</div>
+          <input id="cart_slug" dir="ltr" placeholder="auto" style="font-family:Menlo,monospace">
         </div>
-        <!-- Status -->
-        <div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;padding:14px">
-          <label style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:8px"><i class="fa-solid fa-eye" style="color:var(--o)"></i> الحالة</label>
-          <select class="form-input" id="cart_published" style="background:#0e0e0e;border:1px solid #1a1a1a;border-radius:7px;padding:8px 10px;font-size:12px;width:100%">
-            <option value="1">✓ منشور — مرئي للزوار</option>
-            <option value="0">⊘ مسودة — مخفي</option>
+        <div class="cart-side-card">
+          <div class="cart-side-label"><i class="fa-solid fa-tags"></i> الوسوم</div>
+          <input id="cart_tags" placeholder="design, seo, branding">
+          <p style="font-size:10.5px;color:#666;margin:6px 0 0">افصل بفاصلة</p>
+        </div>
+        <div class="cart-side-card">
+          <div class="cart-side-label"><i class="fa-solid fa-eye"></i> الحالة</div>
+          <select id="cart_published">
+            <option value="1">✓ منشور</option>
+            <option value="0">⊘ مسودة</option>
           </select>
         </div>
       </aside>
     </div>
-    <!-- Sticky footer with actions -->
-    <div style="padding:14px 24px;border-top:1px solid #1f1f1f;display:flex;gap:10px;flex-shrink:0;background:#0a0a0a">
-      <button class="btn-add" style="flex:1" onclick="saveClientArticle()"><i class="fa-solid fa-floppy-disk"></i> حفظ المقال</button>
-      <button onclick="closeClientArticleEditor()" style="background:transparent;border:1px solid #2a2a2a;color:#aaa;padding:11px 28px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600">إلغاء</button>
+    <div class="cart-foot">
+      <button class="btn-save" onclick="saveClientArticle()"><i class="fa-solid fa-floppy-disk"></i> حفظ المقال</button>
+      <button class="btn-cancel" onclick="closeClientArticleEditor()">إلغاء</button>
     </div>
   </div>
 </div>
-<style>
-@media(max-width:880px){#cArtBody{grid-template-columns:1fr!important}}
-</style>
 
 <!-- SOCIAL TAB -->
 <div id="tab-social" style="display:none;">
@@ -3401,10 +3449,20 @@ async function initApp(){
 }
 
 // ══ TABS ══
-function setTab(tab,el){
-  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));el.classList.add('active');
+function setTab(tab,el,opts){
+  opts = opts || {};
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  else {
+    // find sidebar item by data tab name
+    const btn = [...document.querySelectorAll('.ni')].find(n => (n.getAttribute('onclick')||'').includes(`setTab('${tab}'`));
+    if(btn) btn.classList.add('active');
+  }
   // Close any open modals when switching tabs (prevents modal bleeding into other tabs)
-  document.querySelectorAll('.modal-overlay').forEach(m=>{ if(m.style.display==='flex') m.style.display='none'; });
+  document.querySelectorAll('.modal-overlay, .cart-modal').forEach(m=>{
+    if(m.classList.contains('cart-modal')) m.classList.remove('open');
+    else if(m.style.display==='flex') m.style.display='none';
+  });
   ['projects','analytics','categories','colors','design','sections','navbar','content','logos','achievements','testimonials','articles','social','users'].forEach(t=>{
     const d=document.getElementById('tab-'+t);if(d)d.style.display=t===tab?'block':'none';
   });
@@ -3419,7 +3477,32 @@ function setTab(tab,el){
   if(tab==='testimonials')loadTestimonials();
   if(tab==='articles')loadClientArticles();
   if(window.innerWidth<=900)toggleSidebar(false);
+  // History — push so browser back returns to previous tab/section instead of forcing refresh
+  if(!opts.fromPop){
+    const newHash = '#'+tab;
+    if(location.hash !== newHash){
+      try{ history.pushState({tab}, '', newHash); }catch(e){}
+    }
+  }
 }
+// Restore tab on back/forward and on initial load
+window.addEventListener('popstate', (e)=>{
+  // Close any open modal/sub-view first
+  const openModal = document.querySelector('.cart-modal.open, .modal-overlay[style*="flex"]');
+  if(openModal){
+    if(openModal.classList.contains('cart-modal')) openModal.classList.remove('open');
+    else openModal.style.display='none';
+    return;
+  }
+  const tab = (location.hash||'').replace('#','') || 'projects';
+  setTab(tab, null, {fromPop:true});
+});
+window.addEventListener('DOMContentLoaded', ()=>{
+  const h = (location.hash||'').replace('#','');
+  if(h && document.getElementById('tab-'+h)){
+    setTab(h, null, {fromPop:true});
+  }
+});
 
 // ══ ARTICLES (Client) ══
 let _cArticles = [], _cEditingId = null;
@@ -3462,13 +3545,76 @@ async function loadClientArticles(){
   }catch(e){ wrap.innerHTML = `<div style="color:#ef4444;padding:30px;text-align:center">${e.message}</div>`; }
 }
 
+// ══ Rich text helpers (client) ══
+function cRich(cmd, val){
+  const ed=document.getElementById('cart_editor_rich');
+  if(document.activeElement!==ed) ed.focus();
+  try{ document.execCommand(cmd, false, val||null); }catch(e){}
+}
+function cRichLink(){
+  const u = prompt('رابط (URL):', 'https://'); if(!u) return;
+  cRich('createLink', u);
+}
+function cRichImage(){
+  const u = prompt('رابط الصورة:', 'https://'); if(!u) return;
+  cRich('insertImage', u);
+}
+function cToggleMode(){
+  const rich=document.getElementById('cart_editor_rich');
+  const html=document.getElementById('cart_editor_html');
+  const tb=document.getElementById('cart_rich_toolbar');
+  const btn=document.getElementById('cart_mode_btn');
+  if(html.style.display==='none'){
+    // switch to HTML mode
+    html.value = rich.innerHTML;
+    html.style.display='block'; rich.style.display='none';
+    [...tb.children].forEach(c=>{ if(c!==btn) c.style.display='none'; });
+    btn.innerHTML='✎ نص';
+    document.getElementById('cart_mode').value='html';
+  } else {
+    rich.innerHTML = html.value;
+    html.style.display='none'; rich.style.display='block';
+    [...tb.children].forEach(c=> c.style.display='');
+    btn.innerHTML='&lt;/&gt; HTML';
+    document.getElementById('cart_mode').value='html';
+  }
+}
+// crude markdown→HTML for legacy articles (so they show formatted in rich editor on edit)
+function cMdToHtml(md){
+  if(!md) return '';
+  if(/<[a-z][\s\S]*>/i.test(md)) return md; // already html
+  let h = md
+    .replace(/^### (.*)$/gm,'<h3>$1</h3>')
+    .replace(/^## (.*)$/gm,'<h2>$1</h2>')
+    .replace(/^# (.*)$/gm,'<h1>$1</h1>')
+    .replace(/^> (.*)$/gm,'<blockquote>$1</blockquote>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,'<em>$1</em>')
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g,'<img alt="$1" src="$2">')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2">$1</a>');
+  // lists
+  h = h.replace(/(^- .*(?:\n- .*)*)/gm, m => '<ul>'+m.split('\n').map(l=>'<li>'+l.replace(/^- /,'')+'</li>').join('')+'</ul>');
+  // paragraphs
+  h = h.split(/\n{2,}/).map(b=>{
+    if(/^<(h1|h2|h3|ul|ol|blockquote|img)/.test(b.trim())) return b;
+    return '<p>'+b.replace(/\n/g,'<br>')+'</p>';
+  }).join('\n');
+  return h;
+}
+
 async function openClientArticleEditor(id){
   _cEditingId = id;
-  ['cart_title_ar','cart_title_en','cart_slug','cart_excerpt_ar','cart_excerpt_en','cart_content','cart_tags'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
+  ['cart_title_ar','cart_title_en','cart_slug','cart_excerpt_ar','cart_excerpt_en','cart_tags'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
   document.getElementById('cart_cover_url').value='';
   document.getElementById('cart_cover_preview').innerHTML='<i class="fa-solid fa-image"></i>';
-  document.getElementById('cart_mode').value='markdown';
   document.getElementById('cart_published').value='1';
+  document.getElementById('cart_editor_rich').innerHTML='';
+  document.getElementById('cart_editor_html').value='';
+  document.getElementById('cart_editor_html').style.display='none';
+  document.getElementById('cart_editor_rich').style.display='block';
+  document.getElementById('cart_mode').value='html';
+  const tb=document.getElementById('cart_rich_toolbar'); [...tb.children].forEach(c=> c.style.display='');
+  document.getElementById('cart_mode_btn').innerHTML='&lt;/&gt; HTML';
   document.getElementById('cArtModalTitle').textContent = id ? 'تعديل مقال' : 'مقال جديد';
   if(id){
     try{
@@ -3478,16 +3624,17 @@ async function openClientArticleEditor(id){
       document.getElementById('cart_slug').value=a.slug||'';
       document.getElementById('cart_excerpt_ar').value=a.excerpt_ar||'';
       document.getElementById('cart_excerpt_en').value=a.excerpt_en||'';
-      document.getElementById('cart_content').value=a.content||'';
-      document.getElementById('cart_mode').value=a.mode||'markdown';
+      const raw = a.content||'';
+      const asHtml = (a.mode==='markdown') ? cMdToHtml(raw) : raw;
+      document.getElementById('cart_editor_rich').innerHTML = asHtml;
       document.getElementById('cart_tags').value=(a.tags||[]).join(', ');
       document.getElementById('cart_published').value=a.published?'1':'0';
-      if(a.cover_url){document.getElementById('cart_cover_url').value=a.cover_url;document.getElementById('cart_cover_preview').innerHTML=`<img src="${a.cover_url}" style="width:100%;height:100%;object-fit:cover">`;}
+      if(a.cover_url){document.getElementById('cart_cover_url').value=a.cover_url;document.getElementById('cart_cover_preview').innerHTML=`<img src="${a.cover_url}">`;}
     }catch{ toast('خطأ في التحميل'); return; }
   }
-  document.getElementById('cArtModal').style.display='flex';
+  document.getElementById('cArtModal').classList.add('open');
 }
-function closeClientArticleEditor(){document.getElementById('cArtModal').style.display='none';_cEditingId=null;}
+function closeClientArticleEditor(){document.getElementById('cArtModal').classList.remove('open');_cEditingId=null;}
 function cArtAutoSlug(){
   if(_cEditingId) return;
   const t = document.getElementById('cart_title_en').value||document.getElementById('cart_title_ar').value;
@@ -3505,6 +3652,10 @@ async function cArtUploadCover(input){
 }
 function cArtClearCover(){document.getElementById('cart_cover_url').value='';document.getElementById('cart_cover_preview').innerHTML='<i class="fa-solid fa-image"></i>';}
 async function saveClientArticle(){
+  // Pull content from whichever editor is active
+  const htmlTa = document.getElementById('cart_editor_html');
+  const richEd = document.getElementById('cart_editor_rich');
+  const content = (htmlTa.style.display!=='none') ? htmlTa.value.trim() : richEd.innerHTML.trim();
   const p={
     title_ar: document.getElementById('cart_title_ar').value.trim(),
     title_en: document.getElementById('cart_title_en').value.trim(),
@@ -3512,17 +3663,18 @@ async function saveClientArticle(){
     excerpt_ar: document.getElementById('cart_excerpt_ar').value.trim(),
     excerpt_en: document.getElementById('cart_excerpt_en').value.trim(),
     cover_url: document.getElementById('cart_cover_url').value.trim(),
-    content: document.getElementById('cart_content').value.trim(),
-    mode: document.getElementById('cart_mode').value,
+    content: content,
+    mode: 'html',
     tags: document.getElementById('cart_tags').value.trim(),
     published: document.getElementById('cart_published').value==='1',
   };
   // Validation — clear messages for each missing field
   const missing = [];
-  const flash = (id) => { const el=document.getElementById(id); if(!el) return; el.style.border='2px solid #ef4444'; setTimeout(()=>{el.style.border='';}, 3000); };
+  const flash = (id) => { const el=document.getElementById(id); if(!el) return; el.style.outline='2px solid #ef4444'; setTimeout(()=>{el.style.outline='';}, 3000); };
   if(!p.title_ar && !p.title_en){ missing.push('العنوان (عربي أو إنجليزي)'); flash('cart_title_ar'); flash('cart_title_en'); }
-  if(!p.content){ missing.push('محتوى المقال'); flash('cart_content'); }
-  if(p.content && p.content.length < 30){ missing.push('المحتوى قصير جداً (على الأقل 30 حرف)'); flash('cart_content'); }
+  const plain = content.replace(/<[^>]+>/g,'').trim();
+  if(!plain){ missing.push('محتوى المقال'); flash('cart_editor_rich'); flash('cart_editor_html'); }
+  if(plain && plain.length < 30){ missing.push('المحتوى قصير جداً (على الأقل 30 حرف)'); flash('cart_editor_rich'); flash('cart_editor_html'); }
   if(missing.length){
     toast('⚠️ مطلوب: ' + missing.join(' · '), 'error');
     return;
