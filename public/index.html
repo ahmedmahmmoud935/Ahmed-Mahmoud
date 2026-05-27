@@ -234,9 +234,15 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
 /* ── PROJECT DETAIL PAGE (Behance-style overlay) ── */
 #projectPage{
   display:none;position:fixed;inset:0;z-index:2000;
-  background:var(--bg);overflow-y:auto;
+  background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;
+  width:100vw;height:100vh;height:100dvh;
   animation:pgIn .3s ease;
 }
+/* When project is open: lock the body in place (fixes iOS Safari background scrolling through) and hide site-level floats */
+body.pg-open{position:fixed;width:100%;overflow:hidden;}
+body.pg-open .wa-float,
+body.pg-open #waFloat,
+body.pg-open nav#mainNav{display:none!important;}
 @keyframes pgIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
 .pg-nav{
   position:sticky;top:0;z-index:10;
@@ -831,6 +837,27 @@ body[data-theme="kinetic"] section{
   background:transparent!important;
   position:relative;
   overflow-x:clip;
+}
+/* MOBILE — kill all expensive paint effects in Kinetic theme to stop scroll flicker */
+@media(max-width:900px){
+  body[data-theme="kinetic"]::before,
+  body[data-theme="kinetic"]::after{display:none!important;}
+  body[data-theme="kinetic"] .nav-bar,
+  body[data-theme="kinetic"] nav{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+  body[data-theme="kinetic"] .exp-card,
+  body[data-theme="kinetic"] .exp-card-service,
+  body[data-theme="kinetic"] .edu-card,
+  body[data-theme="kinetic"] .tool-card,
+  body[data-theme="kinetic"] .ach-card,
+  body[data-theme="kinetic"] .t-card,
+  body[data-theme="kinetic"] .logo-card,
+  body[data-theme="kinetic"] .project-card,
+  body[data-theme="kinetic"] .pg-card{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+  body[data-theme="kinetic"] .kin-blob,
+  body[data-theme="kinetic"] .kin-ring,
+  body[data-theme="kinetic"] .kin-pulse,
+  body[data-theme="kinetic"] .kin-line,
+  body[data-theme="kinetic"] .kin-marquee{display:none!important;}
 }
 /* Alternating sections — transparent so animated bg shows through */
 body[data-theme="kinetic"] .sw,
@@ -1810,6 +1837,10 @@ function setupKineticEffects(){
   document.querySelectorAll('.kin-blob,.kin-ring,.kin-pulse,.kin-line,.kin-marquee').forEach(el=>el.remove());
 
   if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  // On mobile / touch devices: ornaments + scroll-parallax cause repaint flicker around image-heavy sections (projects)
+  // Skip ornaments entirely on small screens — keep the theme's colors/typography intact, just no animated shapes
+  const isMobile = window.innerWidth <= 900 || matchMedia('(pointer:coarse)').matches;
+  if(isMobile) return;
 
   // Variety of decorative ornaments distributed across sections
   // Each section gets a random selection so the page feels alive end-to-end
@@ -3000,6 +3031,8 @@ function openProject(idx){
   document.getElementById('projectPage').style.display='block';
   document.getElementById('projectPage').scrollTop=0;
   document.body.style.overflow='hidden';
+  document.body.classList.add('pg-open');
+  document.body.style.top = `-${_scrollY}px`;
   // Push history so browser back closes the project instead of leaving the site
   try{
     if(!history.state || !history.state.projectOpen){
@@ -3138,6 +3171,8 @@ function openLbFromPage(projIdx,imgIdx){
 function closeProjectPage(fromPop){
   document.getElementById('projectPage').style.display='none';
   document.body.style.overflow='';
+  document.body.classList.remove('pg-open');
+  document.body.style.top = '';
   window.scrollTo({top:_scrollY,behavior:'instant'});
   if(!fromPop && history.state && history.state.projectOpen){
     try{ history.back(); }catch(e){}
