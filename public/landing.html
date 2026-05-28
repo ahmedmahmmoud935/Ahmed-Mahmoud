@@ -323,7 +323,7 @@ html[dir="ltr"] .wa-float{left:auto;right:24px}
 @media(max-width:600px){.wa-float{bottom:18px;left:18px;width:54px;height:54px;font-size:26px}html[dir="ltr"] .wa-float{left:auto;right:18px}}
 
 /* Mobile bottom bar (landing) */
-.mobile-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:980;background:var(--bg2,rgba(12,12,16,.97));border-top:1px solid var(--brd);padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));grid-template-columns:1fr 1fr 1fr;align-items:end;gap:6px}
+.mobile-bar{display:none;position:fixed;top:auto!important;bottom:0;left:0;right:0;z-index:980;background:var(--bg2,rgba(12,12,16,.98));border-top:2px solid var(--o);box-shadow:0 -6px 24px rgba(0,0,0,.45);height:auto;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));grid-template-columns:1fr 1fr 1fr;align-items:end;gap:6px}
 .mobile-bar .mbar-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;background:transparent;border:none;cursor:pointer;color:var(--tx2);text-decoration:none;font-family:inherit;font-size:11px;font-weight:600;padding:6px 4px;border-radius:12px}
 .mobile-bar .mbar-btn i{font-size:20px}
 .mobile-bar .mbar-btn:active{color:var(--o)}

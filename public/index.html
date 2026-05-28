@@ -163,7 +163,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
 .projects-grid.mode-video .project-card{aspect-ratio:9/16;width:100%;}
 /* Horizontal video card (when cover image is wider than tall) */
 .projects-grid.mode-video .project-card.horizontal{aspect-ratio:4/5;}
-.project-card{position:relative;overflow:hidden;cursor:pointer;background:#111;min-height:1px;contain:layout paint;}
+.project-card{position:relative;overflow:hidden;cursor:pointer;background:#111;min-height:1px;contain:layout paint;
+  /* Stable composited layer — fixes Safari re-rasterizing rounded/clipped cards on scroll (bottom-row flicker) */
+  transform:translateZ(0);-webkit-transform:translateZ(0);
+  -webkit-backface-visibility:hidden;backface-visibility:hidden;
+  -webkit-mask-image:-webkit-radial-gradient(white,black);}
 /* Safety: ensure cards never collapse — applies even if mode-* class missing */
 .projects-grid .project-card{min-height:120px;}
 .projects-grid.mode-image .project-card img,.projects-grid.mode-video .project-card img{width:100%;height:100%;object-fit:cover;}
@@ -305,8 +309,9 @@ body.pg-open nav#mainNav{display:none!important;}
 .mnav-lang{width:100%;background:var(--accent);color:#fff;border:none;padding:13px;border-radius:10px;font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;cursor:pointer;}
 
 /* Bottom bar */
-.mobile-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:980;
-  background:rgba(var(--bg-rgb,10,10,10),.96);border-top:1px solid var(--border);
+.mobile-bar{display:none;position:fixed;top:auto!important;bottom:0;left:0;right:0;z-index:980;
+  background:rgba(var(--bg-rgb,10,10,10),.98);border-top:2px solid var(--accent);
+  box-shadow:0 -6px 24px rgba(0,0,0,.45);height:auto;
   padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
   grid-template-columns:1fr 1fr 1fr;align-items:end;gap:6px;}
 .mbar-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;background:transparent;border:none;cursor:pointer;color:var(--sub);text-decoration:none;font-family:'Cairo',sans-serif;font-size:11px;font-weight:600;padding:6px 4px;border-radius:12px;transition:color .2s;}
