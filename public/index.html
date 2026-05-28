@@ -2771,7 +2771,18 @@ function renderProjects(){
   }
 }
 
-window.addEventListener("resize",()=>{if(document.getElementById("projectsGrid"))renderProjects();});
+// Only re-render the grid when the WIDTH changes (column count depends on width).
+// On mobile, scrolling shows/hides the address bar which fires `resize` with a changed
+// HEIGHT only — rebuilding the grid there re-decoded every image on each scroll frame,
+// causing the last-row / reels flicker AND scroll jank. Ignore height-only changes.
+let _lastGridWidth = window.innerWidth;
+let _gridResizeTimer = null;
+window.addEventListener("resize",()=>{
+  if(window.innerWidth === _lastGridWidth) return;   // height-only (URL bar) → skip
+  _lastGridWidth = window.innerWidth;
+  clearTimeout(_gridResizeTimer);
+  _gridResizeTimer = setTimeout(()=>{ if(document.getElementById("projectsGrid")) renderProjects(); }, 150);
+});
 
 // ── INSTAGRAM REELS LIGHTBOX ──
 let reelList=[], reelIdx=0, reelTouchStartY=0, reelTouchStartX=0, reelMuted=true;
