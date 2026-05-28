@@ -8,6 +8,7 @@
 <style>
 :root{--o:#F97316;--od:#EA6C0A;--d:#0A0A0A;--d2:#111;--d3:#161616;--d4:#1e1e1e;--g2:#888;--w:#fff;--tx:#ccc;--red:#ef4444;--sb:260px;}
 *{margin:0;padding:0;box-sizing:border-box;}
+html{background:var(--d);}
 body{font-family:'Cairo',sans-serif;background:var(--d);color:var(--w);min-height:100vh;display:flex;}
 
 /* LOGIN */
@@ -3570,7 +3571,7 @@ async function loadClientArticles(){
   if(!wrap) return;
   wrap.innerHTML = '<div style="text-align:center;padding:40px;color:#888"><i class="fa-solid fa-spinner fa-spin"></i> جاري التحميل...</div>';
   try{
-    const r = await fetch('/api/articles', {credentials:'include'}).then(r=>r.json());
+    const r = await fetch('/api/articles', {credentials:'include', cache:'no-store'}).then(r=>r.json());
     _cArticles = r.articles || [];
     if(!_cArticles.length){
       wrap.innerHTML = '<div style="text-align:center;padding:60px;color:#888"><i class="fa-solid fa-newspaper" style="font-size:36px;color:#333;margin-bottom:14px;display:block"></i><div style="font-size:14px">لا توجد مقالات بعد</div><div style="font-size:12px;color:#888;margin-top:4px">اضغط "مقال جديد" لكتابة أول مقال</div></div>';
@@ -3614,9 +3615,34 @@ function cRichLink(){
   const u = prompt('رابط (URL):', 'https://'); if(!u) return;
   cRich('createLink', u);
 }
+function _cInsertImg(url){
+  const ed=document.getElementById('cart_editor_rich');
+  ed.focus();
+  let ok=false;
+  try{ ok=document.execCommand('insertImage', false, url); }catch(e){}
+  if(!ok){ const img=document.createElement('img'); img.src=url; img.alt=''; ed.appendChild(img); }
+}
 function cRichImage(){
-  const u = prompt('رابط الصورة:', 'https://'); if(!u) return;
-  cRich('insertImage', u);
+  // Offer device upload (main need) OR a URL
+  const fromDevice = confirm('رفع صورة من جهازك؟\n\nموافق = رفع من الجهاز\nإلغاء = إدخال رابط صورة');
+  if(fromDevice){
+    let inp=document.getElementById('cartRichImgInput');
+    if(!inp){ inp=document.createElement('input'); inp.type='file'; inp.accept='image/*'; inp.id='cartRichImgInput'; inp.style.display='none'; document.body.appendChild(inp); }
+    inp.value='';
+    inp.onchange=async ()=>{
+      const f=inp.files[0]; if(!f) return;
+      const fd=new FormData(); fd.append('file',f); fd.append('kind','image');
+      toast('⏳ جاري رفع الصورة...');
+      try{
+        const r=await fetch('/api/upload',{method:'POST',credentials:'include',body:fd}).then(r=>r.json());
+        if(r.url){ _cInsertImg(r.url); toast('✓ تمت إضافة الصورة'); }
+        else toast(r.error||'فشل رفع الصورة','error');
+      }catch{ toast('خطأ في رفع الصورة','error'); }
+    };
+    inp.click();
+  } else {
+    const u=prompt('رابط الصورة:', 'https://'); if(u) _cInsertImg(u);
+  }
 }
 function cToggleMode(){
   const rich=document.getElementById('cart_editor_rich');
@@ -3677,7 +3703,7 @@ async function openClientArticleEditor(id){
   document.getElementById('cArtModalTitle').textContent = id ? 'تعديل مقال' : 'مقال جديد';
   if(id){
     try{
-      const a = await fetch(`/api/articles/${id}`,{credentials:'include'}).then(r=>r.json());
+      const a = await fetch(`/api/articles/${id}`,{credentials:'include', cache:'no-store'}).then(r=>r.json());
       document.getElementById('cart_title_ar').value=a.title_ar||'';
       document.getElementById('cart_title_en').value=a.title_en||'';
       document.getElementById('cart_slug').value=a.slug||'';

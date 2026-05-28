@@ -1080,6 +1080,11 @@ def update_article(aid):
                 cover_url = saved
         elif cover_data.startswith('/uploads/'):
             cover_url = cover_data
+    else:
+        # Client sends the cover as `cover_url` (already-uploaded URL or empty to clear)
+        cu = d.get('cover_url')
+        if cu is not None:
+            cover_url = cu
     # Slug: keep unless user changed title and didn't set explicit slug
     new_slug = d.get('slug')
     if new_slug:

@@ -30,7 +30,7 @@
   --max:1180px;
   --max-article:780px;
 }
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;background:var(--bg)}
 body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--tx);overflow-x:hidden;line-height:1.6;min-height:100vh;display:flex;flex-direction:column}
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
@@ -50,6 +50,7 @@ body:not(.app-ready) .nav,body:not(.app-ready) #main,body:not(.app-ready) .foote
 .nav-logo{display:flex;align-items:center;gap:8px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:16px}
 .nav-logo i{color:var(--o);font-size:18px}
 .nav-logo img{height:32px;width:auto;max-width:240px;object-fit:contain}
+.nav-right{display:flex;align-items:center;gap:30px}
 .nav-links{display:flex;align-items:center;gap:30px;list-style:none}
 .nav-links a{font-size:14px;font-weight:600;color:var(--tx2);transition:color .2s;letter-spacing:.5px}
 .nav-links a:hover,.nav-links a.active{color:var(--o)}
@@ -156,10 +157,12 @@ body[data-design="kinetic"] .footer-mini{background:rgba(var(--bg-rgb,10,10,10),
 <nav class="nav">
   <div class="nav-inner">
     <a href="#" class="nav-logo" id="navLogo"><i class="fa-solid fa-gem"></i> <span>ViralPX</span></a>
-    <ul class="nav-links" id="navLinks"></ul>
-    <div class="nav-cta">
-      <button class="lang-btn" onclick="toggleLang()" id="langBtn">EN</button>
-      <button class="nav-burger" onclick="toggleMobMenu()" aria-label="menu"><i class="fa-solid fa-bars"></i></button>
+    <div class="nav-right">
+      <ul class="nav-links" id="navLinks"></ul>
+      <div class="nav-cta">
+        <button class="lang-btn" onclick="toggleLang()" id="langBtn">EN</button>
+        <button class="nav-burger" onclick="toggleMobMenu()" aria-label="menu"><i class="fa-solid fa-bars"></i></button>
+      </div>
     </div>
   </div>
 </nav>
@@ -224,7 +227,7 @@ async function loadArticles(slug){
     ? `/api/articles?username=${encodeURIComponent(OWNER_USERNAME)}`
     : '/api/articles';
   try{
-    const r = await fetch(url).then(r=>r.json());
+    const r = await fetch(url, {cache:'no-store'}).then(r=>r.json());
     ARTICLES = r.articles || [];
   }catch{ ARTICLES = []; }
   if(MODE === 'single'){
