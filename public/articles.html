@@ -37,20 +37,28 @@ a{color:inherit;text-decoration:none}
 button{font-family:inherit;cursor:pointer;border:none}
 .wrap{max-width:var(--max);margin:0 auto;padding:0 24px;width:100%}
 
+/* ─── App loader / FOUC gate ─── */
+#appLoader{position:fixed;inset:0;z-index:99999;background:var(--bg,#0a0a0a);display:flex;align-items:center;justify-content:center;transition:opacity .35s ease}
+#appLoader.hide{opacity:0;pointer-events:none}
+.app-spinner{width:42px;height:42px;border:3px solid rgba(255,255,255,.12);border-top-color:var(--o,#f97316);border-radius:50%;animation:appspin .7s linear infinite}
+@keyframes appspin{to{transform:rotate(360deg)}}
+body:not(.app-ready) .nav,body:not(.app-ready) #main,body:not(.app-ready) .footer-mini{visibility:hidden!important}
+
 /* ─── NAVBAR (consistent with landing/portfolio) ─── */
-.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(var(--bg-rgb,10,10,10),.85);backdrop-filter:blur(14px);border-bottom:1px solid var(--brd);transition:all .3s}
-.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;max-width:var(--max);margin:0 auto}
-.nav-logo{display:flex;align-items:center;gap:10px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:18px}
-.nav-logo i{color:var(--o);font-size:20px}
-.nav-logo img{height:36px;width:auto;max-width:240px;object-fit:contain}
-.nav-links{display:flex;align-items:center;gap:28px;list-style:none}
-.nav-links a{font-size:14px;font-weight:600;color:var(--tx2);transition:color .2s}
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(var(--bg-rgb,10,10,10),.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--brd);transition:background .4s,box-shadow .3s}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:0 60px;height:70px;margin:0 auto}
+.nav-logo{display:flex;align-items:center;gap:8px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:16px}
+.nav-logo i{color:var(--o);font-size:18px}
+.nav-logo img{height:32px;width:auto;max-width:240px;object-fit:contain}
+.nav-links{display:flex;align-items:center;gap:30px;list-style:none}
+.nav-links a{font-size:14px;font-weight:600;color:var(--tx2);transition:color .2s;letter-spacing:.5px}
 .nav-links a:hover,.nav-links a.active{color:var(--o)}
 .nav-cta{display:flex;align-items:center;gap:10px}
-.lang-btn{background:transparent;color:var(--tx2);font-size:13px;font-weight:700;padding:8px 12px;border-radius:8px;border:1px solid var(--brd2);transition:all .2s;cursor:pointer;font-family:inherit}
-.lang-btn:hover{border-color:var(--o);color:var(--o)}
-.nav-burger{display:none;background:transparent;color:var(--tx);font-size:20px;padding:8px;cursor:pointer}
-@media(max-width:900px){.nav-links{display:none}.nav-burger{display:block}}
+.lang-btn{background:transparent;color:var(--tx);font-size:12px;font-weight:700;padding:6px 12px;border-radius:18px;border:1px solid var(--brd2);transition:all .2s;cursor:pointer;font-family:'Montserrat',sans-serif}
+.lang-btn:hover{border-color:var(--o);background:var(--o);color:#fff}
+.nav-burger{display:none;background:transparent;border:none;color:var(--tx);font-size:22px;padding:6px 10px;cursor:pointer}
+@media(max-width:900px){.nav-links{display:none}.nav-burger{display:block};.nav-inner{padding:0 18px;height:60px}}
+@media(max-width:600px){.nav{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(var(--bg-rgb,10,10,10),.98)!important}}
 
 /* ─── ARTICLES LIST ─── */
 main{flex:1;padding-top:140px;padding-bottom:80px}
@@ -143,6 +151,7 @@ body[data-design="kinetic"] .footer-mini{background:rgba(var(--bg-rgb,10,10,10),
 </style>
 </head>
 <body>
+<div id="appLoader"><div class="app-spinner"></div></div>
 
 <nav class="nav">
   <div class="nav-inner">
@@ -188,6 +197,7 @@ async function init(){
   await loadArticles(slug);
   applyLang();
   render();
+  requestAnimationFrame(revealApp);
 }
 
 async function loadData(){
@@ -419,6 +429,12 @@ function renderNotFound(){
       <p style="color:var(--tx3);font-size:16px;margin-bottom:24px">${ar()?'لم يتم العثور على المقال':'Article not found'}</p>
       <a href="${OWNER_USERNAME?'/'+encodeURIComponent(OWNER_USERNAME):''}/articles" style="background:var(--o);color:#fff;padding:12px 26px;border-radius:10px;font-weight:700">← ${ar()?'كل المقالات':'Back to articles'}</a>
     </div>`;
+  revealApp();
+}
+function revealApp(){
+  document.body.classList.add('app-ready');
+  const ld=document.getElementById('appLoader');
+  if(ld && !ld.classList.contains('hide')){ ld.classList.add('hide'); setTimeout(()=>ld.remove(),400); }
 }
 
 // ─── Markdown renderer (lightweight, safe) ───

@@ -61,6 +61,13 @@ button{font-family:inherit;cursor:pointer;border:none}
 /* Container */
 .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
 
+/* ─── App loader / FOUC gate ─── */
+#appLoader{position:fixed;inset:0;z-index:99999;background:var(--bg,#0a0a0a);display:flex;align-items:center;justify-content:center;transition:opacity .35s ease}
+#appLoader.hide{opacity:0;pointer-events:none}
+.app-spinner{width:42px;height:42px;border:3px solid rgba(255,255,255,.12);border-top-color:var(--o,#f97316);border-radius:50%;animation:appspin .7s linear infinite}
+@keyframes appspin{to{transform:rotate(360deg)}}
+body:not(.app-ready) .nav,body:not(.app-ready) #main,body:not(.app-ready) .footer,body:not(.app-ready) .mobile-bar,body:not(.app-ready) .wa-float{visibility:hidden!important}
+
 /* ─── NAVBAR ─── */
 .nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,10,.85);backdrop-filter:blur(14px);border-bottom:1px solid var(--brd);transition:all .3s}
 .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;max-width:var(--max);margin:0 auto;min-height:76px}
@@ -323,13 +330,16 @@ html[dir="ltr"] .wa-float{left:auto;right:24px}
 @media(max-width:600px){.wa-float{bottom:18px;left:18px;width:54px;height:54px;font-size:26px}html[dir="ltr"] .wa-float{left:auto;right:18px}}
 
 /* Mobile bottom bar (landing) */
-.mobile-bar{display:none;position:fixed;top:auto!important;bottom:0;left:0;right:0;z-index:980;background:var(--bg2,rgba(12,12,16,.98));border-top:2px solid var(--o);box-shadow:0 -6px 24px rgba(0,0,0,.45);height:auto;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));grid-template-columns:1fr 1fr 1fr;align-items:end;gap:6px}
-.mobile-bar .mbar-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;background:transparent;border:none;cursor:pointer;color:var(--tx2);text-decoration:none;font-family:inherit;font-size:11px;font-weight:600;padding:6px 4px;border-radius:12px}
-.mobile-bar .mbar-btn i{font-size:20px}
-.mobile-bar .mbar-btn:active{color:var(--o)}
-.mobile-bar .mbar-center{transform:translateY(-14px)}
-.mobile-bar .mbar-center .mbar-ic{width:58px;height:58px;border-radius:50%;background:var(--o);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 6px 20px rgba(249,115,22,.5);margin-bottom:2px}
+.mobile-bar{display:none;position:fixed;top:auto!important;bottom:0;left:0;right:0;z-index:980;background:var(--bg2,rgba(12,12,16,.98));border-top:2px solid var(--o);box-shadow:0 -6px 24px rgba(0,0,0,.45);height:auto;padding:10px 18px calc(10px + env(safe-area-inset-bottom,0px));grid-template-columns:1fr 1fr 1fr;align-items:end;gap:10px}
+.mobile-bar .mbar-btn{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:7px;background:transparent;border:none;cursor:pointer;color:var(--tx2);text-decoration:none;font-family:inherit;font-size:11px;font-weight:600;padding:4px 2px;border-radius:12px;transition:transform .18s cubic-bezier(.34,1.56,.64,1),color .2s;-webkit-tap-highlight-color:transparent}
+.mobile-bar .mbar-btn i{font-size:22px;height:24px;display:flex;align-items:center;justify-content:center;line-height:1}
+.mobile-bar .mbar-btn span{line-height:1}
+.mobile-bar .mbar-btn:active{color:var(--o);transform:scale(1.22)}
+.mobile-bar .mbar-center{justify-content:flex-end}
+.mobile-bar .mbar-center .mbar-ic{width:56px;height:56px;border-radius:50%;background:var(--o);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 6px 20px rgba(249,115,22,.55);margin-bottom:4px;transition:transform .18s cubic-bezier(.34,1.56,.64,1)}
 .mobile-bar .mbar-center span{color:var(--tx);font-weight:700}
+.mobile-bar .mbar-center:active{transform:none}
+.mobile-bar .mbar-center:active .mbar-ic{transform:scale(1.15)}
 @media(max-width:600px){.mobile-bar{display:grid}.wa-float{display:none!important}body:not(.no-mbar){padding-bottom:74px}body.no-mbar .mobile-bar{display:none!important}}
 
 /* ─── HERO SIZE + ALIGN VARIANTS ─── */
@@ -626,6 +636,7 @@ body[data-design="kinetic"] .footer{
 </style>
 </head>
 <body>
+<div id="appLoader"><div class="app-spinner"></div></div>
 
 <!-- ───── NAVBAR ───── -->
 <nav class="nav">
@@ -684,11 +695,18 @@ async function init(){
   }catch{ DATA = null; }
   if(!DATA){
     document.getElementById('main').innerHTML = '<div style="padding:120px 24px;text-align:center;color:#888"><i class="fa-solid fa-triangle-exclamation" style="font-size:48px;color:#F97316;margin-bottom:20px;display:block"></i>تعذّر تحميل البيانات. حاول إعادة تحميل الصفحة.</div>';
+    revealApp();
     return;
   }
   applyLang();
   render();
   setupScroll();
+  requestAnimationFrame(revealApp);
+}
+function revealApp(){
+  document.body.classList.add('app-ready');
+  const ld=document.getElementById('appLoader');
+  if(ld && !ld.classList.contains('hide')){ ld.classList.add('hide'); setTimeout(()=>ld.remove(),400); }
 }
 
 function applyLang(){

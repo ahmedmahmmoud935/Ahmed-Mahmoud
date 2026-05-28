@@ -50,6 +50,18 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overf
 /* In LTR (English): push button further left from links; in RTL (Arabic): push further right */
 [dir="ltr"] .nav-lang-btn{margin-left:28px;}
 [dir="rtl"] .nav-lang-btn{margin-right:28px;}
+/* ── App loader / FOUC gate ── */
+#appLoader{position:fixed;inset:0;z-index:99999;background:var(--bg,#0a0a0a);display:flex;align-items:center;justify-content:center;transition:opacity .35s ease;}
+#appLoader.hide{opacity:0;pointer-events:none;}
+.app-spinner{width:42px;height:42px;border:3px solid rgba(255,255,255,.12);border-top-color:var(--accent,#f97316);border-radius:50%;animation:appspin .7s linear infinite;}
+@keyframes appspin{to{transform:rotate(360deg);}}
+/* Hide structural chrome until the app has rendered (prevents flash of empty nav/drawer/bar) */
+body:not(.app-ready) #mainNav,
+body:not(.app-ready) .mobile-bar,
+body:not(.app-ready) .mnav-drawer,
+body:not(.app-ready) .mnav-overlay,
+body:not(.app-ready) #waFloat,
+body:not(.app-ready) footer{visibility:hidden!important;}
 nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:center;justify-content:space-between;padding:0 60px;height:70px;background:rgba(var(--bg-rgb,10,10,10),.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:background .4s,box-shadow .3s;}
 .nav-logo{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:700;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px;}
 .nav-logo i{color:var(--accent);}
@@ -163,11 +175,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
 .projects-grid.mode-video .project-card{aspect-ratio:9/16;width:100%;}
 /* Horizontal video card (when cover image is wider than tall) */
 .projects-grid.mode-video .project-card.horizontal{aspect-ratio:4/5;}
-.project-card{position:relative;overflow:hidden;cursor:pointer;background:#111;min-height:1px;contain:layout paint;
-  /* Stable composited layer — fixes Safari re-rasterizing rounded/clipped cards on scroll (bottom-row flicker) */
-  transform:translateZ(0);-webkit-transform:translateZ(0);
-  -webkit-backface-visibility:hidden;backface-visibility:hidden;
-  -webkit-mask-image:-webkit-radial-gradient(white,black);}
+.project-card{position:relative;overflow:hidden;cursor:pointer;background:#111;min-height:1px;}
 /* Safety: ensure cards never collapse — applies even if mode-* class missing */
 .projects-grid .project-card{min-height:120px;}
 .projects-grid.mode-image .project-card img,.projects-grid.mode-video .project-card img{width:100%;height:100%;object-fit:cover;}
@@ -312,14 +320,18 @@ body.pg-open nav#mainNav{display:none!important;}
 .mobile-bar{display:none;position:fixed;top:auto!important;bottom:0;left:0;right:0;z-index:980;
   background:rgba(var(--bg-rgb,10,10,10),.98);border-top:2px solid var(--accent);
   box-shadow:0 -6px 24px rgba(0,0,0,.45);height:auto;
-  padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
-  grid-template-columns:1fr 1fr 1fr;align-items:end;gap:6px;}
-.mbar-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;background:transparent;border:none;cursor:pointer;color:var(--sub);text-decoration:none;font-family:'Cairo',sans-serif;font-size:11px;font-weight:600;padding:6px 4px;border-radius:12px;transition:color .2s;}
-.mbar-btn i{font-size:20px;}
-.mbar-btn:active{color:var(--accent);}
-.mbar-btn.mbar-center{transform:translateY(-14px);}
-.mbar-btn.mbar-center .mbar-ic{width:58px;height:58px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 6px 20px rgba(var(--accent-rgb,249,115,22),.5);margin-bottom:2px;}
+  padding:10px 18px calc(10px + env(safe-area-inset-bottom,0px));
+  grid-template-columns:1fr 1fr 1fr;align-items:end;gap:10px;}
+.mbar-btn{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:7px;background:transparent;border:none;cursor:pointer;color:var(--sub);text-decoration:none;font-family:'Cairo',sans-serif;font-size:11px;font-weight:600;padding:4px 2px;border-radius:12px;
+  transition:transform .18s cubic-bezier(.34,1.56,.64,1),color .2s;-webkit-tap-highlight-color:transparent;}
+.mbar-btn i{font-size:22px;height:24px;display:flex;align-items:center;justify-content:center;line-height:1;}
+.mbar-btn span{line-height:1;}
+.mbar-btn:active{color:var(--accent);transform:scale(1.22);}
+.mbar-btn.mbar-center{justify-content:flex-end;}
+.mbar-btn.mbar-center .mbar-ic{width:56px;height:56px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 6px 20px rgba(var(--accent-rgb,249,115,22),.55);margin-bottom:4px;transition:transform .18s cubic-bezier(.34,1.56,.64,1);}
 .mbar-btn.mbar-center span{color:var(--text);font-weight:700;}
+.mbar-btn.mbar-center:active{transform:none;}
+.mbar-btn.mbar-center:active .mbar-ic{transform:scale(1.15);}
 /* ══════════════════════════════════════
    MOBILE  (≤ 600px)
 ══════════════════════════════════════ */
@@ -399,9 +411,24 @@ body.pg-open nav#mainNav{display:none!important;}
   .pg-cover{max-height:260px;}
   .pg-cover img{max-height:260px;}
   .pg-back-bottom{display:flex!important;}
-  /* PROJECTS — kill expensive paint/hover effects on mobile to stop scroll flicker */
-  .projects-grid .project-card img{will-change:auto!important;transition:none!important;}
-  .project-card:hover img{transform:none!important;}
+  /* PROJECTS — DEFINITIVE flicker fix on mobile:
+     A long grid with GPU-composited cards (translateZ/will-change/mask) causes iOS to evict &
+     re-rasterize layers while scrolling → only rows entering view flicker.
+     Solution: NO compositing layers + round the <img> directly (no overflow clip to re-raster). */
+  .project-card{
+    overflow:visible!important;
+    transform:none!important;-webkit-transform:none!important;
+    will-change:auto!important;contain:none!important;
+    -webkit-mask-image:none!important;mask-image:none!important;
+    backface-visibility:visible!important;-webkit-backface-visibility:visible!important;
+  }
+  .projects-grid.mode-image .project-card,
+  .projects-grid.mode-video .project-card,
+  .projects-grid.mode-freegrid .project-card{border-radius:8px;}
+  .project-card img{border-radius:inherit;transition:none!important;will-change:auto!important;transform:none!important;}
+  .project-card .vid-thumb,.project-card .vid-thumb img{border-radius:8px;}
+  .project-overlay{border-radius:inherit;}
+  .project-card:hover img,.project-card:active img{transform:none!important;}
   .project-card:hover .project-overlay{opacity:0!important;}
   .pg-nav{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:#0a0a0a!important;}
 
@@ -1427,6 +1454,7 @@ body.bg-light .filter-tab,body.bg-light .cat-filter-btn{border-color:rgba(0,0,0,
 </style>
 </head>
 <body>
+<div id="appLoader"><div class="app-spinner"></div></div>
 <a id="waFloat" class="wa-float" target="_blank" rel="noopener" style="display:none;" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
 <nav id="mainNav">
   <a href="#hero" class="nav-logo"><i class="fa-solid fa-gem"></i> <span id="navName">Portfolio</span></a>
@@ -1541,6 +1569,12 @@ async function boot(){
   applyColors();applyStyle();applyLang();buildPage();setupAnimations();
   injectSEO();
   trackPageView();
+  // Reveal the app & fade out the loader (kills FOUC / flash of empty chrome)
+  document.body.classList.add('app-ready');
+  requestAnimationFrame(()=>{
+    const ld=document.getElementById('appLoader');
+    if(ld){ ld.classList.add('hide'); setTimeout(()=>ld.remove(), 400); }
+  });
 }
 boot();
 
