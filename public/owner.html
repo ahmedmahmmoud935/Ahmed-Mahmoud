@@ -775,6 +775,7 @@ function renderLandingEditor(){
       ${editorContact()}
       ${editorCta()}
       ${editorFooter()}
+      ${editorMobileBar()}
     </div>
     <div class="save-bar">
       <button class="btn-reset" onclick="resetLanding()"><i class="fa-solid fa-rotate-left"></i> إعادة الافتراضي</button>
@@ -1558,8 +1559,77 @@ function gatherCardItems(listId){
   });
 }
 
+// ─── MOBILE BAR (landing) ───
+let _omb=null;
+const OMB_ICONS=['fa-house','fa-images','fa-tag','fa-star','fa-quote-right','fa-envelope','fa-phone','fa-whatsapp','fa-instagram','fa-behance','fa-rocket','fa-newspaper','fa-circle-question','fa-users','fa-link','fa-share-nodes'];
+const OMB_BRANDS=['fa-whatsapp','fa-instagram','fa-behance','fa-linkedin-in','fa-facebook-f','fa-vimeo-v','fa-tiktok','fa-youtube','fa-x-twitter'];
+function _ombDefaults(){return [
+  {pos:'left',  type:'section', target:'examples', icon:'fa-images',   label_ar:'أعمال',   label_en:'Work'},
+  {pos:'center',type:'whatsapp',target:'',         icon:'fa-whatsapp', label_ar:'تواصل',   label_en:'Contact'},
+  {pos:'right', type:'section', target:'pricing',  icon:'fa-tag',      label_ar:'الأسعار', label_en:'Pricing'},
+];}
+function _ombSections(){
+  return (LANDING.sections||[]).filter(s=>s.id!=='hero').map(s=>({id:s.id,label:(s.label_ar||s.label_en||s.id)}));
+}
+function editorMobileBar(){
+  const mb=LANDING.mobile_bar||{};
+  _omb=(Array.isArray(mb.buttons)&&mb.buttons.length===3)?JSON.parse(JSON.stringify(mb.buttons)):_ombDefaults();
+  const enabled=mb.enabled!==false;
+  const body=`
+    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:700;margin-bottom:14px">
+      <input type="checkbox" id="omb_enabled" ${enabled?'checked':''} style="width:18px;height:18px;accent-color:var(--o)">
+      تفعيل الشريط السفلي على الموبايل
+    </label>
+    <p class="hint" style="margin-bottom:14px">3 أزرار تظهر أسفل الموقع على الموبايل فقط. الزر الأوسط بارز ولونه يتغير مع الثيم.</p>
+    <div id="ombCards" style="display:grid;grid-template-columns:1fr;gap:12px"></div>`;
+  setTimeout(renderOmbCards,0);
+  return lsec('mobilebar','fa-mobile-screen-button','شريط الموبايل السفلي', body);
+}
+function renderOmbCards(){
+  const wrap=document.getElementById('ombCards'); if(!wrap) return;
+  const order=['left','center','right'];
+  const posLabels={left:'الزر الأول (يسار)',center:'الزر الأوسط (بارز)',right:'الزر الأخير (يمين)'};
+  const secs=_ombSections();
+  wrap.innerHTML=order.map((pos,i)=>{
+    const b=_omb[i]||{pos}; b.pos=pos;
+    const secOpts=secs.map(s=>`<option value="${s.id}" ${b.type==='section'&&b.target===s.id?'selected':''}>${s.label}</option>`).join('');
+    const iconOpts=OMB_ICONS.map(ic=>`<option value="${ic}" ${b.icon===ic?'selected':''}>${ic.replace('fa-','')}</option>`).join('');
+    return `<div class="fbox" style="border:1px solid var(--brd);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px">
+      <strong style="color:var(--o);font-size:13px">${posLabels[pos]}</strong>
+      <label>الإجراء</label>
+      <select onchange="ombSet(${i},'type',this.value)">
+        <option value="section" ${b.type==='section'?'selected':''}>الانتقال لقسم</option>
+        <option value="whatsapp" ${b.type==='whatsapp'?'selected':''}>واتساب</option>
+        <option value="articles" ${b.type==='articles'?'selected':''}>المقالات</option>
+        <option value="link" ${b.type==='link'?'selected':''}>رابط مخصص</option>
+      </select>
+      <div data-ombtarget="${i}" style="${b.type==='section'?'':'display:none'}"><label>القسم</label><select onchange="ombSet(${i},'target',this.value)">${secOpts}</select></div>
+      <div data-omblink="${i}" style="${b.type==='link'?'':'display:none'}"><label>الرابط</label><input dir="ltr" value="${b.type==='link'?esc(b.target||''):''}" oninput="ombSet(${i},'target',this.value)" placeholder="https://..."></div>
+      <label>الأيقونة</label><select onchange="ombSet(${i},'icon',this.value)">${iconOpts}</select>
+      <label>الاسم (عربي)</label><input value="${esc(b.label_ar||'')}" oninput="ombSet(${i},'label_ar',this.value)">
+      <label>Name (English)</label><input dir="ltr" value="${esc(b.label_en||'')}" oninput="ombSet(${i},'label_en',this.value)">
+    </div>`;
+  }).join('');
+}
+function ombSet(i,key,val){
+  if(!_omb[i])_omb[i]={};
+  _omb[i][key]=val;
+  if(key==='type'){
+    const tgt=document.querySelector(`[data-ombtarget="${i}"]`); const lnk=document.querySelector(`[data-omblink="${i}"]`);
+    if(tgt) tgt.style.display=val==='section'?'':'none';
+    if(lnk) lnk.style.display=val==='link'?'':'none';
+    if(val==='section'&&!_omb[i].target){const s=_ombSections()[0];if(s)_omb[i].target=s.id;}
+    if(val!=='section'&&val!=='link')_omb[i].target='';
+  }
+}
+
 function gatherLanding(){
   const out = { ...LANDING };
+  // Mobile bar
+  if(_omb){
+    const enEl=document.getElementById('omb_enabled');
+    out.mobile_bar = { enabled: enEl?enEl.checked:true, buttons:_omb };
+  }
   // Brand
   out.brand = { name:v('b_name'), logo_url:v('b_logo') || v('b_logo_url'), tagline_ar:v('b_tag_ar'), tagline_en:v('b_tag_en') };
   // Section order + visibility

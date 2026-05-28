@@ -333,6 +333,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 
 /* Mobile menu toggle button (hidden on desktop) */
 .mbtn-menu{display:none;}
+.mbtn-back{display:none;}
 .sb-overlay{display:none;}
 
 @media(max-width:900px){
@@ -344,6 +345,18 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
     font-size:18px;box-shadow:0 4px 14px rgba(249,115,22,.4);
   }
   .mbtn-menu:active{transform:scale(.95);}
+  /* Mobile back button (top-left) — returns to previous section / menu */
+  .mbtn-back{
+    display:flex;position:fixed;top:12px;left:12px;z-index:150;
+    align-items:center;gap:7px;height:44px;padding:0 16px;
+    background:var(--d2);color:var(--w);border:1px solid var(--d4);
+    border-radius:10px;cursor:pointer;font-family:'Cairo',sans-serif;
+    font-size:13px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.3);
+  }
+  html[dir="ltr"] .mbtn-back i{transform:scaleX(-1);}
+  .mbtn-back:active{transform:scale(.96);}
+  /* leave room for the two fixed top buttons */
+  #adminMain{padding-top:70px;}
 
   /* Sidebar as slide-in drawer */
   #sidebar{
@@ -447,6 +460,12 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 
   /* Color pickers grid */
   .ccol{grid-template-columns:1fr !important;}
+
+  /* Categories tab — collapse 2-col grid (inline style) so it doesn't overflow & push the fixed menu button off-screen */
+  #tab-categories > div[style*="1fr 1fr"]{grid-template-columns:1fr !important;}
+  /* Prevent horizontal overflow from breaking position:fixed top buttons */
+  #adminMain{overflow-x:hidden;}
+  body{overflow-x:hidden;}
 
   /* Hide footer link in sidebar on mobile (login already shown) */
   .sb-footer{padding:14px 18px !important;}
@@ -613,6 +632,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 
 <!-- Mobile menu button (hidden on desktop) -->
 <button class="mbtn-menu" onclick="toggleSidebar()" id="mbtnMenu"><i class="fa-solid fa-bars"></i></button>
+<button class="mbtn-back" onclick="dashGoBack()" id="mbtnBack"><i class="fa-solid fa-arrow-right"></i><span>رجوع</span></button>
 <div class="sb-overlay" onclick="toggleSidebar(false)"></div>
 
 <!-- SIDEBAR -->
@@ -635,6 +655,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
     <div class="ni" onclick="setTab('design',this)"><i class="fa-solid fa-wand-magic-sparkles"></i> <span data-i18n="nav.design">التصميم</span></div>
     <div class="ni" onclick="setTab('sections',this)"><i class="fa-solid fa-layer-group"></i> <span data-i18n="nav.sections">ترتيب الأقسام</span></div>
     <div class="ni" onclick="setTab('navbar',this)"><i class="fa-solid fa-bars"></i> <span data-i18n="nav.navbar">الشريط العلوي</span></div>
+    <div class="ni" onclick="setTab('mobilebar',this)"><i class="fa-solid fa-mobile-screen-button"></i> <span data-i18n="nav.mobilebar">شريط الموبايل</span></div>
     <div class="ni" onclick="setTab('content',this)"><i class="fa-solid fa-pen-to-square"></i> <span data-i18n="nav.content">المحتوى</span></div>
     <div class="ni" onclick="setTab('logos',this)"><i class="fa-solid fa-buildings"></i> <span data-i18n="nav.logos">العملاء</span></div>
     <div class="ni" onclick="setTab('achievements',this)"><i class="fa-solid fa-trophy"></i> <span data-i18n="nav.achievements">الإنجازات</span></div>
@@ -1447,6 +1468,26 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
   </div>
 </div>
 
+<!-- MOBILE BAR TAB -->
+<div id="tab-mobilebar" style="display:none;">
+  <div class="ph">
+    <div><div class="pt">شريط الموبايل السفلي</div><div class="ps">3 اختصارات تظهر أسفل الموقع على الموبايل فقط — اختر القسم والأيقونة لكل زر</div></div>
+    <button class="btn-add" onclick="saveMobileBar()"><i class="fa-solid fa-floppy-disk"></i> حفظ</button>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;font-weight:700">
+      <input type="checkbox" id="mb_enabled" checked style="width:18px;height:18px;accent-color:var(--o)">
+      تفعيل الشريط السفلي على الموبايل
+    </label>
+    <p style="font-size:12px;color:#888;margin:8px 0 0">لما يكون مفعّل، بيظهر شريط فيه 3 أزرار أسفل الشاشة. الزر الأوسط بيكون بارز. اللون بيتغير تلقائياً مع لون الثيم.</p>
+  </div>
+  <div id="mbButtons" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px"></div>
+  <div class="card" style="margin-top:16px">
+    <div class="card-title"><i class="fa-solid fa-eye" style="color:var(--o)"></i> معاينة</div>
+    <div id="mbPreview" style="display:flex;justify-content:space-around;align-items:flex-end;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:14px;padding:14px 10px;margin-top:10px"></div>
+  </div>
+</div>
+
 <!-- SOCIAL TAB -->
 <div id="tab-social" style="display:none;">
   <div class="ph"><div><div class="pt" data-i18n="page.social.title">التواصل الاجتماعي</div><div class="ps" data-i18n="page.social.sub">الصورة الشخصية والروابط</div></div>
@@ -2094,6 +2135,7 @@ const I18N = {
     'nav.design': 'التصميم',
     'nav.sections': 'ترتيب الأقسام',
     'nav.navbar': 'الشريط العلوي',
+    'nav.mobilebar': 'شريط الموبايل',
     'nav.content': 'المحتوى',
     'nav.logos': 'العملاء',
     'nav.achievements': 'الإنجازات',
@@ -2704,6 +2746,7 @@ const I18N = {
     'nav.design': 'Design',
     'nav.sections': 'Sections Order',
     'nav.navbar': 'Top Navbar',
+    'nav.mobilebar': 'Mobile Bar',
     'nav.content': 'Content',
     'nav.logos': 'Clients',
     'nav.achievements': 'Achievements',
@@ -3463,7 +3506,7 @@ function setTab(tab,el,opts){
     if(m.classList.contains('cart-modal')) m.classList.remove('open');
     else if(m.style.display==='flex') m.style.display='none';
   });
-  ['projects','analytics','categories','colors','design','sections','navbar','content','logos','achievements','testimonials','articles','social','users'].forEach(t=>{
+  ['projects','analytics','categories','colors','design','sections','navbar','mobilebar','content','logos','achievements','testimonials','articles','social','users'].forEach(t=>{
     const d=document.getElementById('tab-'+t);if(d)d.style.display=t===tab?'block':'none';
   });
   if(tab==='navbar')renderNavbarList();
@@ -3476,6 +3519,7 @@ function setTab(tab,el,opts){
   if(tab==='achievements')loadAchievements();
   if(tab==='testimonials')loadTestimonials();
   if(tab==='articles')loadClientArticles();
+  if(tab==='mobilebar')loadMobileBarEditor();
   if(window.innerWidth<=900)toggleSidebar(false);
   // History — push so browser back returns to previous tab/section instead of forcing refresh
   if(!opts.fromPop){
@@ -3503,6 +3547,21 @@ window.addEventListener('DOMContentLoaded', ()=>{
     setTab(h, null, {fromPop:true});
   }
 });
+// Mobile dashboard back: close open modal → go to previous section → else open menu
+function dashGoBack(){
+  const openModal = document.querySelector('.cart-modal.open, .modal-overlay[style*="flex"]');
+  if(openModal){
+    if(openModal.classList.contains('cart-modal')) openModal.classList.remove('open');
+    else openModal.style.display='none';
+    return;
+  }
+  // If we have history to a previous tab, use it; otherwise open the menu
+  if(history.state && history.state.tab){
+    history.back();
+  } else {
+    toggleSidebar(true);
+  }
+}
 
 // ══ ARTICLES (Client) ══
 let _cArticles = [], _cEditingId = null;
@@ -5177,6 +5236,105 @@ function dragEnd(){dragIdx=null;document.querySelectorAll('.sec-item').forEach(e
 function toggleSec(id,v){const s=secData.find(x=>x.id===id);if(s)s.visible=v;}
 async function saveSections(){
   try{const r=await fetch('/api/settings',{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({sections:secData})});if(r.ok){S.sections=secData;toast('✓ تم حفظ الترتيب');}else toast('فشل');}catch{toast('خطأ');}
+}
+
+// ══ MOBILE BAR ══
+let _mbData=null;
+const MB_ICONS=['fa-house','fa-images','fa-quote-right','fa-star','fa-envelope','fa-phone','fa-whatsapp','fa-instagram','fa-behance','fa-linkedin-in','fa-briefcase','fa-newspaper','fa-trophy','fa-handshake','fa-user','fa-toolbox','fa-link','fa-share-nodes'];
+const MB_BRANDS=['fa-whatsapp','fa-instagram','fa-behance','fa-linkedin-in','fa-facebook-f','fa-vimeo-v','fa-tiktok','fa-youtube','fa-x-twitter'];
+function _mbDefaults(){return [
+  {pos:'left',  type:'section', target:'testimonials', icon:'fa-quote-right', label_ar:'آراء',    label_en:'Reviews'},
+  {pos:'center',type:'whatsapp',target:'',             icon:'fa-whatsapp',    label_ar:'تواصل',   label_en:'Contact'},
+  {pos:'right', type:'section', target:'projects',     icon:'fa-images',      label_ar:'المشاريع',label_en:'Projects'},
+];}
+function _mbSections(){
+  const secs=(S.sections||[]).filter(s=>s.id!=='hero');
+  return secs.map(s=>({id:s.id,label:(s.label_ar||s.label_en||s.id)}));
+}
+function loadMobileBarEditor(){
+  const mb=S.mobile_bar||{};
+  _mbData = (Array.isArray(mb.buttons)&&mb.buttons.length===3) ? JSON.parse(JSON.stringify(mb.buttons)) : _mbDefaults();
+  document.getElementById('mb_enabled').checked = mb.enabled!==false;
+  renderMbCards();
+}
+function renderMbCards(){
+  const wrap=document.getElementById('mbButtons'); if(!wrap) return;
+  const posLabels={left:'الزر يمين (يسار في الإنجليزي)',center:'الزر الأوسط (بارز)',right:'الزر يسار (يمين في الإنجليزي)'};
+  const order=['left','center','right'];
+  const secs=_mbSections();
+  wrap.innerHTML=order.map((pos,i)=>{
+    const b=_mbData[i]||{pos};
+    b.pos=pos;
+    const secOpts=secs.map(s=>`<option value="${s.id}" ${b.type==='section'&&b.target===s.id?'selected':''}>${s.label}</option>`).join('');
+    const iconOpts=MB_ICONS.map(ic=>`<option value="${ic}" ${b.icon===ic?'selected':''}>${ic.replace('fa-','')}</option>`).join('');
+    return `<div class="card" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:800;color:var(--o)">${posLabels[pos]}</div>
+      <label style="font-size:11px;color:#888">الإجراء</label>
+      <select onchange="mbSet(${i},'type',this.value)" style="width:100%;background:#0a0a0a;border:1px solid #222;border-radius:7px;padding:8px;color:#fff;font-family:inherit;font-size:13px">
+        <option value="section" ${b.type==='section'?'selected':''}>الانتقال لقسم</option>
+        <option value="whatsapp" ${b.type==='whatsapp'?'selected':''}>واتساب</option>
+        <option value="articles" ${b.type==='articles'?'selected':''}>المقالات</option>
+        <option value="link" ${b.type==='link'?'selected':''}>رابط مخصص</option>
+      </select>
+      <div data-mbtarget="${i}" style="${b.type==='section'?'':'display:none'}">
+        <label style="font-size:11px;color:#888">القسم</label>
+        <select onchange="mbSet(${i},'target',this.value)" style="width:100%;background:#0a0a0a;border:1px solid #222;border-radius:7px;padding:8px;color:#fff;font-family:inherit;font-size:13px">${secOpts}</select>
+      </div>
+      <div data-mblink="${i}" style="${b.type==='link'?'':'display:none'}">
+        <label style="font-size:11px;color:#888">الرابط</label>
+        <input value="${b.type==='link'?(b.target||''):''}" dir="ltr" oninput="mbSet(${i},'target',this.value)" placeholder="https://..." style="width:100%;background:#0a0a0a;border:1px solid #222;border-radius:7px;padding:8px;color:#fff;font-family:inherit;font-size:13px">
+      </div>
+      <label style="font-size:11px;color:#888">الأيقونة</label>
+      <select onchange="mbSet(${i},'icon',this.value)" style="width:100%;background:#0a0a0a;border:1px solid #222;border-radius:7px;padding:8px;color:#fff;font-family:inherit;font-size:13px">${iconOpts}</select>
+      <label style="font-size:11px;color:#888">الاسم (عربي)</label>
+      <input value="${b.label_ar||''}" oninput="mbSet(${i},'label_ar',this.value)" style="width:100%;background:#0a0a0a;border:1px solid #222;border-radius:7px;padding:8px;color:#fff;font-family:inherit;font-size:13px">
+      <label style="font-size:11px;color:#888">Name (English)</label>
+      <input value="${b.label_en||''}" dir="ltr" oninput="mbSet(${i},'label_en',this.value)" style="width:100%;background:#0a0a0a;border:1px solid #222;border-radius:7px;padding:8px;color:#fff;font-family:inherit;font-size:13px">
+    </div>`;
+  }).join('');
+  renderMbPreview();
+}
+function mbSet(i,key,val){
+  if(!_mbData[i]) _mbData[i]={};
+  _mbData[i][key]=val;
+  if(key==='type'){
+    // toggle target/link fields without full re-render losing focus
+    const tgt=document.querySelector(`[data-mbtarget="${i}"]`);
+    const lnk=document.querySelector(`[data-mblink="${i}"]`);
+    if(tgt) tgt.style.display = val==='section'?'':'none';
+    if(lnk) lnk.style.display = val==='link'?'':'none';
+    if(val==='section' && !_mbData[i].target){ const s=_mbSections()[0]; if(s) _mbData[i].target=s.id; }
+    if(val!=='section' && val!=='link') _mbData[i].target='';
+  }
+  renderMbPreview();
+}
+function renderMbPreview(){
+  const p=document.getElementById('mbPreview'); if(!p) return;
+  const order=['left','center','right'];
+  p.innerHTML=order.map((pos,i)=>{
+    const b=_mbData[i]||{};
+    const ic=b.icon||'fa-circle';
+    const fam=MB_BRANDS.includes(ic)?'fa-brands':'fa-solid';
+    const center=pos==='center';
+    if(center){
+      return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;transform:translateY(-12px)">
+        <div style="width:52px;height:52px;border-radius:50%;background:var(--o);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 6px 18px rgba(249,115,22,.5)"><i class="${fam} ${ic}"></i></div>
+        <span style="font-size:11px;color:#fff;font-weight:700">${b.label_ar||''}</span>
+      </div>`;
+    }
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:5px;color:#aaa">
+      <i class="${fam} ${ic}" style="font-size:20px"></i>
+      <span style="font-size:11px">${b.label_ar||''}</span>
+    </div>`;
+  }).join('');
+}
+async function saveMobileBar(){
+  const payload={mobile_bar:{enabled:document.getElementById('mb_enabled').checked, buttons:_mbData}};
+  try{
+    const r=await fetch('/api/settings',{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    if(r.ok){ S.mobile_bar=payload.mobile_bar; toast('✓ تم حفظ شريط الموبايل'); }
+    else toast('فشل الحفظ','error');
+  }catch{ toast('خطأ في الاتصال','error'); }
 }
 
 // ══ CONTENT ══

@@ -242,6 +242,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
 body.pg-open{position:fixed;width:100%;overflow:hidden;}
 body.pg-open .wa-float,
 body.pg-open #waFloat,
+body.pg-open .mobile-bar,
 body.pg-open nav#mainNav{display:none!important;}
 @keyframes pgIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
 .pg-nav{
@@ -285,6 +286,35 @@ body.pg-open nav#mainNav{display:none!important;}
   .pg-nav{padding:0 18px;}.pg-body{padding:30px 18px;}
   .pg-name{font-size:26px;}
 }
+
+/* ════════ MOBILE UI COMPONENTS (hamburger drawer + bottom bar) ════════ */
+.nav-burger{display:none;background:transparent;border:none;color:var(--text);font-size:22px;cursor:pointer;padding:6px 10px;line-height:1;}
+.mnav-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2998;opacity:0;visibility:hidden;transition:opacity .25s;}
+.mnav-overlay.open{opacity:1;visibility:visible;}
+.mnav-drawer{position:fixed;top:0;inset-inline-end:0;height:100%;width:78%;max-width:320px;background:var(--bg);border-inline-start:1px solid var(--border);z-index:2999;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;padding:22px;box-shadow:-10px 0 40px rgba(0,0,0,.5);}
+[dir="ltr"] .mnav-drawer{transform:translateX(-100%);inset-inline-end:auto;inset-inline-start:0;border-inline-start:none;border-inline-end:1px solid var(--border);box-shadow:10px 0 40px rgba(0,0,0,.5);}
+.mnav-drawer.open{transform:translateX(0);}
+.mnav-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.mnav-head .mnav-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;color:var(--text);}
+.mnav-close{background:transparent;border:none;color:var(--sub);font-size:24px;cursor:pointer;}
+.mnav-links{list-style:none;display:flex;flex-direction:column;gap:4px;flex:1;overflow-y:auto;}
+.mnav-links a{display:flex;align-items:center;gap:12px;color:var(--text);text-decoration:none;font-size:16px;font-weight:600;font-family:'Cairo',sans-serif;padding:14px 12px;border-radius:10px;transition:background .2s;}
+.mnav-links a:hover,.mnav-links a:active{background:rgba(var(--accent-rgb,249,115,22),.12);color:var(--accent);}
+.mnav-links a i{width:22px;text-align:center;color:var(--accent);font-size:16px;}
+.mnav-foot{margin-top:auto;padding-top:16px;border-top:1px solid var(--border);}
+.mnav-lang{width:100%;background:var(--accent);color:#fff;border:none;padding:13px;border-radius:10px;font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;cursor:pointer;}
+
+/* Bottom bar */
+.mobile-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:980;
+  background:rgba(var(--bg-rgb,10,10,10),.96);border-top:1px solid var(--border);
+  padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
+  grid-template-columns:1fr 1fr 1fr;align-items:end;gap:6px;}
+.mbar-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;background:transparent;border:none;cursor:pointer;color:var(--sub);text-decoration:none;font-family:'Cairo',sans-serif;font-size:11px;font-weight:600;padding:6px 4px;border-radius:12px;transition:color .2s;}
+.mbar-btn i{font-size:20px;}
+.mbar-btn:active{color:var(--accent);}
+.mbar-btn.mbar-center{transform:translateY(-14px);}
+.mbar-btn.mbar-center .mbar-ic{width:58px;height:58px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 6px 20px rgba(var(--accent-rgb,249,115,22),.5);margin-bottom:2px;}
+.mbar-btn.mbar-center span{color:var(--text);font-weight:700;}
 /* ══════════════════════════════════════
    MOBILE  (≤ 600px)
 ══════════════════════════════════════ */
@@ -293,6 +323,22 @@ body.pg-open nav#mainNav{display:none!important;}
   nav{padding:0 18px;height:60px;}
   .nav-links{display:none;}
   .nav-logo{font-size:14px;}
+  .nav-burger{display:block;}
+  /* hide inline lang btn on mobile — moved into drawer */
+  #mainNav .nav-lang-btn{display:none;}
+  /* FLICKER FIX — kill nav blur on mobile (backdrop-filter repaints every scroll frame) */
+  nav#mainNav{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(var(--bg-rgb,10,10,10),.98)!important;}
+  /* Bottom bar visible; add page padding so it doesn't cover footer/content */
+  .mobile-bar{display:grid;}
+  body:not(.pg-open):not(.no-mbar){padding-bottom:74px;}
+  body.no-mbar .mobile-bar{display:none!important;}
+  .wa-float{display:none!important;} /* replaced by bottom bar */
+  /* FOOTER socials — make sure they show & center on mobile */
+  .footer-socials,.social-links{display:flex!important;flex-wrap:wrap;justify-content:center!important;gap:14px;}
+  .footer-socials a,.social-links a{display:flex!important;}
+  /* TOAST — keep fully off-screen until shown (was peeking as a rectangle) */
+  .toast{bottom:90px;opacity:0;visibility:hidden;pointer-events:none;}
+  .toast.show{opacity:1;visibility:visible;}
 
   /* HERO */
   #hero{padding:90px 20px 60px;min-height:80svh;}
@@ -463,8 +509,8 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 60p
 .lb-close:hover{color:var(--accent);}
 .lb-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.1);border:none;color:#fff;width:50px;height:50px;border-radius:50%;font-size:20px;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;}
 .lb-nav:hover{background:var(--accent);}.lb-prev{left:18px;}.lb-next{right:18px;}
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(100px);background:#1a1a1a;border:1px solid var(--accent);color:#fff;padding:13px 28px;border-radius:8px;font-size:14px;transition:transform .4s;z-index:9999;}
-.toast.show{transform:translateX(-50%) translateY(0);}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(100px);background:#1a1a1a;border:1px solid var(--accent);color:#fff;padding:13px 28px;border-radius:8px;font-size:14px;transition:transform .4s,opacity .3s;z-index:9999;opacity:0;visibility:hidden;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;visibility:visible;}
 .spin{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;}
 @keyframes sp{to{transform:rotate(360deg);}}
 @keyframes pulseBtn{0%,100%{box-shadow:0 8px 40px rgba(249,115,22,.6),0 0 0 0 rgba(249,115,22,.7);transform:scale(1);}50%{box-shadow:0 8px 40px rgba(249,115,22,.8),0 0 0 24px rgba(249,115,22,0);transform:scale(1.06);}}
@@ -1382,8 +1428,23 @@ body.bg-light .filter-tab,body.bg-light .cat-filter-btn{border-color:rgba(0,0,0,
   <div style="display:flex;align-items:center;">
     <ul class="nav-links" id="navLinks"></ul>
     <button class="nav-lang-btn" id="langBtn" onclick="toggleLang()">EN</button>
+    <button class="nav-burger" id="navBurger" onclick="openMobileNav()" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
   </div>
 </nav>
+<!-- Mobile side drawer -->
+<div class="mnav-overlay" id="mnavOverlay" onclick="closeMobileNav()"></div>
+<aside class="mnav-drawer" id="mnavDrawer">
+  <div class="mnav-head">
+    <span class="mnav-title" id="mnavTitle">القائمة</span>
+    <button class="mnav-close" onclick="closeMobileNav()">&times;</button>
+  </div>
+  <ul class="mnav-links" id="mnavLinks"></ul>
+  <div class="mnav-foot">
+    <button class="mnav-lang" id="mnavLangBtn" onclick="toggleLang();closeMobileNav();">English</button>
+  </div>
+</aside>
+<!-- Mobile bottom bar -->
+<nav class="mobile-bar" id="mobileBar"></nav>
 <div id="mainPage"></div>
 
 <!-- PROJECT DETAIL PAGE (Behance-style) -->
@@ -1966,6 +2027,56 @@ function normalizeWhatsApp(val){
 }
 function toggleLang(){LANG=ar()?'en':'ar';localStorage.setItem('lang',LANG);applyStyle();applyLang();buildPage();setupAnimations();}
 
+// ══ Mobile drawer ══
+function openMobileNav(){document.getElementById('mnavOverlay').classList.add('open');document.getElementById('mnavDrawer').classList.add('open');}
+function closeMobileNav(){document.getElementById('mnavOverlay').classList.remove('open');document.getElementById('mnavDrawer').classList.remove('open');}
+
+// ══ Mobile bottom bar ══
+function _mbarDefaults(){
+  return [
+    {pos:'left',  type:'section', target:'testimonials', icon:'fa-quote-right', label_ar:'آراء',    label_en:'Reviews'},
+    {pos:'center',type:'whatsapp',target:'',             icon:'fa-whatsapp',    label_ar:'تواصل',   label_en:'Contact'},
+    {pos:'right', type:'section', target:'projects',     icon:'fa-images',      label_ar:'المشاريع',label_en:'Projects'},
+  ];
+}
+function renderMobileBar(a){
+  const bar=document.getElementById('mobileBar'); if(!bar) return;
+  const cfg=(S.mobile_bar&&Array.isArray(S.mobile_bar.buttons)&&S.mobile_bar.buttons.length===3)?S.mobile_bar.buttons:_mbarDefaults();
+  if(S.mobile_bar && S.mobile_bar.enabled===false){bar.style.display='none';document.body.classList.add('no-mbar');return;}
+  document.body.classList.remove('no-mbar');
+  // order: left, center, right
+  const order=['left','center','right'];
+  const ordered=order.map((pos,i)=> cfg.find(x=>x.pos===pos)||cfg[i]);
+  window._MBAR=ordered;
+  const BRANDS=['fa-whatsapp','fa-instagram','fa-behance','fa-linkedin','fa-linkedin-in','fa-facebook','fa-facebook-f','fa-vimeo','fa-vimeo-v','fa-tiktok','fa-youtube','fa-x-twitter','fa-twitter','fa-snapchat','fa-telegram','fa-pinterest','fa-dribbble'];
+  bar.innerHTML=ordered.map((b,i)=>{
+    if(!b) return '<span></span>';
+    const label=a?(b.label_ar||b.label_en||''):(b.label_en||b.label_ar||'');
+    const ic=b.icon||'fa-circle';
+    const fam=BRANDS.includes(ic)?'fa-brands':'fa-solid';
+    const center=order[i]==='center';
+    const inner=center
+      ? `<span class="mbar-ic"><i class="${fam} ${ic}"></i></span><span>${label}</span>`
+      : `<i class="${fam} ${ic}"></i><span>${label}</span>`;
+    return `<a class="mbar-btn ${center?'mbar-center':''}" href="javascript:void(0)" onclick="mbarAction(${i})">${inner}</a>`;
+  }).join('');
+}
+function mbarAction(i){
+  const b=(window._MBAR||[])[i]; if(!b) return;
+  const type=b.type||'section';
+  if(type==='whatsapp'){
+    const u=normalizeWhatsApp(S.whatsapp); if(u) window.open(u,'_blank');
+  } else if(type==='link'){
+    if(b.target) window.open(b.target, (b.target.startsWith('/')?'_self':'_blank'));
+  } else if(type==='articles'){
+    const u=S._username||(window.location.pathname.match(/^\/(?:u\/)?([^\/]+)/)||[])[1]||'';
+    if(u) window.location.href='/'+encodeURIComponent(u)+'/articles';
+  } else { // section
+    const el=document.getElementById(b.target||'projects');
+    if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+}
+
 function buildPage(){
   const secs=(S.sections||[]).filter(s=>s.visible).sort((a,b)=>a.order-b.order);
   const ct=S.content||{};const a=ar();
@@ -1980,6 +2091,16 @@ function buildPage(){
     _navHtml += `<li><a href="/${encodeURIComponent(_uname)}/articles">${a?'المقالات':'Articles'}</a></li>`;
   }
   document.getElementById('navLinks').innerHTML = _navHtml;
+  // Mobile drawer links (sections + articles) with icons
+  const secIcons={hero:'fa-house',about:'fa-user',expertise:'fa-star',tools:'fa-toolbox',experience:'fa-briefcase',education:'fa-graduation-cap',projects:'fa-images',logos:'fa-handshake',achievements:'fa-trophy',testimonials:'fa-quote-right',contact:'fa-envelope'};
+  let _mnavHtml = navItems.map(s=>
+    `<li><a href="#${s.id}" onclick="closeMobileNav()"><i class="fa-solid ${secIcons[s.id]||'fa-circle-chevron-left'}"></i> ${a?(s.label_ar||s.label_en):(s.label_en||s.label_ar)}</a></li>`
+  ).join('');
+  if(_uname) _mnavHtml += `<li><a href="/${encodeURIComponent(_uname)}/articles"><i class="fa-solid fa-newspaper"></i> ${a?'المقالات':'Articles'}</a></li>`;
+  const mnl=document.getElementById('mnavLinks'); if(mnl) mnl.innerHTML=_mnavHtml;
+  const mt=document.getElementById('mnavTitle'); if(mt) mt.textContent=a?'القائمة':'Menu';
+  const mlb=document.getElementById('mnavLangBtn'); if(mlb) mlb.textContent=a?'English':'العربية';
+  renderMobileBar(a);
   const ch=ct.hero||{};
   const nm=a?(ch.name_ar||''):(ch.name_en||'Portfolio');
   document.title=nm;

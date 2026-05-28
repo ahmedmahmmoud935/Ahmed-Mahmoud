@@ -322,6 +322,16 @@ html[dir="ltr"] .wa-float{left:auto;right:24px}
 @keyframes waPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
 @media(max-width:600px){.wa-float{bottom:18px;left:18px;width:54px;height:54px;font-size:26px}html[dir="ltr"] .wa-float{left:auto;right:18px}}
 
+/* Mobile bottom bar (landing) */
+.mobile-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:980;background:var(--bg2,rgba(12,12,16,.97));border-top:1px solid var(--brd);padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));grid-template-columns:1fr 1fr 1fr;align-items:end;gap:6px}
+.mobile-bar .mbar-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;background:transparent;border:none;cursor:pointer;color:var(--tx2);text-decoration:none;font-family:inherit;font-size:11px;font-weight:600;padding:6px 4px;border-radius:12px}
+.mobile-bar .mbar-btn i{font-size:20px}
+.mobile-bar .mbar-btn:active{color:var(--o)}
+.mobile-bar .mbar-center{transform:translateY(-14px)}
+.mobile-bar .mbar-center .mbar-ic{width:58px;height:58px;border-radius:50%;background:var(--o);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 6px 20px rgba(249,115,22,.5);margin-bottom:2px}
+.mobile-bar .mbar-center span{color:var(--tx);font-weight:700}
+@media(max-width:600px){.mobile-bar{display:grid}.wa-float{display:none!important}body:not(.no-mbar){padding-bottom:74px}body.no-mbar .mobile-bar{display:none!important}}
+
 /* ─── HERO SIZE + ALIGN VARIANTS ─── */
 .hero-inner.align-start{text-align:start;margin:0;max-width:780px}
 .hero-inner.align-end{text-align:end;margin-left:auto;margin-right:0;max-width:780px}
@@ -639,6 +649,7 @@ body[data-design="kinetic"] .footer{
 
 <!-- ───── WHATSAPP FLOAT ───── -->
 <a id="waFloat" class="wa-float" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+<nav class="mobile-bar" id="landingMobileBar"></nav>
 
 <!-- ───── FEEDBACK MODAL ───── -->
 <div class="fb-modal" id="fbModal">
@@ -757,7 +768,53 @@ function render(){
   renderMain();
   renderFooter();
   renderWhatsAppFloat();
+  renderLandingMobileBar();
   injectLandingSEO();
+}
+
+// ══ Mobile bottom bar (landing) ══
+function _lmbDefaults(){return [
+  {pos:'left',  type:'section', target:'examples', icon:'fa-images',   label_ar:'أعمال',   label_en:'Work'},
+  {pos:'center',type:'whatsapp',target:'',         icon:'fa-whatsapp', label_ar:'تواصل',   label_en:'Contact'},
+  {pos:'right', type:'section', target:'pricing',  icon:'fa-tag',      label_ar:'الأسعار', label_en:'Pricing'},
+];}
+const LMB_BRANDS=['fa-whatsapp','fa-instagram','fa-behance','fa-linkedin-in','fa-facebook-f','fa-vimeo-v','fa-tiktok','fa-youtube','fa-x-twitter'];
+function renderLandingMobileBar(){
+  const bar=document.getElementById('landingMobileBar'); if(!bar) return;
+  const mb=DATA.mobile_bar||{};
+  if(mb.enabled===false){bar.style.display='none';document.body.classList.add('no-mbar');return;}
+  document.body.classList.remove('no-mbar');
+  const cfg=(Array.isArray(mb.buttons)&&mb.buttons.length===3)?mb.buttons:_lmbDefaults();
+  const order=['left','center','right'];
+  const ordered=order.map((pos,i)=>cfg.find(x=>x.pos===pos)||cfg[i]);
+  window._LMB=ordered;
+  const a=ar();
+  bar.innerHTML=ordered.map((b,i)=>{
+    if(!b) return '<span></span>';
+    const label=a?(b.label_ar||b.label_en||''):(b.label_en||b.label_ar||'');
+    const ic=b.icon||'fa-circle';
+    const fam=LMB_BRANDS.includes(ic)?'fa-brands':'fa-solid';
+    const center=order[i]==='center';
+    const inner=center
+      ? `<span class="mbar-ic"><i class="${fam} ${ic}"></i></span><span>${label}</span>`
+      : `<i class="${fam} ${ic}"></i><span>${label}</span>`;
+    return `<a class="mbar-btn ${center?'mbar-center':''}" href="javascript:void(0)" onclick="lmbAction(${i})">${inner}</a>`;
+  }).join('');
+}
+function lmbAction(i){
+  const b=(window._LMB||[])[i]; if(!b) return;
+  const type=b.type||'section';
+  if(type==='whatsapp'){
+    const wa=(DATA.footer&&DATA.footer.whatsapp)||''; const num=wa.replace(/[^\d]/g,'');
+    if(num) window.open('https://wa.me/'+num,'_blank');
+  } else if(type==='link'){
+    if(b.target) window.open(b.target,(b.target.startsWith('/')?'_self':'_blank'));
+  } else if(type==='articles'){
+    window.location.href='/articles';
+  } else {
+    const el=document.getElementById(b.target||'pricing');
+    if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  }
 }
 
 // Update SEO meta tags + structured data from current landing settings
