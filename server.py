@@ -7,6 +7,21 @@ from functools import wraps
 
 app = Flask(__name__, static_folder='public', static_url_path='/_static_disabled')
 
+# ── Architecture foundation (additive, optional) ──────────────────────────────
+# theme_engine: externalized theme registry (themes/registry.json)
+# settings_schema: backward-compatible settings normalizer
+# Guarded import so the server still boots if either file is missing.
+try:
+    import theme_engine
+except Exception as _e:
+    theme_engine = None
+    print(f'[boot] theme_engine unavailable: {_e}')
+try:
+    import settings_schema
+except Exception as _e:
+    settings_schema = None
+    print(f'[boot] settings_schema unavailable: {_e}')
+
 # ── SECURITY ──
 _env_secret = os.environ.get('SECRET_KEY') or secrets.token_hex(32)
 app.secret_key = _env_secret
@@ -1690,6 +1705,25 @@ def save_modules(pid):
                 db.execute('INSERT INTO project_images(project_id,url,sort_order) VALUES(?,?,?)', (pid,m['src'],i))
     db.commit(); return jsonify({'ok':True,'modules':processed})
 
+# ── THEME REGISTRY (read-only, additive) ──
+@app.route('/api/theme-registry')
+def api_theme_registry():
+    """Serve the structured theme registry. Read-only; safe to cache client-side.
+    Returns an empty-but-valid shape if the engine/file is unavailable."""
+    if theme_engine is None:
+        return jsonify({'themes': [], 'tokens_defaults': {}, 'component_variants': {}, 'layout_presets': {}})
+    return jsonify(theme_engine.get_registry())
+
+
+@app.route('/api/theme-registry/<theme_id>/legacy')
+def api_theme_legacy(theme_id):
+    """Return the style_* mapping for a theme so a JSON-only theme can drive the
+    existing renderer without any frontend code changes."""
+    if theme_engine is None:
+        return jsonify({})
+    return jsonify(theme_engine.theme_to_legacy_settings(theme_id))
+
+
 # ── SETTINGS ──
 @app.route('/api/settings')
 def get_settings():
@@ -1778,6 +1812,16 @@ def update_settings():
             db.execute('INSERT OR REPLACE INTO settings(user_id,key,value) VALUES(?,?,?)', (user_id,k.replace('upload','url'),img))
         elif img == '':
             db.execute('INSERT OR REPLACE INTO settings(user_id,key,value) VALUES(?,?,?)', (user_id,k.replace('upload','url'),''))
+    # Schema normalization (additive, non-rejecting): coerce known keys + map
+    # legacy aliases. Unknown keys pass through unchanged. Falls back to raw `d`
+    # on any error so saves can never break in production.
+    if settings_schema is not None:
+        try:
+            d, _warns = settings_schema.normalize(d, strict=False)
+            if _warns:
+                print(f'[settings] user {user_id} normalize notes: {_warns[:8]}')
+        except Exception as _e:
+            print(f'[settings] normalize skipped: {_e}')
     for k, v in d.items():
         val = json.dumps(v) if isinstance(v,(dict,list)) else str(v)
         db.execute('INSERT OR REPLACE INTO settings(user_id,key,value) VALUES(?,?,?)', (user_id,k,val))

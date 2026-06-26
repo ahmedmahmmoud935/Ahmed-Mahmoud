@@ -1,0 +1,28 @@
+# ── OS / editor junk ──
+.DS_Store
+*.swp
+*~
+
+# ── Secrets / local env (NEVER commit) ──
+.env
+.env.local
+*.secret
+
+# ── Python ──
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# ── Node (only package.json is needed) ──
+node_modules/
+
+# ── Local data (lives on Render persistent disk, not in repo) ──
+/var/data/
+*.db
+uploads/
+backups/
+
+# ── Tooling ──
+.claude/

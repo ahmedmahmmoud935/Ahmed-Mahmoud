@@ -1,0 +1,133 @@
+{
+  "_meta": {
+    "version": 1,
+    "description": "ViralPX Theme Registry. Add a new theme by appending an object to `themes`. No core code changes required. Each theme maps its structured config to the existing style_* engine via `legacy_map`, so the current renderer understands it for free.",
+    "schema": {
+      "id": "unique string id (used as data-theme)",
+      "name": "{ en, ar } display names",
+      "tokens": "design tokens applied as CSS variables (--accent, --bg, --radius, ...)",
+      "components": "component variant choices (button, card, navbar)",
+      "layout": "layout preset choices per section (hero, projects, about, contact)",
+      "anim": "entrance animation preset",
+      "legacy_map": "maps this theme to existing style_* settings keys for backward-compatible rendering"
+    }
+  },
+
+  "tokens_defaults": {
+    "accent": "#6366f1",
+    "accent2": "",
+    "bg": "#0a0a0a",
+    "bg2": "#111111",
+    "text": "#ffffff",
+    "subtext": "#999999",
+    "radius": "12px",
+    "radius_sm": "8px",
+    "radius_lg": "20px",
+    "space": "16px",
+    "font_pair": "default"
+  },
+
+  "component_variants": {
+    "button": ["rounded", "sharp", "pill"],
+    "card": ["solid", "glass", "outline"],
+    "navbar": ["blur", "solid", "transparent"]
+  },
+
+  "layout_presets": {
+    "hero": ["centered", "split", "massive", "cover-full", "minimal"],
+    "projects": ["grid", "masonry", "list", "freegrid"],
+    "about": ["classic", "visual", "simple"],
+    "contact": ["classic", "split"]
+  },
+
+  "themes": [
+    {
+      "id": "default",
+      "name": { "en": "Modern", "ar": "حديث" },
+      "tokens": { "accent": "#6366f1", "radius": "12px", "font_pair": "default" },
+      "components": { "button": "rounded", "card": "solid", "navbar": "blur" },
+      "layout": { "hero": "centered", "projects": "grid", "about": "classic", "contact": "classic" },
+      "anim": "fade-up",
+      "legacy_map": {}
+    },
+    {
+      "id": "editorial",
+      "name": { "en": "Editorial", "ar": "تحريري" },
+      "tokens": { "accent": "#D4A574", "radius": "0px", "font_pair": "editorial" },
+      "components": { "button": "sharp", "card": "outline", "navbar": "transparent" },
+      "layout": { "hero": "massive", "projects": "list", "about": "visual", "contact": "split" },
+      "anim": "fade-up",
+      "legacy_map": {
+        "style_hero": "massive", "style_about": "visual", "style_font": "editorial",
+        "style_bg_preset": "dark", "style_anim": "fade-up", "style_skills": "inline",
+        "style_tools": "compact", "style_exp": "timeline", "style_projects": "list",
+        "style_contact": "split"
+      }
+    },
+    {
+      "id": "minimal",
+      "name": { "en": "Minimal Pro", "ar": "مينيمال" },
+      "tokens": { "accent": "#000000", "radius": "8px", "font_pair": "modern" },
+      "components": { "button": "sharp", "card": "outline", "navbar": "solid" },
+      "layout": { "hero": "minimal", "projects": "grid", "about": "simple", "contact": "classic" },
+      "anim": "fade",
+      "legacy_map": {
+        "style_hero": "minimal", "style_about": "simple", "style_font": "modern",
+        "style_bg_preset": "pearl", "style_anim": "fade", "style_skills": "tags",
+        "style_tools": "compact", "style_exp": "classic", "style_projects": "grid",
+        "style_contact": "classic"
+      }
+    },
+    {
+      "id": "creative",
+      "name": { "en": "Creative Bold", "ar": "إبداعي" },
+      "tokens": { "accent": "#FF4500", "radius": "16px", "font_pair": "bold" },
+      "components": { "button": "pill", "card": "solid", "navbar": "blur" },
+      "layout": { "hero": "massive", "projects": "masonry", "about": "classic", "contact": "classic" },
+      "anim": "fade-up",
+      "legacy_map": {
+        "style_hero": "massive", "style_about": "classic", "style_font": "bold",
+        "style_bg_preset": "dark", "style_anim": "fade-up", "style_skills": "tags",
+        "style_tools": "classic", "style_exp": "classic", "style_projects": "masonry",
+        "style_contact": "classic"
+      }
+    },
+    {
+      "id": "cinema",
+      "name": { "en": "Cinema Dark", "ar": "سينمائي" },
+      "tokens": { "accent": "#C9A961", "radius": "10px", "font_pair": "elegant" },
+      "components": { "button": "rounded", "card": "glass", "navbar": "transparent" },
+      "layout": { "hero": "cover-full", "projects": "masonry", "about": "visual", "contact": "split" },
+      "anim": "fade",
+      "legacy_map": {
+        "style_hero": "cover-full", "style_about": "visual", "style_font": "elegant",
+        "style_bg_preset": "mono", "style_anim": "fade", "style_skills": "tags",
+        "style_tools": "compact", "style_exp": "timeline", "style_projects": "masonry",
+        "style_contact": "split"
+      }
+    },
+    {
+      "id": "corporate",
+      "name": { "en": "Corporate", "ar": "مؤسسي" },
+      "tokens": { "accent": "#3B82F6", "radius": "12px", "font_pair": "default" },
+      "components": { "button": "rounded", "card": "solid", "navbar": "solid" },
+      "layout": { "hero": "split", "projects": "grid", "about": "classic", "contact": "split" },
+      "anim": "fade-up",
+      "legacy_map": {
+        "style_hero": "split", "style_about": "classic", "style_font": "default",
+        "style_bg_preset": "ocean", "style_anim": "fade-up", "style_skills": "bars",
+        "style_tools": "classic", "style_exp": "classic", "style_projects": "grid",
+        "style_contact": "split"
+      }
+    },
+    {
+      "id": "kinetic",
+      "name": { "en": "Kinetic", "ar": "حركي" },
+      "tokens": { "accent": "#22D3EE", "radius": "16px", "font_pair": "default" },
+      "components": { "button": "pill", "card": "glass", "navbar": "blur" },
+      "layout": { "hero": "centered", "projects": "grid", "about": "classic", "contact": "classic" },
+      "anim": "fade-up",
+      "legacy_map": {}
+    }
+  ]
+}

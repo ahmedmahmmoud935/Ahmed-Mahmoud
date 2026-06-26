@@ -64,6 +64,10 @@ body:not(.app-ready) .mnav-overlay,
 body:not(.app-ready) #waFloat,
 body:not(.app-ready) footer{visibility:hidden!important;}
 nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:center;justify-content:space-between;padding:0 60px;height:70px;background:rgba(var(--bg-rgb,10,10,10),.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:background .4s,box-shadow .3s;}
+/* Navbar variants (driven by theme.components.navbar). nv-blur === default look. */
+#mainNav.nv-solid{background:var(--bg,#0a0a0a);backdrop-filter:none;-webkit-backdrop-filter:none;}
+#mainNav.nv-transparent{background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;border-bottom-color:transparent;}
+#mainNav.nv-transparent.scrolled{background:rgba(var(--bg-rgb,10,10,10),.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom-color:var(--border);}
 .nav-logo{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:700;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px;}
 .nav-logo i{color:var(--accent);}
 .nav-logo img{height:32px;width:auto;max-width:none;display:block;}
@@ -79,6 +83,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
 .btn-primary{background:var(--accent);color:#fff;padding:12px 30px;border-radius:6px;font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;text-decoration:none;transition:all .3s;border:2px solid var(--accent);}
 .btn-primary:hover{background:transparent;color:var(--accent);}
 .btn-outline{background:transparent;color:var(--text);padding:12px 30px;border-radius:6px;font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;text-decoration:none;border:2px solid var(--border);transition:all .3s;}
+/* Button variants (driven by theme.components.button). btn-rounded === default 6px.
+   Applied as a body class so registry-only themes get correct button shape too. */
+body.btn-sharp .btn-primary,body.btn-sharp .btn-outline,body.btn-sharp .btn-submit{border-radius:0;}
+body.btn-pill .btn-primary,body.btn-pill .btn-outline,body.btn-pill .btn-submit{border-radius:999px;}
 .btn-outline:hover{border-color:var(--accent);color:var(--accent);}
 .sw{padding:80px 60px;}.sw.alt{background:var(--bg2);}
 .sh{text-align:center;margin-bottom:55px;}
@@ -177,6 +185,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:cen
 /* Horizontal video card (when cover image is wider than tall) */
 .projects-grid.mode-video .project-card.horizontal{aspect-ratio:4/5;}
 .project-card{position:relative;overflow:hidden;cursor:pointer;background:#111;min-height:1px;}
+/* Card variants (driven by theme.components.card). pc-solid === default look. */
+.project-card.pc-solid{}
+.project-card.pc-glass{background:rgba(255,255,255,.04);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);border:1px solid rgba(255,255,255,.10);}
+.project-card.pc-outline{background:transparent;border:1px solid var(--border);}
+@media(max-width:600px){.project-card.pc-glass{backdrop-filter:none;-webkit-backdrop-filter:none;background:#111;}}
 /* Safety: ensure cards never collapse — applies even if mode-* class missing */
 .projects-grid .project-card{min-height:120px;}
 .projects-grid.mode-image .project-card img,.projects-grid.mode-video .project-card img{width:100%;height:100%;object-fit:cover;}
@@ -1516,6 +1529,7 @@ body.bg-light .filter-tab,body.bg-light .cat-filter-btn{border-color:rgba(0,0,0,
   <button class="lb-nav lb-next" onclick="lbNav(1)"><i class="fa-solid fa-chevron-left"></i></button>
 </div>
 <div class="toast" id="toast"></div>
+<script src="/theme-engine.js"></script>
 <script>
 let LANG=localStorage.getItem('lang')||'en', S={}, PROJECTS=[], currentFilter='image', currentCategory='all', currentGallery=[], lbIdx=0;
 const ar=()=>LANG==='ar';
@@ -1571,6 +1585,14 @@ async function boot(){
     window._TESTIMONIALS = ts.testimonials || [];
     window._ACHIEVEMENTS = ach.achievements || [];
   }catch(e){S={};PROJECTS=[];window._LOGOS=[];window._TESTIMONIALS=[];window._ACHIEVEMENTS=[];}
+  // Progressive enhancement: if the selected theme isn't in the inline THEMES map,
+  // hydrate it from the external registry so a JSON-only theme renders too.
+  // No-op for existing themes → zero change for current users.
+  try{ if(window.VPXTheme && !THEMES[S.style_theme||'default']){ await VPXTheme.hydrate(S.style_theme, THEMES); } }catch(_){}
+  // Optional structured token override (only if the user has a theme_config)
+  try{ if(window.VPXTheme && S.theme_config && S.theme_config.tokens){ VPXTheme.applyTokens(S.theme_config.tokens); } }catch(_){}
+  // Resolve component variants (card, navbar) from the active theme
+  await resolveComponentVariants();
   applyColors();applyStyle();applyLang();buildPage();setupAnimations();
   injectSEO();
   trackPageView();
@@ -2660,6 +2682,45 @@ function getColsSetting(type){
   }
 }
 
+// ══════════════ COMPONENTS (config-driven) — Phase 3 ══════════════
+// Component variants come from the active theme's `components` map (with an
+// optional per-user `theme_config.components` override). Defaults === current
+// look exactly, so existing users see no change.
+let _CARD_VARIANT = 'solid', _NAVBAR_VARIANT = 'blur', _BUTTON_VARIANT = 'rounded';
+async function resolveComponentVariants(){
+  try{
+    if(!window.VPXTheme) return;
+    const th = await VPXTheme.getTheme(S.style_theme || 'default');
+    const fromTheme = (th && th.components) || {};
+    const override  = (S.theme_config && S.theme_config.components) || {};
+    const pick = (key, def) => override[key] || fromTheme[key] || def;
+    _CARD_VARIANT   = pick('card', 'solid');
+    _NAVBAR_VARIANT = pick('navbar', 'blur');
+    _BUTTON_VARIANT = pick('button', 'rounded');
+  }catch(_){}
+  applyNavbarVariant();
+  applyButtonVariant();
+}
+// COMPONENT: Button shape — rounded | sharp | pill (btn-rounded === default)
+function applyButtonVariant(){
+  document.body.classList.remove('btn-rounded','btn-sharp','btn-pill');
+  document.body.classList.add('btn-'+(_BUTTON_VARIANT||'rounded'));
+}
+// Backward-compat alias (boot may still call the old name)
+async function resolveCardVariant(){ return resolveComponentVariants(); }
+
+// COMPONENT: Navbar variant — blur | solid | transparent (nv-blur === default)
+function applyNavbarVariant(){
+  const nav=document.getElementById('mainNav'); if(!nav) return;
+  nav.classList.remove('nv-blur','nv-solid','nv-transparent');
+  nav.classList.add('nv-'+(_NAVBAR_VARIANT||'blur'));
+}
+// The single source of truth for a project card's wrapper markup.
+function ProjectCard({inner, onclick, extraClass=''}){
+  const v = _CARD_VARIANT || 'solid';
+  return `<div class="project-card pc-${v} ${extraClass}" onclick="${onclick}">${inner}</div>`;
+}
+
 function renderProjects(){
   const grid=document.getElementById('projectsGrid');if(!grid)return;
   let list = projectsForFilter(currentFilter);
@@ -2710,11 +2771,11 @@ function renderProjects(){
       const thumb=p.coverImage
         ?`<div class="vid-thumb"><img src="${p.coverImage}" alt="${p.title}" loading="${loading}" fetchpriority="${fetchPri}" decoding="async"></div>`
         :`<div class="vid-thumb" style="position:absolute;inset:0;background:linear-gradient(135deg,#0f0f0f,#1f1f1f);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;"><i class="${providerIcon}" style="font-size:42px;color:${providerColor};opacity:0.8;"></i>${providerName?`<div style="font-size:11px;color:#666;font-weight:600;text-transform:uppercase;letter-spacing:1px;">${providerName}</div>`:''}</div>`;
-      return`<div class="project-card" onclick="openVideoLightbox(${ri})">
+      return ProjectCard({onclick:`openVideoLightbox(${ri})`, inner:`
         ${thumb}
         <div class="vid-play-btn"><div class="vid-play-circle"><i class="fa-solid fa-play"></i></div></div>
         <div class="project-overlay"><div class="p-title">${p.title}</div><div class="p-cat">${p.category||''}</div></div>
-      </div>`;
+      `});
     }).join('');
     return;
   }
@@ -2733,12 +2794,12 @@ function renderProjects(){
       const thumb=p.coverImage
         ?`<div class="vid-thumb"><img src="${p.coverImage}" alt="${p.title}" loading="${loading}" fetchpriority="${fetchPri}" decoding="async"></div>`
         :`<div class="vid-thumb" style="position:absolute;inset:0;background:linear-gradient(135deg,#0f0f0f,#1f1f1f);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;"><i class="${providerIcon}" style="font-size:42px;color:${providerColor};opacity:0.8;"></i>${providerName?`<div style="font-size:11px;color:#666;font-weight:600;text-transform:uppercase;letter-spacing:1px;">${providerName}</div>`:''}</div>`;
-      return`<div class="project-card" onclick="openVideoLightbox(${ri})">
+      return ProjectCard({onclick:`openVideoLightbox(${ri})`, inner:`
         ${thumb}
         <div class="vid-play-btn"><div class="vid-play-circle"><i class="fa-solid fa-play"></i></div></div>
         <i class="fa-solid fa-film vid-reel-badge"></i>
         <div class="project-overlay"><div class="p-title">${p.title}</div><div class="p-cat">${p.category}</div></div>
-      </div>`;
+      `});
     }).join('');
     return;
   }
@@ -2751,9 +2812,9 @@ function renderProjects(){
     const imgs=p.images||[];
     const thumbSrc=p.coverImage||imgs[0]||'';
     const th=thumbSrc?`<img src="${thumbSrc}" alt="${p.title}" loading="${loading}" fetchpriority="${fetchPri}" decoding="async">`:`<div class="proj-ph"><i class="fa-solid fa-image"></i></div>`;
-    return`<div class="project-card" onclick="openProject(${ri})">${th}
+    return ProjectCard({onclick:`openProject(${ri})`, inner:`${th}
       <div class="project-overlay"><div class="p-title">${p.title}</div><div class="p-cat">${p.category}</div></div>
-    </div>`;
+    `});
   }).join('');
 
   // Safari image cache pre-warm
@@ -3419,7 +3480,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='ArrowLeft')lbNav(1);
   if(e.key==='ArrowRight')lbNav(-1);
 });
-window.addEventListener('scroll',()=>{document.getElementById('mainNav').style.boxShadow=window.scrollY>50?'0 4px 30px rgba(0,0,0,.5)':'none';});
+window.addEventListener('scroll',()=>{const n=document.getElementById('mainNav');if(!n)return;const sc=window.scrollY>50;n.style.boxShadow=sc?'0 4px 30px rgba(0,0,0,.5)':'none';n.classList.toggle('scrolled',sc);});
 async function sendMsg(){
   const a = ar();
   const name    = (document.getElementById('cf_name')||{}).value || '';

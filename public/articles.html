@@ -85,6 +85,10 @@ main{flex:1;padding-top:140px;padding-bottom:80px}
 .art-excerpt{font-size:14px;color:var(--tx2);line-height:1.7;flex:1}
 .art-tag{display:inline-block;background:var(--bg3);color:var(--tx3);font-size:11px;padding:4px 9px;border-radius:6px;margin-top:12px;margin-inline-end:5px}
 .art-card.draft{opacity:.55;border-style:dashed}
+/* ArticleCard variants (driven by theme.components.card). ac-solid === default. */
+.art-card.ac-glass{background:rgba(255,255,255,.04);backdrop-filter:blur(16px) saturate(170%);-webkit-backdrop-filter:blur(16px) saturate(170%);border:1px solid rgba(255,255,255,.10)}
+.art-card.ac-outline{background:transparent;border:1px solid var(--brd)}
+@media(max-width:600px){.art-card.ac-glass{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--bg2)}}
 .art-draft-badge{background:#f59e0b;color:#000;font-size:10px;font-weight:800;padding:3px 8px;border-radius:5px;margin-inline-start:6px}
 
 .art-empty{text-align:center;color:var(--tx4);padding:80px 20px;font-size:15px}
@@ -173,6 +177,7 @@ body[data-design="kinetic"] .footer-mini{background:rgba(var(--bg-rgb,10,10,10),
   <div class="footer-mini-copy">© <span id="yr"></span> ViralPX · <span id="ftCredit">Built with</span> <a href="https://viralpx.com" target="_blank">ViralPX</a></div>
 </footer>
 
+<script src="/theme-engine.js"></script>
 <script>
 // ─── State ───
 const _PATH = window.location.pathname;
@@ -198,6 +203,7 @@ async function init(){
   MODE = slug ? 'single' : 'list';
   await loadData();
   await loadArticles(slug);
+  await resolveArticleCardVariant();
   applyLang();
   render();
   requestAnimationFrame(revealApp);
@@ -251,6 +257,19 @@ function toggleLang(){
   localStorage.setItem('lang', LANG);
   applyLang();
   render();
+}
+
+// ─── COMPONENT: ArticleCard variant (config-driven) ───
+let _AC_VARIANT = 'solid';
+async function resolveArticleCardVariant(){
+  try{
+    if(!window.VPXTheme || !DATA) return;
+    const themeId = (DATA.__type==='landing') ? ((DATA.style||{}).design) : (DATA.style_theme || 'default');
+    const th = await VPXTheme.getTheme(themeId);
+    if(th && th.components && th.components.card) _AC_VARIANT = th.components.card;
+    const ov = (DATA.theme_config && DATA.theme_config.components && DATA.theme_config.components.card);
+    if(ov) _AC_VARIANT = ov;
+  }catch(_){}
 }
 
 // ─── Theme application (matches landing/portfolio) ───
@@ -372,7 +391,7 @@ function renderList(){
     const dateStr = (a.created_at||'').slice(0,10);
     const tags = (a.tags || []).slice(0,3).map(t=>`<span class="art-tag">${esc(t)}</span>`).join('');
     return `
-    <article class="art-card">
+    <article class="art-card ac-${_AC_VARIANT}">
       <a href="${baseUrl}/${encodeURIComponent(a.slug)}">
         <div class="art-cover">${cover}</div>
         <div class="art-body">
