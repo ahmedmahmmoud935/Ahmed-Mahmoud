@@ -881,7 +881,9 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
         <div class="tsw-tags"><span>glassmorphism</span><span>animated bg</span><span>grain</span><span>scroll-reveal</span></div>
       </div>
     </div>
+    <!-- Registry themes (rendered dynamically from themes/registry.json) -->
   </div>
+  <div class="theme-switcher" id="tsw-extra" style="margin-top:12px"></div>
 
   <!-- Kinetic Advanced Options (only visible when Kinetic theme is selected) -->
   <div id="kinetic-options" style="display:none;background:linear-gradient(135deg,rgba(34,211,238,.06),rgba(34,211,238,.02));border:1px solid rgba(34,211,238,.2);border-radius:14px;padding:18px;margin-bottom:18px;">
@@ -1120,6 +1122,13 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
         <label class="bg-opt"><input type="radio" name="style_bg_preset" value="pearl">
           <div class="bg-card" style="background:#fafaf5"><div class="bg-name" style="color:#1a1a1a" data-i18n="design.bgPearl">لؤلؤي (فاتح)</div></div></label>
       </div>
+    </div>
+
+    <!-- COMPONENT SHAPES (config-driven components) -->
+    <div class="card">
+      <div class="card-title"><i class="fa-solid fa-shapes" style="color:var(--o);margin-left:6px"></i> أشكال العناصر</div>
+      <p style="color:var(--g2);font-size:13px;margin-bottom:16px">تحكّم في شكل الكروت والشريط العلوي والأزرار — بيتطبّق فوراً على موقعك</p>
+      <div id="cmp-variants" style="display:grid;grid-template-columns:1fr;gap:16px"></div>
     </div>
 
     <!-- THEME COLORS -->
@@ -4052,7 +4061,83 @@ function switchDesignTheme(themeId, isUserAction){
   }
 }
 
-function loadDesign(){
+// ══ Component shapes UI (config-driven components) ══
+function renderComponentVariants(){
+  const wrap = document.getElementById('cmp-variants');
+  if(!wrap) return;
+  const cfg = (S.theme_config && S.theme_config.components) || {};
+  const groups = [
+    {name:'cmp_card',   label:'شكل الكروت',        icon:'fa-table-cells-large', def:cfg.card||'solid',
+     opts:[['solid','مصمت'],['glass','زجاجي'],['outline','إطار']]},
+    {name:'cmp_navbar', label:'الشريط العلوي',     icon:'fa-window-maximize',   def:cfg.navbar||'blur',
+     opts:[['blur','ضبابي'],['solid','مصمت'],['transparent','شفاف']]},
+    {name:'cmp_button', label:'شكل الأزرار',       icon:'fa-hand-pointer',      def:cfg.button||'rounded',
+     opts:[['rounded','دائري خفيف'],['sharp','حاد'],['pill','كبسولة']]},
+  ];
+  wrap.innerHTML = groups.map(g=>`
+    <div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:8px"><i class="fa-solid ${g.icon}" style="color:var(--o);margin-left:6px"></i> ${g.label}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${g.opts.map(([val,lbl])=>`
+          <label style="flex:1;min-width:90px;cursor:pointer">
+            <input type="radio" name="${g.name}" value="${val}" ${g.def===val?'checked':''} style="display:none" onchange="showToast('💡 احفظ التصميم لتطبيق الشكل')">
+            <div class="cmp-opt" style="border:1.5px solid ${g.def===val?'var(--o)':'#2a2a2a'};background:${g.def===val?'rgba(249,115,22,.08)':'#0e0e0e'};border-radius:9px;padding:12px 8px;text-align:center;font-size:12.5px;font-weight:600;transition:.15s">${lbl}</div>
+          </label>`).join('')}
+      </div>
+    </div>`).join('');
+  // highlight selected on change
+  wrap.querySelectorAll('input[type="radio"]').forEach(r=>{
+    r.addEventListener('change', ()=>{
+      const gname=r.name;
+      wrap.querySelectorAll(`input[name="${gname}"]`).forEach(x=>{
+        const box=x.nextElementSibling;
+        if(box){ box.style.borderColor = x.checked?'var(--o)':'#2a2a2a'; box.style.background = x.checked?'rgba(249,115,22,.08)':'#0e0e0e'; }
+      });
+    });
+  });
+}
+
+// ══ Registry theme cards (dynamic — from themes/registry.json) ══
+let _REGISTRY_CACHE = null;
+async function renderRegistryThemeCards(){
+  const wrap = document.getElementById('tsw-extra');
+  if(!wrap) return;
+  try{
+    if(!_REGISTRY_CACHE){
+      _REGISTRY_CACHE = await fetch('/api/theme-registry', {cache:'no-store'}).then(r=>r.json());
+    }
+    const themes = (_REGISTRY_CACHE.themes || []).filter(t => t && t.id && !['default','kinetic'].includes(t.id));
+    if(!themes.length){ wrap.innerHTML=''; return; }
+    wrap.innerHTML = themes.map(t=>{
+      const accent = (t.tokens && t.tokens.accent) || '#888';
+      const nameAr = (t.name && (t.name.ar||t.name.en)) || t.id;
+      const comps  = t.components || {};
+      const lay    = t.layout || {};
+      const tags = [comps.card, comps.button, lay.hero, lay.projects].filter(Boolean)
+                     .map(x=>`<span>${x}</span>`).join('');
+      return `<div class="tsw-card" id="tsw-${t.id}" onclick="switchDesignTheme('${t.id}',true)">
+        <input type="radio" name="style_theme" value="${t.id}" style="display:none">
+        <button class="tsw-reset" title="إعادة هذا الثيم للافتراضي" onclick="event.stopPropagation();resetThisTheme('${t.id}')"><i class="fa-solid fa-rotate-left"></i></button>
+        <div class="tsw-preview" style="background:linear-gradient(135deg,${accent}22,${accent}05)">
+          <div class="tsw-bar" style="background:${accent}"></div>
+          <div class="tsw-content">
+            <div class="tsw-title" style="color:${accent}">${(t.name&&t.name.en)||t.id}</div>
+            <div class="tsw-sub">${nameAr}</div>
+          </div>
+        </div>
+        <div class="tsw-info">
+          <div class="tsw-name">${nameAr}</div>
+          <div class="tsw-desc">ثيم جاهز — أشكال وتخطيطات مضبوطة مسبقاً</div>
+          <div class="tsw-tags">${tags}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){ wrap.innerHTML=''; }
+}
+
+async function loadDesign(){
+  // Render registry theme cards FIRST so their radios exist before selection wiring
+  await renderRegistryThemeCards();
   // Render the smart palette picker
   renderPalettePicker();
   // Set radios from S
@@ -4097,6 +4182,9 @@ function loadDesign(){
       r.addEventListener('change', () => { S['_custom_'+name] = true; });
     });
   });
+
+  // Component shapes (config-driven components)
+  renderComponentVariants();
 
   // Custom bg colors
   const c1=document.getElementById('bgColor1'), h1=document.getElementById('bgHex1');
@@ -4246,6 +4334,14 @@ async function saveDesign(){
     kin_bg:      elVal('kin_bg')      || 'on',
     kin_radius:  elVal('kin_radius')  || 'default',
   };
+  // Component shapes → theme_config.components (read live by resolveComponentVariants)
+  payload.theme_config = Object.assign({}, S.theme_config, {
+    components: {
+      card:   (document.querySelector('input[name="cmp_card"]:checked')  ||{}).value || 'solid',
+      navbar: (document.querySelector('input[name="cmp_navbar"]:checked')||{}).value || 'blur',
+      button: (document.querySelector('input[name="cmp_button"]:checked')||{}).value || 'rounded',
+    }
+  });
   // Save current UI state into the per-theme overrides map
   const currentTheme = payload.style_theme || 'default';
   if(!S.theme_overrides || typeof S.theme_overrides !== 'object') S.theme_overrides = {};

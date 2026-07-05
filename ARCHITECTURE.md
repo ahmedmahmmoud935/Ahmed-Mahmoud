@@ -149,6 +149,26 @@ same additive discipline. The infrastructure above already supports them.
   label, enabled) from `S.mobile_bar`, with a per-user dashboard editor. It lives
   in the *content/settings* layer. Wrapping either would be over-engineering.
 
+### Dashboard UI — ✅ wired (the "steering wheel")
+`admin.html` → Design tab now has a **"أشكال العناصر" (Component Shapes)** section:
+- Radio pickers for card (solid/glass/outline), navbar (blur/solid/transparent),
+  button (rounded/sharp/pill).
+- `saveDesign()` writes them to `theme_config.components`.
+- Verified round-trip: admin save → `settings_schema.normalize` keeps `theme_config`
+  → `get_settings` returns it → `resolveComponentVariants()` applies live.
+
+The engine now has its controls: a client can change component shapes from the
+dashboard and see them applied on the live site. No code edits needed per change.
+
+### Dynamic theme picker — ✅ wired
+`admin.html` Design tab now renders theme cards **dynamically from the registry**
+(`renderRegistryThemeCards()` → `/api/theme-registry`). Previously only `default`
+and `kinetic` were selectable; now editorial/minimal/creative/cinema/corporate —
+**and any future registry theme** — appear automatically as selectable cards.
+Realizes the core success criterion end-to-end: *add a theme in registry.json →
+it shows up in the dashboard → the client picks it → the site renders it*, with
+zero code changes.
+
 ### Phase 3 status: ✅ substantially complete
 Component-variant abstraction now covers every element that benefits from it:
 
