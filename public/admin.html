@@ -651,6 +651,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
   </div>
   <nav class="sb-nav">
     <div class="ni active" onclick="setTab('projects',this)"><i class="fa-solid fa-images"></i> <span data-i18n="nav.projects">المشاريع</span></div>
+    <div class="ni" onclick="setTab('highlights',this)"><i class="fa-solid fa-circle-play"></i> <span data-i18n="nav.highlights">هاي لايتس</span></div>
     <div class="ni" onclick="setTab('analytics',this)"><i class="fa-solid fa-chart-line"></i> <span data-i18n="nav.analytics">الإحصائيات</span></div>
     <div class="ni" onclick="setTab('categories',this)"><i class="fa-solid fa-tags"></i> <span data-i18n="nav.categories">التصنيفات</span></div>
     <div class="ni" onclick="setTab('design',this)"><i class="fa-solid fa-wand-magic-sparkles"></i> <span data-i18n="nav.design">التصميم</span></div>
@@ -1477,6 +1478,60 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
 </div>
 
 <!-- MOBILE BAR TAB -->
+<!-- HIGHLIGHTS TAB -->
+<div id="tab-highlights" style="display:none;">
+  <div class="ph">
+    <div><div class="pt">هاي لايتس</div><div class="ps">دوائر ستوري تظهر فوق قسم المشاريع — كل واحدة فيها صور/فيديوهات ولها اسم</div></div>
+    <button class="btn-add" onclick="openHighlightEditor(null)"><i class="fa-solid fa-plus"></i> هاي لايت جديد</button>
+  </div>
+  <div class="card"><div id="highlightsList"></div></div>
+</div>
+
+<!-- Highlight editor modal -->
+<div class="cart-modal" id="hlModal" onclick="if(event.target===this)closeHighlightEditor()">
+  <div class="cart-box" style="max-width:900px;height:auto;max-height:92vh">
+    <div class="cart-head">
+      <div class="cart-head-title"><i class="fa-solid fa-circle-play"></i><span id="hlModalTitle">هاي لايت جديد</span></div>
+      <button class="cart-x" onclick="closeHighlightEditor()">✕</button>
+    </div>
+    <div style="padding:22px;overflow-y:auto;display:flex;flex-direction:column;gap:18px">
+      <div style="display:grid;grid-template-columns:120px 1fr;gap:18px;align-items:start">
+        <div>
+          <label style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:8px">الغلاف</label>
+          <div id="hl_cover_preview" style="width:110px;height:110px;border-radius:50%;background:#0a0a0a;border:1px dashed #2a2a2a;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#444;font-size:26px;margin-bottom:8px"><i class="fa-solid fa-image"></i></div>
+          <input type="hidden" id="hl_cover_url" value="">
+          <input type="file" id="hl_cover_file" accept="image/*" style="display:none" onchange="hlUploadCover(this)">
+          <button type="button" onclick="document.getElementById('hl_cover_file').click()" style="width:110px;background:var(--o);border:none;color:#fff;padding:7px;border-radius:7px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700"><i class="fa-solid fa-upload"></i> رفع</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div><label style="font-size:11px;color:#888;display:block;margin-bottom:5px">الاسم (عربي)</label>
+            <input id="hl_title_ar" placeholder="مثلاً: تصاميم" style="width:100%;background:#0a0a0a;border:1px solid #222;border-radius:8px;padding:10px;color:#fff;font-family:inherit"></div>
+          <div><label style="font-size:11px;color:#888;display:block;margin-bottom:5px">Name (English)</label>
+            <input id="hl_title_en" dir="ltr" placeholder="e.g. Designs" style="width:100%;background:#0a0a0a;border:1px solid #222;border-radius:8px;padding:10px;color:#fff;font-family:inherit"></div>
+        </div>
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <label style="font-size:12px;font-weight:700;color:#ccc">الميديا (صور / فيديوهات)</label>
+          <div style="display:flex;gap:6px">
+            <button type="button" onclick="document.getElementById('hl_img_file').click()" style="background:#1a1a1a;border:1px solid #2a2a2a;color:#ccc;padding:7px 12px;border-radius:7px;cursor:pointer;font-family:inherit;font-size:12px"><i class="fa-solid fa-image"></i> صورة</button>
+            <button type="button" onclick="document.getElementById('hl_vid_file').click()" style="background:#1a1a1a;border:1px solid #2a2a2a;color:#ccc;padding:7px 12px;border-radius:7px;cursor:pointer;font-family:inherit;font-size:12px"><i class="fa-solid fa-video"></i> فيديو</button>
+          </div>
+        </div>
+        <input type="file" id="hl_img_file" accept="image/*" multiple style="display:none" onchange="hlAddMedia(this,'image')">
+        <input type="file" id="hl_vid_file" accept="video/*" style="display:none" onchange="hlAddMedia(this,'video')">
+        <div id="hl_media_list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:10px"></div>
+        <p style="font-size:11px;color:#666;margin-top:8px">أول عنصر يُستخدم كغلاف تلقائياً لو ما رفعتش غلاف. اسحب لإعادة الترتيب غير مدعوم — احذف وأضف بالترتيب اللي تحبه.</p>
+      </div>
+    </div>
+    <div class="cart-foot">
+      <button class="btn-save" onclick="saveHighlight()"><i class="fa-solid fa-floppy-disk"></i> حفظ الهاي لايت</button>
+      <button class="btn-cancel" onclick="closeHighlightEditor()">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE BAR TAB -->
 <div id="tab-mobilebar" style="display:none;">
   <div class="ph">
     <div><div class="pt">شريط الموبايل السفلي</div><div class="ps">3 اختصارات تظهر أسفل الموقع على الموبايل فقط — اختر القسم والأيقونة لكل زر</div></div>
@@ -2144,6 +2199,7 @@ const I18N = {
     'nav.sections': 'ترتيب الأقسام',
     'nav.navbar': 'الشريط العلوي',
     'nav.mobilebar': 'شريط الموبايل',
+    'nav.highlights': 'هاي لايتس',
     'nav.content': 'المحتوى',
     'nav.logos': 'العملاء',
     'nav.achievements': 'الإنجازات',
@@ -2755,6 +2811,7 @@ const I18N = {
     'nav.sections': 'Sections Order',
     'nav.navbar': 'Top Navbar',
     'nav.mobilebar': 'Mobile Bar',
+    'nav.highlights': 'Highlights',
     'nav.content': 'Content',
     'nav.logos': 'Clients',
     'nav.achievements': 'Achievements',
@@ -3514,7 +3571,7 @@ function setTab(tab,el,opts){
     if(m.classList.contains('cart-modal')) m.classList.remove('open');
     else if(m.style.display==='flex') m.style.display='none';
   });
-  ['projects','analytics','categories','colors','design','sections','navbar','mobilebar','content','logos','achievements','testimonials','articles','social','users'].forEach(t=>{
+  ['projects','highlights','analytics','categories','colors','design','sections','navbar','mobilebar','content','logos','achievements','testimonials','articles','social','users'].forEach(t=>{
     const d=document.getElementById('tab-'+t);if(d)d.style.display=t===tab?'block':'none';
   });
   if(tab==='navbar')renderNavbarList();
@@ -3528,6 +3585,7 @@ function setTab(tab,el,opts){
   if(tab==='testimonials')loadTestimonials();
   if(tab==='articles')loadClientArticles();
   if(tab==='mobilebar')loadMobileBarEditor();
+  if(tab==='highlights')loadHighlights();
   if(window.innerWidth<=900)toggleSidebar(false);
   // History — push so browser back returns to previous tab/section instead of forcing refresh
   if(!opts.fromPop){
@@ -5415,6 +5473,108 @@ async function saveMobileBar(){
     if(r.ok){ S.mobile_bar=payload.mobile_bar; toast('✓ تم حفظ شريط الموبايل'); }
     else toast('فشل الحفظ','error');
   }catch{ toast('خطأ في الاتصال','error'); }
+}
+
+// ══ HIGHLIGHTS ══
+let _highlights = [], _hlEditIdx = null, _hlItems = [];
+function loadHighlights(){
+  _highlights = Array.isArray(S.highlights) ? JSON.parse(JSON.stringify(S.highlights)) : [];
+  renderHighlightsList();
+}
+function renderHighlightsList(){
+  const wrap = document.getElementById('highlightsList'); if(!wrap) return;
+  if(!_highlights.length){
+    wrap.innerHTML = '<div style="text-align:center;padding:50px;color:#888"><i class="fa-solid fa-circle-play" style="font-size:34px;color:#333;display:block;margin-bottom:12px"></i>لا توجد هاي لايتس بعد<div style="font-size:12px;margin-top:4px">اضغط "هاي لايت جديد"</div></div>';
+    return;
+  }
+  wrap.innerHTML = _highlights.map((h,i)=>{
+    const title = h.title_ar || h.title_en || '(بدون اسم)';
+    const cover = h.cover_url || ((h.items||[])[0]||{}).url || '';
+    const cov = cover ? `<img src="${cover}" style="width:54px;height:54px;border-radius:50%;object-fit:cover">` : `<div style="width:54px;height:54px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#555"><i class="fa-solid fa-circle-play"></i></div>`;
+    return `<div style="display:flex;align-items:center;gap:14px;padding:12px;background:var(--d2);border:1px solid var(--d4);border-radius:10px;margin-bottom:10px">
+      ${cov}
+      <div style="flex:1"><div style="font-weight:800">${title}</div><div style="font-size:12px;color:#888">${(h.items||[]).length} عنصر</div></div>
+      <button class="be" title="تعديل" onclick="openHighlightEditor(${i})"><i class="fa-solid fa-pen"></i></button>
+      <button class="bd" title="حذف" onclick="deleteHighlight(${i})"><i class="fa-solid fa-trash"></i></button>
+    </div>`;
+  }).join('');
+}
+function openHighlightEditor(idx){
+  _hlEditIdx = idx;
+  const h = (idx!=null) ? _highlights[idx] : {title_ar:'',title_en:'',cover_url:'',items:[]};
+  document.getElementById('hlModalTitle').textContent = idx!=null ? 'تعديل هاي لايت' : 'هاي لايت جديد';
+  document.getElementById('hl_title_ar').value = h.title_ar||'';
+  document.getElementById('hl_title_en').value = h.title_en||'';
+  document.getElementById('hl_cover_url').value = h.cover_url||'';
+  document.getElementById('hl_cover_preview').innerHTML = h.cover_url ? `<img src="${h.cover_url}" style="width:100%;height:100%;object-fit:cover">` : '<i class="fa-solid fa-image"></i>';
+  _hlItems = JSON.parse(JSON.stringify(h.items||[]));
+  renderHlItems();
+  document.getElementById('hlModal').classList.add('open');
+}
+function closeHighlightEditor(){ document.getElementById('hlModal').classList.remove('open'); _hlEditIdx=null; }
+function renderHlItems(){
+  const wrap = document.getElementById('hl_media_list');
+  wrap.innerHTML = _hlItems.map((it,i)=>{
+    const thumb = it.type==='video'
+      ? `<video src="${it.url}" style="width:100%;height:100%;object-fit:cover" muted></video><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;text-shadow:0 1px 4px #000"><i class="fa-solid fa-play"></i></div>`
+      : `<img src="${it.url}" style="width:100%;height:100%;object-fit:cover">`;
+    return `<div style="position:relative;aspect-ratio:9/16;border-radius:8px;overflow:hidden;background:#0a0a0a;border:1px solid #222">
+      ${thumb}
+      <button onclick="hlRemoveMedia(${i})" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.7);border:none;color:#ff6b6b;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:12px">✕</button>
+    </div>`;
+  }).join('');
+}
+async function hlUploadCover(input){
+  const f=input.files[0]; if(!f) return;
+  const fd=new FormData(); fd.append('file',f); fd.append('kind','image');
+  toast('⏳ رفع الغلاف...');
+  try{
+    const r=await fetch('/api/upload',{method:'POST',credentials:'include',body:fd}).then(r=>r.json());
+    if(r.url){ document.getElementById('hl_cover_url').value=r.url; document.getElementById('hl_cover_preview').innerHTML=`<img src="${r.url}" style="width:100%;height:100%;object-fit:cover">`; toast('✓ تم'); }
+    else toast(r.error||'فشل','error');
+  }catch{ toast('خطأ','error'); }
+}
+async function hlAddMedia(input, type){
+  const files = Array.from(input.files||[]); if(!files.length) return;
+  for(const f of files){
+    const fd=new FormData(); fd.append('file',f); fd.append('kind', type==='video'?'video':'image');
+    toast('⏳ رفع الميديا...');
+    try{
+      const r=await fetch('/api/upload',{method:'POST',credentials:'include',body:fd}).then(r=>r.json());
+      if(r.url){ _hlItems.push({type, url:r.url}); renderHlItems(); }
+      else toast(r.error||'فشل الرفع','error');
+    }catch{ toast('خطأ في الرفع','error'); }
+  }
+  input.value='';
+  toast('✓ تمت الإضافة');
+}
+function hlRemoveMedia(i){ _hlItems.splice(i,1); renderHlItems(); }
+async function saveHighlight(){
+  const h = {
+    title_ar: document.getElementById('hl_title_ar').value.trim(),
+    title_en: document.getElementById('hl_title_en').value.trim(),
+    cover_url: document.getElementById('hl_cover_url').value.trim(),
+    items: _hlItems,
+  };
+  if(!h.title_ar && !h.title_en){ toast('⚠️ اكتب اسم للهاي لايت','error'); return; }
+  if(!h.items.length){ toast('⚠️ أضف صورة أو فيديو واحد على الأقل','error'); return; }
+  if(!h.cover_url) h.cover_url = h.items[0].url;
+  if(_hlEditIdx!=null) _highlights[_hlEditIdx] = h;
+  else _highlights.push(h);
+  try{
+    const r=await fetch('/api/settings',{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({highlights:_highlights})});
+    if(r.ok){ S.highlights=_highlights; toast('✓ تم حفظ الهاي لايت'); closeHighlightEditor(); renderHighlightsList(); }
+    else toast('فشل الحفظ','error');
+  }catch{ toast('خطأ في الاتصال','error'); }
+}
+async function deleteHighlight(i){
+  if(!confirm('حذف هذا الهاي لايت؟')) return;
+  _highlights.splice(i,1);
+  try{
+    const r=await fetch('/api/settings',{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({highlights:_highlights})});
+    if(r.ok){ S.highlights=_highlights; toast('✓ تم الحذف'); renderHighlightsList(); }
+    else toast('فشل','error');
+  }catch{ toast('خطأ','error'); }
 }
 
 // ══ CONTENT ══

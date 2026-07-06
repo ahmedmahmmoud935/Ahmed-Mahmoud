@@ -42,6 +42,7 @@ SCHEMA = {
     'sections':        {'type': 'list'},
     'navbar_links':    {'type': 'list'},
     'mobile_bar':      {'type': 'dict'},
+    'highlights':      {'type': 'list'},
 
     # Content blocks
     'content':         {'type': 'dict'},
