@@ -1590,10 +1590,15 @@ const ar=()=>LANG==='ar';
 const T={en:{back:'Back',gallery:'Gallery',all:'All',designs:'Designs',reels:'Reels',send:'Send Message',name:'Name',email:'Email',subject:'Subject',msg:'Message',noProjects:'No projects yet',rights:'All rights reserved.'},ar:{back:'رجوع',gallery:'المعرض',all:'الكل',designs:'تصاميم',reels:'ريلز',send:'إرسال الرسالة',name:'الاسم',email:'البريد الإلكتروني',subject:'الموضوع',msg:'رسالتك',noProjects:'لا توجد مشاريع بعد',rights:'جميع الحقوق محفوظة.'}};
 const t=k=>(T[LANG]||T.en)[k]||k;
 // Return the small WebP thumbnail variant of an uploaded image (grids/bubbles).
-// New uploads have <name>_t.webp; old images fall back via onerror to the original.
+// Works for local (/uploads/) and R2/CDN uploads. Old images / externals fall
+// back to the original via onerror. Never thumbnails videos.
 function thumbUrl(url){
-  if(!url || typeof url!=='string' || !url.startsWith('/uploads/')) return url;
+  if(!url || typeof url!=='string') return url;
+  const isOurs = url.startsWith('/uploads/') || /(r2\.dev|r2\.cloudflarestorage\.com|cdn\.)/i.test(url);
+  if(!isOurs) return url;
   const dot=url.lastIndexOf('.'); if(dot<0) return url;
+  const ext=url.slice(dot+1).toLowerCase();
+  if(['mp4','mov','webm','avi'].includes(ext)) return url;
   return url.slice(0,dot)+'_t.webp';
 }
 // <img> using the thumbnail with automatic fallback to the full image.

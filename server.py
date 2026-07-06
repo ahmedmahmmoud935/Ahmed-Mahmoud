@@ -39,6 +39,70 @@ BACKUP_DIR = '/var/data/backups'
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(BACKUP_DIR, exist_ok=True)
 
+# ── Cloudflare R2 (object storage + CDN) — optional, enabled via env vars ──
+# If not configured, the app transparently falls back to local disk (/uploads).
+R2_ENDPOINT   = os.environ.get('R2_ENDPOINT', '').rstrip('/')
+R2_BUCKET     = os.environ.get('R2_BUCKET', '')
+R2_ACCESS_KEY = os.environ.get('R2_ACCESS_KEY_ID', '')
+R2_SECRET_KEY = os.environ.get('R2_SECRET_ACCESS_KEY', '')
+R2_PUBLIC_URL = os.environ.get('R2_PUBLIC_URL', '').rstrip('/')
+R2_ENABLED    = bool(R2_ENDPOINT and R2_BUCKET and R2_ACCESS_KEY and R2_SECRET_KEY and R2_PUBLIC_URL)
+_r2_client = None
+def r2():
+    global _r2_client
+    if _r2_client is None:
+        import boto3
+        from botocore.config import Config
+        _r2_client = boto3.client(
+            's3', endpoint_url=R2_ENDPOINT,
+            aws_access_key_id=R2_ACCESS_KEY, aws_secret_access_key=R2_SECRET_KEY,
+            region_name='auto', config=Config(signature_version='s3v4'))
+    return _r2_client
+def _ctype(key):
+    k = key.lower()
+    if k.endswith('.webp'): return 'image/webp'
+    if k.endswith(('.jpg','.jpeg')): return 'image/jpeg'
+    if k.endswith('.png'): return 'image/png'
+    if k.endswith('.gif'): return 'image/gif'
+    if k.endswith('.mp4'): return 'video/mp4'
+    if k.endswith('.mov'): return 'video/quicktime'
+    if k.endswith('.webm'): return 'video/webm'
+    return 'application/octet-stream'
+def r2_put(local_path, key):
+    """Upload a local file to R2. Returns the public CDN URL or None on failure."""
+    try:
+        r2().upload_file(local_path, R2_BUCKET, key, ExtraArgs={
+            'ContentType': _ctype(key),
+            'CacheControl': 'public, max-age=31536000, immutable'})
+        return f'{R2_PUBLIC_URL}/{key}'
+    except Exception as e:
+        print(f'[r2] put failed for {key}: {e}'); return None
+def r2_delete(key):
+    try: r2().delete_object(Bucket=R2_BUCKET, Key=key)
+    except Exception as e: print(f'[r2] delete failed for {key}: {e}')
+def _is_r2_url(url):
+    return bool(R2_PUBLIC_URL) and isinstance(url, str) and url.startswith(R2_PUBLIC_URL + '/')
+def _finalize_media(fname, has_thumb=False):
+    """After a file (and optional _t.webp thumb) is written locally, push it to
+    R2 when configured and return (public_url, total_bytes). Falls back to the
+    local /uploads/ URL if R2 is off or the upload fails. Never raises."""
+    main_path = os.path.join(UPLOAD_DIR, fname)
+    total = os.path.getsize(main_path) if os.path.exists(main_path) else 0
+    thumb_fname = (fname.rsplit('.', 1)[0] + '_t.webp') if has_thumb else None
+    thumb_path  = os.path.join(UPLOAD_DIR, thumb_fname) if thumb_fname else None
+    if thumb_path and os.path.exists(thumb_path): total += os.path.getsize(thumb_path)
+    if R2_ENABLED:
+        url = r2_put(main_path, fname)
+        if url:
+            if thumb_path and os.path.exists(thumb_path): r2_put(thumb_path, thumb_fname)
+            for p in [main_path, thumb_path]:
+                if p and os.path.exists(p):
+                    try: os.remove(p)
+                    except Exception: pass
+            return url, total
+        # R2 failed → keep local copy, serve from /uploads
+    return f'/uploads/{fname}', total
+
 OWNER_USER = os.environ.get('ADMIN_USER', 'admin')
 OWNER_PASS = os.environ.get('ADMIN_PASS', 'admin123')
 OWNER_SECRET = os.environ.get('OWNER_SECRET', 'owner_secret_key')  # كلمة مرور صفحة /owner
@@ -1451,32 +1515,37 @@ def save_dataurl(dataurl, allowed, user_id=None):
         fname = f'{uuid.uuid4().hex}.{ext}'
         fpath = os.path.join(UPLOAD_DIR, fname)
         with open(fpath,'wb') as f: f.write(raw)
+        has_thumb = False
         if ext in ('jpg','jpeg','png','webp'):
             webp_fname = make_webp_variants(fpath)
             if webp_fname:
-                fname = webp_fname; fpath = os.path.join(UPLOAD_DIR, fname)
+                fname = webp_fname; has_thumb = True
             else:
                 optimize_image(fpath)  # fallback if PIL/webp unavailable
+        url, total = _finalize_media(fname, has_thumb=has_thumb)  # R2 or local
         if user_id:
-            total = os.path.getsize(fpath)
-            _tp = os.path.join(UPLOAD_DIR, fname.rsplit('.',1)[0] + '_t.webp')
-            if os.path.exists(_tp): total += os.path.getsize(_tp)
             db = get_db(); upd_storage(user_id, total, db); db.commit()
-        return f'/uploads/{fname}'
+        return url
     except Exception as e: print(f'save_dataurl: {e}'); return None
 
 def delete_file(url, user_id=None):
-    if url and url.startswith('/uploads/'):
-        base = os.path.basename(url)
-        stem = base.rsplit('.',1)[0]
-        # remove the file + its WebP thumbnail sibling
-        targets = [os.path.join(UPLOAD_DIR, base), os.path.join(UPLOAD_DIR, stem + '_t.webp')]
-        freed = 0
-        for p in targets:
+    if not url: return
+    freed = 0
+    if _is_r2_url(url):
+        key = url[len(R2_PUBLIC_URL) + 1:]
+        stem = key.rsplit('.', 1)[0]
+        for k in [key, stem + '_t.webp']:
+            try:
+                h = r2().head_object(Bucket=R2_BUCKET, Key=k); freed += h.get('ContentLength', 0)
+            except Exception: pass
+            r2_delete(k)
+    elif url.startswith('/uploads/'):
+        base = os.path.basename(url); stem = base.rsplit('.', 1)[0]
+        for p in [os.path.join(UPLOAD_DIR, base), os.path.join(UPLOAD_DIR, stem + '_t.webp')]:
             if os.path.exists(p):
                 freed += os.path.getsize(p); os.remove(p)
-        if user_id and freed:
-            db = get_db(); upd_storage(user_id, -freed, db); db.commit()
+    if user_id and freed:
+        db = get_db(); upd_storage(user_id, -freed, db); db.commit()
 
 @app.route('/api/upload', methods=['POST'])
 @login_required
@@ -1496,17 +1565,16 @@ def upload_file():
     fpath = os.path.join(UPLOAD_DIR, fname)
     try:
         f.save(fpath)
+        has_thumb = False
         if kind != 'video':
             webp_fname = make_webp_variants(fpath)
             if webp_fname:
-                fname = webp_fname; fpath = os.path.join(UPLOAD_DIR, fname)
+                fname = webp_fname; has_thumb = True
             else:
                 optimize_image(fpath)  # fallback if PIL/webp unavailable
-        total = os.path.getsize(fpath)
-        _tp = os.path.join(UPLOAD_DIR, fname.rsplit('.',1)[0] + '_t.webp')
-        if os.path.exists(_tp): total += os.path.getsize(_tp)
+        url, total = _finalize_media(fname, has_thumb=has_thumb)  # R2 or local
         upd_storage(user_id, total, db); db.commit()
-        return jsonify({'url':f'/uploads/{fname}'})
+        return jsonify({'url': url})
     except Exception as e: return jsonify({'error':str(e)}), 500
 
 # ── PROJECTS ──

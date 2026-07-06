@@ -461,7 +461,7 @@ function revealApp(){
 
 // ─── Markdown renderer (lightweight, safe) ───
 function esc(s){ if(s==null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function thumbUrl(url){ if(!url||typeof url!=='string'||!url.startsWith('/uploads/'))return url; const d=url.lastIndexOf('.'); return d<0?url:url.slice(0,d)+'_t.webp'; }
+function thumbUrl(url){ if(!url||typeof url!=='string')return url; const ours=url.startsWith('/uploads/')||/(r2\.dev|r2\.cloudflarestorage\.com|cdn\.)/i.test(url); if(!ours)return url; const d=url.lastIndexOf('.'); if(d<0)return url; const e=url.slice(d+1).toLowerCase(); if(['mp4','mov','webm','avi'].includes(e))return url; return url.slice(0,d)+'_t.webp'; }
 function markdownToHtml(md){
   if(!md) return '';
   let s = String(md).replace(/\r\n/g,'\n');
