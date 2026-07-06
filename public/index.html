@@ -185,11 +185,24 @@ body.btn-pill .btn-primary,body.btn-pill .btn-outline,body.btn-pill .btn-submit{
 /* Horizontal video card (when cover image is wider than tall) */
 .projects-grid.mode-video .project-card.horizontal{aspect-ratio:4/5;}
 .project-card{position:relative;overflow:hidden;cursor:pointer;background:#111;min-height:1px;}
-/* Card variants (driven by theme.components.card). pc-solid === default look. */
+/* Card variants (driven by theme.components.card). pc-solid === default look.
+   Project cards are fully covered by the image, so glass/outline render as a
+   visible FRAME around the cover (a bare backdrop-filter would be hidden). */
 .project-card.pc-solid{}
-.project-card.pc-glass{background:rgba(255,255,255,.04);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);border:1px solid rgba(255,255,255,.10);}
-.project-card.pc-outline{background:transparent;border:1px solid var(--border);}
-@media(max-width:600px){.project-card.pc-glass{backdrop-filter:none;-webkit-backdrop-filter:none;background:#111;}}
+.project-card.pc-glass{
+  background:rgba(255,255,255,.07);
+  backdrop-filter:blur(16px) saturate(160%);-webkit-backdrop-filter:blur(16px) saturate(160%);
+  border:1px solid rgba(255,255,255,.16);
+  padding:7px;box-shadow:0 10px 30px rgba(0,0,0,.28);
+}
+.project-card.pc-outline{
+  background:transparent;border:1.5px solid var(--border);padding:7px;
+}
+/* Round the cover inside the frame + inset the absolute video thumb so the frame shows */
+.project-card.pc-glass > img,.project-card.pc-outline > img{border-radius:6px;}
+.project-card.pc-glass .vid-thumb,.project-card.pc-outline .vid-thumb{inset:7px;border-radius:6px;overflow:hidden;}
+.project-card.pc-glass .project-overlay,.project-card.pc-outline .project-overlay{inset:7px;border-radius:6px;}
+@media(max-width:600px){.project-card.pc-glass{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(255,255,255,.09);}}
 /* Safety: ensure cards never collapse — applies even if mode-* class missing */
 .projects-grid .project-card{min-height:120px;}
 .projects-grid.mode-image .project-card img,.projects-grid.mode-video .project-card img{width:100%;height:100%;object-fit:cover;}
