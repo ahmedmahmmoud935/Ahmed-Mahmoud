@@ -201,8 +201,12 @@ body.btn-pill .btn-primary,body.btn-pill .btn-outline,body.btn-pill .btn-submit{
 .project-card.pc-outline{
   background:transparent;border:1.5px solid var(--border);padding:7px;
 }
-/* Round the cover inside the frame + inset the absolute video thumb so the frame shows */
-.project-card.pc-glass > img,.project-card.pc-outline > img{border-radius:6px;}
+/* Cover sits inside the frame. Use ABSOLUTE inset (not height:100%) so it always
+   renders — Safari fails to resolve height:100% under aspect-ratio + padding. */
+.project-card.pc-glass > img,.project-card.pc-outline > img{
+  position:absolute;inset:7px;width:auto!important;height:auto!important;
+  object-fit:cover;border-radius:6px;
+}
 .project-card.pc-glass .vid-thumb,.project-card.pc-outline .vid-thumb{inset:7px;border-radius:6px;overflow:hidden;}
 .project-card.pc-glass .project-overlay,.project-card.pc-outline .project-overlay{inset:7px;border-radius:6px;}
 /* Safety: ensure cards never collapse — applies even if mode-* class missing */
