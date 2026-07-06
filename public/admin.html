@@ -881,9 +881,7 @@ html[dir="ltr"] #adminMain{margin-right:0;margin-left:var(--sb);}
         <div class="tsw-tags"><span>glassmorphism</span><span>animated bg</span><span>grain</span><span>scroll-reveal</span></div>
       </div>
     </div>
-    <!-- Registry themes (rendered dynamically from themes/registry.json) -->
   </div>
-  <div class="theme-switcher" id="tsw-extra" style="margin-top:12px"></div>
 
   <!-- Kinetic Advanced Options (only visible when Kinetic theme is selected) -->
   <div id="kinetic-options" style="display:none;background:linear-gradient(135deg,rgba(34,211,238,.06),rgba(34,211,238,.02));border:1px solid rgba(34,211,238,.2);border-radius:14px;padding:18px;margin-bottom:18px;">
@@ -4097,47 +4095,7 @@ function renderComponentVariants(){
   });
 }
 
-// ══ Registry theme cards (dynamic — from themes/registry.json) ══
-let _REGISTRY_CACHE = null;
-async function renderRegistryThemeCards(){
-  const wrap = document.getElementById('tsw-extra');
-  if(!wrap) return;
-  try{
-    if(!_REGISTRY_CACHE){
-      _REGISTRY_CACHE = await fetch('/api/theme-registry', {cache:'no-store'}).then(r=>r.json());
-    }
-    const themes = (_REGISTRY_CACHE.themes || []).filter(t => t && t.id && !['default','kinetic'].includes(t.id));
-    if(!themes.length){ wrap.innerHTML=''; return; }
-    wrap.innerHTML = themes.map(t=>{
-      const accent = (t.tokens && t.tokens.accent) || '#888';
-      const nameAr = (t.name && (t.name.ar||t.name.en)) || t.id;
-      const comps  = t.components || {};
-      const lay    = t.layout || {};
-      const tags = [comps.card, comps.button, lay.hero, lay.projects].filter(Boolean)
-                     .map(x=>`<span>${x}</span>`).join('');
-      return `<div class="tsw-card" id="tsw-${t.id}" onclick="switchDesignTheme('${t.id}',true)">
-        <input type="radio" name="style_theme" value="${t.id}" style="display:none">
-        <button class="tsw-reset" title="إعادة هذا الثيم للافتراضي" onclick="event.stopPropagation();resetThisTheme('${t.id}')"><i class="fa-solid fa-rotate-left"></i></button>
-        <div class="tsw-preview" style="background:linear-gradient(135deg,${accent}22,${accent}05)">
-          <div class="tsw-bar" style="background:${accent}"></div>
-          <div class="tsw-content">
-            <div class="tsw-title" style="color:${accent}">${(t.name&&t.name.en)||t.id}</div>
-            <div class="tsw-sub">${nameAr}</div>
-          </div>
-        </div>
-        <div class="tsw-info">
-          <div class="tsw-name">${nameAr}</div>
-          <div class="tsw-desc">ثيم جاهز — أشكال وتخطيطات مضبوطة مسبقاً</div>
-          <div class="tsw-tags">${tags}</div>
-        </div>
-      </div>`;
-    }).join('');
-  }catch(e){ wrap.innerHTML=''; }
-}
-
-async function loadDesign(){
-  // Render registry theme cards FIRST so their radios exist before selection wiring
-  await renderRegistryThemeCards();
+function loadDesign(){
   // Render the smart palette picker
   renderPalettePicker();
   // Set radios from S
