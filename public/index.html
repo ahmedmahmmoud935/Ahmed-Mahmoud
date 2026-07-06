@@ -1589,6 +1589,19 @@ let LANG=localStorage.getItem('lang')||'en', S={}, PROJECTS=[], currentFilter='i
 const ar=()=>LANG==='ar';
 const T={en:{back:'Back',gallery:'Gallery',all:'All',designs:'Designs',reels:'Reels',send:'Send Message',name:'Name',email:'Email',subject:'Subject',msg:'Message',noProjects:'No projects yet',rights:'All rights reserved.'},ar:{back:'رجوع',gallery:'المعرض',all:'الكل',designs:'تصاميم',reels:'ريلز',send:'إرسال الرسالة',name:'الاسم',email:'البريد الإلكتروني',subject:'الموضوع',msg:'رسالتك',noProjects:'لا توجد مشاريع بعد',rights:'جميع الحقوق محفوظة.'}};
 const t=k=>(T[LANG]||T.en)[k]||k;
+// Return the small WebP thumbnail variant of an uploaded image (grids/bubbles).
+// New uploads have <name>_t.webp; old images fall back via onerror to the original.
+function thumbUrl(url){
+  if(!url || typeof url!=='string' || !url.startsWith('/uploads/')) return url;
+  const dot=url.lastIndexOf('.'); if(dot<0) return url;
+  return url.slice(0,dot)+'_t.webp';
+}
+// <img> using the thumbnail with automatic fallback to the full image.
+function thumbImg(url, cls='', extra=''){
+  if(!url) return '';
+  const full=String(url).replace(/'/g,'&#39;');
+  return `<img src="${thumbUrl(url)}" ${cls?`class="${cls}"`:''} loading="lazy" decoding="async" onerror="this.onerror=null;this.src='${full}'" ${extra}>`;
+}
 
 // Top-level paths that are NEVER usernames (mirror of server-side _RESERVED_PATHS)
 const _RESERVED = new Set(['admin','owner','api','uploads','u','testimonial','editor','landing',
@@ -2587,7 +2600,7 @@ function renderHighlights(a){
   const bubbles = _HL.map((h,i)=>{
     const name = a ? (h.title_ar||h.title_en||'') : (h.title_en||h.title_ar||'');
     const cover = h.cover_url || (h.items[0] && h.items[0].url) || '';
-    const inner = cover ? `<img src="${cover}" alt="${name}" loading="lazy">` : '<i class="fa-solid fa-circle-play"></i>';
+    const inner = cover ? `<img src="${thumbUrl(cover)}" alt="${name}" loading="lazy" onerror="this.onerror=null;this.src='${String(cover).replace(/'/g,'&#39;')}'">` : '<i class="fa-solid fa-circle-play"></i>';
     return `<div class="hl-item" onclick="openStory(${i})">
       <div class="hl-ring"><div class="hl-ring-inner">${inner}</div></div>
       <div class="hl-name">${name||'&nbsp;'}</div>
@@ -2913,7 +2926,7 @@ function renderProjects(){
       else if(url.includes('vimeo.com')){providerIcon='fa-brands fa-vimeo-v';providerColor='#1ab7ea';providerName='Vimeo';}
       else if(isEmbed(url)){providerIcon='fa-solid fa-film';providerColor='#888';providerName='Video';}
       const thumb=p.coverImage
-        ?`<div class="vid-thumb"><img src="${p.coverImage}" alt="${p.title}" loading="${loading}" fetchpriority="${fetchPri}" decoding="async"></div>`
+        ?`<div class="vid-thumb"><img src="${thumbUrl(p.coverImage)}" alt="${p.title}" loading="${loading}" fetchpriority="${fetchPri}" decoding="async" onerror="this.onerror=null;this.src='${String(p.coverImage).replace(/'/g,'&#39;')}'"></div>`
         :`<div class="vid-thumb" style="position:absolute;inset:0;background:linear-gradient(135deg,#0f0f0f,#1f1f1f);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;"><i class="${providerIcon}" style="font-size:42px;color:${providerColor};opacity:0.8;"></i>${providerName?`<div style="font-size:11px;color:#666;font-weight:600;text-transform:uppercase;letter-spacing:1px;">${providerName}</div>`:''}</div>`;
       return ProjectCard({onclick:`openVideoLightbox(${ri})`, inner:`
         ${thumb}
@@ -2936,7 +2949,7 @@ function renderProjects(){
       else if(url.includes('vimeo.com')){ providerIcon='fa-brands fa-vimeo-v'; providerColor='#1ab7ea'; providerName='Vimeo'; }
       else if(isEmbed(url)){ providerIcon='fa-solid fa-film'; providerColor='#888'; providerName='Video'; }
       const thumb=p.coverImage
-        ?`<div class="vid-thumb"><img src="${p.coverImage}" alt="${p.title}" loading="${loading}" fetchpriority="${fetchPri}" decoding="async"></div>`
+        ?`<div class="vid-thumb"><img src="${thumbUrl(p.coverImage)}" alt="${p.title}" loading="${loading}" fetchpriority="${fetchPri}" decoding="async" onerror="this.onerror=null;this.src='${String(p.coverImage).replace(/'/g,'&#39;')}'"></div>`
         :`<div class="vid-thumb" style="position:absolute;inset:0;background:linear-gradient(135deg,#0f0f0f,#1f1f1f);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;"><i class="${providerIcon}" style="font-size:42px;color:${providerColor};opacity:0.8;"></i>${providerName?`<div style="font-size:11px;color:#666;font-weight:600;text-transform:uppercase;letter-spacing:1px;">${providerName}</div>`:''}</div>`;
       return ProjectCard({onclick:`openVideoLightbox(${ri})`, inner:`
         ${thumb}
@@ -2955,7 +2968,7 @@ function renderProjects(){
     const fetchPri = idx < 4 ? 'high' : 'auto';
     const imgs=p.images||[];
     const thumbSrc=p.coverImage||imgs[0]||'';
-    const th=thumbSrc?`<img src="${thumbSrc}" alt="${p.title}" loading="${loading}" fetchpriority="${fetchPri}" decoding="async">`:`<div class="proj-ph"><i class="fa-solid fa-image"></i></div>`;
+    const th=thumbSrc?`<img src="${thumbUrl(thumbSrc)}" alt="${p.title}" loading="${loading}" fetchpriority="${fetchPri}" decoding="async" onerror="this.onerror=null;this.src='${String(thumbSrc).replace(/'/g,'&#39;')}'">`:`<div class="proj-ph"><i class="fa-solid fa-image"></i></div>`;
     return ProjectCard({onclick:`openProject(${ri})`, inner:`${th}
       <div class="project-overlay"><div class="p-title">${p.title}</div><div class="p-cat">${p.category}</div></div>
     `});

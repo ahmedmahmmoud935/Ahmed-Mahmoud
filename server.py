@@ -1407,6 +1407,33 @@ def optimize_image(path, max_dim=1920, q=82):
         img.save(path, **kw)
     except Exception as e: print(f'optimize error: {e}')
 
+def make_webp_variants(src_path, max_dim=1920, thumb_dim=640, q=82):
+    """Convert an uploaded raster image to WebP: a main (<=1920px) + a thumbnail
+    (<=640px, `_t.webp`). Deletes the source on success. Returns the main webp
+    filename (basename) or None if skipped/failed. Animated GIF / SVG untouched."""
+    if not HAS_PIL: return None
+    try:
+        ext = src_path.rsplit('.',1)[-1].lower()
+        if ext in ('gif','svg'): return None  # keep animation/vector as-is
+        img = ImageOps.exif_transpose(Image.open(src_path))
+        # WebP supports alpha; only flatten palette 'P' to RGBA for clean output
+        if img.mode == 'P': img = img.convert('RGBA')
+        base = os.path.splitext(src_path)[0]
+        main_path  = base + '.webp'
+        thumb_path = base + '_t.webp'
+        m = img.copy()
+        if m.width > max_dim or m.height > max_dim: m.thumbnail((max_dim, max_dim), Image.LANCZOS)
+        m.save(main_path, 'WEBP', quality=q, method=6)
+        t = img.copy()
+        t.thumbnail((thumb_dim, thumb_dim), Image.LANCZOS)
+        t.save(thumb_path, 'WEBP', quality=78, method=6)
+        if os.path.abspath(src_path) != os.path.abspath(main_path) and os.path.exists(src_path):
+            os.remove(src_path)
+        return os.path.basename(main_path)
+    except Exception as e:
+        print(f'webp convert error: {e}')
+        return None
+
 def save_dataurl(dataurl, allowed, user_id=None):
     if not dataurl or not isinstance(dataurl, str): return None
     m = re.match(r'data:([^;]+);base64,(.+)', dataurl, re.DOTALL)
@@ -1424,20 +1451,32 @@ def save_dataurl(dataurl, allowed, user_id=None):
         fname = f'{uuid.uuid4().hex}.{ext}'
         fpath = os.path.join(UPLOAD_DIR, fname)
         with open(fpath,'wb') as f: f.write(raw)
-        if ext in ('jpg','jpeg','png','webp'): optimize_image(fpath)
+        if ext in ('jpg','jpeg','png','webp'):
+            webp_fname = make_webp_variants(fpath)
+            if webp_fname:
+                fname = webp_fname; fpath = os.path.join(UPLOAD_DIR, fname)
+            else:
+                optimize_image(fpath)  # fallback if PIL/webp unavailable
         if user_id:
-            db = get_db(); upd_storage(user_id, os.path.getsize(fpath), db); db.commit()
+            total = os.path.getsize(fpath)
+            _tp = os.path.join(UPLOAD_DIR, fname.rsplit('.',1)[0] + '_t.webp')
+            if os.path.exists(_tp): total += os.path.getsize(_tp)
+            db = get_db(); upd_storage(user_id, total, db); db.commit()
         return f'/uploads/{fname}'
     except Exception as e: print(f'save_dataurl: {e}'); return None
 
 def delete_file(url, user_id=None):
     if url and url.startswith('/uploads/'):
-        p = os.path.join(UPLOAD_DIR, os.path.basename(url))
-        if os.path.exists(p):
-            sz = os.path.getsize(p)
-            os.remove(p)
-            if user_id:
-                db = get_db(); upd_storage(user_id, -sz, db); db.commit()
+        base = os.path.basename(url)
+        stem = base.rsplit('.',1)[0]
+        # remove the file + its WebP thumbnail sibling
+        targets = [os.path.join(UPLOAD_DIR, base), os.path.join(UPLOAD_DIR, stem + '_t.webp')]
+        freed = 0
+        for p in targets:
+            if os.path.exists(p):
+                freed += os.path.getsize(p); os.remove(p)
+        if user_id and freed:
+            db = get_db(); upd_storage(user_id, -freed, db); db.commit()
 
 @app.route('/api/upload', methods=['POST'])
 @login_required
@@ -1457,8 +1496,16 @@ def upload_file():
     fpath = os.path.join(UPLOAD_DIR, fname)
     try:
         f.save(fpath)
-        if kind != 'video': optimize_image(fpath)
-        upd_storage(user_id, os.path.getsize(fpath), db); db.commit()
+        if kind != 'video':
+            webp_fname = make_webp_variants(fpath)
+            if webp_fname:
+                fname = webp_fname; fpath = os.path.join(UPLOAD_DIR, fname)
+            else:
+                optimize_image(fpath)  # fallback if PIL/webp unavailable
+        total = os.path.getsize(fpath)
+        _tp = os.path.join(UPLOAD_DIR, fname.rsplit('.',1)[0] + '_t.webp')
+        if os.path.exists(_tp): total += os.path.getsize(_tp)
+        upd_storage(user_id, total, db); db.commit()
         return jsonify({'url':f'/uploads/{fname}'})
     except Exception as e: return jsonify({'error':str(e)}), 500
 

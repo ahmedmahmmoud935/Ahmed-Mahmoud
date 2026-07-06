@@ -386,7 +386,7 @@ function renderList(){
     const title = ar()?(a.title_ar||a.title_en):(a.title_en||a.title_ar);
     const excerpt = ar()?(a.excerpt_ar||a.excerpt_en):(a.excerpt_en||a.excerpt_ar);
     const cover = a.cover_url
-      ? `<img src="${a.cover_url}" alt="${esc(title)}" loading="lazy">`
+      ? `<img src="${thumbUrl(a.cover_url)}" alt="${esc(title)}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='${String(a.cover_url).replace(/'/g,'&#39;')}'">`
       : `<div class="art-cover-ph"><i class="fa-solid fa-newspaper"></i></div>`;
     const dateStr = (a.created_at||'').slice(0,10);
     const tags = (a.tags || []).slice(0,3).map(t=>`<span class="art-tag">${esc(t)}</span>`).join('');
@@ -461,6 +461,7 @@ function revealApp(){
 
 // ─── Markdown renderer (lightweight, safe) ───
 function esc(s){ if(s==null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function thumbUrl(url){ if(!url||typeof url!=='string'||!url.startsWith('/uploads/'))return url; const d=url.lastIndexOf('.'); return d<0?url:url.slice(0,d)+'_t.webp'; }
 function markdownToHtml(md){
   if(!md) return '';
   let s = String(md).replace(/\r\n/g,'\n');
