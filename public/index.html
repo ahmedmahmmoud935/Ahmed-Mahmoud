@@ -963,11 +963,15 @@ body[data-theme="kinetic"]::after{
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='5'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .35 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
   opacity:.03;
 }
-body[data-theme="kinetic"] section{
+/* Force sections transparent so the animated bg shows through — BUT NOT #hero,
+   whose cover image is an inline background (the !important shorthand would wipe
+   it to black). Hero without a cover is transparent by default anyway. */
+body[data-theme="kinetic"] section:not(#hero){
   background:transparent!important;
   position:relative;
   overflow-x:clip;
 }
+body[data-theme="kinetic"] #hero{position:relative;overflow-x:clip;}
 /* MOBILE — kill all expensive paint effects in Kinetic theme to stop scroll flicker */
 @media(max-width:900px){
   body[data-theme="kinetic"]::before,
