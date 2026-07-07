@@ -47,6 +47,8 @@ R2_ACCESS_KEY = os.environ.get('R2_ACCESS_KEY_ID', '')
 R2_SECRET_KEY = os.environ.get('R2_SECRET_ACCESS_KEY', '')
 R2_PUBLIC_URL = os.environ.get('R2_PUBLIC_URL', '').rstrip('/')
 R2_ENABLED    = bool(R2_ENDPOINT and R2_BUCKET and R2_ACCESS_KEY and R2_SECRET_KEY and R2_PUBLIC_URL)
+# Separate PRIVATE bucket for off-site DB backups (never public). Optional.
+R2_BACKUP_BUCKET = os.environ.get('R2_BACKUP_BUCKET', '')
 _r2_client = None
 def r2():
     global _r2_client
@@ -134,11 +136,28 @@ def auto_backup():
                 if os.path.exists(DB_PATH):
                     stamp = datetime.now().strftime('%Y%m%d_%H%M%S')
                     dst = os.path.join(BACKUP_DIR, f'portfolio_{stamp}.db')
-                    shutil.copy2(DB_PATH, dst)
+                    # Consistent snapshot (WAL-safe) via SQLite's online backup API
+                    _src = sqlite3.connect(DB_PATH); _bk = sqlite3.connect(dst)
+                    with _bk: _src.backup(_bk)
+                    _bk.close(); _src.close()
                     bks = sorted(f for f in os.listdir(BACKUP_DIR) if f.endswith('.db'))
                     while len(bks) > 7:
                         try: os.remove(os.path.join(BACKUP_DIR, bks.pop(0)))
                         except: pass
+                    # Off-site copy to a PRIVATE R2 bucket (survives disk loss). Never public.
+                    if R2_BACKUP_BUCKET:
+                        try:
+                            key = f'db/portfolio_{stamp}.db'
+                            r2().upload_file(dst, R2_BACKUP_BUCKET, key,
+                                             ExtraArgs={'ContentType': 'application/octet-stream'})
+                            # keep last 30 off-site backups
+                            objs = r2().list_objects_v2(Bucket=R2_BACKUP_BUCKET, Prefix='db/').get('Contents', [])
+                            keys = sorted(o['Key'] for o in objs)
+                            for k in keys[:-30]:
+                                try: r2().delete_object(Bucket=R2_BACKUP_BUCKET, Key=k)
+                                except Exception: pass
+                        except Exception as e:
+                            print(f'[backup] R2 off-site failed: {e}')
                     # Cleanup old visits (keep 1 year)
                     try:
                         c = sqlite3.connect(DB_PATH)
@@ -155,9 +174,11 @@ auto_backup()
 
 # ── DB DEFAULTS ──
 def get_db():
-    c = sqlite3.connect(DB_PATH)
+    c = sqlite3.connect(DB_PATH, timeout=10)
     c.row_factory = sqlite3.Row
     c.execute('PRAGMA foreign_keys = ON')
+    c.execute('PRAGMA journal_mode = WAL')   # readers don't block writers (multi-tenant)
+    c.execute('PRAGMA busy_timeout = 5000')  # wait up to 5s on a lock instead of erroring
     return c
 
 DEFAULT_COLORS   = json.dumps({"accent":"#F97316","bg":"#0A0A0A","bg2":"#111111","text":"#FFFFFF","subtext":"#999999"})
@@ -427,12 +448,14 @@ def init_db():
                 aspect_ratio TEXT DEFAULT '9:16',
                 video_kind   TEXT DEFAULT 'reel'
             );
+            CREATE INDEX IF NOT EXISTS idx_projects_user ON projects(user_id, sort_order);
             CREATE TABLE IF NOT EXISTS project_images (
                 id         INTEGER PRIMARY KEY AUTOINCREMENT,
                 project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
                 url        TEXT NOT NULL,
                 sort_order INTEGER DEFAULT 0
             );
+            CREATE INDEX IF NOT EXISTS idx_project_images_pid ON project_images(project_id, sort_order);
             CREATE TABLE IF NOT EXISTS domains (
                 user_id    INTEGER UNIQUE NOT NULL,
                 domain     TEXT UNIQUE NOT NULL,
@@ -3356,7 +3379,16 @@ def db_backup_download():
     if not os.path.exists(DB_PATH):
         return jsonify({'error': 'Database not found'}), 404
     stamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    return send_file(DB_PATH, as_attachment=True,
+    # WAL-consistent snapshot before download
+    tmp = os.path.join(BACKUP_DIR, '_download_snapshot.db')
+    try:
+        if os.path.exists(tmp): os.remove(tmp)
+        _src = sqlite3.connect(DB_PATH); _bk = sqlite3.connect(tmp)
+        with _bk: _src.backup(_bk)
+        _bk.close(); _src.close()
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    return send_file(tmp, as_attachment=True,
                      download_name=f'portfolio_backup_{stamp}.db',
                      mimetype='application/octet-stream')
 
