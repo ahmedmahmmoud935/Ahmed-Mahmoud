@@ -129,44 +129,48 @@ def record_fail(ip): _login_attempts[ip].append(time.time())
 def reset_attempts(ip): _login_attempts[ip].clear()
 
 # ── AUTO BACKUP ──
+def run_backup(cleanup_visits=True):
+    """Take one WAL-consistent DB snapshot: local rotation + optional off-site R2.
+    Returns a report dict. Safe to call from the loop or an admin endpoint."""
+    rep = {'ok': False, 'local': None, 'r2': None, 'r2_error': None}
+    if not os.path.exists(DB_PATH):
+        rep['r2_error'] = 'DB not found'; return rep
+    stamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    dst = os.path.join(BACKUP_DIR, f'portfolio_{stamp}.db')
+    _src = sqlite3.connect(DB_PATH); _bk = sqlite3.connect(dst)
+    with _bk: _src.backup(_bk)
+    _bk.close(); _src.close()
+    rep['local'] = dst; rep['ok'] = True
+    bks = sorted(f for f in os.listdir(BACKUP_DIR) if f.startswith('portfolio_') and f.endswith('.db'))
+    while len(bks) > 7:
+        try: os.remove(os.path.join(BACKUP_DIR, bks.pop(0)))
+        except: pass
+    # Off-site copy to a PRIVATE R2 bucket (survives disk loss). Never public.
+    if R2_BACKUP_BUCKET:
+        try:
+            key = f'db/portfolio_{stamp}.db'
+            r2().upload_file(dst, R2_BACKUP_BUCKET, key, ExtraArgs={'ContentType': 'application/octet-stream'})
+            rep['r2'] = key
+            objs = r2().list_objects_v2(Bucket=R2_BACKUP_BUCKET, Prefix='db/').get('Contents', [])
+            keys = sorted(o['Key'] for o in objs)
+            for k in keys[:-30]:
+                try: r2().delete_object(Bucket=R2_BACKUP_BUCKET, Key=k)
+                except Exception: pass
+        except Exception as e:
+            rep['r2_error'] = str(e); print(f'[backup] R2 off-site failed: {e}')
+    if cleanup_visits:
+        try:
+            c = sqlite3.connect(DB_PATH)
+            c.execute("DELETE FROM visits WHERE visited_at < datetime('now','-365 days')")
+            c.commit(); c.close()
+        except: pass
+    return rep
+
 def auto_backup():
     def _loop():
         while True:
-            try:
-                if os.path.exists(DB_PATH):
-                    stamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-                    dst = os.path.join(BACKUP_DIR, f'portfolio_{stamp}.db')
-                    # Consistent snapshot (WAL-safe) via SQLite's online backup API
-                    _src = sqlite3.connect(DB_PATH); _bk = sqlite3.connect(dst)
-                    with _bk: _src.backup(_bk)
-                    _bk.close(); _src.close()
-                    bks = sorted(f for f in os.listdir(BACKUP_DIR) if f.endswith('.db'))
-                    while len(bks) > 7:
-                        try: os.remove(os.path.join(BACKUP_DIR, bks.pop(0)))
-                        except: pass
-                    # Off-site copy to a PRIVATE R2 bucket (survives disk loss). Never public.
-                    if R2_BACKUP_BUCKET:
-                        try:
-                            key = f'db/portfolio_{stamp}.db'
-                            r2().upload_file(dst, R2_BACKUP_BUCKET, key,
-                                             ExtraArgs={'ContentType': 'application/octet-stream'})
-                            # keep last 30 off-site backups
-                            objs = r2().list_objects_v2(Bucket=R2_BACKUP_BUCKET, Prefix='db/').get('Contents', [])
-                            keys = sorted(o['Key'] for o in objs)
-                            for k in keys[:-30]:
-                                try: r2().delete_object(Bucket=R2_BACKUP_BUCKET, Key=k)
-                                except Exception: pass
-                        except Exception as e:
-                            print(f'[backup] R2 off-site failed: {e}')
-                    # Cleanup old visits (keep 1 year)
-                    try:
-                        c = sqlite3.connect(DB_PATH)
-                        c.execute("DELETE FROM visits WHERE visited_at < datetime('now','-365 days')")
-                        c.commit()
-                        c.close()
-                    except: pass
-            except Exception as e:
-                print(f'Backup error: {e}')
+            try: run_backup()
+            except Exception as e: print(f'Backup error: {e}')
             time.sleep(6 * 3600)
     threading.Thread(target=_loop, daemon=True).start()
 
@@ -3369,6 +3373,25 @@ def resolve_user():
 # Download a full copy of the database. Protected by a secret key.
 # Usage: https://yoursite.onrender.com/api/db-backup?key=YOUR_SECRET
 # The secret comes from the BACKUP_KEY env var (set it in Render dashboard).
+@app.route('/api/backup-now')
+def backup_now():
+    """Trigger one backup immediately + report where it went (verify R2 off-site)."""
+    secret = os.environ.get('BACKUP_KEY', '')
+    given  = request.args.get('key', '')
+    if not secret or given != secret:
+        return jsonify({'error': 'Unauthorized'}), 403
+    try:
+        rep = run_backup(cleanup_visits=False)
+        return jsonify({
+            'ok': rep['ok'],
+            'local_saved': bool(rep['local']),
+            'r2_backup_bucket': R2_BACKUP_BUCKET or '(not configured)',
+            'r2_saved_key': rep['r2'],
+            'r2_error': rep['r2_error'],
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/db-backup')
 def db_backup_download():
     secret = os.environ.get('BACKUP_KEY', '')
