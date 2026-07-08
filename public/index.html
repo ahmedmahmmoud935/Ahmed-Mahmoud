@@ -2030,31 +2030,12 @@ function setupKineticEffects(){
   document.querySelectorAll('.kin-blob,.kin-ring,.kin-pulse,.kin-line,.kin-marquee').forEach(el=>el.remove());
 
   if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  // On mobile / touch devices: ornaments + scroll-parallax cause repaint flicker around image-heavy sections (projects)
-  // Skip ornaments entirely on small screens — keep the theme's colors/typography intact, just no animated shapes
   const isMobile = window.innerWidth <= 900 || matchMedia('(pointer:coarse)').matches;
   if(isMobile) return;
 
-  // Variety of decorative ornaments distributed across sections
-  // Each section gets a random selection so the page feels alive end-to-end
-  const ornamentSets = [
-    ['kin-blob kin-blob-1','kin-ring kin-ring-1','kin-pulse kin-pulse-1'],
-    ['kin-blob kin-blob-2','kin-line kin-line-1','kin-pulse kin-pulse-2'],
-    ['kin-blob kin-blob-3','kin-ring kin-ring-2'],
-    ['kin-blob kin-blob-1','kin-line kin-line-2'],
-    ['kin-blob kin-blob-2','kin-pulse kin-pulse-1','kin-ring kin-ring-1'],
-    ['kin-blob kin-blob-3','kin-line kin-line-1'],
-  ];
-  document.querySelectorAll('main section, #mainPage section').forEach((sec, idx) => {
-    const ornaments = ornamentSets[idx % ornamentSets.length];
-    ornaments.forEach(cls => {
-      const el = document.createElement('div');
-      el.className = cls;
-      sec.prepend(el);
-    });
-  });
-
-  // Hero — also gets cursor spotlight (desktop only) and a marquee strip
+  // CLEAN & RESTRAINED: no scattered shapes / name marquee (that clutter made the
+  // theme feel busy & incoherent). The refined animated feel comes from the CSS
+  // gradient background + scroll-reveal + a single subtle cursor spotlight in the hero.
   const hero = document.getElementById('hero');
   if(hero && window.matchMedia('(pointer:fine)').matches){
     hero.addEventListener('mousemove', e => {
@@ -2063,32 +2044,6 @@ function setupKineticEffects(){
       hero.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
     });
   }
-  if(hero && !document.querySelector('.kin-marquee')){
-    const heroName = (document.querySelector('.hero-name')?.textContent || 'Portfolio').trim();
-    const m = document.createElement('div');
-    m.className = 'kin-marquee';
-    m.style.bottom = '0';
-    m.innerHTML = `<div class="kin-marquee-track">${Array(6).fill(`<span>${heroName}</span>`).join('')}</div>`;
-    hero.appendChild(m);
-  }
-
-  // Parallax — gently translate decorative shapes on scroll
-  let ticking = false;
-  const onScroll = () => {
-    if(ticking) return;
-    ticking = true;
-    requestAnimationFrame(() => {
-      const scroll = window.scrollY;
-      document.querySelectorAll('.kin-blob').forEach((b, i) => {
-        b.style.transform = `translateY(${scroll * 0.04 * (i % 2 ? -1 : 1)}px)`;
-      });
-      document.querySelectorAll('.kin-ring').forEach((r, i) => {
-        r.style.translate = `0 ${scroll * 0.06 * (i % 2 ? 1 : -1)}px`;
-      });
-      ticking = false;
-    });
-  };
-  window.addEventListener('scroll', onScroll, {passive:true});
 }
 
 // Set --accent-rgb whenever accent changes (for rgba() use in kinetic styles)
