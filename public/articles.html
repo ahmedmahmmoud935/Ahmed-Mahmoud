@@ -85,9 +85,7 @@ main{flex:1;padding-top:140px;padding-bottom:80px}
 .art-excerpt{font-size:14px;color:var(--tx2);line-height:1.7;flex:1}
 .art-tag{display:inline-block;background:var(--bg3);color:var(--tx3);font-size:11px;padding:4px 9px;border-radius:6px;margin-top:12px;margin-inline-end:5px}
 .art-card.draft{opacity:.55;border-style:dashed}
-/* ArticleCard variants (driven by theme.components.card). ac-solid === default.
-   No backdrop-filter (Safari hides child <img> under backdrop-filter+overflow:hidden). */
-.art-card.ac-glass{background:linear-gradient(135deg,rgba(255,255,255,.10),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.16);box-shadow:0 10px 30px rgba(0,0,0,.22)}
+/* ArticleCard variants. ac-solid === default; outline adds a border. (glass removed) */
 .art-card.ac-outline{background:transparent;border:1px solid var(--brd)}
 .art-draft-badge{background:#f59e0b;color:#000;font-size:10px;font-weight:800;padding:3px 8px;border-radius:5px;margin-inline-start:6px}
 
@@ -130,29 +128,6 @@ main{flex:1;padding-top:140px;padding-bottom:80px}
 .footer-mini-copy{color:var(--tx3);font-size:12px}
 .footer-mini-copy a{color:var(--o);font-weight:700}
 
-/* ─── KINETIC THEME OVERRIDES (matches landing/portfolio Kinetic) ─── */
-@keyframes art-gradient-flow{0%,100%{background-position:0% 50%,100% 50%}50%{background-position:100% 50%,0% 50%}}
-body[data-design="kinetic"]{position:relative;background:var(--bg)!important}
-body[data-design="kinetic"]::before{
-  content:'';position:fixed;inset:-20%;z-index:-2;pointer-events:none;
-  background:
-    radial-gradient(ellipse 70% 55% at 25% 25%,rgba(var(--accent-rgb,249,115,22),.10),transparent 70%),
-    radial-gradient(ellipse 60% 50% at 80% 75%,rgba(var(--accent-rgb,249,115,22),.08),transparent 70%);
-  background-size:180% 180%,180% 180%;background-attachment:fixed;
-  animation:art-gradient-flow 60s ease-in-out infinite;filter:blur(40px)
-}
-body[data-design="kinetic"]::after{
-  content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='5'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .35 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-  opacity:.035;mix-blend-mode:overlay
-}
-body[data-design="kinetic"] .nav{background:rgba(var(--bg-rgb,10,10,10),.55)!important;backdrop-filter:blur(24px) saturate(180%)}
-body[data-design="kinetic"] .art-card{background:rgba(255,255,255,.04)!important;backdrop-filter:blur(20px) saturate(180%);border:1px solid rgba(255,255,255,.10);box-shadow:0 8px 32px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.06)}
-body[data-design="kinetic"] .art-card:hover{background:rgba(255,255,255,.06)!important;border-color:rgba(var(--accent-rgb,249,115,22),.40);box-shadow:0 14px 40px rgba(var(--accent-rgb,249,115,22),.18)}
-body[data-design="kinetic"] .article-cover img{border:1px solid rgba(255,255,255,.10);box-shadow:0 30px 80px rgba(0,0,0,.4)}
-body[data-design="kinetic"] .article-content blockquote{background:rgba(255,255,255,.04);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.06);border-inline-start:4px solid var(--o)}
-body[data-design="kinetic"] .article-content pre{background:rgba(255,255,255,.03);backdrop-filter:blur(10px);border-color:rgba(255,255,255,.08)}
-body[data-design="kinetic"] .footer-mini{background:rgba(var(--bg-rgb,10,10,10),.60)!important;backdrop-filter:blur(16px)}
 </style>
 </head>
 <body>
@@ -269,6 +244,7 @@ async function resolveArticleCardVariant(){
     if(th && th.components && th.components.card) _AC_VARIANT = th.components.card;
     const ov = (DATA.theme_config && DATA.theme_config.components && DATA.theme_config.components.card);
     if(ov) _AC_VARIANT = ov;
+    if(_AC_VARIANT === 'glass') _AC_VARIANT = 'solid';  // glass removed
   }catch(_){}
 }
 
@@ -296,8 +272,7 @@ function applyTheme(){
     if(colors.bg2) root.setProperty('--bg2', colors.bg2);
     if(colors.text) root.setProperty('--tx', colors.text);
     if(colors.subtext) root.setProperty('--tx3', colors.subtext);
-    // Theme preset → use 'kinetic' as design when style_theme is 'kinetic'
-    document.body.dataset.design = (DATA.style_theme === 'kinetic') ? 'kinetic' : 'modern';
+    document.body.dataset.design = 'modern';
   }
 }
 

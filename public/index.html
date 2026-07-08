@@ -186,19 +186,8 @@ body.btn-pill .btn-primary,body.btn-pill .btn-outline,body.btn-pill .btn-submit{
 .projects-grid.mode-video .project-card.horizontal{aspect-ratio:4/5;}
 .project-card{position:relative;overflow:hidden;cursor:pointer;background:#111;min-height:1px;}
 /* Card variants (driven by theme.components.card). pc-solid === default look.
-   Project cards are fully covered by the image, so glass/outline render as a
-   visible FRAME around the cover (a bare backdrop-filter would be hidden). */
+   Cover stays full-bleed; outline adds only an accent border. (glass removed) */
 .project-card.pc-solid{}
-/* NOTE: no backdrop-filter here on purpose — Safari hides child <img> when a
-   backdrop-filter element also has overflow:hidden. Frosted look via translucent
-   gradient frame instead (robust across browsers). */
-/* IMPORTANT: the cover is NEVER repositioned or covered — it stays full-bleed
-   exactly like pc-solid (which always renders). Glass/outline add ONLY an accent
-   border + shadow, so the project cover can never be hidden. */
-.project-card.pc-glass{
-  border:1px solid rgba(255,255,255,.30);
-  box-shadow:0 8px 28px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.10);
-}
 .project-card.pc-outline{
   border:2px solid var(--border);
 }
@@ -2287,6 +2276,7 @@ async function resolveComponentVariants(){
     const override  = (S.theme_config && S.theme_config.components) || {};
     const pick = (key, def) => override[key] || fromTheme[key] || def;
     _CARD_VARIANT   = pick('card', 'solid');
+    if(_CARD_VARIANT === 'glass') _CARD_VARIANT = 'solid';  // glass card removed
     _NAVBAR_VARIANT = pick('navbar', 'blur');
     _BUTTON_VARIANT = pick('button', 'rounded');
   }catch(_){}

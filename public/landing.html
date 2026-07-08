@@ -496,135 +496,6 @@ body[data-design="editorial"] .cta-box{border-radius:2px}
 
 /* ─── MODERN: current design (default) — no overrides needed ─── */
 
-/* ═══════════════════════════════════════════════════════════
-   KINETIC — Glassmorphism + animated gradient + premium feel
-   ═══════════════════════════════════════════════════════════ */
-@keyframes kl-gradient-flow{
-  0%,100%{background-position:0% 50%,100% 50%}
-  50%{background-position:100% 50%,0% 50%}
-}
-body[data-design="kinetic"]{position:relative;background:var(--bg)!important;}
-body[data-design="kinetic"]::before{
-  content:'';position:fixed;inset:-20%;z-index:-2;pointer-events:none;
-  background:
-    radial-gradient(ellipse 70% 55% at 25% 25%,rgba(var(--accent-rgb,249,115,22),.10),transparent 70%),
-    radial-gradient(ellipse 60% 50% at 80% 75%,rgba(var(--accent-rgb,249,115,22),.08),transparent 70%);
-  background-size:180% 180%,180% 180%;
-  background-attachment:fixed;
-  animation:kl-gradient-flow 60s ease-in-out infinite;
-  filter:blur(40px);
-}
-body[data-design="kinetic"]::after{
-  content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='5'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .35 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-  opacity:.035;mix-blend-mode:overlay;
-}
-/* Glass nav */
-body[data-design="kinetic"] .nav{
-  background:rgba(var(--bg-rgb,10,10,10),.55)!important;
-  backdrop-filter:blur(24px) saturate(180%);
-  -webkit-backdrop-filter:blur(24px) saturate(180%);
-  border-bottom:1px solid rgba(255,255,255,.08);
-}
-/* Hero — luxury layout: title left-aligned with generous spacing, image/video on the right */
-body[data-design="kinetic"] .hero{padding:160px 0 110px;}
-body[data-design="kinetic"] .hero::before{display:none;}
-body[data-design="kinetic"] .hero-inner{text-align:start;max-width:780px;margin:0;}
-body[data-design="kinetic"] .hero-inner.align-center{text-align:center;margin:0 auto;}
-body[data-design="kinetic"] .hero-inner.align-end{text-align:end;margin-inline-start:auto;margin-inline-end:0;}
-body[data-design="kinetic"] .hero-actions{justify-content:flex-start;}
-body[data-design="kinetic"] .hero-inner.align-center .hero-actions{justify-content:center;}
-body[data-design="kinetic"] .hero-inner.align-end .hero-actions{justify-content:flex-end;}
-body[data-design="kinetic"] .hero-sub{margin-left:0;margin-right:0;max-width:560px;}
-body[data-design="kinetic"] .hero-inner.align-center .hero-sub{margin:0 auto 38px;}
-body[data-design="kinetic"] h1{letter-spacing:-1.5px;}
-body[data-design="kinetic"] .hero-badge{
-  background:rgba(255,255,255,.05);backdrop-filter:blur(12px);
-  border:1px solid rgba(var(--accent-rgb,249,115,22),.30);
-}
-body[data-design="kinetic"] .hero-image,
-body[data-design="kinetic"] .hero-video-wrap{
-  border:1px solid rgba(255,255,255,.10)!important;
-  box-shadow:0 30px 80px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.06);
-  border-radius:22px;
-}
-
-/* Glassmorphism on all cards */
-body[data-design="kinetic"] .feature-card,
-body[data-design="kinetic"] .plan,
-body[data-design="kinetic"] .testi-card,
-body[data-design="kinetic"] .stat-card,
-body[data-design="kinetic"] .ex-card,
-body[data-design="kinetic"] .faq-item,
-body[data-design="kinetic"] .contact-info,
-body[data-design="kinetic"] .contact-form,
-body[data-design="kinetic"] .proj-feat,
-body[data-design="kinetic"] .cform-field input,
-body[data-design="kinetic"] .cform-field textarea{
-  background:rgba(255,255,255,.04)!important;
-  backdrop-filter:blur(20px) saturate(180%)!important;
-  -webkit-backdrop-filter:blur(20px) saturate(180%)!important;
-  border:1px solid rgba(255,255,255,.10)!important;
-  border-radius:18px!important;
-  box-shadow:0 8px 32px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.06)!important;
-}
-body[data-design="kinetic"] .feature-card:hover,
-body[data-design="kinetic"] .plan:hover,
-body[data-design="kinetic"] .testi-card:hover,
-body[data-design="kinetic"] .stat-card:hover,
-body[data-design="kinetic"] .ex-card:hover,
-body[data-design="kinetic"] .proj-feat:hover{
-  background:rgba(255,255,255,.06)!important;
-  border-color:rgba(var(--accent-rgb,249,115,22),.40)!important;
-  box-shadow:0 14px 40px rgba(var(--accent-rgb,249,115,22),.18),inset 0 1px 0 rgba(255,255,255,.10)!important;
-}
-/* Card-decoration overrides */
-body[data-design="kinetic"] .feature-card::before,
-body[data-design="kinetic"] .stat-card::before{display:none;}
-body[data-design="kinetic"] .plan.popular{
-  border-color:rgba(var(--accent-rgb,249,115,22),.50)!important;
-  background:linear-gradient(180deg,rgba(var(--accent-rgb,249,115,22),.08),rgba(255,255,255,.04) 40%)!important;
-}
-/* Sections — transparent so animated bg shows through */
-body[data-design="kinetic"] .sec{background:transparent!important;}
-body[data-design="kinetic"] #features,
-body[data-design="kinetic"] #pricing,
-body[data-design="kinetic"] #contact,
-body[data-design="kinetic"] #faq{background:transparent!important;}
-/* Project showcase media frame */
-body[data-design="kinetic"] .proj-media{
-  background:rgba(255,255,255,.03)!important;
-  backdrop-filter:blur(10px);
-  border:1px solid rgba(255,255,255,.10);
-  box-shadow:0 30px 70px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.06);
-}
-/* Icon containers — glass spheres */
-body[data-design="kinetic"] .feature-icon,
-body[data-design="kinetic"] .stat-icon,
-body[data-design="kinetic"] .proj-feat-icon{
-  background:linear-gradient(135deg,rgba(var(--accent-rgb,249,115,22),.18),rgba(var(--accent-rgb,249,115,22),.04))!important;
-  border:1px solid rgba(var(--accent-rgb,249,115,22),.25)!important;
-  box-shadow:0 4px 16px rgba(var(--accent-rgb,249,115,22),.12),inset 0 1px 0 rgba(255,255,255,.08)!important;
-}
-/* Buttons — glass + accent ring */
-body[data-design="kinetic"] .btn-pri{
-  box-shadow:0 12px 30px rgba(var(--accent-rgb,249,115,22),.32),inset 0 1px 0 rgba(255,255,255,.10);
-}
-body[data-design="kinetic"] .btn-sec{
-  background:rgba(255,255,255,.04);
-  backdrop-filter:blur(12px);
-  border-color:rgba(255,255,255,.18);
-}
-body[data-design="kinetic"] .btn-sec:hover{
-  background:rgba(255,255,255,.08);
-  border-color:var(--o);
-}
-/* Footer glass */
-body[data-design="kinetic"] .footer{
-  background:rgba(var(--bg-rgb,10,10,10),.60)!important;
-  backdrop-filter:blur(20px);
-  border-top:1px solid rgba(255,255,255,.06);
-}
 /* Helper: --accent-rgb + --bg-rgb derived from style colors. Set via JS in applyStyle */
 
 /* Animation */
@@ -725,8 +596,10 @@ function _hexToRGB(hex){
 // Apply the customizable theme (design + colors + fonts) by overriding CSS vars
 function applyStyle(){
   const s = (DATA && DATA.style) || {};
-  // Design preset (changes layout/shapes/typography wholesale)
-  document.body.dataset.design = s.design || 'modern';
+  // Design preset (changes layout/shapes/typography wholesale). Kinetic removed → modern.
+  let _design = s.design || 'modern';
+  if(_design === 'kinetic') _design = 'modern';
+  document.body.dataset.design = _design;
   const r = document.documentElement.style;
   // RGB versions for rgba() use in glassmorphism rules
   if(s.primary_color){const rgb = _hexToRGB(s.primary_color); if(rgb) r.setProperty('--accent-rgb', rgb);}

@@ -4054,8 +4054,8 @@ function renderComponentVariants(){
   if(!wrap) return;
   const cfg = (S.theme_config && S.theme_config.components) || {};
   const groups = [
-    {name:'cmp_card',   label:'شكل الكروت',        icon:'fa-table-cells-large', def:cfg.card||'solid',
-     opts:[['solid','مصمت'],['glass','زجاجي'],['outline','إطار']]},
+    {name:'cmp_card',   label:'شكل الكروت',        icon:'fa-table-cells-large', def:(cfg.card==='glass'?'solid':(cfg.card||'solid')),
+     opts:[['solid','مصمت'],['outline','إطار']]},
     {name:'cmp_navbar', label:'الشريط العلوي',     icon:'fa-window-maximize',   def:cfg.navbar||'blur',
      opts:[['blur','ضبابي'],['solid','مصمت'],['transparent','شفاف']]},
     {name:'cmp_button', label:'شكل الأزرار',       icon:'fa-hand-pointer',      def:cfg.button||'rounded',
